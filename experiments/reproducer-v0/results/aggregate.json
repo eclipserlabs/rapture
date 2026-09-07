@@ -10,7 +10,7 @@
   "reduced_atoms": 18,
   "atom_reduction_ratio": 0.9305019305019305,
   "total_reducer_trials": 271,
-  "total_reducer_wall_ms": 38.874735,
+  "total_reducer_wall_ms": 37.153199,
   "total_wrong_failure_rejected": 17,
   "total_wrong_failure_accepted": 0,
   "total_live_effects": 0,

@@ -30,10 +30,9 @@ failure fingerprint reliably?
   `wiramahendra`. The tree was clean, history intact, and all baseline commands
   behaved as documented, so lineage was treated as the same lab lineage with a
   different remote string — recorded here, not a stop condition.
-- Runtime note: the experiment ran on Node v20.19.5, not Node 22+ (repo
-  `engines` wants >=22). The experiment uses no Node-22-only APIs
-  (plain ESM, `node:crypto`, `node:test`, `node:child_process`), so this is a
-  documented deviation, not a validity threat. Re-run on Node 22 is cheap.
+- Runtime note (original run): the experiment ran on Node v20.19.5, not Node
+  22+ (repo `engines` wants >=22). Closed by the Node 22 conformance rerun
+  below (Appendix A); the deviation no longer stands.
 - Manifest: `MANIFEST.json`, hash
   `82d38d866d022da759bd07c208f96157a19515bd459e76c17ddeb904a10750c6`.
 
@@ -273,5 +272,32 @@ into a materially smaller (here −81% bytes, −93% atoms), portable executable
 artifact that repeatedly reproduces the same failure (here 160/160 fresh
 processes) without live dependencies — within the V0 single-process
 deterministic boundary, on synthetic incidents.
+
+## Appendix A — V0 Protocol Closure (Node 22 conformance + lineage)
+
+Recorded 2026-09-07 during V1 Phase 0. No V0 implementation file was altered
+before these checks; the frozen `MANIFEST.json` (hash `82d38d…c6`) was reused
+as-is and `run-all.js` re-verified every capture hash against it.
+
+- Node: v22.14.0 (via nvm), pnpm 10.12.1.
+- Full experiment rerun under Node 22: 8/8 full captures 20/20 (160/160),
+  8/8 reduced artifacts 20/20 portable (160/160), 0 wrong-failure acceptances
+  (17 candidates correctly rejected), 0 live effects, 271 ddmin trials,
+  259→18 atoms (−93.1%), 33188→6197 bytes (−81.3%), min causal recall 1.00.
+- Node 20 vs Node 22 diff: only millisecond timing fields differ
+  (`reducer_wall_ms` 38.87 → 37.15 total; per-scenario replay medians/p95
+  within the same sub-ms band). No material change; V0 interpretation stands.
+- V0 unit tests under Node 22: 14/14 pass. Procedural note: bare `node --test
+  test/` discovery behaves differently on Node 22 than Node 20 in this repo;
+  the conforming invocation is `node --test "test/*.test.js"` (same files,
+  same assertions, all green).
+- Workspace under Node 22: `pnpm build` OK, `pnpm typecheck` OK, `pnpm test`
+  OK (40+11+5), `pnpm check` identical pre-existing 30/59/173 in `archive/*`.
+- Lineage: `git ls-remote https://github.com/rapture-fx/rapture` returns HEAD
+  = `refs/heads/main` = `a2f012afd6e1f548c53853c15cd9ccb54a530f9b`, identical
+  to the local base SHA. The V0 branch is exactly that SHA plus the single
+  V0 research commit. **Canonical repository: rapture-fx/rapture; local
+  `origin` (wiramahendra/rapture) is a mirror holding identical objects.**
+  Lineage gate: PASS. V0 protocol: PASS (not BLOCKED).
 
 RAPTURE_REPRODUCER_V0_STATUS=CONTINUE
