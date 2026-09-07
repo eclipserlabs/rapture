@@ -1,0 +1,28 @@
+{
+  "nonmonotonic": {
+    "slow_absent_fast_present_pass_count": 12,
+    "slow_absent_fast_absent_fail_count": 11,
+    "flip_demonstrated": true
+  },
+  "masked": {
+    "n2_absent_partners_present_pass_count": 5,
+    "n2_absent_partner_absent_fail_count": 21,
+    "flip_demonstrated": true
+  },
+  "jointPair": {
+    "accepted_trials_dropping_both_flags": 0,
+    "rejected_single_flag_trials": 24,
+    "diagnosis": "round-robin chunking + complement-first bias: noise-dropping complements that retain both flags keep passing, so the pair is never jointly dropped; single-flag drops fail (wrong failure or missing ambient)."
+  },
+  "altSets": {
+    "forward_greedy_db_core": [
+      "db:legacy:ban_c",
+      "db:legacy:ban_d"
+    ],
+    "reversed_greedy_db_core": [
+      "db:users:ban_a",
+      "db:users:ban_b"
+    ],
+    "distinct_valid_cores": true
+  }
+}

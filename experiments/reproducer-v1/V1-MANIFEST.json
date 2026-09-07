@@ -1,0 +1,518 @@
+{
+  "experiment": "reproducer-v1",
+  "frozen_at": "2026-09-07T15:05:20.693Z",
+  "code_version": "5acf271421ef2afdddec433bd18c007d99b3067c",
+  "freeze_rules": "Adversarial definitions, corpus criteria, algorithms, scoring, and gates below are frozen before headline execution. After the headline run starts, changes are allowed only for a demonstrated harness correctness defect, and substantive changes invalidate the affected cohort (reported, not silently re-frozen).",
+  "adversarial_cohort": {
+    "scenarios": [
+      {
+        "id": "adv-joint-pair",
+        "topology": "jointly-removable-pair",
+        "title": "Jointly removable config pair with default-deny",
+        "description": "STRICT_A and STRICT_B together throw E_POLICY_CONFLICT before any boundary call. Removing exactly one diverts into a poisoned single-policy path (wrong failure); removing both reaches the same target via default-deny. Naive single-deletion sees each flag as required; only joint deletion succeeds.",
+        "code_version": "5acf271421ef2afdddec433bd18c007d99b3067c",
+        "expected_failure_fingerprint": {
+          "failure_kind": "APPLICATION",
+          "error_code": "E_POLICY_CONFLICT",
+          "message_class": "POLICY_CONFLICT",
+          "top_frame": "validate-policy",
+          "fingerprint_hash": "e37022a340f0a6c82b0350bd7f02d01164127e29a0538958d79b5b7e4d98b1b4"
+        },
+        "capture_hash": "9fdd6a0c03b589fd57939256e12bec476a910ff270be8a84e2d3d3084fc807f8",
+        "original_atom_count": 15,
+        "original_event_count": 5,
+        "original_db_row_count": 4,
+        "original_config_key_count": 4,
+        "removable_input_field_count": 2,
+        "original_bytes": 1758,
+        "ground_truth": {
+          "must": [],
+          "any_of": [
+            [
+              "cfg:STRICT_A",
+              "cfg:STRICT_B"
+            ],
+            []
+          ],
+          "trigger": []
+        }
+      },
+      {
+        "id": "adv-alt-sets",
+        "topology": "alternative-causal-sets",
+        "title": "Two independent sustaining ban pairs",
+        "description": "Either {users:ban_a, users:ban_b} or {legacy:ban_c, legacy:ban_d} (both banned) sustains E_ACCESS_REVOKED. Multiple valid reduced reproducers exist; greedy keeps whichever pair survives its deletion order.",
+        "code_version": "5acf271421ef2afdddec433bd18c007d99b3067c",
+        "expected_failure_fingerprint": {
+          "failure_kind": "APPLICATION",
+          "error_code": "E_ACCESS_REVOKED",
+          "message_class": "ACCESS_REVOKED",
+          "top_frame": "check-ban",
+          "fingerprint_hash": "4b168bc09f4915a3c82f64dba4fe9a4ac280f714082c07fe0e7e014f2ab05b1f"
+        },
+        "capture_hash": "fd10e4d4629ca440bd8985865555016e7d2ba820131187acb76cb8ab6d79065d",
+        "original_atom_count": 16,
+        "original_event_count": 3,
+        "original_db_row_count": 10,
+        "original_config_key_count": 2,
+        "removable_input_field_count": 1,
+        "original_bytes": 1720,
+        "ground_truth": {
+          "must": [],
+          "any_of": [
+            [
+              "db:users:ban_a",
+              "db:users:ban_b"
+            ],
+            [
+              "db:legacy:ban_c",
+              "db:legacy:ban_d"
+            ]
+          ],
+          "trigger": []
+        }
+      },
+      {
+        "id": "adv-one-of-n",
+        "topology": "at-least-one-of-n",
+        "title": "Five interchangeable stale credentials",
+        "description": "Any one of five stale credential rows triggers E_ROTATION_REQUIRED. No specific row is individually mandatory; the reducer must retain at least one.",
+        "code_version": "5acf271421ef2afdddec433bd18c007d99b3067c",
+        "expected_failure_fingerprint": {
+          "failure_kind": "APPLICATION",
+          "error_code": "E_ROTATION_REQUIRED",
+          "message_class": "ROTATION_REQUIRED",
+          "top_frame": "check-creds",
+          "fingerprint_hash": "235ba68c5b268cef886dadbe37099b62f7b43a21bcc447d840dbe24d304fc8d0"
+        },
+        "capture_hash": "47ce6fed809106b2f03db8ed168a2ffe0411bd26a54eb8972d9f81b3961666f7",
+        "original_atom_count": 16,
+        "original_event_count": 3,
+        "original_db_row_count": 10,
+        "original_config_key_count": 2,
+        "removable_input_field_count": 1,
+        "original_bytes": 1705,
+        "ground_truth": {
+          "must": [],
+          "any_of": [
+            [
+              "db:creds:k1"
+            ],
+            [
+              "db:creds:k2"
+            ],
+            [
+              "db:creds:k3"
+            ],
+            [
+              "db:creds:k4"
+            ],
+            [
+              "db:creds:k5"
+            ]
+          ],
+          "trigger": []
+        }
+      },
+      {
+        "id": "adv-sequence",
+        "topology": "sequence-dependent",
+        "title": "Chained auth-refresh-finalize with decoys",
+        "description": "E_FINALIZE_CONFLICT requires the data chain auth->refresh->finalize; decoy responses for the same operations with different keys must be dropped while the ordered chain is preserved.",
+        "code_version": "5acf271421ef2afdddec433bd18c007d99b3067c",
+        "expected_failure_fingerprint": {
+          "failure_kind": "APPLICATION",
+          "error_code": "E_FINALIZE_CONFLICT",
+          "message_class": "FINALIZE_CONFLICT",
+          "top_frame": "commit-doc",
+          "fingerprint_hash": "5ee97162e8749ca9f2d4c9cc7835be88a307b98812ca36a97d2092daaded5271"
+        },
+        "capture_hash": "b79c562138b02026d3696b5261513215888e88754828d32e0abfef4e6e8588f0",
+        "original_atom_count": 16,
+        "original_event_count": 8,
+        "original_db_row_count": 4,
+        "original_config_key_count": 2,
+        "removable_input_field_count": 2,
+        "original_bytes": 2106,
+        "ground_truth": {
+          "must": [
+            "evt:http:auth:{\"user\":\"u_4\"}",
+            "evt:http:refresh:{\"t\":\"t1\"}",
+            "evt:http:finalize:{\"t\":\"t2\"}"
+          ],
+          "any_of": [],
+          "trigger": []
+        }
+      },
+      {
+        "id": "adv-nonmonotonic",
+        "topology": "non-monotonic-removal",
+        "title": "Fast/slow read paths with context-dependent relevance",
+        "description": "FAST_PATH selects between a poisoned cache row and a poisoned store row (both lead to E_DATA_POISONED). The store row is removable while FAST_PATH holds but becomes required once FAST_PATH is gone: predicate non-monotonicity the search must survive.",
+        "code_version": "5acf271421ef2afdddec433bd18c007d99b3067c",
+        "expected_failure_fingerprint": {
+          "failure_kind": "APPLICATION",
+          "error_code": "E_DATA_POISONED",
+          "message_class": "DATA_POISONED",
+          "top_frame": "read-path",
+          "fingerprint_hash": "27f15bcd27cba373862e8f055cbeabce5b5f7d04f326759df2f8b155f9999ec2"
+        },
+        "capture_hash": "06115c376a99b83b019be16784da35c471def1743c5beb7205a65f02ff551868",
+        "original_atom_count": 12,
+        "original_event_count": 3,
+        "original_db_row_count": 6,
+        "original_config_key_count": 2,
+        "removable_input_field_count": 1,
+        "original_bytes": 1467,
+        "ground_truth": {
+          "must": [],
+          "any_of": [
+            [
+              "cfg:FAST_PATH",
+              "db:cache:k_fast"
+            ],
+            [
+              "db:store:k_slow"
+            ]
+          ],
+          "trigger": []
+        }
+      },
+      {
+        "id": "adv-nested",
+        "topology": "nested-payload-interaction",
+        "title": "Nested role+status combination inside one payload",
+        "description": "E_ACCOUNT_SUSPENDED needs role=admin AND status=suspended within a single profile payload. Deletion-level reduction keeps the whole event; field-level shrinking is out of scope for the headline comparison (exploratory only).",
+        "code_version": "5acf271421ef2afdddec433bd18c007d99b3067c",
+        "expected_failure_fingerprint": {
+          "failure_kind": "APPLICATION",
+          "error_code": "E_ACCOUNT_SUSPENDED",
+          "message_class": "ACCOUNT_SUSPENDED",
+          "top_frame": "load-profile",
+          "fingerprint_hash": "fcac129727c86691bc3efcbd5b4391697b8973967b30e604fca16a475cfc4f53"
+        },
+        "capture_hash": "ea691df0e512600174be43a4b1096313f9ebb2c18461c5c5363d325cd18f9bb7",
+        "original_atom_count": 12,
+        "original_event_count": 5,
+        "original_db_row_count": 4,
+        "original_config_key_count": 2,
+        "removable_input_field_count": 1,
+        "original_bytes": 1754,
+        "ground_truth": {
+          "must": [
+            "evt:http:profile:{\"user\":\"u_6\"}"
+          ],
+          "any_of": [],
+          "trigger": []
+        }
+      },
+      {
+        "id": "adv-config-3way",
+        "topology": "config-interaction",
+        "title": "Three-way region/tier/mode interaction",
+        "description": "E_STORE_UNSUPPORTED requires REGION=eu AND TIER=std AND MODE=strict jointly; removing any one diverts to a working store. Six unrelated keys are noise.",
+        "code_version": "5acf271421ef2afdddec433bd18c007d99b3067c",
+        "expected_failure_fingerprint": {
+          "failure_kind": "APPLICATION",
+          "error_code": "E_STORE_UNSUPPORTED",
+          "message_class": "STORE_UNSUPPORTED",
+          "top_frame": "select-store",
+          "fingerprint_hash": "6e0fae53cb1383b387672d5d0b619137c857a1da3f7c528e6749ff2c3b1427e6"
+        },
+        "capture_hash": "3f5625bbe8d3a92132ecb1dff0347dcadb8e5e8450eefa4a66eba08d8cc9f49f",
+        "original_atom_count": 17,
+        "original_event_count": 3,
+        "original_db_row_count": 4,
+        "original_config_key_count": 9,
+        "removable_input_field_count": 1,
+        "original_bytes": 1461,
+        "ground_truth": {
+          "must": [
+            "cfg:REGION",
+            "cfg:TIER",
+            "cfg:MODE"
+          ],
+          "any_of": [],
+          "trigger": []
+        }
+      },
+      {
+        "id": "adv-dupe-responses",
+        "topology": "duplicate-equivalent-responses",
+        "title": "One requested quote among interchangeable recordings",
+        "description": "Three ambient quote responses look interchangeable with the requested one; only the requested key sustains E_PRICE_BREACH under keyed replay.",
+        "code_version": "5acf271421ef2afdddec433bd18c007d99b3067c",
+        "expected_failure_fingerprint": {
+          "failure_kind": "APPLICATION",
+          "error_code": "E_PRICE_BREACH",
+          "message_class": "PRICE_BREACH",
+          "top_frame": "check-quote",
+          "fingerprint_hash": "8e688d26120adecc471400c7a32ad8a7cfb813a4ffc44abd581f094d27cd0f87"
+        },
+        "capture_hash": "e6002e3a38c6cf1f6c89f1cbb69770fd750647bbd96b09b13b9580d55eff494d",
+        "original_atom_count": 13,
+        "original_event_count": 6,
+        "original_db_row_count": 4,
+        "original_config_key_count": 2,
+        "removable_input_field_count": 1,
+        "original_bytes": 1841,
+        "ground_truth": {
+          "must": [
+            "evt:http:quote:{\"item\":\"it_1\"}"
+          ],
+          "any_of": [],
+          "trigger": []
+        }
+      },
+      {
+        "id": "adv-error-paths",
+        "topology": "multiple-error-paths",
+        "title": "Order pipeline where every bad cut raises a different error",
+        "description": "Removing the user, item, merchant, or charge evidence each triggers a distinct wrong application exception (plus setup failures), stressing fingerprint strictness: only the exact E_CHARGE_FAILED may be accepted.",
+        "code_version": "5acf271421ef2afdddec433bd18c007d99b3067c",
+        "expected_failure_fingerprint": {
+          "failure_kind": "APPLICATION",
+          "error_code": "E_CHARGE_FAILED",
+          "message_class": "CHARGE_FAILED",
+          "top_frame": "settle-order",
+          "fingerprint_hash": "949caf42bccc523a04bf252f00d4581a4e237de5de1c9ba8720a22b20ed508c2"
+        },
+        "capture_hash": "b656a6efe6ee5db31976173657928c6b5005bd4d76e4945aa556d651eae96c3a",
+        "original_atom_count": 14,
+        "original_event_count": 5,
+        "original_db_row_count": 6,
+        "original_config_key_count": 2,
+        "removable_input_field_count": 1,
+        "original_bytes": 1832,
+        "ground_truth": {
+          "must": [
+            "db:users:u_9",
+            "db:stock:it_9",
+            "cfg:MERCHANT_ID",
+            "evt:http:charge:{\"item\":\"it_9\",\"user\":\"u_9\"}"
+          ],
+          "any_of": [],
+          "trigger": []
+        }
+      },
+      {
+        "id": "adv-large-interact",
+        "topology": "large-noisy-interaction",
+        "title": "Large capture with interacting core",
+        "description": "About 150 atoms: a jointly-removable flag pair plus a mandatory two-event ticket chain, buried in ambient/db/config/input noise. Tests whether chunk deletion materially beats single-pass greedy on trials and size.",
+        "code_version": "5acf271421ef2afdddec433bd18c007d99b3067c",
+        "expected_failure_fingerprint": {
+          "failure_kind": "APPLICATION",
+          "error_code": "E_POLICY_CONFLICT",
+          "message_class": "POLICY_CONFLICT",
+          "top_frame": "validate-policy",
+          "fingerprint_hash": "e37022a340f0a6c82b0350bd7f02d01164127e29a0538958d79b5b7e4d98b1b4"
+        },
+        "capture_hash": "1b963d6b2c8eec1d949364210b75b7db7d4ca9f16771952a88025bbf4bb9528f",
+        "original_atom_count": 144,
+        "original_event_count": 103,
+        "original_db_row_count": 26,
+        "original_config_key_count": 10,
+        "removable_input_field_count": 5,
+        "original_bytes": 20794,
+        "ground_truth": {
+          "must": [
+            "evt:http:ticket:{\"seat\":\"A1\"}",
+            "evt:http:redeem:{\"id\":\"k1\"}"
+          ],
+          "any_of": [
+            [
+              "cfg:FLAG_P",
+              "cfg:FLAG_Q"
+            ],
+            []
+          ],
+          "trigger": []
+        }
+      },
+      {
+        "id": "adv-repeat-poll",
+        "topology": "ordered-repeated-boundary",
+        "title": "Repeated polls where only the third occurrence triggers",
+        "description": "The same poll operation is recorded five times; attempts 1-2 are path-necessary (pending), attempt 3 triggers E_JOB_FAILED, attempts 4-5 are ambient window traffic. The reducer must keep the ordered prefix through the trigger.",
+        "code_version": "5acf271421ef2afdddec433bd18c007d99b3067c",
+        "expected_failure_fingerprint": {
+          "failure_kind": "APPLICATION",
+          "error_code": "E_JOB_FAILED",
+          "message_class": "JOB_FAILED",
+          "top_frame": "await-job",
+          "fingerprint_hash": "6f4d091727ffa40a87d3c8a725ca999e64efc674dd5605ee8e4704694484660e"
+        },
+        "capture_hash": "e9b405b4147af46188f9fd84c0605bf3adef830106e4e45bf6d61e13ece97059",
+        "original_atom_count": 14,
+        "original_event_count": 7,
+        "original_db_row_count": 4,
+        "original_config_key_count": 2,
+        "removable_input_field_count": 1,
+        "original_bytes": 1996,
+        "ground_truth": {
+          "must": [
+            "evt:http:poll:{\"job\":\"j_1\",\"try\":1}",
+            "evt:http:poll:{\"job\":\"j_1\",\"try\":2}",
+            "evt:http:poll:{\"job\":\"j_1\",\"try\":3}"
+          ],
+          "any_of": [],
+          "trigger": [
+            "evt:http:poll:{\"job\":\"j_1\",\"try\":3}"
+          ]
+        }
+      },
+      {
+        "id": "adv-masked-quorum",
+        "topology": "masked-dependency",
+        "title": "Two-of-three ban quorum with masked necessity",
+        "description": "Any two of three banned node rows sustain E_QUORUM_BANNED. Each row looks removable in the full context (masked by the other two) but becomes required once a partner is gone.",
+        "code_version": "5acf271421ef2afdddec433bd18c007d99b3067c",
+        "expected_failure_fingerprint": {
+          "failure_kind": "APPLICATION",
+          "error_code": "E_QUORUM_BANNED",
+          "message_class": "QUORUM_BANNED",
+          "top_frame": "check-quorum",
+          "fingerprint_hash": "08217c1a926b3b0432fa22ccfbe9bc014367ee2807e7bb076558f45f6f0f58e1"
+        },
+        "capture_hash": "a1a2d5cf4388fd123dffeea5b36df23315126e386c2f89b5ddc5ce559bffa0ba",
+        "original_atom_count": 14,
+        "original_event_count": 3,
+        "original_db_row_count": 8,
+        "original_config_key_count": 2,
+        "removable_input_field_count": 1,
+        "original_bytes": 1577,
+        "ground_truth": {
+          "must": [],
+          "any_of": [
+            [
+              "db:nodes:n1",
+              "db:nodes:n2"
+            ],
+            [
+              "db:nodes:n1",
+              "db:nodes:n3"
+            ],
+            [
+              "db:nodes:n2",
+              "db:nodes:n3"
+            ]
+          ],
+          "trigger": []
+        }
+      }
+    ]
+  },
+  "reducer_algorithms": {
+    "GREEDY": {
+      "description": "Deterministic single-pass single-atom deletion over the frozen atom order.",
+      "implementation": "V0 greedyReduce (hash pinned in frozen_v0_modules)."
+    },
+    "DDMIN": {
+      "description": "Deterministic delta debugging: complement/subset chunk tests with granularity doubling, then a greedy fixpoint sweep (1-minimal result).",
+      "implementation": "V0 ddminReduce (hash pinned in frozen_v0_modules)."
+    },
+    "structured_reduction": "EXPLORATORY ONLY, excluded from headline comparison (see report)."
+  },
+  "frozen_v0_modules": {
+    "canonical.js": "1cac83357bd03d9348c22fab744b4eb3b7a97eff172fd0c631f74210c2bbad2e",
+    "fingerprint.js": "f1946d2e3589487996042e9edb5a5f6cee1b46106981dc075cb22259e3a43af8",
+    "replay.js": "7eb4112ec3b810a2f9711efa2d478eee14c4d50b00b52d5ed8d3b6799b65b8d0",
+    "capture.js": "d469a7b2b28d424bad93377913aec80e0febe51c7381dcb37fdddf9059383665",
+    "reducer.js": "f85c8e052353784feabb1dec3c36d8bbd518453190f5ae1a30779d0c73c9f61c",
+    "artifact.js": "641fc48c7ffedbfa1affe503229b2f3023c498f6cce8f78df74290165e671af4"
+  },
+  "scoring_semantics": {
+    "version": 1,
+    "recall": "1 iff all `must` ids retained AND (>=1 `any_of` core retained when non-empty), else 0.",
+    "irrelevant_removal": "removed irrelevant / total irrelevant, irrelevant = atoms outside must+any_of.",
+    "locally_minimal": "every kept atom has a failing single-removal trial under the same reducer.",
+    "predicate": "exact FailureFingerprint hash equality; all else rejects."
+  },
+  "real_bug_eligibility": {
+    "purpose": "Historical bugs independent of this experiment, within the V1 single-process boundary.",
+    "require": [
+      "Bug predates this experiment.",
+      "Identifiable buggy revision (BUG_REV) and later repaired revision (POST_REV).",
+      "Externally observable incorrect behavior described by a report or regression test.",
+      "Single-process backend/library behavior exercisable deterministically from a bounded entry point.",
+      "Local deterministic trigger plausibly constructible without production credentials."
+    ],
+    "prefer": [
+      "Input edge cases, config combinations, serialization/parsing, API responses, data-state edges, time boundaries, cache/state transitions, dependency-response behavior.",
+      "Cases requiring non-trivial fixture/boundary setup (not only tiny unit tests)."
+    ],
+    "exclude": [
+      "Pure formatting/type-only bug with no runtime behavior.",
+      "Build-system-only failure (unless a real runtime compatibility incident).",
+      "Distributed scheduling outside the V1 boundary.",
+      "Unavailable external service credentials required.",
+      "Reproducer necessarily includes the repaired patch.",
+      "Insufficient evidence for buggy/repaired revisions."
+    ],
+    "integrity": [
+      "bug-corpus.json (with exclusions) frozen before reduction runs.",
+      "No eligible failure dropped from the denominator because reduction fails.",
+      "No corpus tuning after outcomes."
+    ]
+  },
+  "supported_v1_boundary": {
+    "languages": [
+      "TypeScript",
+      "JavaScript"
+    ],
+    "runtime": "Node.js 22+",
+    "application_shape": "single-process backend or library behavior exercisable deterministically from a bounded entry point",
+    "supported_inputs": [
+      "request/function input",
+      "environment/config",
+      "clock",
+      "randomness",
+      "filesystem fixture inside isolated temp directory",
+      "database-like state through a bounded experiment adapter",
+      "external HTTP/service responses through a bounded experiment adapter",
+      "ordered boundary-call sequence"
+    ],
+    "out_of_scope": [
+      "true distributed race bugs",
+      "multi-host consensus failures",
+      "kernel bugs",
+      "native-code nondeterminism",
+      "browser-only rendering bugs",
+      "unbounded production databases",
+      "bugs requiring private production secrets",
+      "bugs reproducible only inside a complete remote deployment"
+    ]
+  },
+  "hard_gates": {
+    "adversarial": [
+      "12/12 full adversarial captures reproduce before reduction.",
+      "0 wrong-failure acceptances.",
+      ">=10/12 DDMIN reduced artifacts replay 20/20 portably.",
+      "100% causal recall on successful adversarial reductions.",
+      ">=1 scenario where DDMIN finds a smaller valid reproducer than frozen GREEDY."
+    ],
+    "real_bugs": [
+      ">=10 eligible real historical bugs in frozen corpus.",
+      ">=8 viable deterministic full captures (else weak boundary coverage).",
+      "0 wrong-failure acceptances.",
+      ">=60% of full-capture-supported bugs produce portable reduced reproducers.",
+      ">=80% of successful reduced reproducers preserve exact fingerprint 20/20.",
+      ">=80% of evaluable repaired revisions no longer show the original failure."
+    ]
+  },
+  "usefulness_targets": [
+    "Median real-bug atom reduction >= 50%.",
+    "Median real-bug byte reduction >= 50%.",
+    "Median reducer runtime <= 5 s for supported corpus.",
+    "No successful real reproducer requires live network.",
+    "Median manual full-capture setup burden plausibly automatable (report actuals)."
+  ],
+  "decision_rules": {
+    "CONTINUE": "Adversarial reduction exact+safe; >=60% of supported real bugs become portable reduced reproducers with buggy-vs-repaired discrimination; fixture burden plausibly automatable.",
+    "MODIFY": "Primitive strong for a clear subset; narrow the thesis.",
+    "KILL": "Topology breaks correctness, real bugs rarely reduce portably, revisions indistinguishable, or capture burden dwarfs reduction value.",
+    "INVALID_EXPERIMENT": "Corpus tuned after outcomes, repaired-patch/causal-label leakage, wrong failures accepted, live deps used, or frozen protocol substantively changed after results.",
+    "BLOCKED_V0_PROTOCOL": "Already cleared in V1 Phase 0 (see V0 REPORT Appendix A)."
+  }
+}

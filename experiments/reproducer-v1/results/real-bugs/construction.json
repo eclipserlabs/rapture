@@ -1,0 +1,110 @@
+[
+  {
+    "case_id": "rb-semver-tilde-prerelease",
+    "status": "SUPPORTED",
+    "full_matches": 20,
+    "live_effects": 0,
+    "state_bytes": 1412,
+    "impl_bytes": 74439,
+    "impl_files": 49
+  },
+  {
+    "case_id": "rb-semver-xrange-numeric",
+    "status": "SUPPORTED",
+    "full_matches": 20,
+    "live_effects": 0,
+    "state_bytes": 1047,
+    "impl_bytes": 74276,
+    "impl_files": 49
+  },
+  {
+    "case_id": "rb-lru-delete-size",
+    "status": "SUPPORTED",
+    "full_matches": 20,
+    "live_effects": 0,
+    "state_bytes": 2053,
+    "impl_bytes": 22253,
+    "impl_files": 3
+  },
+  {
+    "case_id": "rb-lru-maxsize-zero",
+    "status": "SUPPORTED",
+    "full_matches": 20,
+    "live_effects": 0,
+    "state_bytes": 1604,
+    "impl_bytes": 26799,
+    "impl_files": 3
+  },
+  {
+    "case_id": "rb-lru-oversize-evict",
+    "status": "SUPPORTED",
+    "full_matches": 20,
+    "live_effects": 0,
+    "state_bytes": 1555,
+    "impl_bytes": 25812,
+    "impl_files": 3
+  },
+  {
+    "case_id": "rb-qs-comma-arraylimit",
+    "status": "SUPPORTED",
+    "full_matches": 20,
+    "live_effects": 0,
+    "state_bytes": 1197,
+    "impl_bytes": 504022,
+    "impl_files": 299
+  },
+  {
+    "case_id": "rb-qs-combine-overflow",
+    "status": "SUPPORTED",
+    "full_matches": 20,
+    "live_effects": 0,
+    "state_bytes": 1237,
+    "impl_bytes": 501337,
+    "impl_files": 299
+  },
+  {
+    "case_id": "rb-validator-bytelength",
+    "status": "SUPPORTED",
+    "full_matches": 20,
+    "live_effects": 0,
+    "state_bytes": 1111,
+    "impl_bytes": 1459,
+    "impl_files": 4
+  },
+  {
+    "case_id": "rb-validator-iso-week",
+    "status": "SUPPORTED",
+    "full_matches": 20,
+    "live_effects": 0,
+    "state_bytes": 969,
+    "impl_bytes": 3032,
+    "impl_files": 4
+  },
+  {
+    "case_id": "rb-jwt-maxage",
+    "status": "SUPPORTED",
+    "full_matches": 20,
+    "live_effects": 0,
+    "state_bytes": 1115,
+    "impl_bytes": 5714134,
+    "impl_files": 677
+  },
+  {
+    "case_id": "rb-cron-dow-step",
+    "status": "SUPPORTED",
+    "full_matches": 20,
+    "live_effects": 0,
+    "state_bytes": 1215,
+    "impl_bytes": 397432,
+    "impl_files": 36
+  },
+  {
+    "case_id": "rb-cron-loop-limit",
+    "status": "SUPPORTED",
+    "full_matches": 20,
+    "live_effects": 0,
+    "state_bytes": 1262,
+    "impl_bytes": 397059,
+    "impl_files": 36
+  }
+]

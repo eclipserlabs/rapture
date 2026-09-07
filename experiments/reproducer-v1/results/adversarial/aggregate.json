@@ -1,0 +1,15 @@
+{
+  "scenarios": 12,
+  "pass": 12,
+  "full_replay": "240/240",
+  "ddmin_portable": "240/240",
+  "greedy_portable": "240/240",
+  "ddmin_smaller_count": 0,
+  "total_greedy_trials": 303,
+  "total_ddmin_trials": 470,
+  "total_greedy_ms": 66.923505,
+  "total_ddmin_ms": 58.771277999999995,
+  "wrong_accepted": 0,
+  "live_effects": 0,
+  "min_ddmin_recall": 1
+}

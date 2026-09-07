@@ -1,0 +1,18 @@
+{
+  "case_id": "rb-cron-dow-step",
+  "adapter_loc": 85,
+  "adapter_files": [
+    "case.js (experiment fixture, incl. noise model)"
+  ],
+  "manually_modeled_boundaries": [
+    "schedule-request feed"
+  ],
+  "human_setup_steps": [
+    "identified fix commit + parent SHA (corpus research)",
+    "vendored impl at both revisions (vendor-impl.js)",
+    "encoded historical wrong behavior as oracle rule from issue/commit report",
+    "added incident-window noise (ambient events, extra input/config/db)"
+  ],
+  "estimated_minutes": 45,
+  "note": "TS source compile staging (tsc 5.9, @types build-only); luxon trim to package.json+build; TZ=UTC pinning discovery (system zone WITA). Minutes exclude corpus research shared across cases."
+}

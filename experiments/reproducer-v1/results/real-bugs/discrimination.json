@@ -1,0 +1,110 @@
+[
+  {
+    "case_id": "rb-semver-tilde-prerelease",
+    "status": "REDUCED_PORTABLE",
+    "discrimination": "FIX_CONFIRMED",
+    "post_matches": 0,
+    "post_kinds": [
+      "NO_FAILURE"
+    ]
+  },
+  {
+    "case_id": "rb-semver-xrange-numeric",
+    "status": "REDUCED_PORTABLE",
+    "discrimination": "FIX_CONFIRMED",
+    "post_matches": 0,
+    "post_kinds": [
+      "NO_FAILURE"
+    ]
+  },
+  {
+    "case_id": "rb-lru-delete-size",
+    "status": "REDUCED_PORTABLE",
+    "discrimination": "FIX_CONFIRMED",
+    "post_matches": 0,
+    "post_kinds": [
+      "NO_FAILURE"
+    ]
+  },
+  {
+    "case_id": "rb-lru-maxsize-zero",
+    "status": "REDUCED_PORTABLE",
+    "discrimination": "FIX_CONFIRMED",
+    "post_matches": 0,
+    "post_kinds": [
+      "NO_FAILURE"
+    ]
+  },
+  {
+    "case_id": "rb-lru-oversize-evict",
+    "status": "REDUCED_PORTABLE",
+    "discrimination": "FIX_CONFIRMED",
+    "post_matches": 0,
+    "post_kinds": [
+      "NO_FAILURE"
+    ]
+  },
+  {
+    "case_id": "rb-qs-comma-arraylimit",
+    "status": "REDUCED_PORTABLE",
+    "discrimination": "FIX_CONFIRMED",
+    "post_matches": 0,
+    "post_kinds": [
+      "NO_FAILURE"
+    ]
+  },
+  {
+    "case_id": "rb-qs-combine-overflow",
+    "status": "REDUCED_PORTABLE",
+    "discrimination": "FIX_CONFIRMED",
+    "post_matches": 0,
+    "post_kinds": [
+      "NO_FAILURE"
+    ]
+  },
+  {
+    "case_id": "rb-validator-bytelength",
+    "status": "REDUCED_PORTABLE",
+    "discrimination": "FIX_CONFIRMED",
+    "post_matches": 0,
+    "post_kinds": [
+      "NO_FAILURE"
+    ]
+  },
+  {
+    "case_id": "rb-validator-iso-week",
+    "status": "REDUCED_PORTABLE",
+    "discrimination": "FIX_CONFIRMED",
+    "post_matches": 0,
+    "post_kinds": [
+      "NO_FAILURE"
+    ]
+  },
+  {
+    "case_id": "rb-jwt-maxage",
+    "status": "REDUCED_PORTABLE",
+    "discrimination": "FIX_CONFIRMED",
+    "post_matches": 0,
+    "post_kinds": [
+      "NO_FAILURE"
+    ]
+  },
+  {
+    "case_id": "rb-cron-dow-step",
+    "status": "REDUCED_PORTABLE",
+    "discrimination": "FIX_CONFIRMED",
+    "post_matches": 0,
+    "post_kinds": [
+      "NO_FAILURE"
+    ]
+  },
+  {
+    "case_id": "rb-cron-loop-limit",
+    "status": "REDUCED_PORTABLE",
+    "discrimination": "FIX_CONFIRMED",
+    "post_matches": 0,
+    "post_kinds": [
+      "NO_FAILURE"
+    ]
+  }
+]

@@ -1,0 +1,12 @@
+{
+  "extraTreesPost": [
+    {
+      "src": "/tmp/rb-stage/cron-c1-post/dist",
+      "dest": "dist"
+    },
+    {
+      "src": "/tmp/rb-stage/luxon-trim/node_modules",
+      "dest": "node_modules"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "selected": 12,
+  "eligible": 12,
+  "supported": 12,
+  "full_replay": "240/240",
+  "reduced_portable": 12,
+  "portable_replays": "240/240",
+  "fix_confirmed": 12,
+  "median_atom_reduction": 0.9,
+  "median_byte_reduction": 0.5579393408738367,
+  "median_ddmin_ms": 1.936776,
+  "max_ddmin_ms": 1396.397101,
+  "total_ddmin_trials": 227,
+  "total_greedy_trials": 145,
+  "wrong_accepted": 0,
+  "live_effects": 0,
+  "original_atoms": 145,
+  "reduced_atoms": 19,
+  "original_state_bytes": 15777,
+  "reduced_state_bytes": 6556
+}

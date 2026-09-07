@@ -1,0 +1,18 @@
+{
+  "case_id": "rb-lru-oversize-evict",
+  "which": "buggy",
+  "repo": "lru-cache",
+  "rev": "7ef678e4548992a8640ba5dae35f72590f9eba7e",
+  "files": [
+    {
+      "path": "index.js",
+      "sha256": "9b6a7ee4f1275d5d92d3a795c64f42d16c05b7f73e4642b8f771fe4b69f7d81a",
+      "bytes": 25349
+    },
+    {
+      "path": "package.json",
+      "sha256": "dbf8353f77358bc12169b7bb7301e1978d5b503e002ee927229a8993672818fc",
+      "bytes": 20
+    }
+  ]
+}
