@@ -17,6 +17,8 @@ coverage/
 !experiments/phase0c/**
 !experiments/phase0d
 !experiments/phase0d/**
+!experiments/reproducer-v0
+!experiments/reproducer-v0/**
 .tmp/
 .turbo/
 .rapture/

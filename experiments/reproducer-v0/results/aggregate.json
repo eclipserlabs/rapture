@@ -1,0 +1,18 @@
+{
+  "scenarios": 8,
+  "scenarios_pass": 8,
+  "full_replay_total": "160/160",
+  "portable_replay_total": "160/160",
+  "original_bytes": 33188,
+  "reduced_bytes": 6197,
+  "byte_reduction_ratio": 0.8132758828492226,
+  "original_atoms": 259,
+  "reduced_atoms": 18,
+  "atom_reduction_ratio": 0.9305019305019305,
+  "total_reducer_trials": 271,
+  "total_reducer_wall_ms": 38.874735,
+  "total_wrong_failure_rejected": 17,
+  "total_wrong_failure_accepted": 0,
+  "total_live_effects": 0,
+  "min_causal_recall": 1
+}
