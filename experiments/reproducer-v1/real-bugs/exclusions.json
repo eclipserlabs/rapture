@@ -1,0 +1,54 @@
+{
+  "frozen_at": "2026-09-07",
+  "note": "Researched and verified (buggy!=post by execution) but excluded BEFORE any V1 real-bug reduction. Reasons are corpus-balance and hazard/ambiguity, recorded here so they cannot be silently re-added or swapped in after outcomes.",
+  "excluded": [
+    {
+      "candidate": "semver caret includePrerelease lower bound (PR #872, fixes #557)",
+      "reason": "Redundant sibling of rb-semver-tilde-prerelease (same file, same option class); two-semver cap keeps corpus diverse."
+    },
+    {
+      "candidate": "semver inc dotted prerelease (PR #870, fixes #226)",
+      "reason": "Redundant sibling; two-semver cap."
+    },
+    {
+      "candidate": "lru-cache key-reuse index corruption (fixes #192)",
+      "reason": "Hazard + lineage ambiguity: trigger notes iteration hangs the buggy revision (replay termination risk), and the buggy parent is itself a partial earlier attempt. Excluded rather than risking an UNSUPPORTED misclassification."
+    },
+    {
+      "candidate": "qs overflow-append flattening",
+      "reason": "Redundant sibling of rb-qs-comma-arraylimit / rb-qs-combine-overflow (same module and option family); two-qs cap."
+    },
+    {
+      "candidate": "qs stringify null comma crash",
+      "reason": "Redundant sibling; simple-case slot assigned to rb-validator-iso-week for class diversity."
+    },
+    {
+      "candidate": "validator isRgbColor alpha precision (#2825)",
+      "reason": "Redundant sibling (same file class as selected validator cases); two-validator cap."
+    },
+    {
+      "candidate": "validator isSlug charset (#2693)",
+      "reason": "Redundant sibling; two-validator cap."
+    },
+    {
+      "candidate": "jsonwebtoken exp-ignores-iat (#217)",
+      "reason": "Near-duplicate anchor-bug pair with nbf-ignores-iat; time class covered more strongly by rb-jwt-maxage (accept-vs-reject). One-jwt cap."
+    },
+    {
+      "candidate": "jsonwebtoken nbf-ignores-iat (#435)",
+      "reason": "Mirror of the above; same reason."
+    },
+    {
+      "candidate": "jsonwebtoken non-string token crash (#304)",
+      "reason": "Error-contract class below preferred-class priority given limited slots; one-jwt cap."
+    },
+    {
+      "candidate": "cron-parser short-expression padding (#443)",
+      "reason": "Balance; time class covered by rb-cron-dow-step and rb-cron-loop-limit. Two-cron cap."
+    },
+    {
+      "candidate": "cron-parser duplicate zero values (#445)",
+      "reason": "Balance; two-cron cap."
+    }
+  ]
+}

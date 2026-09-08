@@ -1,0 +1,18 @@
+{
+  "case_id": "rb-cron-loop-limit",
+  "adapter_loc": 86,
+  "adapter_files": [
+    "case.js (experiment fixture, incl. noise model)"
+  ],
+  "manually_modeled_boundaries": [
+    "schedule-request feed"
+  ],
+  "human_setup_steps": [
+    "identified fix commit + parent SHA (corpus research)",
+    "vendored impl at both revisions (vendor-impl.js)",
+    "encoded historical wrong behavior as oracle rule from issue/commit report",
+    "added incident-window noise (ambient events, extra input/config/db)"
+  ],
+  "estimated_minutes": 25,
+  "note": "Pattern reuse; staged-tsconfig ignoreDeprecations 6.0->5.0 patch (build-only). Minutes exclude corpus research shared across cases."
+}

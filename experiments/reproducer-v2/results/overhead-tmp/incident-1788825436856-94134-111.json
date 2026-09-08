@@ -1,0 +1,148 @@
+{
+  "schema": "incident-capture-v2",
+  "captured_at": "2026-09-07T23:57:16.856Z",
+  "req_id": "req-94134-1788825436855-111",
+  "request": {
+    "method": "GET",
+    "path": "/price",
+    "query": "?sku=FAIL",
+    "headers": {
+      "host": "localhost:4895",
+      "connection": "keep-alive",
+      "accept": "*/*",
+      "accept-language": "*",
+      "sec-fetch-mode": "cors",
+      "user-agent": "node",
+      "accept-encoding": "gzip, deflate"
+    },
+    "host": "localhost:4895",
+    "body": null
+  },
+  "response": {
+    "status": 500,
+    "headers": {},
+    "body": "{\"error\":\"price fallback failed\",\"code\":\"E_PRICE_FALLBACK\"}"
+  },
+  "events": [
+    {
+      "seq": 1,
+      "kind": "http",
+      "op": "fetch",
+      "key": "http:GET:/api/price?sku=FAIL:",
+      "request": {
+        "method": "GET",
+        "url": "/api/price?sku=FAIL",
+        "body": null
+      },
+      "result": {
+        "status": 503,
+        "headers": {
+          "connection": "keep-alive",
+          "content-type": "application/json",
+          "date": "Mon, 07 Sep 2026 23:57:16 GMT",
+          "keep-alive": "timeout=5",
+          "transfer-encoding": "chunked"
+        },
+        "body": "{\"error\":\"upstream unavailable\"}",
+        "truncated": false,
+        "unreadable": false
+      },
+      "error": null
+    },
+    {
+      "seq": 2,
+      "kind": "time",
+      "op": "now",
+      "key": "time:0",
+      "request": {},
+      "result": {
+        "value": 1788825436855
+      },
+      "error": null
+    },
+    {
+      "seq": 3,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT * FROM products WHERE sku = $1:[\"cache:FAIL\"]",
+      "request": {
+        "text": "SELECT * FROM products WHERE sku = $1",
+        "values": [
+          "cache:FAIL"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 0,
+        "rows": [],
+        "fields": [
+          {
+            "name": "sku",
+            "dataTypeID": 25
+          },
+          {
+            "name": "name",
+            "dataTypeID": 25
+          },
+          {
+            "name": "price",
+            "dataTypeID": 23
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "seq": 4,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT * FROM products WHERE sku = $1:[\"cache:FAIL\"]",
+      "request": {
+        "text": "SELECT * FROM products WHERE sku = $1",
+        "values": [
+          "cache:FAIL"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 0,
+        "rows": [],
+        "fields": [
+          {
+            "name": "sku",
+            "dataTypeID": 25
+          },
+          {
+            "name": "name",
+            "dataTypeID": 25
+          },
+          {
+            "name": "price",
+            "dataTypeID": 23
+          }
+        ]
+      },
+      "error": null
+    }
+  ],
+  "config": {
+    "REGION": "us",
+    "TIER": "standard",
+    "TOKEN_TTL_MS": {
+      "redacted": true,
+      "sha256": "d55d01d0341ed0ba2cd99b322e8c5b609254f47d10c7cd12b99b4922effeba44"
+    }
+  },
+  "app_error": null,
+  "fingerprint": {
+    "kind": "app",
+    "request_method": "GET",
+    "route_or_operation": "/price",
+    "http_status": 500,
+    "error_name_or_code": "ERR:E_PRICE_FALLBACK",
+    "normalized_class": "ERR:E_PRICE_FALLBACK",
+    "stable_frame": null,
+    "fingerprint_hash": "fe142cb6c4a1a0e8e6a3212be4d3d6260bedf23f71db2bd88b8b40c2586312f1"
+  },
+  "capture_hash": "39230e924d9dddcead7f11cc8585e827ea19610ee77da33b9945ed7ec6829bca"
+}

@@ -1,0 +1,18 @@
+{
+  "case_id": "rb-qs-combine-overflow",
+  "adapter_loc": 78,
+  "adapter_files": [
+    "case.js (experiment fixture, incl. noise model)"
+  ],
+  "manually_modeled_boundaries": [
+    "query-capture feed (monolithic options)"
+  ],
+  "human_setup_steps": [
+    "identified fix commit + parent SHA (corpus research)",
+    "vendored impl at both revisions (vendor-impl.js)",
+    "encoded historical wrong behavior as oracle rule from issue/commit report",
+    "added incident-window noise (ambient events, extra input/config/db)"
+  ],
+  "estimated_minutes": 15,
+  "note": "Pattern reuse; separate era dep install. Minutes exclude corpus research shared across cases."
+}

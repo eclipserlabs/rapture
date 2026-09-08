@@ -1,0 +1,125 @@
+{
+  "schema": "incident-capture-v2",
+  "captured_at": "2026-09-08T12:32:06.758Z",
+  "req_id": "req-17045-1788870726632-4",
+  "request": {
+    "method": "GET",
+    "path": "/token",
+    "query": "?iat=1788870606440",
+    "headers": {
+      "host": "localhost:4891",
+      "connection": "keep-alive",
+      "accept": "*/*",
+      "accept-language": "*",
+      "sec-fetch-mode": "cors",
+      "user-agent": "node",
+      "accept-encoding": "gzip, deflate"
+    },
+    "host": "localhost:4891",
+    "body": null
+  },
+  "response": {
+    "status": 500,
+    "headers": {},
+    "body": "{\"error\":\"token expired\",\"code\":\"E_TOKEN_EXPIRED\"}"
+  },
+  "events": [
+    {
+      "seq": 1,
+      "kind": "time",
+      "op": "now",
+      "key": "time:0",
+      "request": {},
+      "result": {
+        "value": 1788870726633
+      },
+      "error": null
+    },
+    {
+      "seq": 2,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT * FROM flags WHERE name = $1:[\"region-ok\"]",
+      "request": {
+        "text": "SELECT * FROM flags WHERE name = $1",
+        "values": [
+          "region-ok"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 1,
+        "rows": [
+          {
+            "name": "region-ok",
+            "value": "us"
+          }
+        ],
+        "fields": [
+          {
+            "name": "name",
+            "dataTypeID": 25
+          },
+          {
+            "name": "value",
+            "dataTypeID": 25
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "seq": 3,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT * FROM flags WHERE name = $1:[\"region-ok\"]",
+      "request": {
+        "text": "SELECT * FROM flags WHERE name = $1",
+        "values": [
+          "region-ok"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 1,
+        "rows": [
+          {
+            "name": "region-ok",
+            "value": "us"
+          }
+        ],
+        "fields": [
+          {
+            "name": "name",
+            "dataTypeID": 25
+          },
+          {
+            "name": "value",
+            "dataTypeID": 25
+          }
+        ]
+      },
+      "error": null
+    }
+  ],
+  "config": {
+    "REGION": "eu",
+    "TIER": "standard",
+    "TOKEN_TTL_MS": {
+      "redacted": true,
+      "sha256": "d55d01d0341ed0ba2cd99b322e8c5b609254f47d10c7cd12b99b4922effeba44"
+    }
+  },
+  "app_error": null,
+  "fingerprint": {
+    "kind": "app",
+    "request_method": "GET",
+    "route_or_operation": "/token",
+    "http_status": 500,
+    "error_name_or_code": "ERR:E_TOKEN_EXPIRED",
+    "normalized_class": "ERR:E_TOKEN_EXPIRED",
+    "stable_frame": null,
+    "fingerprint_hash": "763c3d501dbb548a7ffaf3246470ae0c4354aead4f9bf02532b5396fde96ee56"
+  },
+  "capture_hash": "67dc6b227dbf823b9de2142a82089fa1767a704a837a40e22be3f7ec3979ac10"
+}

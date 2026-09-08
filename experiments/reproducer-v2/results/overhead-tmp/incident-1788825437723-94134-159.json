@@ -1,0 +1,278 @@
+{
+  "schema": "incident-capture-v2",
+  "captured_at": "2026-09-07T23:57:17.723Z",
+  "req_id": "req-94134-1788825437721-159",
+  "request": {
+    "method": "GET",
+    "path": "/orders/ord-bad",
+    "query": "",
+    "headers": {
+      "host": "localhost:4895",
+      "connection": "keep-alive",
+      "accept": "*/*",
+      "accept-language": "*",
+      "sec-fetch-mode": "cors",
+      "user-agent": "node",
+      "accept-encoding": "gzip, deflate"
+    },
+    "host": "localhost:4895",
+    "body": null
+  },
+  "response": {
+    "status": 500,
+    "headers": {},
+    "body": "{\"error\":\"order suspended\",\"code\":\"E_ORDER_SUSPENDED\"}"
+  },
+  "events": [
+    {
+      "seq": 1,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT * FROM orders WHERE id = $1:[\"ord-bad\"]",
+      "request": {
+        "text": "SELECT * FROM orders WHERE id = $1",
+        "values": [
+          "ord-bad"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 1,
+        "rows": [
+          {
+            "id": "ord-bad",
+            "status": "suspended",
+            "total": 250
+          }
+        ],
+        "fields": [
+          {
+            "name": "id",
+            "dataTypeID": 25
+          },
+          {
+            "name": "status",
+            "dataTypeID": 25
+          },
+          {
+            "name": "total",
+            "dataTypeID": 23
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "seq": 2,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT * FROM orders WHERE id = $1:[\"ord-bad\"]",
+      "request": {
+        "text": "SELECT * FROM orders WHERE id = $1",
+        "values": [
+          "ord-bad"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 1,
+        "rows": [
+          {
+            "id": "ord-bad",
+            "status": "suspended",
+            "total": 250
+          }
+        ],
+        "fields": [
+          {
+            "name": "id",
+            "dataTypeID": 25
+          },
+          {
+            "name": "status",
+            "dataTypeID": 25
+          },
+          {
+            "name": "total",
+            "dataTypeID": 23
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "seq": 3,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT * FROM products WHERE sku = $1:[\"sku-noise\"]",
+      "request": {
+        "text": "SELECT * FROM products WHERE sku = $1",
+        "values": [
+          "sku-noise"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 1,
+        "rows": [
+          {
+            "sku": "sku-noise",
+            "name": "Gadget",
+            "price": 100
+          }
+        ],
+        "fields": [
+          {
+            "name": "sku",
+            "dataTypeID": 25
+          },
+          {
+            "name": "name",
+            "dataTypeID": 25
+          },
+          {
+            "name": "price",
+            "dataTypeID": 23
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "seq": 4,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT * FROM products WHERE sku = $1:[\"sku-noise\"]",
+      "request": {
+        "text": "SELECT * FROM products WHERE sku = $1",
+        "values": [
+          "sku-noise"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 1,
+        "rows": [
+          {
+            "sku": "sku-noise",
+            "name": "Gadget",
+            "price": 100
+          }
+        ],
+        "fields": [
+          {
+            "name": "sku",
+            "dataTypeID": 25
+          },
+          {
+            "name": "name",
+            "dataTypeID": 25
+          },
+          {
+            "name": "price",
+            "dataTypeID": 23
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "seq": 5,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT * FROM audit_log ORDER BY id DESC LIMIT 5:[]",
+      "request": {
+        "text": "SELECT * FROM audit_log ORDER BY id DESC LIMIT 5",
+        "values": []
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 3,
+        "rows": [
+          {
+            "id": 3,
+            "entry": "seed-3"
+          },
+          {
+            "id": 2,
+            "entry": "seed-2"
+          },
+          {
+            "id": 1,
+            "entry": "seed-1"
+          }
+        ],
+        "fields": [
+          {
+            "name": "id",
+            "dataTypeID": 23
+          },
+          {
+            "name": "entry",
+            "dataTypeID": 25
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "seq": 6,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT * FROM audit_log ORDER BY id DESC LIMIT 5:[]",
+      "request": {
+        "text": "SELECT * FROM audit_log ORDER BY id DESC LIMIT 5",
+        "values": []
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 3,
+        "rows": [
+          {
+            "id": 3,
+            "entry": "seed-3"
+          },
+          {
+            "id": 2,
+            "entry": "seed-2"
+          },
+          {
+            "id": 1,
+            "entry": "seed-1"
+          }
+        ],
+        "fields": [
+          {
+            "name": "id",
+            "dataTypeID": 23
+          },
+          {
+            "name": "entry",
+            "dataTypeID": 25
+          }
+        ]
+      },
+      "error": null
+    }
+  ],
+  "config": {
+    "REGION": "us",
+    "TIER": "standard",
+    "TOKEN_TTL_MS": {
+      "redacted": true,
+      "sha256": "d55d01d0341ed0ba2cd99b322e8c5b609254f47d10c7cd12b99b4922effeba44"
+    }
+  },
+  "app_error": null,
+  "fingerprint": {
+    "kind": "app",
+    "request_method": "GET",
+    "route_or_operation": "/orders/ord-bad",
+    "http_status": 500,
+    "error_name_or_code": "ERR:E_ORDER_SUSPENDED",
+    "normalized_class": "ERR:E_ORDER_SUSPENDED",
+    "stable_frame": null,
+    "fingerprint_hash": "55c93619e0078e2eb6d4e8bcdb6067fb138a4bbf9e846a56efe2794ef2e37b72"
+  },
+  "capture_hash": "7df52abc1b4adf98953df02f27bdcc623f9122c7ede348f65566595f00817524"
+}

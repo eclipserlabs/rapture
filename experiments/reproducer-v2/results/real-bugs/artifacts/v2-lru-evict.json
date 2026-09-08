@@ -1,0 +1,107 @@
+{
+  "schema": "reproducer-artifact-v2",
+  "v2_case": "v2-lru-evict",
+  "source_capture_hash": "51a5139c5da9c1c6947e5270a7bce74698036a1187266268cd039c081e5257ff",
+  "request": {
+    "method": "GET",
+    "path": "/cache/sequence",
+    "query": "",
+    "headers": {
+      "host": "localhost:4925",
+      "connection": "keep-alive",
+      "accept": "*/*",
+      "accept-language": "*",
+      "sec-fetch-mode": "cors",
+      "user-agent": "node",
+      "accept-encoding": "gzip, deflate"
+    },
+    "host": "localhost:4925",
+    "body": null
+  },
+  "required_events": [
+    {
+      "seq": 2,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT * FROM flags WHERE name = $1:[\"noise-flag\"]",
+      "request": {
+        "text": "SELECT * FROM flags WHERE name = $1",
+        "values": [
+          "noise-flag"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 1,
+        "rows": [
+          {
+            "name": "noise-flag",
+            "value": "x"
+          }
+        ],
+        "fields": [
+          {
+            "name": "name",
+            "dataTypeID": 25
+          },
+          {
+            "name": "value",
+            "dataTypeID": 25
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "seq": 3,
+      "kind": "http",
+      "op": "fetch",
+      "key": "http:GET:/api/health:",
+      "request": {
+        "method": "GET",
+        "url": "/api/health",
+        "body": null
+      },
+      "result": {
+        "status": 200,
+        "headers": {
+          "connection": "keep-alive",
+          "content-type": "application/json",
+          "date": "Tue, 08 Sep 2026 12:59:50 GMT",
+          "keep-alive": "timeout=5",
+          "transfer-encoding": "chunked"
+        },
+        "body": "{\"ok\":true}",
+        "truncated": false,
+        "unreadable": false
+      },
+      "error": null
+    },
+    {
+      "seq": 4,
+      "kind": "random",
+      "op": "draw",
+      "key": "random:0",
+      "request": {},
+      "result": {
+        "value": 0.7470657598344235
+      },
+      "error": null
+    }
+  ],
+  "required_config": {},
+  "expected_fingerprint": {
+    "kind": "app",
+    "request_method": "GET",
+    "route_or_operation": "/cache/sequence",
+    "http_status": 500,
+    "error_name_or_code": "ERR:E_CACHE_WIPE",
+    "normalized_class": "ERR:E_CACHE_WIPE",
+    "stable_frame": null,
+    "fingerprint_hash": "91d13944073c3fc6663f22f7bbe21aab2f9146d26c186f0a069127b12ebbc73b"
+  },
+  "runtime": {
+    "entry": "real-bugs/v2-lru-evict/app.mjs"
+  },
+  "artifact_hash": "11018029bbfcc28d34736fbca6398c0eabc7be382802fd52ab0a597bbf7b1652"
+}

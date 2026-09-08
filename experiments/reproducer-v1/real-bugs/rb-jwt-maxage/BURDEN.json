@@ -1,0 +1,18 @@
+{
+  "case_id": "rb-jwt-maxage",
+  "adapter_loc": 87,
+  "adapter_files": [
+    "case.js (experiment fixture, incl. noise model)"
+  ],
+  "manually_modeled_boundaries": [
+    "verify-now clock read"
+  ],
+  "human_setup_steps": [
+    "identified fix commit + parent SHA (corpus research)",
+    "vendored impl at both revisions (vendor-impl.js)",
+    "encoded historical wrong behavior as oracle rule from issue/commit report",
+    "added incident-window noise (ambient events, extra input/config/db)"
+  ],
+  "estimated_minutes": 35,
+  "note": "Dep-closure triage (joi load-time moment kept: 6.6MB); sync sign/verify API check; test-secret fixture. Minutes exclude corpus research shared across cases."
+}

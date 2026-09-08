@@ -1,0 +1,183 @@
+{
+  "case_id": "rb-cron-dow-step",
+  "which": "buggy",
+  "repo": "cron-parser",
+  "rev": "8410d3717b7adda1e5b9c5fd6c40cb2cbf9d52e4",
+  "files": [
+    {
+      "path": "dist/CronDate.js",
+      "sha256": "d54723f469ad5073ae91a2b887ef070dfeb41c3fb96b51d2738a8220776c9a44",
+      "bytes": 14642
+    },
+    {
+      "path": "dist/CronExpression.js",
+      "sha256": "abc4b3e5348a70f6579e7a2f3c59dd31abd6d9639b494c224aac375d901021a9",
+      "bytes": 23369
+    },
+    {
+      "path": "dist/CronExpressionParser.js",
+      "sha256": "c5e45a7b481374de7660346ec99e94a1a765eea5fb4ce12d10360ffd6c7d5b1e",
+      "bytes": 17365
+    },
+    {
+      "path": "dist/CronFieldCollection.js",
+      "sha256": "50a23be8977aabba8f9c7600f160da71e936c986e94e11eeb56817ca59233a8c",
+      "bytes": 15227
+    },
+    {
+      "path": "dist/CronFileParser.js",
+      "sha256": "86d31181a06357d3a74338855f84520b7ffe22edcb8b0634e4bb1d23d247b385",
+      "bytes": 2592
+    },
+    {
+      "path": "dist/fields/CronDayOfMonth.js",
+      "sha256": "bcc17fb80752ae625cdb1b7e862ecc3fe41fc2130b97b44e02d59a0a1c584e2b",
+      "bytes": 2170
+    },
+    {
+      "path": "dist/fields/CronDayOfWeek.js",
+      "sha256": "ab0a1254051e1aa1ba2d5dd8330209db652c2c4fa82097d74a345ce2861ae7bb",
+      "bytes": 1767
+    },
+    {
+      "path": "dist/fields/CronField.js",
+      "sha256": "06ab91635638ac6284a3fbdf5646001ae7832c5765487a74fc393cd8c2154307",
+      "bytes": 7776
+    },
+    {
+      "path": "dist/fields/CronHour.js",
+      "sha256": "c129935bb3949e6d3a458738be938f8cf1c965054d93a8e095caf66ab09f3ca9",
+      "bytes": 1080
+    },
+    {
+      "path": "dist/fields/CronMinute.js",
+      "sha256": "c1723b2498f5095ed9d3178f1f2a17d62cc98510c668013beb0a29d4652bfd6d",
+      "bytes": 1114
+    },
+    {
+      "path": "dist/fields/CronMonth.js",
+      "sha256": "8ef65d0d13277552c181a1ceca59813aebb00fd58d2d5660f00fe1f10ef46120",
+      "bytes": 1273
+    },
+    {
+      "path": "dist/fields/CronSecond.js",
+      "sha256": "a8b792d0b3a64342cbe1d7c570241fbbba8b36321ed6083bd08d376a0c23c9a9",
+      "bytes": 1114
+    },
+    {
+      "path": "dist/fields/index.js",
+      "sha256": "c59d0fb093e6b0c55166aabb539159267d8632748c4e0479b375f6a23c9858a0",
+      "bytes": 1139
+    },
+    {
+      "path": "dist/fields/types.js",
+      "sha256": "d43aa81f5bc89faa359e0f97c814ba25155591ff078fbb9bfd40f8c7c9683230",
+      "bytes": 77
+    },
+    {
+      "path": "dist/index.js",
+      "sha256": "71cc2bfedca63581688961f8b8b8b4a15cbe6aeab426d342c1477bf1de86b040",
+      "bytes": 2050
+    },
+    {
+      "path": "dist/types/CronDate.d.ts",
+      "sha256": "4c6e0a5b18ce89d6e4c9a165ff3c04e4b29484a2122d364b395c0b89fead1b05",
+      "bytes": 7076
+    },
+    {
+      "path": "dist/types/CronExpression.d.ts",
+      "sha256": "f0454292ae7bb06660e6f9426ec463fc546237da8cf48155a2284ab7289cda98",
+      "bytes": 4518
+    },
+    {
+      "path": "dist/types/CronExpressionParser.d.ts",
+      "sha256": "69fc713a1dfca4f8a883691c16556a7f9ecf7693136a37ec46e1952bbd8e5f4e",
+      "bytes": 1967
+    },
+    {
+      "path": "dist/types/CronFieldCollection.d.ts",
+      "sha256": "f318a8d5e9979dcca83c6851cbe0c675d1e1cd65a1aae253082078c222cb4044",
+      "bytes": 5551
+    },
+    {
+      "path": "dist/types/CronFileParser.d.ts",
+      "sha256": "2f93f865c1d55bbf8cb8c747d68ce9d4795548aafeb4e0e490f1bb7c6ae23364",
+      "bytes": 882
+    },
+    {
+      "path": "dist/types/fields/CronDayOfMonth.d.ts",
+      "sha256": "98550858dff995b188c0912f16cc6c92dbbf7f7fc62962e14d51560fe471754b",
+      "bytes": 1512
+    },
+    {
+      "path": "dist/types/fields/CronDayOfWeek.d.ts",
+      "sha256": "05a15844c1a4ca7ac0a0cbd4ee244c105fe888c4aa77fc2bf72c5c9cba4599d8",
+      "bytes": 1228
+    },
+    {
+      "path": "dist/types/fields/CronField.d.ts",
+      "sha256": "4139c6277aa23f8873ba6d6b9dff3796bdff2805e341558da51f68d6bb6994ef",
+      "bytes": 4478
+    },
+    {
+      "path": "dist/types/fields/CronHour.d.ts",
+      "sha256": "7ce64f3efcc736cf86899be506e89560c8d6aac76895d33a67f517b92f468262",
+      "bytes": 839
+    },
+    {
+      "path": "dist/types/fields/CronMinute.d.ts",
+      "sha256": "b2b482dcb310d8110c0ca47456dd249036b080d50a172dcb8d52c0a295eb7990",
+      "bytes": 858
+    },
+    {
+      "path": "dist/types/fields/CronMonth.d.ts",
+      "sha256": "0f563acb4cb930991d9c3d6d8c28e47728420575b4de98f0eb39362b66983780",
+      "bytes": 954
+    },
+    {
+      "path": "dist/types/fields/CronSecond.d.ts",
+      "sha256": "191d9c750e9b08dc6b02671a85b858c43f8a814d33252b0d926690c97841f1e8",
+      "bytes": 858
+    },
+    {
+      "path": "dist/types/fields/index.d.ts",
+      "sha256": "20ba8e44d581de5c8070ff25a986c7ce7186641fa1f637a978bd5ba30420213e",
+      "bytes": 238
+    },
+    {
+      "path": "dist/types/fields/types.d.ts",
+      "sha256": "f8aefb17f91f20a8964466075f78ef600f0a64c0aceb154a7894127342122672",
+      "bytes": 1029
+    },
+    {
+      "path": "dist/types/index.d.ts",
+      "sha256": "71d6519f08f5568e4a98d233eff98f60c4da3314a380e0c83a42b6c40bb30bdb",
+      "bytes": 446
+    },
+    {
+      "path": "dist/types/utils/random.d.ts",
+      "sha256": "ec7572c0adf07e365a6ec9f1ba11f65149c7d7e4684aebd535d726baaab86784",
+      "bytes": 396
+    },
+    {
+      "path": "dist/utils/random.js",
+      "sha256": "9ec1a54c966226fba7bed78d0ca6fb7b28087c2bf49dd4f7c77f86af328d4046",
+      "bytes": 1234
+    },
+    {
+      "path": "node_modules/luxon/build/node/luxon.js",
+      "sha256": "89f0e65bc957cb4574f66f8b4b76b855631d810e5249bf7f5fb98e1e30ace7ca",
+      "bytes": 261910
+    },
+    {
+      "path": "node_modules/luxon/package.json",
+      "sha256": "bf8c55f4072d01467c1c0c49807722f79577680ac1ff7fa7c030a83716d3db4f",
+      "bytes": 2872
+    },
+    {
+      "path": "package.json",
+      "sha256": "dbf8353f77358bc12169b7bb7301e1978d5b503e002ee927229a8993672818fc",
+      "bytes": 20
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "case_id": "rb-lru-delete-size",
+  "which": "buggy",
+  "repo": "lru-cache",
+  "rev": "0b6689cc060f7c2b8cb03a79d0098703fb832e23",
+  "files": [
+    {
+      "path": "index.js",
+      "sha256": "54d538f19be4a13df960e579e250f174a43c704e7882a168020d7893691851f2",
+      "bytes": 21793
+    },
+    {
+      "path": "package.json",
+      "sha256": "dbf8353f77358bc12169b7bb7301e1978d5b503e002ee927229a8993672818fc",
+      "bytes": 20
+    }
+  ]
+}

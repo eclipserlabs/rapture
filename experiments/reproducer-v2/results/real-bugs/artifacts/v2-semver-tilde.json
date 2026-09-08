@@ -1,0 +1,91 @@
+{
+  "schema": "reproducer-artifact-v2",
+  "v2_case": "v2-semver-tilde",
+  "source_capture_hash": "8ebb690730996ea14ca23880d0496d639f970654de128909de6b2b5315b42b11",
+  "request": {
+    "method": "GET",
+    "path": "/check",
+    "query": "",
+    "headers": {
+      "host": "localhost:4922",
+      "connection": "keep-alive",
+      "accept": "*/*",
+      "accept-language": "*",
+      "sec-fetch-mode": "cors",
+      "user-agent": "node",
+      "accept-encoding": "gzip, deflate"
+    },
+    "host": "localhost:4922",
+    "body": null
+  },
+  "required_events": [
+    {
+      "seq": 2,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT value FROM v2_expect WHERE key = $1:[\"semver-tilde\"]",
+      "request": {
+        "text": "SELECT value FROM v2_expect WHERE key = $1",
+        "values": [
+          "semver-tilde"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 1,
+        "rows": [
+          {
+            "value": "true"
+          }
+        ],
+        "fields": [
+          {
+            "name": "value",
+            "dataTypeID": 25
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "seq": 3,
+      "kind": "http",
+      "op": "fetch",
+      "key": "http:GET:/api/health:",
+      "request": {
+        "method": "GET",
+        "url": "/api/health",
+        "body": null
+      },
+      "result": {
+        "status": 200,
+        "headers": {
+          "connection": "keep-alive",
+          "content-type": "application/json",
+          "date": "Tue, 08 Sep 2026 12:57:01 GMT",
+          "keep-alive": "timeout=5",
+          "transfer-encoding": "chunked"
+        },
+        "body": "{\"ok\":true}",
+        "truncated": false,
+        "unreadable": false
+      },
+      "error": null
+    }
+  ],
+  "required_config": {},
+  "expected_fingerprint": {
+    "kind": "app",
+    "request_method": "GET",
+    "route_or_operation": "/check",
+    "http_status": 500,
+    "error_name_or_code": "ERR:E_SEMVER_MISMATCH",
+    "normalized_class": "ERR:E_SEMVER_MISMATCH",
+    "stable_frame": null,
+    "fingerprint_hash": "7fe74c16801ab87f9658324b94e2304dcfb135118e121f637b4b2b7c9ef11346"
+  },
+  "runtime": {
+    "entry": "real-bugs/v2-semver-tilde/app.mjs"
+  },
+  "artifact_hash": "044e7d215aec3223b59987618dc29b155a6e3787f8c2bf073da69c7693b6c72c"
+}
