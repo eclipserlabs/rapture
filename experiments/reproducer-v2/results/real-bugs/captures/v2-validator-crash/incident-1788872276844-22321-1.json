@@ -1,0 +1,155 @@
+{
+  "schema": "incident-capture-v2",
+  "captured_at": "2026-09-08T12:57:56.843Z",
+  "req_id": "req-22321-1788872276783-1",
+  "request": {
+    "method": "GET",
+    "path": "/signup",
+    "query": "",
+    "headers": {
+      "host": "localhost:4923",
+      "connection": "keep-alive",
+      "accept": "*/*",
+      "accept-language": "*",
+      "sec-fetch-mode": "cors",
+      "user-agent": "node",
+      "accept-encoding": "gzip, deflate"
+    },
+    "host": "localhost:4923",
+    "body": null
+  },
+  "response": {
+    "status": 500,
+    "headers": {},
+    "body": "{\"error\":\"name validation crashed\",\"code\":\"E_VALIDATOR_CRASH\"}"
+  },
+  "events": [
+    {
+      "seq": 1,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT * FROM users WHERE id = $1:[\"u-ok\"]",
+      "request": {
+        "text": "SELECT * FROM users WHERE id = $1",
+        "values": [
+          "u-ok"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 1,
+        "rows": [
+          {
+            "id": "u-ok",
+            "email": "ok@example.com",
+            "role": "member"
+          }
+        ],
+        "fields": [
+          {
+            "name": "id",
+            "dataTypeID": 25
+          },
+          {
+            "name": "email",
+            "dataTypeID": 25
+          },
+          {
+            "name": "role",
+            "dataTypeID": 25
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "seq": 2,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT * FROM users WHERE id = $1:[\"u-ok\"]",
+      "request": {
+        "text": "SELECT * FROM users WHERE id = $1",
+        "values": [
+          "u-ok"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 1,
+        "rows": [
+          {
+            "id": "u-ok",
+            "email": "ok@example.com",
+            "role": "member"
+          }
+        ],
+        "fields": [
+          {
+            "name": "id",
+            "dataTypeID": 25
+          },
+          {
+            "name": "email",
+            "dataTypeID": 25
+          },
+          {
+            "name": "role",
+            "dataTypeID": 25
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "seq": 3,
+      "kind": "http",
+      "op": "fetch",
+      "key": "http:GET:/api/health:",
+      "request": {
+        "method": "GET",
+        "url": "/api/health",
+        "body": null
+      },
+      "result": {
+        "status": 200,
+        "headers": {
+          "connection": "keep-alive",
+          "content-type": "application/json",
+          "date": "Tue, 08 Sep 2026 12:57:56 GMT",
+          "keep-alive": "timeout=5",
+          "transfer-encoding": "chunked"
+        },
+        "body": "{\"ok\":true}",
+        "truncated": false,
+        "unreadable": false
+      },
+      "error": null
+    },
+    {
+      "seq": 4,
+      "kind": "time",
+      "op": "now",
+      "key": "time:0",
+      "request": {},
+      "result": {
+        "value": 1788872276842
+      },
+      "error": null
+    }
+  ],
+  "config": {
+    "FAKE_ORIGIN": "http://localhost:4910"
+  },
+  "app_error": null,
+  "fingerprint": {
+    "kind": "app",
+    "request_method": "GET",
+    "route_or_operation": "/signup",
+    "http_status": 500,
+    "error_name_or_code": "ERR:E_VALIDATOR_CRASH",
+    "normalized_class": "ERR:E_VALIDATOR_CRASH",
+    "stable_frame": null,
+    "fingerprint_hash": "85106ea27efe0fb601977626e16b4f08d7bce02926d2949946842fde7e2ad91c"
+  },
+  "capture_hash": "7fe25505a1efccfacdf251e91b4432177a10e9386a1841f6d47306dea1f1323f"
+}

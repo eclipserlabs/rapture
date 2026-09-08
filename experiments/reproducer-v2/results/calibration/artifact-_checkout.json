@@ -1,0 +1,95 @@
+{
+  "schema": "reproducer-artifact-v2",
+  "source_capture_hash": "3ddb6258eef1a6e821e9f4d86f7904f69ac3e54ca285be6622c0489d29e2a571",
+  "request": {
+    "method": "GET",
+    "path": "/checkout",
+    "query": "?sku=sku-1&qty=10",
+    "headers": {
+      "host": "localhost:4891",
+      "connection": "keep-alive",
+      "accept": "*/*",
+      "accept-language": "*",
+      "sec-fetch-mode": "cors",
+      "user-agent": "node",
+      "accept-encoding": "gzip, deflate"
+    },
+    "host": "localhost:4891",
+    "body": null
+  },
+  "required_events": [
+    {
+      "seq": 2,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT * FROM inventory WHERE sku = $1:[\"sku-1\"]",
+      "request": {
+        "text": "SELECT * FROM inventory WHERE sku = $1",
+        "values": [
+          "sku-1"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 1,
+        "rows": [
+          {
+            "sku": "sku-1",
+            "qty": 2
+          }
+        ],
+        "fields": [
+          {
+            "name": "sku",
+            "dataTypeID": 25
+          },
+          {
+            "name": "qty",
+            "dataTypeID": 23
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "seq": 3,
+      "kind": "http",
+      "op": "fetch",
+      "key": "http:GET:/api/shipping?qty=10:",
+      "request": {
+        "method": "GET",
+        "url": "/api/shipping?qty=10",
+        "body": null
+      },
+      "result": {
+        "status": 200,
+        "headers": {
+          "connection": "keep-alive",
+          "content-type": "application/json",
+          "date": "Tue, 08 Sep 2026 12:32:06 GMT",
+          "keep-alive": "timeout=5",
+          "transfer-encoding": "chunked"
+        },
+        "body": "{\"cost\":150}",
+        "truncated": false,
+        "unreadable": false
+      },
+      "error": null
+    }
+  ],
+  "required_config": {},
+  "expected_fingerprint": {
+    "kind": "app",
+    "request_method": "GET",
+    "route_or_operation": "/checkout",
+    "http_status": 500,
+    "error_name_or_code": "ERR:E_CHECKOUT",
+    "normalized_class": "ERR:E_CHECKOUT",
+    "stable_frame": null,
+    "fingerprint_hash": "f7f97a2aa421b2bec5e99d55ea8f3bb57ca57911cd101b440eb7ac24127362b0"
+  },
+  "runtime": {
+    "entry": "calibration/service/server.mjs"
+  },
+  "artifact_hash": "6256a97e30f377cdf1462db67193f0f1be688bed5cc42c5a79c7fd14d451e3c4"
+}

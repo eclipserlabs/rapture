@@ -1,0 +1,98 @@
+[
+  {
+    "file": "incident-1788870726553-17045-1.json",
+    "path": "/orders/ord-bad",
+    "expected": "ERR:E_ORDER_SUSPENDED",
+    "passes": 20,
+    "total": 20,
+    "outcomes": {
+      "app:ERR:E_ORDER_SUSPENDED": 20
+    },
+    "median_ms": 416,
+    "p95_ms": 550
+  },
+  {
+    "file": "incident-1788870726589-17045-2.json",
+    "path": "/profile",
+    "expected": "ERR:E_PROFILE_SHAPE",
+    "passes": 20,
+    "total": 20,
+    "outcomes": {
+      "app:ERR:E_PROFILE_SHAPE": 20
+    },
+    "median_ms": 515,
+    "p95_ms": 582
+  },
+  {
+    "file": "incident-1788870726620-17045-3.json",
+    "path": "/price",
+    "expected": "ERR:E_PRICE_FALLBACK",
+    "passes": 20,
+    "total": 20,
+    "outcomes": {
+      "app:ERR:E_PRICE_FALLBACK": 20
+    },
+    "median_ms": 429,
+    "p95_ms": 587
+  },
+  {
+    "file": "incident-1788870726762-17045-4.json",
+    "path": "/token",
+    "expected": "ERR:E_TOKEN_EXPIRED",
+    "passes": 20,
+    "total": 20,
+    "outcomes": {
+      "app:ERR:E_TOKEN_EXPIRED": 20
+    },
+    "median_ms": 503,
+    "p95_ms": 550
+  },
+  {
+    "file": "incident-1788870726946-17045-5.json",
+    "path": "/store",
+    "expected": "ERR:E_STORE_CONFIG",
+    "passes": 20,
+    "total": 20,
+    "outcomes": {
+      "app:ERR:E_STORE_CONFIG": 20
+    },
+    "median_ms": 528,
+    "p95_ms": 624
+  },
+  {
+    "file": "incident-1788870726955-17045-6.json",
+    "path": "/checkout",
+    "expected": "ERR:E_CHECKOUT",
+    "passes": 20,
+    "total": 20,
+    "outcomes": {
+      "app:ERR:E_CHECKOUT": 20
+    },
+    "median_ms": 561,
+    "p95_ms": 639
+  },
+  {
+    "file": "incident-1788870727099-17045-7.json",
+    "path": "/dashboard",
+    "expected": "ERR:E_DASHBOARD",
+    "passes": 20,
+    "total": 20,
+    "outcomes": {
+      "app:ERR:E_DASHBOARD": 20
+    },
+    "median_ms": 490,
+    "p95_ms": 598
+  },
+  {
+    "file": "incident-1788870727131-17045-12.json",
+    "path": "/rollout",
+    "expected": "ERR:E_ROLLOUT",
+    "passes": 20,
+    "total": 20,
+    "outcomes": {
+      "app:ERR:E_ROLLOUT": 20
+    },
+    "median_ms": 509,
+    "p95_ms": 538
+  }
+]
