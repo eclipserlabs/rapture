@@ -1,0 +1,21 @@
+{
+  "scenario": "adv-nested",
+  "baseline_pass": true,
+  "field_trials": [
+    {
+      "deleted_field": "dept",
+      "pass": true,
+      "got": "E_ACCOUNT_SUSPENDED"
+    },
+    {
+      "deleted_field": "role",
+      "pass": false,
+      "got": "E_NO_FAILURE"
+    },
+    {
+      "deleted_field": "status",
+      "pass": false,
+      "got": "E_NO_FAILURE"
+    }
+  ]
+}

@@ -1,0 +1,133 @@
+{
+  "schema": "reproducer-artifact-v2",
+  "request": {
+    "method": "GET",
+    "path": "/h",
+    "query": "",
+    "headers": {
+      "host": "localhost:47121",
+      "connection": "keep-alive",
+      "authorization": "[REDACTED]",
+      "cookie": "sess=sess-[REDACTED]; theme=dark",
+      "accept": "*/*",
+      "accept-language": "*",
+      "sec-fetch-mode": "cors",
+      "user-agent": "node",
+      "accept-encoding": "gzip, deflate"
+    },
+    "host": "localhost:47121",
+    "body": null
+  },
+  "required_events": [
+    {
+      "seq": 1,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT * FROM v3priv_kv WHERE k = $1:[\"sess=[SESS:97c74ba68cfc][REDACTED]; theme=dark\"]",
+      "request": {
+        "text": "SELECT * FROM v3priv_kv WHERE k = $1",
+        "values": [
+          "sess=[SESS:97c74ba68cfc][REDACTED]; theme=dark"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 0,
+        "rows": [],
+        "fields": [
+          {
+            "name": "k",
+            "dataTypeID": 25
+          },
+          {
+            "name": "v",
+            "dataTypeID": 25
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "seq": 2,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT * FROM v3priv_kv WHERE k = $1:[\"sess=[SESS:97c74ba68cfc][REDACTED]; theme=dark\"]",
+      "request": {
+        "text": "SELECT * FROM v3priv_kv WHERE k = $1",
+        "values": [
+          "sess=[SESS:97c74ba68cfc][REDACTED]; theme=dark"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 0,
+        "rows": [],
+        "fields": [
+          {
+            "name": "k",
+            "dataTypeID": 25
+          },
+          {
+            "name": "v",
+            "dataTypeID": 25
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "seq": 3,
+      "kind": "http",
+      "op": "fetch",
+      "key": "http:GET:/echo:",
+      "request": {
+        "method": "GET",
+        "url": "/echo",
+        "body": null
+      },
+      "result": {
+        "status": 200,
+        "headers": {
+          "connection": "keep-alive",
+          "content-type": "application/json",
+          "date": "Wed, 09 Sep 2026 15:05:03 GMT",
+          "keep-alive": "timeout=5",
+          "transfer-encoding": "chunked"
+        },
+        "body": "{\"gotAuth\":\"Bearer [REDACTED]\",\"gotKey\":\"shop-key\",\"debug\":null}",
+        "truncated": false,
+        "unreadable": false
+      },
+      "error": null
+    },
+    {
+      "seq": 4,
+      "kind": "time",
+      "op": "now",
+      "key": "time:0",
+      "request": {},
+      "result": {
+        "value": 1788966303298
+      },
+      "error": null
+    }
+  ],
+  "required_config": {
+    "FAKE_ORIGIN": "http://localhost:47129",
+    "SECRET_CONFIG": {
+      "redacted": true,
+      "sha256": "788de2801c5bd6dc66008b457255e6834a73692db3d4b60441f2eab9367ddbbd"
+    }
+  },
+  "expected_fingerprint": {
+    "kind": "app",
+    "request_method": "GET",
+    "route_or_operation": "/h",
+    "http_status": 500,
+    "error_name_or_code": "ERR:E_PRIV_H",
+    "normalized_class": "ERR:E_PRIV_H",
+    "stable_frame": null,
+    "fingerprint_hash": "0752f72f02b44f724a1acb78e88b3634d381851ba1863de1bf23888cc7d8cb19"
+  },
+  "artifact_hash": "fc4e438f85d0989c77b221d6914d77925c80097690106a2171082c6bcf702b77"
+}

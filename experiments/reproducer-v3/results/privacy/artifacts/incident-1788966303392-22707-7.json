@@ -1,0 +1,97 @@
+{
+  "schema": "reproducer-artifact-v2",
+  "request": {
+    "method": "POST",
+    "path": "/sub",
+    "query": "",
+    "headers": {
+      "host": "localhost:47121",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "accept": "*/*",
+      "accept-language": "*",
+      "sec-fetch-mode": "cors",
+      "user-agent": "node",
+      "accept-encoding": "gzip, deflate",
+      "content-length": "72"
+    },
+    "host": "localhost:47121",
+    "body": "{\"ref\":\"ticket-1\",\"note\":\"reference [REDACTED] confirmed\"}"
+  },
+  "required_events": [
+    {
+      "seq": 1,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT * FROM v3priv_kv WHERE k = $1:[\"ticket-1\"]",
+      "request": {
+        "text": "SELECT * FROM v3priv_kv WHERE k = $1",
+        "values": [
+          "ticket-1"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 0,
+        "rows": [],
+        "fields": [
+          {
+            "name": "k",
+            "dataTypeID": 25
+          },
+          {
+            "name": "v",
+            "dataTypeID": 25
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "seq": 2,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT * FROM v3priv_kv WHERE k = $1:[\"ticket-1\"]",
+      "request": {
+        "text": "SELECT * FROM v3priv_kv WHERE k = $1",
+        "values": [
+          "ticket-1"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 0,
+        "rows": [],
+        "fields": [
+          {
+            "name": "k",
+            "dataTypeID": 25
+          },
+          {
+            "name": "v",
+            "dataTypeID": 25
+          }
+        ]
+      },
+      "error": null
+    }
+  ],
+  "required_config": {
+    "FAKE_ORIGIN": "http://localhost:47129",
+    "SECRET_CONFIG": {
+      "redacted": true,
+      "sha256": "788de2801c5bd6dc66008b457255e6834a73692db3d4b60441f2eab9367ddbbd"
+    }
+  },
+  "expected_fingerprint": {
+    "kind": "app",
+    "request_method": "POST",
+    "route_or_operation": "/sub",
+    "http_status": 500,
+    "error_name_or_code": "ERR:E_PRIV_SUB",
+    "normalized_class": "ERR:E_PRIV_SUB",
+    "stable_frame": null,
+    "fingerprint_hash": "1ad92524b443b37bf70ee3ebacfd5e606aff83d98e7db5dc5d20eb94c9ea6981"
+  },
+  "artifact_hash": "080600481b4dd20111e6ed86e65201f64ad3bf84b1d77f1c695bd6479ce16001"
+}

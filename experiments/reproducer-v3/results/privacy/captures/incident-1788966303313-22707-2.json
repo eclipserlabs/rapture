@@ -1,0 +1,149 @@
+{
+  "schema": "incident-capture-v2",
+  "captured_at": "2026-09-09T15:05:03.313Z",
+  "req_id": "req-22707-1788966303307-2",
+  "request": {
+    "method": "GET",
+    "path": "/q",
+    "query": "?api_key=[REDACTED]&email=u-03f485ec%40example.com",
+    "headers": {
+      "host": "localhost:47121",
+      "connection": "keep-alive",
+      "accept": "*/*",
+      "accept-language": "*",
+      "sec-fetch-mode": "cors",
+      "user-agent": "node",
+      "accept-encoding": "gzip, deflate"
+    },
+    "host": "localhost:47121",
+    "body": null
+  },
+  "response": {
+    "status": 500,
+    "headers": {},
+    "body": "{\"error\":\"priv query incident\",\"code\":\"E_PRIV_Q\"}"
+  },
+  "events": [
+    {
+      "seq": 1,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT * FROM v3priv_users WHERE id = $1:[\"u-03f485ec@example.com\"]",
+      "request": {
+        "text": "SELECT * FROM v3priv_users WHERE id = $1",
+        "values": [
+          "u-03f485ec@example.com"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 1,
+        "rows": [
+          {
+            "id": "u-03f485ec@example.com",
+            "profile": "{\"email\":\"u-03f485ec@example.com\",\"phone\":\"+1-415-555-2012\",\"apiKey\":\"[REDACTED]\",\"nested\":{\"uid\":\"user-03f485ec\"}}"
+          }
+        ],
+        "fields": [
+          {
+            "name": "id",
+            "dataTypeID": 25
+          },
+          {
+            "name": "profile",
+            "dataTypeID": 25
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "seq": 2,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT * FROM v3priv_users WHERE id = $1:[\"u-03f485ec@example.com\"]",
+      "request": {
+        "text": "SELECT * FROM v3priv_users WHERE id = $1",
+        "values": [
+          "u-03f485ec@example.com"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 1,
+        "rows": [
+          {
+            "id": "u-03f485ec@example.com",
+            "profile": "{\"email\":\"u-03f485ec@example.com\",\"phone\":\"+1-415-555-2012\",\"apiKey\":\"[REDACTED]\",\"nested\":{\"uid\":\"user-03f485ec\"}}"
+          }
+        ],
+        "fields": [
+          {
+            "name": "id",
+            "dataTypeID": 25
+          },
+          {
+            "name": "profile",
+            "dataTypeID": 25
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "seq": 3,
+      "kind": "http",
+      "op": "fetch",
+      "key": "http:GET:/echo?debug=%5BREDACTED%5D:",
+      "request": {
+        "method": "GET",
+        "url": "/echo?debug=%5BREDACTED%5D",
+        "body": null
+      },
+      "result": {
+        "status": 200,
+        "headers": {
+          "connection": "keep-alive",
+          "content-type": "application/json",
+          "date": "Wed, 09 Sep 2026 15:05:03 GMT",
+          "keep-alive": "timeout=5",
+          "transfer-encoding": "chunked"
+        },
+        "body": "{\"gotAuth\":null,\"gotKey\":null,\"debug\":\"[REDACTED]\"}",
+        "truncated": false,
+        "unreadable": false
+      },
+      "error": null
+    },
+    {
+      "seq": 4,
+      "kind": "time",
+      "op": "now",
+      "key": "time:0",
+      "request": {},
+      "result": {
+        "value": 1788966303312
+      },
+      "error": null
+    }
+  ],
+  "config": {
+    "FAKE_ORIGIN": "http://localhost:47129",
+    "SECRET_CONFIG": {
+      "redacted": true,
+      "sha256": "788de2801c5bd6dc66008b457255e6834a73692db3d4b60441f2eab9367ddbbd"
+    }
+  },
+  "app_error": null,
+  "fingerprint": {
+    "kind": "app",
+    "request_method": "GET",
+    "route_or_operation": "/q",
+    "http_status": 500,
+    "error_name_or_code": "ERR:E_PRIV_Q",
+    "normalized_class": "ERR:E_PRIV_Q",
+    "stable_frame": null,
+    "fingerprint_hash": "ca903358f82cafd28736bff3b08bd8cd328fbe104ea347e7815756334f2b1a82"
+  },
+  "capture_hash": "cf5b7bc959437d3f62706699bde89456d8bd4bdf7be52a5f9e736680e46ae850"
+}

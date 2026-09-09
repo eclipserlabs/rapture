@@ -1,0 +1,45 @@
+{
+  "rows": [
+    {
+      "mode": "off",
+      "median_ms": 3,
+      "p95_ms": 8,
+      "rps": 267.4,
+      "rss_before": 71282688,
+      "rss_after": 74481664,
+      "rss_delta": 3198976,
+      "last_request_bytes_recorded": 0,
+      "persisted": 0
+    },
+    {
+      "mode": "capture-discard",
+      "median_ms": 3,
+      "p95_ms": 13,
+      "rps": 205.2,
+      "rss_before": 71352320,
+      "rss_after": 80244736,
+      "rss_delta": 8892416,
+      "last_request_bytes_recorded": 1212,
+      "persisted": 0
+    },
+    {
+      "mode": "capture-persist",
+      "median_ms": 3,
+      "p95_ms": 128,
+      "rps": 62.8,
+      "rss_before": 71340032,
+      "rss_after": 80015360,
+      "rss_delta": 8675328,
+      "last_request_bytes_recorded": 534,
+      "persisted": 42
+    }
+  ],
+  "overhead_discard_vs_off": {
+    "median_pct": 0,
+    "p95_pct": 62.5
+  },
+  "overhead_persist_vs_off": {
+    "median_pct": 0,
+    "p95_pct": 1500
+  }
+}

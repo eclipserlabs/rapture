@@ -1,0 +1,257 @@
+{
+  "experiment": "reproducer-v0",
+  "frozen_at": "2026-09-07T13:03:47.519Z",
+  "code_version": "a2f012afd6e1f548c53853c15cd9ccb54a530f9b",
+  "note": "Scenario definitions frozen before reducer execution. causal_atoms are ground truth for scoring only.",
+  "scenarios": [
+    {
+      "id": "upstream-503-fallback",
+      "title": "Upstream 503 with broken express fallback",
+      "description": "Pricing upstream returns 503; the express fallback path throws. Causal: the pricing response plus input.express. Noise: profile/inventory enrichment calls, unrelated config, unused db rows, ambient upstream calls.",
+      "code_version": "a2f012afd6e1f548c53853c15cd9ccb54a530f9b",
+      "expected_failure_fingerprint": {
+        "failure_kind": "APPLICATION",
+        "error_code": "E_FALLBACK_NO_EXPRESS",
+        "message_class": "FALLBACK_FAILED",
+        "top_frame": "fallback-price",
+        "fingerprint_hash": "73a7a9fe83c9496cd0a819a14259481165c1769b0c06f7f1e2a2ac2c672cd24a"
+      },
+      "capture_hash": "7c84783511ee78e5a23b254ae245e954dda08c5a9f74a2611a5ee2e1f0527ae6",
+      "original_atom_count": 22,
+      "original_event_count": 8,
+      "original_db_row_count": 6,
+      "original_config_key_count": 4,
+      "removable_input_field_count": 4,
+      "original_bytes": 2426,
+      "causal_atoms": {
+        "events": [
+          "http:pricing:{\"express\":true,\"sku\":\"SKU-42\"}"
+        ],
+        "db": [],
+        "config": [],
+        "input": [
+          "express"
+        ],
+        "total": 2
+      }
+    },
+    {
+      "id": "malformed-upstream-payload",
+      "title": "Syntactically valid but structurally unexpected upstream payload",
+      "description": "Entitlements API returns seats as a string instead of a number; strict parsing throws. Causal: the single entitlements response. Noise: enrichment calls, ambient traffic, db, config.",
+      "code_version": "a2f012afd6e1f548c53853c15cd9ccb54a530f9b",
+      "expected_failure_fingerprint": {
+        "failure_kind": "APPLICATION",
+        "error_code": "E_ENTITLEMENT_SHAPE",
+        "message_class": "SCHEMA_MISMATCH",
+        "top_frame": "parse-entitlements",
+        "fingerprint_hash": "c56dd2766f06490a860d0d75d9b2010e23f346efc6abb627739c64d403d6f81f"
+      },
+      "capture_hash": "3c199f3ad7730a9064f85a86f70e8f0105a5bec1ad8ae73cbd24d1011ce9cd5f",
+      "original_atom_count": 15,
+      "original_event_count": 5,
+      "original_db_row_count": 5,
+      "original_config_key_count": 3,
+      "removable_input_field_count": 2,
+      "original_bytes": 1945,
+      "causal_atoms": {
+        "events": [
+          "http:entitlements:{\"user\":\"u_99\"}"
+        ],
+        "db": [],
+        "config": [],
+        "input": [],
+        "total": 1
+      }
+    },
+    {
+      "id": "database-state-edge",
+      "title": "Small subset of recorded db rows creates the failure",
+      "description": "Charge authorization fails only when account ac_123 is suspended AND the fraud_review flag is set; 22 unrelated rows are present. Causal: the two db rows. Noise: everything else.",
+      "code_version": "a2f012afd6e1f548c53853c15cd9ccb54a530f9b",
+      "expected_failure_fingerprint": {
+        "failure_kind": "APPLICATION",
+        "error_code": "E_ACCOUNT_FROZEN",
+        "message_class": "ACCOUNT_FROZEN",
+        "top_frame": "authorize-charge",
+        "fingerprint_hash": "787ff7308b077df835ee486844d6d29cd4fa3371280a31ece10ee3090a7c5844"
+      },
+      "capture_hash": "e50cda541dbf63408c7754d651f0f840e832a37f0cbc4475aca5343353048a96",
+      "original_atom_count": 32,
+      "original_event_count": 3,
+      "original_db_row_count": 24,
+      "original_config_key_count": 3,
+      "removable_input_field_count": 2,
+      "original_bytes": 3268,
+      "causal_atoms": {
+        "events": [],
+        "db": [
+          "accounts:ac_123",
+          "flags:fraud_review"
+        ],
+        "config": [],
+        "input": [],
+        "total": 2
+      }
+    },
+    {
+      "id": "expired-time-boundary",
+      "title": "Captured clock value crosses an expiry boundary",
+      "description": "Token validation fails because the captured now crosses iat+TTL. Causal: the clock event plus TOKEN_TTL_S. Noise: other config, ambient events, db rows.",
+      "code_version": "a2f012afd6e1f548c53853c15cd9ccb54a530f9b",
+      "expected_failure_fingerprint": {
+        "failure_kind": "APPLICATION",
+        "error_code": "E_TOKEN_EXPIRED",
+        "message_class": "TOKEN_EXPIRED",
+        "top_frame": "check-expiry",
+        "fingerprint_hash": "e24314ada85002ec590232494734145c7443da1ea500a4d4ee3482d68205c560"
+      },
+      "capture_hash": "fc58b8b9b789b64c0aac80b118b6e5cd3dca74927b0056a2c8b859f72a3181fc",
+      "original_atom_count": 17,
+      "original_event_count": 4,
+      "original_db_row_count": 6,
+      "original_config_key_count": 4,
+      "removable_input_field_count": 3,
+      "original_bytes": 1796,
+      "causal_atoms": {
+        "events": [
+          "clock:now:\"now\""
+        ],
+        "db": [],
+        "config": [
+          "TOKEN_TTL_S"
+        ],
+        "input": [
+          "token.iat"
+        ],
+        "total": 3
+      }
+    },
+    {
+      "id": "random-idempotency-path",
+      "title": "Captured random value selects the faulty branch",
+      "description": "A captured random draw >= 0.5 routes into the dedupe-write path where an existing idempotency row triggers a conflict. Causal: the draw plus the idempotency row.",
+      "code_version": "a2f012afd6e1f548c53853c15cd9ccb54a530f9b",
+      "expected_failure_fingerprint": {
+        "failure_kind": "APPLICATION",
+        "error_code": "E_IDEMPOTENCY_CONFLICT",
+        "message_class": "IDEMPOTENCY_CONFLICT",
+        "top_frame": "dedupe-write",
+        "fingerprint_hash": "273cb89dbcf1207b31dd8e196ceecf7685d12ad8c10c22616ea2aecc1de12311"
+      },
+      "capture_hash": "cddb0ca2c777c3959e681b9d78cf9e565228a46b6ada98a54e0df19e88b31cb1",
+      "original_atom_count": 15,
+      "original_event_count": 4,
+      "original_db_row_count": 8,
+      "original_config_key_count": 2,
+      "removable_input_field_count": 1,
+      "original_bytes": 1878,
+      "causal_atoms": {
+        "events": [
+          "random:draw:\"idempotency-draw\""
+        ],
+        "db": [
+          "idempotency:idem_abc"
+        ],
+        "config": [],
+        "input": [],
+        "total": 2
+      }
+    },
+    {
+      "id": "config-region-combination",
+      "title": "Only a small combination of config values fails",
+      "description": "Store selection throws only for REGION=eu-west AND DATA_TIER=standard. Causal: the two config keys. Noise: eight other config keys, ambient events, db rows.",
+      "code_version": "a2f012afd6e1f548c53853c15cd9ccb54a530f9b",
+      "expected_failure_fingerprint": {
+        "failure_kind": "APPLICATION",
+        "error_code": "E_REGION_TIER_UNSUPPORTED",
+        "message_class": "REGION_UNSUPPORTED",
+        "top_frame": "select-store",
+        "fingerprint_hash": "6740a3ef7da62220b82bf6083dd3fd29707790c84fbd9e38f9a6cbe244bcaae7"
+      },
+      "capture_hash": "61aafeb6910e05b3b5b445ae7b2790dab36fcc3fd5f95fd8293e65e3f64be169",
+      "original_atom_count": 19,
+      "original_event_count": 2,
+      "original_db_row_count": 6,
+      "original_config_key_count": 10,
+      "removable_input_field_count": 1,
+      "original_bytes": 1591,
+      "causal_atoms": {
+        "events": [],
+        "db": [],
+        "config": [
+          "REGION",
+          "DATA_TIER"
+        ],
+        "input": [],
+        "total": 2
+      }
+    },
+    {
+      "id": "ordered-two-call-sequence",
+      "title": "Failure depends on two boundary calls in recorded sequence",
+      "description": "Reserve then commit: the commit conflicts only against the reservation made by the preceding reserve call. Both events in order are causal. Noise: seat-map enrichment, ambient calls, db rows, config.",
+      "code_version": "a2f012afd6e1f548c53853c15cd9ccb54a530f9b",
+      "expected_failure_fingerprint": {
+        "failure_kind": "APPLICATION",
+        "error_code": "E_DOUBLE_COMMIT",
+        "message_class": "DOUBLE_COMMIT",
+        "top_frame": "commit-seat",
+        "fingerprint_hash": "b3a17e6b42345a5b55c2be2a246a01f0e647b2f43ff19bf18499d136f9b965a3"
+      },
+      "capture_hash": "9c6b79f4681d69eedcc77b87c8fd2de7ed6992eda531462396925ef86cb38abc",
+      "original_atom_count": 14,
+      "original_event_count": 6,
+      "original_db_row_count": 5,
+      "original_config_key_count": 2,
+      "removable_input_field_count": 1,
+      "original_bytes": 2025,
+      "causal_atoms": {
+        "events": [
+          "http:reserve:{\"seat\":\"A12\",\"show\":\"sh_9\"}",
+          "http:commit:{\"reservation\":\"rsv_9\"}"
+        ],
+        "db": [],
+        "config": [],
+        "input": [],
+        "total": 2
+      }
+    },
+    {
+      "id": "noise-heavy-incident",
+      "title": "Deliberately large capture, tiny causal core",
+      "description": "Stress case: ~120 capture atoms, only 3 causal (billing-charge response, input.amount, the overdue account row). Measures reduction ratio and reducer search cost.",
+      "code_version": "a2f012afd6e1f548c53853c15cd9ccb54a530f9b",
+      "expected_failure_fingerprint": {
+        "failure_kind": "APPLICATION",
+        "error_code": "E_CHARGE_DECLINED_HIGH_VALUE",
+        "message_class": "CHARGE_DECLINED",
+        "top_frame": "settle-charge",
+        "fingerprint_hash": "66998367b9bced16638d7a7d67a9d9d3ee0127c0d85a63a53ce3ffd732b3e16a"
+      },
+      "capture_hash": "b943be9513974041f732f12f7c1e6fe6c4b40f7a9cfe15362faaa8126a039dd0",
+      "original_atom_count": 125,
+      "original_event_count": 62,
+      "original_db_row_count": 40,
+      "original_config_key_count": 15,
+      "removable_input_field_count": 8,
+      "original_bytes": 18259,
+      "causal_atoms": {
+        "events": [
+          "http:billing-charge:{\"amount\":9900,\"order\":\"ord_9000\"}"
+        ],
+        "db": [
+          "accounts:ac_9"
+        ],
+        "config": [
+          "HIGH_VALUE_THRESHOLD"
+        ],
+        "input": [
+          "amount"
+        ],
+        "total": 4
+      }
+    }
+  ]
+}

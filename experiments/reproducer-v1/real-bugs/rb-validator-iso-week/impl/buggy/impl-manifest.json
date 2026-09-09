@@ -1,0 +1,23 @@
+{
+  "case_id": "rb-validator-iso-week",
+  "which": "buggy",
+  "repo": "validator",
+  "rev": "7fdc788ebd1ad79ca6d9edabb884eaaa1c51e36c",
+  "files": [
+    {
+      "path": "package.json",
+      "sha256": "dbf8353f77358bc12169b7bb7301e1978d5b503e002ee927229a8993672818fc",
+      "bytes": 20
+    },
+    {
+      "path": "src/lib/isISO8601.js",
+      "sha256": "a460f97b17953343bb693098c88967e993727117f0f3b0eaf15bd648a543eb30",
+      "bytes": 2109
+    },
+    {
+      "path": "src/lib/util/assertString.js",
+      "sha256": "6fa314e49eeed77c863a8dbb2e1b75fa00b5129c756f181e741299083732754b",
+      "bytes": 287
+    }
+  ]
+}

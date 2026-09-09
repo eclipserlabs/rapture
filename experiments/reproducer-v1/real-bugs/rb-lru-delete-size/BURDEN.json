@@ -1,0 +1,14 @@
+{
+  "case_id": "rb-lru-delete-size",
+  "adapter_loc": 0,
+  "adapter_files": ["case.js (experiment fixture, ~110 lines incl. noise model)"],
+  "manually_modeled_boundaries": ["observed-state oracle read", "cache-stat ancillary read"],
+  "human_setup_steps": [
+    "identified fix commit for PR #229 and parent SHA",
+    "vendored index.js at both revisions (vendor-impl.js)",
+    "named sizeCalculation registry entry (by-length) matching trigger semantics",
+    "added incident-window noise (ambient ops, extra input/config/db)"
+  ],
+  "estimated_minutes": 25,
+  "note": "Impl itself required no adaptation (CJS, zero deps). Minutes exclude corpus research shared across cases."
+}

@@ -1,0 +1,13 @@
+{
+  "name": "reproducer-v2-experiment",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Rapture Reproducer V2 experiment: automatic incident capture + oracle (not a product)",
+  "scripts": {
+    "test": "node --test \"test/*.test.js\""
+  },
+  "dependencies": {
+    "pg": "^8.13.0"
+  }
+}

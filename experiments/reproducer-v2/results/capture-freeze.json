@@ -1,0 +1,71 @@
+{
+  "frozen_at": "2026-09-08T12:40:39.033Z",
+  "tree_hash": "3c0197b458d8b47372f60de8e820847717cc217f867d2042a5207c6775cc722e",
+  "files": [
+    {
+      "path": "src/capture/context.mjs",
+      "sha256": "a56bba14e78a40303896e7fa008df823ea8ea46c9ee072eaa96216443239dde0",
+      "bytes": 1475
+    },
+    {
+      "path": "src/capture/events.mjs",
+      "sha256": "14d79d6bfac57a79a3466ee90ccf8cc88b914153a57c4d366809b30be4bc5156",
+      "bytes": 3162
+    },
+    {
+      "path": "src/capture/patch-fetch.mjs",
+      "sha256": "03a7bf18e2224a2d0839b510ba7f123e4d6f4e011ea344bb2520666dc0d5fd30",
+      "bytes": 3601
+    },
+    {
+      "path": "src/capture/patch-http.mjs",
+      "sha256": "e961123029120dd46c7573c23adac6538ca795ad247d3aa51070af40b9d12399",
+      "bytes": 3482
+    },
+    {
+      "path": "src/capture/patch-pg.mjs",
+      "sha256": "ed4c7d1ac9bef7350279623151022ff715ab5bb5697763eafb23bea5fafa4a1a",
+      "bytes": 6190
+    },
+    {
+      "path": "src/capture/patch-time.mjs",
+      "sha256": "21efcfd03d4d5286985a1ce1f4422a8d78688af4a39263b53f00b0363d86c9ef",
+      "bytes": 3709
+    },
+    {
+      "path": "src/capture/persist.mjs",
+      "sha256": "ee1330a971955c0f651283b0cd3f8d1dd68862bdaed5e4b6e08941287222c9ac",
+      "bytes": 1781
+    },
+    {
+      "path": "src/capture/redact.mjs",
+      "sha256": "c20523134c1f3c10cc9439b488b689d51b8cda8696448fb47b059256d43301c8",
+      "bytes": 2576
+    },
+    {
+      "path": "src/capture/register.mjs",
+      "sha256": "2c333947594b72b079f2b1d81766867f26b4ff83cf878b7d02c97247f9d9e8ab",
+      "bytes": 1884
+    },
+    {
+      "path": "src/capture/state.mjs",
+      "sha256": "3472b9e6f281ee627861059bd84cbaa51ce1e88079d1cc6dc36b61f238009b71",
+      "bytes": 1553
+    },
+    {
+      "path": "src/oracle/fingerprint.mjs",
+      "sha256": "9e5a6595850187626af5b51e7c106e62c9b6658bf429c76c7c3ced8733e22cbc",
+      "bytes": 3883
+    },
+    {
+      "path": "src/oracle/normalize.mjs",
+      "sha256": "280de06b362e8e8c0e5c4e95a360efa24ff9d34c7129b2b9933d71bf78c4a29b",
+      "bytes": 1553
+    },
+    {
+      "path": "src/replay/replay-one.mjs",
+      "sha256": "977414c59e8bd1e4df4c4019b16233a31ecfb39ac925f5af285dc0d9715fbd83",
+      "bytes": 4986
+    }
+  ]
+}

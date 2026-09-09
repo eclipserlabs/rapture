@@ -1,0 +1,161 @@
+// Freeze the V2 protocol BEFORE headline evaluation.
+// Usage: node freeze-v2.js
+// Writes V2-MANIFEST.json + results/manifest.hash. Any later change to frozen
+// sections requires a protocol amendment recorded in REPORT.md.
+import { createHash } from "node:crypto";
+import { mkdirSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const here = dirname(fileURLToPath(import.meta.url));
+const root = join(here, "..");
+
+function main() {
+  const manifest = {
+    experiment: "reproducer-v2",
+    frozen_at: new Date().toISOString(),
+    v1_frozen_commit: "07604551dc57821cff01600d69e4864d5b2338e4",
+    freeze_rules:
+      "Boundary, oracle, calibration, eligibility, overhead methodology, gates, and " +
+      "decision rules below are frozen before headline evaluation. Capture implementation " +
+      "freezes separately in Phase 7 (tree hash recorded). Post-freeze changes allowed only " +
+      "for generic harness correctness defects, classified as protocol amendments.",
+    supported_capture_boundary: {
+      application: "single Node.js backend process, Node >= 22",
+      request_transport: "Node HTTP server (node:http), including frameworks built on node:http where experimentally compatible",
+      database: "Postgres through the pg package (Pool and Client query paths)",
+      outbound_http: ["global fetch", "undici where reachable through the same instrumentation boundary"],
+      nondeterminism: ["Date.now", "no-arg new Date() where practical", "Math.random", "crypto.randomUUID where practical"],
+      configuration: "allowlisted env/config values in CAPTURE_CONFIG (comma-separated names); secret-looking values redacted, never plaintext",
+      execution_context: "one logical inbound request via AsyncLocalStorage",
+      failure_types: ["HTTP 5xx response", "request-scoped uncaught application error where observable"],
+      out_of_scope: [
+        "multiple cooperating application processes", "distributed transactions", "message brokers",
+        "background workers detached from the request", "thread scheduling races", "browser execution",
+        "native modules requiring nondeterministic replay", "production secrets persisted",
+        "arbitrary database drivers", "arbitrary outbound protocols",
+      ],
+    },
+    integration_constraint: {
+      headline_requirement: "at most one generic capture bootstrap integration plus generic configuration; per-incident wrappers around SQL, HTTP, clocks, randomness, or failure assertions forbidden for headline cases",
+      measure: ["application source LOC changed", "generic bootstrap/config steps", "incident-specific LOC", "incident-specific human minutes"],
+      ideal: { incident_specific_loc: 0, incident_specific_setup: "request identifier or reproduction trigger only" },
+    },
+    capture_mechanism_frozen_shape: {
+      bootstrap: "node --import <experiment>/src/capture/register.mjs (zero app source changes); installs CJS Module._load hook + ESM loader hook for pg, global fetch/Date/Math.random patches, ALS, http server listener wrapping",
+      request_context: ["method", "URL/path", "headers after redaction", "body where supported", "request sequence/id"],
+      failure_trigger: "persist iff response status >= 500 or request-scoped uncaught application exception; else discard",
+      outbound_http_record: ["method", "redacted URL", "safe request body", "response status", "redacted response headers", "response body", "ordering"],
+      postgres_record: ["query text identity", "redacted parameters", "returned rows", "row count", "error if any", "ordering"],
+      time_random_record: "consumed sequences replayed in order",
+      config_record: "CAPTURE_CONFIG allowlist only; secrets redacted",
+      event_order: "monotonic request-local sequence numbers for all boundary observations",
+    },
+    automatic_oracle: {
+      name: "FailureFingerprintV2",
+      fields: ["request_method", "route_or_operation", "http_status", "application_error_name_or_code_if_present", "normalized_error_or_response_class", "stable_application_frame_if_present", "fingerprint_hash"],
+      normalization: ["exclude timestamps", "exclude random IDs", "exclude request IDs", "exclude absolute temp paths", "exclude stack line offsets", "never normalize away application error identity"],
+      safety_rule: "missing mock, infra error, unexpected network attempt, DB connection attempt, syntax error, timeout, or unrelated 5xx MUST NOT satisfy the incident fingerprint",
+      response_class_rule: "5xx JSON body with error/code fields -> ERR:<code|name>; uncaught exception -> error name + first app frame; else HTTP_<status>",
+    },
+    calibration: {
+      minimum_incidents: 8,
+      service_shape: "real node:http service + real local Postgres + local fake external HTTP server during capture; both stopped before replay",
+      required_failure_classes: [
+        "DB row edge case produces HTTP 500",
+        "outbound service malformed JSON produces HTTP 500",
+        "outbound service 503 selects broken fallback",
+        "time-expiry boundary",
+        "random/UUID-dependent faulty branch",
+        "configuration combination",
+        "DB result + external response interaction",
+        "noise-heavy request with multiple irrelevant DB/HTTP observations",
+      ],
+      replay_rule: "20 fresh-process offline replays per full capture; inferred fingerprint must match",
+      evidence_status: "calibration is substrate debugging, not headline product evidence",
+    },
+    overhead_methodology: {
+      modes: ["capture disabled", "capture enabled with successes discarded", "failing requests with persisted capture"],
+      controls: ["identical process/runtime config", "fixed workload order", "warmed processes"],
+      metrics: ["median latency", "p95 latency", "throughput", "RSS delta", "CPU time if practical", "bytes recorded per request", "bytes persisted per failed request"],
+      targets: { successful_median_overhead_pct: "<=10 preferred", successful_p95_overhead_pct: "<=15 preferred" },
+    },
+    real_bug_eligibility: {
+      target: 8,
+      minimum: 6,
+      repositories_minimum: 3,
+      require: [
+        "public historical Node.js/TypeScript backend bug predating V2",
+        "identifiable buggy and fixing revisions",
+        "invokable through a backend HTTP request or bounded HTTP-facing harness without modifying the bug",
+        "fits frozen V2 capture boundary",
+      ],
+      prefer: ["genuine application/repository behavior over isolated utility functions", ">=3 cases exercising Postgres via pg", ">=3 cases exercising outbound HTTP"],
+      exclude_allowed: [
+        "outside supported runtime", "not HTTP-facing or unwrappable without changing semantics",
+        "unsupported database driver", "distributed/multi-process behavior", "unavailable secret/service",
+        "revisions cannot be established", "cannot run on Node 22 without unrelated breakage",
+      ],
+      integrity: ["record all searched candidates with reasons", "freeze bug-corpus.json before headline capture runs", "no replacement of failed eligible cases"],
+    },
+    capture_freeze: {
+      when: "after calibration, before headline bug selection",
+      record: "capture implementation commit/tree hash",
+      forbidden_post_freeze: ["bug-specific capture hook", "bug-specific failure assertion", "bug-specific DB/HTTP wrapper", "using fixing-patch knowledge to decide what to record"],
+    },
+    hard_gates: {
+      capture_substrate: [
+        "8/8 calibration incidents automatically captured",
+        "8/8 calibration full captures replay exact failure 20/20 offline",
+        "0 unexpected live network/database effects during replay",
+        "0 secret leaks",
+        "0 wrong-failure acceptances",
+      ],
+      historical_cases: [
+        ">=6 frozen eligible application-level historical bugs",
+        ">=70% of eligible bugs reach AUTO_CAPTURE_SUPPORTED without bug-specific wrappers",
+        ">=70% of AUTO_CAPTURE_SUPPORTED replay exact inferred failure 20/20 offline",
+        ">=70% of replay-supported bugs become reduced portable artifacts",
+        "0 wrong-failure acceptances",
+        "0 secret leaks",
+        ">=80% of evaluable successful reproducers are FIX_CONFIRMED",
+      ],
+      manual_burden: [
+        "median incident-specific setup <=5 minutes for AUTO_CAPTURE_SUPPORTED bugs",
+        "median incident-specific wrapper count = 0",
+        "median incident-specific failure assertions = 0",
+      ],
+    },
+    usefulness_targets: [
+      "median successful-request capture latency overhead <=10%",
+      "p95 successful-request overhead <=15%",
+      "median artifact reduction >=50% atoms",
+      "persist only failed-request captures in headline mode",
+      "generic integration describable as one bootstrap/configuration step",
+    ],
+    kill_conditions: [
+      "bugs routinely require bug-specific wrappers or modeled results",
+      "automatic fingerprints confuse unrelated failures",
+      "offline replay still requires live database/service",
+      "median setup remains near V1 25 minutes",
+      "generic integration changes application semantics materially",
+      "capture overhead obviously impractical even for selective recording",
+      "secret-safe recording breaks replay reliability",
+      "most real bugs outside the narrow boundary",
+    ],
+    decision_rules: {
+      CONTINUE: "frozen generic capture converts a substantial majority of eligible failures into exact offline portable reproducers, median setup <=5 min, zero wrong-failure acceptance, overhead plausibly manageable",
+      MODIFY: "automatic capture works strongly for a narrower subset (e.g. Express/Fastify + pg + fetch); narrow the thesis explicitly",
+      KILL: "capture/oracle still needs substantial per-bug engineering, replay needs live deps, oracles unsafe, or most cases outside boundary",
+      INVALID_EXPERIMENT: "per-bug capture changes post-freeze, hand-authored assertions in headline cases, fixing-patch influence, denominator trimming, or live deps satisfying replay",
+    },
+  };
+  const canonical = JSON.stringify(manifest);
+  const hash = createHash("sha256").update(canonical).digest("hex");
+  mkdirSync(join(root, "results"), { recursive: true });
+  writeFileSync(join(root, "V2-MANIFEST.json"), `${JSON.stringify(manifest, null, 2)}\n`);
+  writeFileSync(join(root, "results", "manifest.hash"), `${hash}\n`);
+  console.log(`V2 manifest frozen, hash ${hash}`);
+}
+
+main();

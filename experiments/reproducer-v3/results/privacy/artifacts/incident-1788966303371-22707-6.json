@@ -1,0 +1,134 @@
+{
+  "schema": "reproducer-artifact-v2",
+  "request": {
+    "method": "POST",
+    "path": "/same",
+    "query": "?debug=[REDACTED]",
+    "headers": {
+      "host": "localhost:47121",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "x-api-key": "[REDACTED]",
+      "accept": "*/*",
+      "accept-language": "*",
+      "sec-fetch-mode": "cors",
+      "user-agent": "node",
+      "accept-encoding": "gzip, deflate",
+      "content-length": "82"
+    },
+    "host": "localhost:47121",
+    "body": null
+  },
+  "required_events": [
+    {
+      "seq": 1,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT * FROM v3priv_kv WHERE k = $1:[\"[REDACTED]\"]",
+      "request": {
+        "text": "SELECT * FROM v3priv_kv WHERE k = $1",
+        "values": [
+          "[REDACTED]"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 0,
+        "rows": [],
+        "fields": [
+          {
+            "name": "k",
+            "dataTypeID": 25
+          },
+          {
+            "name": "v",
+            "dataTypeID": 25
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "seq": 2,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT * FROM v3priv_kv WHERE k = $1:[\"[REDACTED]\"]",
+      "request": {
+        "text": "SELECT * FROM v3priv_kv WHERE k = $1",
+        "values": [
+          "[REDACTED]"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 0,
+        "rows": [],
+        "fields": [
+          {
+            "name": "k",
+            "dataTypeID": 25
+          },
+          {
+            "name": "v",
+            "dataTypeID": 25
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "seq": 3,
+      "kind": "http",
+      "op": "fetch",
+      "key": "http:POST:/echo?debug=%5BREDACTED%5D:{\"echo\":\"[REDACTED]\",\"nested\":{\"deep\":[\"[REDACTED]\"]}}",
+      "request": {
+        "method": "POST",
+        "url": "/echo?debug=%5BREDACTED%5D",
+        "body": "{\"echo\":\"[REDACTED]\",\"nested\":{\"deep\":[\"[REDACTED]\"]}}"
+      },
+      "result": {
+        "status": 200,
+        "headers": {
+          "connection": "keep-alive",
+          "content-type": "application/json",
+          "date": "Wed, 09 Sep 2026 15:05:03 GMT",
+          "keep-alive": "timeout=5",
+          "transfer-encoding": "chunked"
+        },
+        "body": "{\"gotAuth\":null,\"gotKey\":null,\"debug\":\"[REDACTED]\"}",
+        "truncated": false,
+        "unreadable": false
+      },
+      "error": null
+    },
+    {
+      "seq": 4,
+      "kind": "time",
+      "op": "now",
+      "key": "time:0",
+      "request": {},
+      "result": {
+        "value": 1788966303370
+      },
+      "error": null
+    }
+  ],
+  "required_config": {
+    "FAKE_ORIGIN": "http://localhost:47129",
+    "SECRET_CONFIG": {
+      "redacted": true,
+      "sha256": "788de2801c5bd6dc66008b457255e6834a73692db3d4b60441f2eab9367ddbbd"
+    }
+  },
+  "expected_fingerprint": {
+    "kind": "app",
+    "request_method": "POST",
+    "route_or_operation": "/same",
+    "http_status": 500,
+    "error_name_or_code": "ERR:E_PRIV_SAME",
+    "normalized_class": "ERR:E_PRIV_SAME",
+    "stable_frame": null,
+    "fingerprint_hash": "c5f9f04ae15d2725aa4d1dba4fbee00548c5d2e79036a8dab9cc0c0ae0386ba3"
+  },
+  "artifact_hash": "adc7ca9eda9747491b95b7bcc9aaca8c570fea18e893b25d8b7c08d04fc4e9b9"
+}

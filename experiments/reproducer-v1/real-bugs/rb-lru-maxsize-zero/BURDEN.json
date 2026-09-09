@@ -1,0 +1,19 @@
+{
+  "case_id": "rb-lru-maxsize-zero",
+  "adapter_loc": 111,
+  "adapter_files": [
+    "case.js (experiment fixture, incl. noise model)"
+  ],
+  "manually_modeled_boundaries": [
+    "observed-state oracle read",
+    "cache-stat ancillary read"
+  ],
+  "human_setup_steps": [
+    "identified fix commit + parent SHA (corpus research)",
+    "vendored impl at both revisions (vendor-impl.js)",
+    "encoded historical wrong behavior as oracle rule from issue/commit report",
+    "added incident-window noise (ambient events, extra input/config/db)"
+  ],
+  "estimated_minutes": 20,
+  "note": "Multi-op session + eviction config; pattern reuse from delete-size case. Minutes exclude corpus research shared across cases."
+}

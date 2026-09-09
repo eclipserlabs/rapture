@@ -1,0 +1,50 @@
+{
+  "schema": "v3-protocol-amendments-1",
+  "purpose": "Machine-readable record of every V3 protocol amendment and its rerun status. An amendment is only honest if the affected evidence was regenerated under the amended state; each entry records that explicitly.",
+  "amendments": [
+    {
+      "id": "V3-AMEND-1",
+      "status": "PRE_FREEZE_GENERIC_FIX",
+      "scope": "capture implementation (generic, all cases)",
+      "found_by": "calibration service B (never a headline case)",
+      "when": "before results/capture-freeze.json was written",
+      "file": "src/capture/patch-http.mjs",
+      "defect": "Attaching the capture 'data' listener switched the inbound request stream to flowing mode, so applications that await (auth/session lookup) before attaching their own body readers lost the body and the 'end' event. V2 shipped the same flaw; all V2 triggers were GETs, so it never fired.",
+      "fix": "pause the stream immediately after attaching, and resume explicitly the moment the application subscribes to 'data'.",
+      "bug_specific": false,
+      "rerun": "N/A — applied before the capture tree was frozen (tree_hash 8a8ef009d19a7345514d87c41a1133c89674dbc08ef4306dc51bf0fdd1da7fbf); every headline capture ran against the amended, frozen tree.",
+      "fidelity_check": "scripts/perf-equiv.mjs — V2-code vs V3-code capture of the same incident is identical modulo run-volatile fields. Re-verified 2026-09-09: EQUIVALENT."
+    },
+    {
+      "id": "V3-AMEND-2",
+      "status": "PROTOCOL_AMENDED_AND_FULLY_RERUN",
+      "case": "koa-1998",
+      "scope": "experiment-authored service fixture only (headline/services/koa-1998.mjs). NOT a change to the frozen capture tree, the oracle, the reducer, or the replay engine.",
+      "when": "during headline runs, after koa-1998's first capture attempt",
+      "defect": "The fixture's error middleware mapped every unknown throw to the incident code E_ASSERT_REGRESSION. That included replay-infrastructure throws (missing mock, live-attempt refusal), so an infrastructure failure could satisfy the incident fingerprint — a violation of the oracle safety rule that infra errors can never equal an incident.",
+      "fix": "map only the historical guard's 401-status/expose throw to E_ASSERT_REGRESSION and rethrow everything else to the koa framework default.",
+      "bug_specific_rapture_code_added": 0,
+      "capture_tree_changed": false,
+      "capture_tree_hash_after": "8a8ef009d19a7345514d87c41a1133c89674dbc08ef4306dc51bf0fdd1da7fbf",
+      "rerun": {
+        "koa_1998_rerun_under_amended_fixture": true,
+        "full_corpus_rerun_under_final_fixture_state": true,
+        "full_rerun_date": "2026-09-09",
+        "full_rerun_scope": "all 8 frozen eligible incidents, capture + 20x offline replay + frozen GREEDY reduction + 20x portable replay + buggy-vs-fixed + secret audit, from a cleared summary (no resume)",
+        "full_rerun_result": {
+          "auto_capture_supported": "8/8",
+          "offline_exact": "160/160",
+          "portable_exact": "160/160",
+          "fakedown_offline": "40/40",
+          "fix_confirmed": "8/8",
+          "wrong_failure_acceptances": 0,
+          "raw_gate_secret_leaks": 0
+        },
+        "agreement_with_reported_results": "every fingerprint_hash, fingerprint_class, events_total, atoms, artifact_bytes, reduce_trials, replay_classes, offline_pass, portable_pass, fix_status, fixed_status, wrong_accepts and secret_leaks value is identical to the originally reported run. Only artifact_sha differs, because artifacts embed run-volatile fields (captured_at, req_id, capture_hash, recorded time draws) — the same volatility the V2/V3 equivalence check accounts for."
+      }
+    }
+  ],
+  "non_amendments": {
+    "note": "Nothing else was changed after the capture freeze. No per-bug capture hooks, wrappers, or failure assertions exist in any case (0/0/0 in every burden record)."
+  }
+}

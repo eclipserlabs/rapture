@@ -1,0 +1,150 @@
+{
+  "frozen_at": "2026-09-07",
+  "note": "Frozen BEFORE any V1 real-bug reduction runs. SHAs verified present in local clones; buggy!=post behavior verified by execution during selection. No case may be replaced after reduction outcomes are known.",
+  "cases": [
+    {
+      "case_id": "rb-semver-tilde-prerelease",
+      "repository": "npm/node-semver",
+      "repo_url": "https://github.com/npm/node-semver",
+      "issue_ref": "PR #878, closes #512",
+      "bug_rev": "8640bd68f1653e504b53e9be4030eccdfe4c307a",
+      "post_rev": "9c8692ae05416e9dbe88d95ffe2b80e6964550fe",
+      "bug_class": "range-desugar / option-combination boundary",
+      "inclusion_reason": "Option combination (tilde + includePrerelease) with non-trivial setup; pure deterministic functions.",
+      "trigger": "satisfies('1.2.0-rc','~1.2',{includePrerelease:true}) buggy=false post=true",
+      "vendoring": "full package tree (~45 files, zero npm deps)"
+    },
+    {
+      "case_id": "rb-semver-xrange-numeric",
+      "repository": "npm/node-semver",
+      "repo_url": "https://github.com/npm/node-semver",
+      "issue_ref": "none cited in fix commit",
+      "bug_rev": "6b77aa84a648a4b54ea32a21e6db60ebd54d5040",
+      "post_rev": "e583226b165edd6530502cf731eda334527af6fe",
+      "bug_class": "input validation (silent accept vs throw)",
+      "inclusion_reason": "Throw-vs-silent boundary; designated simpler semver case.",
+      "trigger": "new Range('1.x.5').range buggy='>=1.0.0 <2.0.0-0' post=throws Invalid comparator",
+      "vendoring": "full package tree (~45 files, zero npm deps)"
+    },
+    {
+      "case_id": "rb-lru-delete-size",
+      "repository": "isaacs/node-lru-cache",
+      "repo_url": "https://github.com/isaacs/node-lru-cache",
+      "issue_ref": "PR #229",
+      "bug_rev": "0b6689cc060f7c2b8cb03a79d0098703fb832e23",
+      "post_rev": "b571d06fec1eb5789d4ba8dd6828466614156740",
+      "bug_class": "state-transition double accounting",
+      "inclusion_reason": "Multi-operation state sequence with size config; non-trivial fixture.",
+      "trigger": "set/set/set/delete then calculatedSize buggy=-5 post=15",
+      "vendoring": "single file index.js, zero deps"
+    },
+    {
+      "case_id": "rb-lru-maxsize-zero",
+      "repository": "isaacs/node-lru-cache",
+      "repo_url": "https://github.com/isaacs/node-lru-cache",
+      "issue_ref": "fixes #257",
+      "bug_rev": "fd370b8bcb74b7e18824c87bd03ab6942f4c8f97",
+      "post_rev": "ff254a799d21103dcc22264288d15f0fdc33885d",
+      "bug_class": "config-combination boundary (maxSize=0 unbounded vs eviction guard)",
+      "inclusion_reason": "Config-combination boundary with interacting options.",
+      "trigger": "max:10,maxEntrySize:5,sizeCalculation set/set buggy evicts all post keeps both",
+      "vendoring": "single file index.js, zero deps"
+    },
+    {
+      "case_id": "rb-lru-oversize-evict",
+      "repository": "isaacs/node-lru-cache",
+      "repo_url": "https://github.com/isaacs/node-lru-cache",
+      "issue_ref": "none cited in fix commit",
+      "bug_rev": "7ef678e4548992a8640ba5dae35f72590f9eba7e",
+      "post_rev": "a3eadb1d49abb47d8b455121e239051ce3860198",
+      "bug_class": "cache state-transition boundary (missing oversize guard)",
+      "inclusion_reason": "State-transition edge with destructive wrong behavior (whole cache wiped).",
+      "trigger": "oversize set wipes cache buggy size=0 post size=2 refused item",
+      "vendoring": "single file index.js, zero deps"
+    },
+    {
+      "case_id": "rb-qs-comma-arraylimit",
+      "repository": "ljharb/qs",
+      "repo_url": "https://github.com/ljharb/qs",
+      "issue_ref": "CVE-2026-2391 follow-up",
+      "bug_rev": "8079adc7e7cf84b8289898d1b18877160de67d40",
+      "post_rev": "8859c37470e11b42b547b275e4e9bd0bc8cc5464",
+      "bug_class": "limit enforcement (silent bypass vs throw)",
+      "inclusion_reason": "Three interacting options + notation; non-trivial boundary setup.",
+      "trigger": "parse('a[]=1,2,3,4',{comma,arrayLimit:3,throwOnLimitExceeded}) buggy=silent post=RangeError",
+      "vendoring": "lib/ (5 files) + npm deps side-channel, es-define-property (+transitive)"
+    },
+    {
+      "case_id": "rb-qs-combine-overflow",
+      "repository": "ljharb/qs",
+      "repo_url": "https://github.com/ljharb/qs",
+      "issue_ref": "none cited in fix commit",
+      "bug_rev": "59da434d5de8c3d2564e4d75aeedde2e8af72369",
+      "post_rev": "963e538c740961a35ecaa0b38ee1f5c16697e208",
+      "bug_class": "missing throw on cumulative overflow (silent shape conversion)",
+      "inclusion_reason": "Cumulative cross-key interaction; non-trivial setup.",
+      "trigger": "parse('a=1,2,3&a=4,5,6',{comma,arrayLimit:5,throw}) buggy=object post=RangeError",
+      "vendoring": "lib/ (5 files) + npm deps side-channel, es-define-property (+transitive)"
+    },
+    {
+      "case_id": "rb-validator-bytelength",
+      "repository": "validatorjs/validator.js",
+      "repo_url": "https://github.com/validatorjs/validator.js",
+      "issue_ref": "#2822",
+      "bug_rev": "d563b1584cedb66a7ebea75e5ba8d8a8babc86a8",
+      "post_rev": "7d42ed2dcffc229ae7aaab87f77f612d04850096",
+      "bug_class": "crash vs correct result (unpaired surrogate)",
+      "inclusion_reason": "Crash-vs-correct boundary with edge input + options object.",
+      "trigger": "isByteLength(loneSurrogate,{min:3,max:3}) buggy=URIError post=true",
+      "vendoring": "2 files (isByteLength.js + assertString.js), zero deps, ESM-to-CJS rewrite"
+    },
+    {
+      "case_id": "rb-validator-iso-week",
+      "repository": "validatorjs/validator.js",
+      "repo_url": "https://github.com/validatorjs/validator.js",
+      "issue_ref": "#2774",
+      "bug_rev": "7fdc788ebd1ad79ca6d9edabb884eaaa1c51e36c",
+      "post_rev": "3d2f4b336bf68feebf4d0d634ef11d84a69e7b9f",
+      "bug_class": "false positive (over-permissive week regex)",
+      "inclusion_reason": "Designated simpler parsing case; boolean wrong behavior.",
+      "trigger": "isISO8601('2009-W00') buggy=true post=false",
+      "vendoring": "2 files (isISO8601.js + assertString.js), zero deps, ESM-to-CJS rewrite"
+    },
+    {
+      "case_id": "rb-jwt-maxage",
+      "repository": "auth0/node-jsonwebtoken",
+      "repo_url": "https://github.com/auth0/node-jsonwebtoken",
+      "issue_ref": "none cited in fix commit",
+      "bug_rev": "67550492cb3cff5fb764322563bb5864041eee5f",
+      "post_rev": "b61cc3438165a15c6d34c2ec18275e08390ea26e",
+      "bug_class": "time boundary + unit/type confusion (expired token accepted)",
+      "inclusion_reason": "Security-relevant wrong behavior (accept vs reject) with injected clock; non-trivial sign/verify flow.",
+      "trigger": "verify 400s-old token with maxAge:300,clockTimestamp buggy=ACCEPTED post=TokenExpiredError",
+      "vendoring": "sign/verify/decode + lib/*.js + era npm deps (jws et al)"
+    },
+    {
+      "case_id": "rb-cron-dow-step",
+      "repository": "harrisiirak/cron-parser",
+      "repo_url": "https://github.com/harrisiirak/cron-parser",
+      "issue_ref": "PR #438",
+      "bug_rev": "8410d3717b7adda1e5b9c5fd6c40cb2cbf9d52e4",
+      "post_rev": "b48a355b1eb9a221272c064e06bcfc2bc1063fd2",
+      "bug_class": "range expansion (wrong next-fire time)",
+      "inclusion_reason": "Time-boundary bug with injected currentDate+tz; non-trivial setup.",
+      "trigger": "parse('0 0 * * 2/2') next buggy=Sunday post=Tuesday",
+      "vendoring": "TS src compiled at construction + luxon runtime dep"
+    },
+    {
+      "case_id": "rb-cron-loop-limit",
+      "repository": "harrisiirak/cron-parser",
+      "repo_url": "https://github.com/harrisiirak/cron-parser",
+      "issue_ref": "PR #415",
+      "bug_rev": "6d6de5ca1596c1575690fd04bad10cafa0795dc6",
+      "post_rev": "bc213d2dc462d44fe3ce6fbd907c181f24e07596",
+      "bug_class": "dead loop guard (bogus date vs throw)",
+      "inclusion_reason": "Throw-vs-bogus boundary on unsatisfiable input; non-trivial setup.",
+      "trigger": "parse('0 0 0 31 4,6 *') next buggy=2051 date post=throws loop limit",
+      "vendoring": "TS src compiled at construction + luxon runtime dep"
+    }
+  ]
+}

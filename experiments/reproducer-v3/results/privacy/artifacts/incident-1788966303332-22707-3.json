@@ -1,0 +1,118 @@
+{
+  "schema": "reproducer-artifact-v2",
+  "request": {
+    "method": "POST",
+    "path": "/j",
+    "query": "",
+    "headers": {
+      "host": "localhost:47121",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "authorization": "[REDACTED]",
+      "accept": "*/*",
+      "accept-language": "*",
+      "sec-fetch-mode": "cors",
+      "user-agent": "node",
+      "accept-encoding": "gzip, deflate",
+      "content-length": "116"
+    },
+    "host": "localhost:47121",
+    "body": "{\"user\":{\"email\":\"u-03f485ec@example.com\",\"phone\":\"+1-415-555-2012\"},\"apiKey\":\"[REDACTED]\",\"note\":\"n\"}"
+  },
+  "required_events": [
+    {
+      "seq": 1,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:INSERT INTO v3priv_kv(k, v) VALUES ($1, $2):[\"nested\",\"{\\\"user\\\":{\\\"email\\\":\\\"u-03f485ec@example.com\\\",\\\"phone\\\":\\\"+1-415-555-2012\\\"},\\\"apiKey\\\":\\\"[REDACTED]\\\",\\\"note\\\":\\\"n\\\"}\"]",
+      "request": {
+        "text": "INSERT INTO v3priv_kv(k, v) VALUES ($1, $2)",
+        "values": [
+          "nested",
+          "{\"user\":{\"email\":\"u-03f485ec@example.com\",\"phone\":\"+1-415-555-2012\"},\"apiKey\":\"[REDACTED]\",\"note\":\"n\"}"
+        ]
+      },
+      "result": {
+        "command": "INSERT",
+        "rowCount": 1,
+        "rows": [],
+        "fields": []
+      },
+      "error": null
+    },
+    {
+      "seq": 2,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:INSERT INTO v3priv_kv(k, v) VALUES ($1, $2):[\"nested\",\"{\\\"user\\\":{\\\"email\\\":\\\"u-03f485ec@example.com\\\",\\\"phone\\\":\\\"+1-415-555-2012\\\"},\\\"apiKey\\\":\\\"[REDACTED]\\\",\\\"note\\\":\\\"n\\\"}\"]",
+      "request": {
+        "text": "INSERT INTO v3priv_kv(k, v) VALUES ($1, $2)",
+        "values": [
+          "nested",
+          "{\"user\":{\"email\":\"u-03f485ec@example.com\",\"phone\":\"+1-415-555-2012\"},\"apiKey\":\"[REDACTED]\",\"note\":\"n\"}"
+        ]
+      },
+      "result": {
+        "command": "INSERT",
+        "rowCount": 1,
+        "rows": [],
+        "fields": []
+      },
+      "error": null
+    },
+    {
+      "seq": 3,
+      "kind": "http",
+      "op": "fetch",
+      "key": "http:POST:/submit:{\"apiKey\":\"[REDACTED]\",\"note\":\"n\"}",
+      "request": {
+        "method": "POST",
+        "url": "/submit",
+        "body": "{\"apiKey\":\"[REDACTED]\",\"note\":\"n\"}"
+      },
+      "result": {
+        "status": 200,
+        "headers": {
+          "connection": "keep-alive",
+          "content-type": "application/json",
+          "date": "Wed, 09 Sep 2026 15:05:03 GMT",
+          "keep-alive": "timeout=5",
+          "transfer-encoding": "chunked"
+        },
+        "body": "{\"received\":\"{\\\"apiKey\\\":\\\"[REDACTED]\\\",\\\"note\\\":\\\"n\\\"}\"}",
+        "truncated": false,
+        "unreadable": false
+      },
+      "error": null
+    },
+    {
+      "seq": 4,
+      "kind": "time",
+      "op": "now",
+      "key": "time:0",
+      "request": {},
+      "result": {
+        "value": 1788966303332
+      },
+      "error": null
+    }
+  ],
+  "required_config": {
+    "FAKE_ORIGIN": "http://localhost:47129",
+    "SECRET_CONFIG": {
+      "redacted": true,
+      "sha256": "788de2801c5bd6dc66008b457255e6834a73692db3d4b60441f2eab9367ddbbd"
+    }
+  },
+  "expected_fingerprint": {
+    "kind": "app",
+    "request_method": "POST",
+    "route_or_operation": "/j",
+    "http_status": 500,
+    "error_name_or_code": "ERR:E_PRIV_J",
+    "normalized_class": "ERR:E_PRIV_J",
+    "stable_frame": null,
+    "fingerprint_hash": "f7d2ee427e6cdc35e1154dca5e4b4612e730453904d9499808f41cad0b8011f5"
+  },
+  "artifact_hash": "e83d97af44b984a7c237943050ce8033209944c4200655a6bb483e12bc9d57a6"
+}
