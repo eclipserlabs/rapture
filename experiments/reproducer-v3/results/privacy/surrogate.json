@@ -1,0 +1,13 @@
+{
+  "source": "incident-1788887733815-48837-4.json",
+  "emails": [
+    "u-f6a2b6c0@example.com"
+  ],
+  "surrogates": [
+    "u-f6a2b6c0@example.com -> pii-954693d5@redacted.invalid"
+  ],
+  "raw_emails_remaining": [],
+  "replay": "20/20",
+  "expected_hash": "c5a3ac8b2b1a5987bb6dbecd40bc5629cfb5a57a91a322a066be76a3cf368d9a",
+  "status": "PASS"
+}

@@ -1,0 +1,95 @@
+{
+  "schema": "reproducer-artifact-v2",
+  "request": {
+    "method": "GET",
+    "path": "/cfg",
+    "query": "",
+    "headers": {
+      "host": "localhost:47121",
+      "connection": "keep-alive",
+      "accept": "*/*",
+      "accept-language": "*",
+      "sec-fetch-mode": "cors",
+      "user-agent": "node",
+      "accept-encoding": "gzip, deflate"
+    },
+    "host": "localhost:47121",
+    "body": null
+  },
+  "required_events": [
+    {
+      "seq": 1,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT * FROM v3priv_kv WHERE k = $1:[\"cfg-probe\"]",
+      "request": {
+        "text": "SELECT * FROM v3priv_kv WHERE k = $1",
+        "values": [
+          "cfg-probe"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 0,
+        "rows": [],
+        "fields": [
+          {
+            "name": "k",
+            "dataTypeID": 25
+          },
+          {
+            "name": "v",
+            "dataTypeID": 25
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "seq": 2,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT * FROM v3priv_kv WHERE k = $1:[\"cfg-probe\"]",
+      "request": {
+        "text": "SELECT * FROM v3priv_kv WHERE k = $1",
+        "values": [
+          "cfg-probe"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 0,
+        "rows": [],
+        "fields": [
+          {
+            "name": "k",
+            "dataTypeID": 25
+          },
+          {
+            "name": "v",
+            "dataTypeID": 25
+          }
+        ]
+      },
+      "error": null
+    }
+  ],
+  "required_config": {
+    "FAKE_ORIGIN": "http://localhost:47129",
+    "SECRET_CONFIG": {
+      "redacted": true,
+      "sha256": "788de2801c5bd6dc66008b457255e6834a73692db3d4b60441f2eab9367ddbbd"
+    }
+  },
+  "expected_fingerprint": {
+    "kind": "app",
+    "request_method": "GET",
+    "route_or_operation": "/cfg",
+    "http_status": 500,
+    "error_name_or_code": "ERR:E_PRIV_CFG",
+    "normalized_class": "ERR:E_PRIV_CFG",
+    "stable_frame": null,
+    "fingerprint_hash": "5c7e39567ec2f05af1e3515c9bba36e729fe61cdc44817a0dac617e63e1689aa"
+  },
+  "artifact_hash": "5b38a963926aaa95d173f4dcac1f0e86d1853b9bef0a982c9bd4d61594cb1780"
+}

@@ -1,0 +1,205 @@
+{
+  "schema": "incident-capture-v2",
+  "captured_at": "2026-09-09T15:05:03.360Z",
+  "req_id": "req-22707-1788966303335-4",
+  "request": {
+    "method": "GET",
+    "path": "/db",
+    "query": "?id=u-03f485ec%40example.com",
+    "headers": {
+      "host": "localhost:47121",
+      "connection": "keep-alive",
+      "accept": "*/*",
+      "accept-language": "*",
+      "sec-fetch-mode": "cors",
+      "user-agent": "node",
+      "accept-encoding": "gzip, deflate"
+    },
+    "host": "localhost:47121",
+    "body": null
+  },
+  "response": {
+    "status": 500,
+    "headers": {},
+    "body": "{\"error\":\"priv db incident {\\\"email\\\":\\\"u-03f485ec@example.com\",\"code\":\"E_PRIV_DB\"}"
+  },
+  "events": [
+    {
+      "seq": 1,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT id, profile FROM v3priv_users WHERE id = $1:[\"u-03f485ec@example.com\"]",
+      "request": {
+        "text": "SELECT id, profile FROM v3priv_users WHERE id = $1",
+        "values": [
+          "u-03f485ec@example.com"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 1,
+        "rows": [
+          {
+            "id": "u-03f485ec@example.com",
+            "profile": "{\"email\":\"u-03f485ec@example.com\",\"phone\":\"+1-415-555-2012\",\"apiKey\":\"[REDACTED]\",\"nested\":{\"uid\":\"user-03f485ec\"}}"
+          }
+        ],
+        "fields": [
+          {
+            "name": "id",
+            "dataTypeID": 25
+          },
+          {
+            "name": "profile",
+            "dataTypeID": 25
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "seq": 2,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT id, profile FROM v3priv_users WHERE id = $1:[\"u-03f485ec@example.com\"]",
+      "request": {
+        "text": "SELECT id, profile FROM v3priv_users WHERE id = $1",
+        "values": [
+          "u-03f485ec@example.com"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 1,
+        "rows": [
+          {
+            "id": "u-03f485ec@example.com",
+            "profile": "{\"email\":\"u-03f485ec@example.com\",\"phone\":\"+1-415-555-2012\",\"apiKey\":\"[REDACTED]\",\"nested\":{\"uid\":\"user-03f485ec\"}}"
+          }
+        ],
+        "fields": [
+          {
+            "name": "id",
+            "dataTypeID": 25
+          },
+          {
+            "name": "profile",
+            "dataTypeID": 25
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "seq": 3,
+      "kind": "http",
+      "op": "fetch",
+      "key": "http:GET:/secret-profile:",
+      "request": {
+        "method": "GET",
+        "url": "/secret-profile",
+        "body": null
+      },
+      "result": {
+        "status": 200,
+        "headers": {
+          "connection": "keep-alive",
+          "content-type": "application/json",
+          "date": "Wed, 09 Sep 2026 15:05:03 GMT",
+          "keep-alive": "timeout=5",
+          "transfer-encoding": "chunked"
+        },
+        "body": "{\"apiKey\":\"[REDACTED]\",\"owner\":\"u-03f485ec@example.com\",\"jwt\":\"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwM2Y0ODVlYyJ9.486796ee4fca04b509b67109c6f54123\"}",
+        "truncated": false,
+        "unreadable": false
+      },
+      "error": null
+    },
+    {
+      "seq": 4,
+      "kind": "time",
+      "op": "now",
+      "key": "time:0",
+      "request": {},
+      "result": {
+        "value": 1788966303353
+      },
+      "error": null
+    },
+    {
+      "seq": 5,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT * FROM v3priv_kv WHERE k = $1:[\"u-03f485ec@example.com\"]",
+      "request": {
+        "text": "SELECT * FROM v3priv_kv WHERE k = $1",
+        "values": [
+          "u-03f485ec@example.com"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 0,
+        "rows": [],
+        "fields": [
+          {
+            "name": "k",
+            "dataTypeID": 25
+          },
+          {
+            "name": "v",
+            "dataTypeID": 25
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "seq": 6,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT * FROM v3priv_kv WHERE k = $1:[\"u-03f485ec@example.com\"]",
+      "request": {
+        "text": "SELECT * FROM v3priv_kv WHERE k = $1",
+        "values": [
+          "u-03f485ec@example.com"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 0,
+        "rows": [],
+        "fields": [
+          {
+            "name": "k",
+            "dataTypeID": 25
+          },
+          {
+            "name": "v",
+            "dataTypeID": 25
+          }
+        ]
+      },
+      "error": null
+    }
+  ],
+  "config": {
+    "FAKE_ORIGIN": "http://localhost:47129",
+    "SECRET_CONFIG": {
+      "redacted": true,
+      "sha256": "788de2801c5bd6dc66008b457255e6834a73692db3d4b60441f2eab9367ddbbd"
+    }
+  },
+  "app_error": null,
+  "fingerprint": {
+    "kind": "app",
+    "request_method": "GET",
+    "route_or_operation": "/db",
+    "http_status": 500,
+    "error_name_or_code": "ERR:E_PRIV_DB",
+    "normalized_class": "ERR:E_PRIV_DB",
+    "stable_frame": null,
+    "fingerprint_hash": "c5a3ac8b2b1a5987bb6dbecd40bc5629cfb5a57a91a322a066be76a3cf368d9a"
+  },
+  "capture_hash": "523c2faf4daf1d9682768253bcdc603d14932dc99d3c192b89c6024eb006caa7"
+}

@@ -25,6 +25,7 @@ coverage/
 !experiments/reproducer-v2/**
 !experiments/reproducer-v3
 !experiments/reproducer-v3/**
+experiments/reproducer-v3/results/perf/tmp-*/
 .tmp/
 .turbo/
 .rapture/

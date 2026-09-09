@@ -1,0 +1,148 @@
+{
+  "schema": "incident-capture-v2",
+  "captured_at": "2026-09-09T14:56:53.290Z",
+  "req_id": "req-21688-1788965813212-1",
+  "request": {
+    "method": "GET",
+    "path": "/c",
+    "query": "?n=a%20b",
+    "headers": {
+      "host": "127.0.0.1:47403",
+      "connection": "keep-alive",
+      "accept": "*/*",
+      "accept-language": "*",
+      "sec-fetch-mode": "cors",
+      "user-agent": "node",
+      "accept-encoding": "gzip, deflate"
+    },
+    "host": "127.0.0.1:47403",
+    "body": null
+  },
+  "response": {
+    "status": 500,
+    "headers": {
+      "x-powered-by": "Express",
+      "x-logged": "1",
+      "set-cookie": "a b=v; Path=/",
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "60",
+      "etag": "W/\"3c-3XpMc24eAHr4YnhW/E7k6litVnA\""
+    },
+    "body": "{\"error\":\"cookie header injection\",\"code\":\"E_COOKIE_INJECT\"}"
+  },
+  "events": [
+    {
+      "seq": 1,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT sid, uid, role FROM v3dir_sessions WHERE sid = $1:[\"sid=[SESS:196daafb6c79]\"]",
+      "request": {
+        "text": "SELECT sid, uid, role FROM v3dir_sessions WHERE sid = $1",
+        "values": [
+          "sid=[SESS:196daafb6c79]"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 0,
+        "rows": [],
+        "fields": [
+          {
+            "name": "sid",
+            "dataTypeID": 25
+          },
+          {
+            "name": "uid",
+            "dataTypeID": 25
+          },
+          {
+            "name": "role",
+            "dataTypeID": 25
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "seq": 2,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT sid, uid, role FROM v3dir_sessions WHERE sid = $1:[\"sid=[SESS:196daafb6c79]\"]",
+      "request": {
+        "text": "SELECT sid, uid, role FROM v3dir_sessions WHERE sid = $1",
+        "values": [
+          "sid=[SESS:196daafb6c79]"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 0,
+        "rows": [],
+        "fields": [
+          {
+            "name": "sid",
+            "dataTypeID": 25
+          },
+          {
+            "name": "uid",
+            "dataTypeID": 25
+          },
+          {
+            "name": "role",
+            "dataTypeID": 25
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "seq": 3,
+      "kind": "http",
+      "op": "fetch",
+      "key": "http:GET:/health:",
+      "request": {
+        "method": "GET",
+        "url": "/health",
+        "body": null
+      },
+      "result": {
+        "status": 200,
+        "headers": {
+          "connection": "keep-alive",
+          "content-type": "application/json",
+          "date": "Wed, 09 Sep 2026 14:56:53 GMT",
+          "keep-alive": "timeout=5",
+          "transfer-encoding": "chunked"
+        },
+        "body": "{\"ok\":true}",
+        "truncated": false,
+        "unreadable": false
+      },
+      "error": null
+    },
+    {
+      "seq": 4,
+      "kind": "time",
+      "op": "now",
+      "key": "time:0",
+      "request": {},
+      "result": {
+        "value": 1788965813286
+      },
+      "error": null
+    }
+  ],
+  "config": {},
+  "app_error": null,
+  "fingerprint": {
+    "kind": "app",
+    "request_method": "GET",
+    "route_or_operation": "/c",
+    "http_status": 500,
+    "error_name_or_code": "ERR:E_COOKIE_INJECT",
+    "normalized_class": "ERR:E_COOKIE_INJECT",
+    "stable_frame": null,
+    "fingerprint_hash": "f57be32d82e501890880c63dd6114ebcaec984716a521554165fe0d8579ee0e1"
+  },
+  "capture_hash": "a611780af9d02e60433a9287cbfb454e5f4e44b5cd37efc1e33c85be9ce01c0c"
+}

@@ -1,0 +1,16 @@
+{
+  "eligible_frozen_incidents": 8,
+  "auto_capture_supported": 8,
+  "offline_full_replay_success": 8,
+  "portable_reduced_success": 8,
+  "fix_confirmed": 8,
+  "unsupported_after_freeze": 0,
+  "capture_failures": 0,
+  "replay_failures": 0,
+  "privacy_blocked_cases": 0,
+  "full_replay_exact_fingerprint_rate": "160/160",
+  "portable_exact_fingerprint_rate": "160/160",
+  "fakedown_offline_rate": "40/40",
+  "wrong_failure_acceptance_count": 0,
+  "secret_leak_count": 0
+}
