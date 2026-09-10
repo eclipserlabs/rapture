@@ -1,0 +1,94 @@
+{
+  "frozen_at": "2026-09-10T11:57:25.160Z",
+  "tree_hash": "9d9cc6459ba7596d4933fbb64251275fc51d795fbad4c2ae8158016c9c253f8e",
+  "prior_tree_hash": "e9232b1f643934aa4cc7dff49e78c7ae23edc1af050f1e9efc2c424dc79ec45a",
+  "changed_since_prior": [
+    "src/capture/patch-http.mjs",
+    "src/capture/state.mjs",
+    "src/detector/select.mjs"
+  ],
+  "byte_identical_to_frozen_v3": [
+    "src/capture/events.mjs",
+    "src/capture/patch-fetch.mjs",
+    "src/capture/patch-pg.mjs",
+    "src/capture/patch-time.mjs",
+    "src/capture/persist.mjs",
+    "src/capture/redact.mjs",
+    "src/oracle/fingerprint.mjs",
+    "src/oracle/normalize.mjs",
+    "src/replay/replay-one.mjs"
+  ],
+  "byte_identical_count": 9,
+  "files": [
+    {
+      "path": "src/capture/context.mjs",
+      "sha256": "ccfbb2eebe5f095ae0e79f8742e21c29f7c151b99fae9ecdc51c1e67e043094a",
+      "bytes": 2046
+    },
+    {
+      "path": "src/capture/events.mjs",
+      "sha256": "4b298312c197fc5be3dd244cea6f0a0df6029869d77fce07510086bc394a1cd6",
+      "bytes": 4385
+    },
+    {
+      "path": "src/capture/patch-fetch.mjs",
+      "sha256": "9a49fcb1d5d2afa7d219e13bb11dcbe1be9c8b6e9880779b49b7ea93194afe71",
+      "bytes": 3658
+    },
+    {
+      "path": "src/capture/patch-http.mjs",
+      "sha256": "901d15128e34d5c87b6ddbe3835e5ba8c979a089b9e0480b059cf3976129e446",
+      "bytes": 8274
+    },
+    {
+      "path": "src/capture/patch-pg.mjs",
+      "sha256": "069957e7ecfe34e2369e14543533d47d136eafd41d5d3a38177086004a0bb54a",
+      "bytes": 6406
+    },
+    {
+      "path": "src/capture/patch-time.mjs",
+      "sha256": "65297650e2de5b64e9dbb0f729687fbc7a1d75ed066bf8ff27f310ca88d82ca0",
+      "bytes": 3713
+    },
+    {
+      "path": "src/capture/persist.mjs",
+      "sha256": "0d8b01d0d74123f7254d5c7a05732eab60cf8a6a66f62278d642bd70d7ebec67",
+      "bytes": 2442
+    },
+    {
+      "path": "src/capture/redact.mjs",
+      "sha256": "726f0a803994920443e7026ff6410c98d2cd3c16d80e39c02f8ea59c7ed7a3be",
+      "bytes": 9894
+    },
+    {
+      "path": "src/capture/register.mjs",
+      "sha256": "14521c2f43a24650537f323305357d2487095a0ae4436a4d04a5d0346b9ebe45",
+      "bytes": 4317
+    },
+    {
+      "path": "src/capture/state.mjs",
+      "sha256": "d8201e96ae83cf064e784a13f8f78812c6223985eba88286101fc1cd0d9b88ff",
+      "bytes": 5844
+    },
+    {
+      "path": "src/oracle/fingerprint.mjs",
+      "sha256": "9e5a6595850187626af5b51e7c106e62c9b6658bf429c76c7c3ced8733e22cbc",
+      "bytes": 3883
+    },
+    {
+      "path": "src/oracle/normalize.mjs",
+      "sha256": "280de06b362e8e8c0e5c4e95a360efa24ff9d34c7129b2b9933d71bf78c4a29b",
+      "bytes": 1553
+    },
+    {
+      "path": "src/replay/replay-one.mjs",
+      "sha256": "977414c59e8bd1e4df4c4019b16233a31ecfb39ac925f5af285dc0d9715fbd83",
+      "bytes": 4986
+    },
+    {
+      "path": "src/detector/select.mjs",
+      "sha256": "33faddd51dcb186f560eb315207f11db60835a83a4277fe4104379b46b5858c6",
+      "bytes": 14984
+    }
+  ]
+}

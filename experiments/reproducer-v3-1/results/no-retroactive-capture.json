@@ -1,0 +1,73 @@
+{
+  "generatedAt": "2026-09-09T18:23:23.092Z",
+  "phase8": [
+    {
+      "id": "P8-1",
+      "phase": 8,
+      "description": "detector-only retains no sensitive request metadata",
+      "pass": true,
+      "detail": "sentinelsInState=0 artifacts=0"
+    },
+    {
+      "id": "P8-2",
+      "phase": 8,
+      "description": "detector-only retains only counters and normalized keys",
+      "pass": true,
+      "detail": "stateBytes=629"
+    },
+    {
+      "id": "P8-3",
+      "phase": 8,
+      "description": "targeted arming state contains no raw credentials, bodies or query strings",
+      "pass": true,
+      "detail": "armedKeys=[\"POST /boom\"] sentinels=0"
+    },
+    {
+      "id": "P8-4",
+      "phase": 8,
+      "description": "sampled-but-successful requests leave no persisted artifact",
+      "pass": true,
+      "detail": "selected=10 artifacts=0"
+    }
+  ],
+  "phase9": [
+    {
+      "id": "P9-1",
+      "phase": 9,
+      "description": "unsampled one-off failure produces no full executable incident",
+      "pass": true,
+      "detail": "status=500 artifacts=0 events=0"
+    },
+    {
+      "id": "P9-2",
+      "phase": 9,
+      "description": "detector-only first failure carries no pg/fetch/time/random observations",
+      "pass": true,
+      "detail": "status=500 artifacts=0 events=0"
+    },
+    {
+      "id": "P9-4",
+      "phase": 9,
+      "description": "arming after a failed response does not retroactively populate boundary events",
+      "pass": true,
+      "detail": "armEvents=1 artifacts=0"
+    },
+    {
+      "id": "P9-3",
+      "phase": 9,
+      "description": "the artifact comes from a LATER request that was selected at ingress",
+      "pass": true,
+      "detail": "artifacts=1 selected=1 kinds=pg,http,time"
+    },
+    {
+      "id": "P9-5",
+      "phase": 9,
+      "description": "the captured occurrence is the second failure, not the first",
+      "pass": true,
+      "detail": "failuresObserved=1 captured=1"
+    }
+  ],
+  "allPassed": true,
+  "failures": [],
+  "interpretation": "A Phase 9 failure would mean the experiment produced impossible production semantics (capturing a request retroactively) and invalidates the result."
+}

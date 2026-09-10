@@ -1,0 +1,347 @@
+{
+  "experiment": "rapture-reproducer-v3-1-selective-capture",
+  "frozen_before": "any V3.1 implementation, calibration, or measurement work",
+  "north_star": "Make production failures executable.",
+  "primary_research_question": "Can Rapture remain almost invisible on normal production traffic while still obtaining exact executable incidents quickly enough when failures occur?",
+
+  "inherits": {
+    "v3_verdict": "MODIFY (not upgraded)",
+    "v3_capture_tree_hash": "8a8ef009d19a7345514d87c41a1133c89674dbc08ef4306dc51bf0fdd1da7fbf",
+    "v3_manifest_hash": "e1734dcbf488d3c7e705d2217a1ec973de5180ab2e43e96d6d2640a883466b7b",
+    "v3_bug_corpus_hash": "9c139c36ba0432cb40b90ab97fa4dfb640258460963c111807d72886bcd8382a",
+    "v3_frozen_commit": "c8bb365d71a70f1c1ef5d9a98efb83d7243c5ded",
+    "unchanged_from_v3": [
+      "GREEDY reducer (frozen V1/V2, no algorithm change)",
+      "FailureFingerprintV2 oracle (src/oracle/*)",
+      "replay engine and fail-closed guards (src/replay/*)",
+      "redaction/persist semantics for a selected request",
+      "headline bug corpus (never re-screened, never replaced)"
+    ]
+  },
+
+  "critical_scientific_constraint": {
+    "statement": "A request cannot be fully captured retroactively after it has already failed.",
+    "consequences": [
+      "Capture selection MUST be decided at request ingress, before the application listener is invoked.",
+      "A request not selected at ingress can never yield a full executable incident, regardless of how it ends.",
+      "The cheap detector's observation of a failure arms capture for FUTURE matching requests only.",
+      "Under targeted arming the first detected failure is normally NOT executable; the artifact comes from a later occurrence."
+    ],
+    "enforcement": "phase_9 no-retroactive-capture proof tests; failure there is INVALID_EXPERIMENT"
+  },
+
+  "hypotheses": {
+    "H0": "Useful exact capture requires enough always-on interception that Rapture cannot become low-overhead production infrastructure.",
+    "H1": "A detector-only/unarmed fast path keeps steady-state successful-traffic overhead near zero while full interception activates only for selected requests.",
+    "H2": "Ingress sampling produces a predictable overhead/capture-probability tradeoff but cannot guarantee capture of rare or one-off incidents.",
+    "H3": "Automatic targeted arming after an initial cheaply observed failure captures a subsequent occurrence with materially better capture efficiency than random sampling for recurring incidents.",
+    "H4": "Selective/targeted capture preserves exact failure identity, offline replay, portability, historical-fix discrimination, and current privacy gates.",
+    "H5": "The V3 mechanism operates through at least one larger existing service application's own route and application stack without an experiment-authored replacement service route.",
+    "H6_NOT_TESTED": "Executable incidents materially improve human or coding-agent repair (V4).",
+    "H7_NOT_TESTED": "Teams will pay for this system."
+  },
+
+  "deployment_strategies": {
+    "A_ALWAYS_ON": {
+      "id": "always-on",
+      "description": "Frozen V3 full capture on every request. Control/reference only.",
+      "selection_rule": "every non-exempt request is selected at ingress"
+    },
+    "B_RANDOM_INGRESS_SAMPLING": {
+      "id": "sampling",
+      "description": "Per-request Bernoulli selection evaluated at ingress before the application listener runs.",
+      "rates": [0.01, 0.05, 0.1, 0.25],
+      "rng": "deterministic mulberry32 seeded by RAPTURE_V31_SEED; seed recorded per run; seeds are never replaced after observing an outcome",
+      "rules": [
+        "selection is computed before the application listener is invoked",
+        "unselected requests are never retroactively upgraded, whatever their status",
+        "selected requests use frozen V3 capture semantics unchanged",
+        "observed sampled fraction is measured and reported, never assumed"
+      ]
+    },
+    "C_TARGETED_ARMING": {
+      "id": "targeted",
+      "description": "Cheap detector on all traffic; an observed failure automatically arms full capture for subsequent matching requests until an executable incident is obtained or the window expires.",
+      "rules": [
+        "while unarmed a request runs the detector-only fast path",
+        "arming is triggered by the detector, never by the application and never by a human-supplied predicate",
+        "arming applies only to requests that arrive AFTER the arming decision",
+        "an armed matching request is selected at ingress and uses frozen V3 capture semantics",
+        "the key disarms on first persisted incident, on TTL expiry, or on request-budget exhaustion"
+      ]
+    }
+  },
+
+  "detector_semantics": {
+    "runs_on": "every non-exempt request, in every strategy except A_ALWAYS_ON",
+    "allowed_observations": [
+      "HTTP method (already parsed by node:http)",
+      "request pathname (url up to the first '?')",
+      "normalized pathname (see normalization)",
+      "res.statusCode read at the 'finish'/'close' event",
+      "a synchronous throw escaping the application listener"
+    ],
+    "normalization": {
+      "rule": "split pathname on '/', replace any segment matching ^[0-9]+$, a UUID, or ^[0-9a-fA-F]{16,}$ with ':id'; keep at most 12 segments; cap the result at 200 chars",
+      "caching": "bounded LRU (max 512 entries) keyed by raw pathname, to keep per-request string work O(1) amortized",
+      "no_application_input": "the app supplies no route table; normalization is purely lexical"
+    },
+    "incident_key": "`${method} ${normalizedPath}`",
+    "failure_signal": "res.statusCode >= 500 OR a synchronous listener throw",
+    "forbidden_while_unarmed": [
+      "entering the capture AsyncLocalStorage context",
+      "recording any pg result",
+      "recording any outbound fetch body (no Response.clone/tee)",
+      "recording any time/random draw",
+      "buffering request or response body chunks",
+      "wrapping res.write / res.end",
+      "serializing request or response",
+      "redaction traversal over any body",
+      "hashing any value that will be discarded",
+      "persisting any artifact"
+    ],
+    "retained_state": {
+      "shape": "{ key, armedAt, expiresAt, budgetRemaining, firstFailureAt, failuresSeen, captured }",
+      "explicitly_absent": ["headers", "bodies", "query strings", "pg params", "cookies", "URLs beyond the normalized path"],
+      "bound": "at most 256 keys, LRU-evicted"
+    }
+  },
+
+  "arming_semantics": {
+    "headline_policy": { "ttl_seconds": 300, "request_budget": 100 },
+    "sensitivity_sweep": {
+      "request_budget": [10, 100, 1000],
+      "ttl_seconds": [30, 300]
+    },
+    "arm_condition": "detector observes a failure for key K and K has no active arming",
+    "select_condition": "request arrives whose key K has an active arming with budgetRemaining > 0; budget is decremented at ingress",
+    "disarm_conditions": [
+      "an armed request persisted an incident (SUCCESS)",
+      "expiresAt passed (TTL_EXPIRED)",
+      "budgetRemaining reached 0 (BUDGET_EXHAUSTED)"
+    ],
+    "explicitly_reported": "the failure occurrence that triggered arming is NOT executable and is reported as such in every trial record"
+  },
+
+  "inactive_fast_path": {
+    "goal": "remove V3's structural interception cost from requests not selected for high-fidelity capture",
+    "allowed_generic_work": [
+      "skip AsyncLocalStorage entry entirely for unselected requests",
+      "keep pg/fetch/time/random wrappers installed globally with a minimal no-op unarmed branch",
+      "ALS quiescence: call AsyncLocalStorage.disable() when no selected request is in flight and no key is armed, so the process-wide async_hooks tax is not paid while idle",
+      "bounded LRU caches for path normalization and arming state",
+      "one 'finish' listener per request carrying only status observation"
+    ],
+    "forbidden": [
+      "per-framework implementation that changes semantics to rescue a benchmark",
+      "per-bug route hooks",
+      "application source edits",
+      "hard-coded corpus error codes",
+      "predicting failure status before request execution",
+      "buffering full DB/HTTP results in the detector-only path and calling it selective capture"
+    ],
+    "calibration_services": "experiments/reproducer-v3/perf/service-a.mjs and service-b.mjs (V3 calibration services). Headline services are NOT used for optimization before implementation freeze.",
+    "freeze_rule": "the V3.1 selection/detector/capture tree is hashed and frozen after calibration and before any headline evaluation"
+  },
+
+  "performance_methodology": {
+    "services": ["V3 headline services express-qs, koa-1999, fastify-32442 at FIXED revisions (same three shapes as V3 headline perf)"],
+    "modes_phase_3": ["OFF", "DETECTOR_ONLY_UNARMED", "V3_ALWAYS_ON_FULL"],
+    "diagnostic_modes_phase_3": ["DETECTOR_ONLY_ALS_ENABLED (attribution only, not gated)"],
+    "modes_phase_4": ["OFF", "SAMPLE_1", "SAMPLE_5", "SAMPLE_10", "SAMPLE_25", "V3_ALWAYS_ON_FULL"],
+    "repetitions": 10,
+    "measured_successful_requests_per_repetition": 5000,
+    "warmup_requests": 500,
+    "concurrency": 16,
+    "order": "mode order randomized per repetition with a recorded seed",
+    "cold_start": "separated: warmup excluded from measurement; boot time recorded separately",
+    "telemetry": ["CPU user/system", "RSS", "heapUsed", "event-loop delay mean/p99", "GC count/time", "throughput"],
+    "raw_data": "every per-repetition file preserved; aggregation never overwrites raw"
+  },
+
+  "statistics": {
+    "point_estimate": "median across per-repetition estimates (median-of-rep-medians for latency quantiles)",
+    "spread": "min and max across repetitions",
+    "interval": "95% bootstrap confidence interval over per-repetition estimates, 10000 resamples",
+    "rule": "a single favorable repetition is never the reported result"
+  },
+
+  "capture_efficiency_metrics": {
+    "per_trial": [
+      "executable_incident_obtained",
+      "failure_occurrence_index_at_capture",
+      "additional_failures_after_first_detection",
+      "matching_successful_requests_fully_instrumented_before_capture",
+      "total_fully_instrumented_requests",
+      "ms_from_first_observed_failure_to_executable_incident",
+      "arming_duration_ms",
+      "artifact_exactness",
+      "artifact_portability",
+      "wrong_failure_acceptance",
+      "secret_leakage"
+    ],
+    "derived": [
+      "failure_capture_probability",
+      "median_additional_failure_occurrences_to_capture",
+      "p95_additional_failure_occurrences_to_capture",
+      "median_fully_instrumented_requests_per_incident",
+      "p95_fully_instrumented_requests_per_incident",
+      "median_time_to_executable_incident",
+      "capture_probability_after_N_occurrences"
+    ],
+    "sampling_reference": "for rate p and n independent failure occurrences report the theoretical 1-(1-p)^n ALONGSIDE, never INSTEAD OF, empirical results"
+  },
+
+  "recurrence_workloads": {
+    "incidents": {
+      "probabilistic_capable": ["koa-1999", "express-qs", "fastify-32442", "hapi-4564"],
+      "rationale": "one per framework family (koa, express, fastify, hapi); each has a benign same-route request that returns 2xx on the buggy revision, so a failure RATE on one incident key is expressible without touching Rapture or application source",
+      "deterministic_only": ["koa-1998", "express-semver", "express-cookie", "hapi-4560"],
+      "deterministic_only_reason": "recorded before results: koa-1998 /admin and express-semver /check fail for every request on the buggy revision (no benign same-key variant exists in the frozen fixture); express-cookie and hapi-4560 are held out of the recurrence study to keep it to one incident per family"
+    },
+    "failure_profiles": [
+      { "name": "ONE_OFF", "failure_occurrences": 1, "purpose": "expose the fundamental limitation of post-detection arming" },
+      { "name": "RARE", "failure_rate": 0.001 },
+      { "name": "LOW", "failure_rate": 0.01 },
+      { "name": "MEDIUM", "failure_rate": 0.05 },
+      { "name": "HIGH", "failure_rate": 0.2 },
+      { "name": "DETERMINISTIC", "failure_rate": 1.0 }
+    ],
+    "trials_per_strategy_profile": 30,
+    "trial_length": "up to 20000 matching requests or until the strategy terminates (capture obtained, or arming window closed with no capture)",
+    "rng": "deterministic per-trial seed = hash(incident, profile, strategy, trialIndex); recorded; never replaced",
+    "strategies_evaluated": ["A_ALWAYS_ON", "B_RANDOM_INGRESS_SAMPLING at 0.01/0.05/0.10/0.25", "C_TARGETED_ARMING"]
+  },
+
+  "large_application": {
+    "purpose": "remove the concern that V3 headline services used experiment-authored service scaffolding around real framework/repository behavior",
+    "eligibility": [
+      "public repository",
+      "Node/TypeScript backend application (not a framework or library)",
+      "historical bug predating V3.1 with identifiable buggy and fixed revisions",
+      "bug observable through the application's OWN existing HTTP route",
+      "application starts through its normal application entry point",
+      "no experiment-authored replacement route implementing the bug",
+      "no application source edits to accommodate Rapture",
+      "fits the Node/http/pg/fetch boundary sufficiently for meaningful evaluation",
+      "runs locally without private credentials"
+    ],
+    "candidate_pool": ["Directus", "Payload", "NocoDB", "Etherpad", "Parse Server", "ToolJet", "any public Node service of comparable application scale"],
+    "allowed_integration": [
+      "generic Rapture bootstrap (--import register.mjs) plus environment variables",
+      "normal application configuration",
+      "local public development dependencies",
+      "a deterministic local substitute for an unavailable external service ONLY IF the application still issues its normal outbound call"
+    ],
+    "headline_requirements": [
+      "baseline historical bug reproduced WITHOUT Rapture first",
+      "automatic targeted capture attempted with the frozen V3.1 implementation",
+      "exact offline replay 20/20 if captured",
+      "portable artifact 20/20",
+      "historical fix discrimination",
+      "0 bug-specific Rapture wrappers/assertions",
+      "0 raw secret leaks"
+    ],
+    "honesty_rule": "do not weaken eligibility to force a success; if no genuinely eligible case exists after documented screening report INSUFFICIENT_LARGE_APP_CASE; if an eligible case exists and generic capture fails, that is a real negative result and is not replaced"
+  },
+
+  "performance_hard_gates": {
+    "detector_only_unarmed": [
+      "median p50 latency overhead <= 5%",
+      "median p95 latency overhead <= 5%",
+      "95% bootstrap upper bound for median p95 overhead <= 10% where calculable",
+      "median throughput degradation <= 5%",
+      "95% bootstrap worst-side bound not worse than 10% degradation where calculable"
+    ],
+    "sampling": [
+      "at 1% sampling: median p95 overhead <= 5% AND median throughput degradation <= 5%",
+      "at 5% sampling: median p95 overhead <= 7.5% AND median throughput degradation <= 7.5%",
+      "10% and 25% are mapping points, not mandatory production gates"
+    ],
+    "note": "thresholds are frozen here and are not adjusted after headline results are observed"
+  },
+
+  "correctness_hard_gates": [
+    "0 wrong-failure acceptances",
+    "0 unexpected live external effects during offline replay",
+    "0 raw gate-tier secret leaks",
+    "every targeted artifact used for headline correctness replays the exact failure 20/20",
+    "every portable headline artifact replays 20/20 from an isolated directory",
+    "the historical fixed revision removes the original failure for every evaluable targeted artifact",
+    "median bug-specific Rapture wrappers = 0",
+    "median bug-specific Rapture assertions = 0",
+    "median manually supplied causal facts = 0"
+  ],
+
+  "targeted_capture_usefulness_gates": {
+    "recurring_at_or_above_1_percent": [
+      ">= 90% of trials obtain an executable incident within the bounded arming window",
+      "median additional failure occurrences after initial detection <= 1",
+      "p95 additional failure occurrences <= 2 where sample size supports estimation"
+    ],
+    "efficiency": "fully instrumented matching requests per executable incident is reported; no post-hoc threshold is imposed on it",
+    "one_off": "one-off failures are expected to remain uncaptured by post-detection arming unless random sampling already selected them; this is reported as a product limitation, never as an excluded case"
+  },
+
+  "privacy_gates": [
+    "re-run the V3 gate-tier attack suite against the final V3.1 implementation: 0 raw gate-tier leaks",
+    "detector-only mode persists no sensitive request metadata",
+    "sampled-but-successful requests leave no persisted artifact",
+    "targeted arming state contains no raw credentials, bodies, headers, or query strings",
+    "every produced executable incident is scanned",
+    "the known V3 gap tier (JWT in free text, PEM, card-like values, bare password values, base64-encoded secrets, some free-text PII) remains out-of-boundary and is NOT claimed as solved"
+  ],
+
+  "no_retroactive_capture_proof": [
+    "an unsampled one-off failure yields no full executable incident",
+    "a detector-only first failure contains no pg/fetch/time/random observations",
+    "targeted arming produces a full artifact only from a request selected at ingress",
+    "turning arming on after a response failed does not retroactively populate boundary events"
+  ],
+
+  "manual_burden_metrics": [
+    "minutes to install/configure the generic Rapture bootstrap",
+    "minutes to configure detector/arming",
+    "manual route predicates supplied",
+    "bug-specific wrappers",
+    "bug-specific assertions",
+    "manual causal facts",
+    "application source LOC changed"
+  ],
+
+  "anti_goalpost_rules": [
+    "do not claim 'always persist failures' if required pre-failure observations were not collected",
+    "do not retroactively label a detector-only failure as an executable incident",
+    "do not manually choose sampling outcomes",
+    "do not replace failed random seeds",
+    "do not tune targeted match predicates per historical bug after seeing failures",
+    "do not use known bug error codes as required predicates",
+    "do not add bug-specific wrappers",
+    "do not modify capture correctness semantics merely to improve latency",
+    "do not use headline services for optimization before implementation freeze",
+    "do not remove difficult failure-rate profiles because capture probability is poor",
+    "do not hide one-off failure limitations",
+    "do not claim full production coverage from selective capture",
+    "do not proceed to agent repair simply because latency improves",
+    "do not treat theoretical sampling probability as empirical evidence"
+  ],
+
+  "decision_rules": {
+    "CONTINUE_TO_V4": "detector-only/unarmed overhead is production-plausible, targeted capture obtains executable incidents efficiently for recurring failures, all exactness/privacy/portability gates hold, and selective deployment does not destroy the practical value of the primitive; large-app evidence positive or unavailable for a documented corpus reason",
+    "MODIFY": "the mechanism remains credible but the usable deployment boundary is narrower than targeted recurring backend failures, or capture efficiency / large-app realism reveals a material limitation to resolve before repair-value testing",
+    "KILL": "low-overhead deployment cannot be achieved without losing useful incident capture, targeted arming routinely needs many recurrences or manual predicates, exactness/privacy regresses, or an eligible large application shows the mechanism does not survive realistic application architecture",
+    "INVALID_EXPERIMENT": "sampling enabled after outcomes are known, unsampled failures retroactively reconstructed, targeted predicates tuned per bug after results, failed trials discarded or replaced, headline implementation modified after freeze, or the large application replaced by an experiment-authored bug route",
+    "INSUFFICIENT_LARGE_APP_CASE": "core gates pass but no genuinely eligible large-application historical case exists under the frozen boundary after documented screening",
+    "BLOCKED_V3_PROTOCOL": "V3 cannot be honestly frozen before V3.1 begins"
+  },
+
+  "non_goals": [
+    "no coding agents", "no repair automation", "no V4 repair-value experiment", "no SaaS",
+    "no dashboard", "no public product CLI work", "no Sentry clone", "no Datadog clone",
+    "no new generic observability stack", "no distributed tracing product", "no eBPF",
+    "no Kafka", "no detached worker replay", "no multi-process deterministic replay",
+    "no browser replay", "no new reducer algorithm", "no DDMIN work", "no semantic/context systems",
+    "no agent orchestration", "no model routing", "no attempt to solve all V3 privacy gap classes",
+    "no product naming exercise"
+  ]
+}

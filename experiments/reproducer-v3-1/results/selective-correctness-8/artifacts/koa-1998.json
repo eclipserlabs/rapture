@@ -1,0 +1,147 @@
+{
+  "schema": "incident-capture-v2",
+  "captured_at": "2026-09-10T11:32:06.495Z",
+  "req_id": "req-54479-1789039926385-1",
+  "request": {
+    "method": "GET",
+    "path": "/admin",
+    "query": "",
+    "headers": {
+      "host": "127.0.0.1:47902",
+      "connection": "keep-alive",
+      "accept": "*/*",
+      "accept-language": "*",
+      "sec-fetch-mode": "cors",
+      "user-agent": "node",
+      "accept-encoding": "gzip, deflate"
+    },
+    "host": "127.0.0.1:47902",
+    "body": null
+  },
+  "response": {
+    "status": 500,
+    "headers": {
+      "x-logged": "1",
+      "content-type": "application/json; charset=utf-8",
+      "content-length": 58
+    },
+    "body": "{\"error\":\"assert regression\",\"code\":\"E_ASSERT_REGRESSION\"}"
+  },
+  "events": [
+    {
+      "seq": 1,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT sid, uid, role FROM v3dir_sessions WHERE sid = $1:[\"sid=[SESS:196daafb6c79]\"]",
+      "request": {
+        "text": "SELECT sid, uid, role FROM v3dir_sessions WHERE sid = $1",
+        "values": [
+          "sid=[SESS:196daafb6c79]"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 0,
+        "rows": [],
+        "fields": [
+          {
+            "name": "sid",
+            "dataTypeID": 25
+          },
+          {
+            "name": "uid",
+            "dataTypeID": 25
+          },
+          {
+            "name": "role",
+            "dataTypeID": 25
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "seq": 2,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT sid, uid, role FROM v3dir_sessions WHERE sid = $1:[\"sid=[SESS:196daafb6c79]\"]",
+      "request": {
+        "text": "SELECT sid, uid, role FROM v3dir_sessions WHERE sid = $1",
+        "values": [
+          "sid=[SESS:196daafb6c79]"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 0,
+        "rows": [],
+        "fields": [
+          {
+            "name": "sid",
+            "dataTypeID": 25
+          },
+          {
+            "name": "uid",
+            "dataTypeID": 25
+          },
+          {
+            "name": "role",
+            "dataTypeID": 25
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "seq": 3,
+      "kind": "http",
+      "op": "fetch",
+      "key": "http:GET:/health:",
+      "request": {
+        "method": "GET",
+        "url": "/health",
+        "body": null
+      },
+      "result": {
+        "status": 200,
+        "headers": {
+          "connection": "keep-alive",
+          "content-type": "application/json",
+          "date": "Thu, 10 Sep 2026 11:32:06 GMT",
+          "keep-alive": "timeout=5",
+          "transfer-encoding": "chunked"
+        },
+        "body": "{\"ok\":true}",
+        "truncated": false,
+        "unreadable": false
+      },
+      "error": null
+    },
+    {
+      "seq": 4,
+      "kind": "time",
+      "op": "now",
+      "key": "time:0",
+      "request": {},
+      "result": {
+        "value": 1789039926491
+      },
+      "error": null
+    }
+  ],
+  "config": {
+    "FAKE_ORIGIN": "http://localhost:47109"
+  },
+  "app_error": null,
+  "fingerprint": {
+    "kind": "app",
+    "request_method": "GET",
+    "route_or_operation": "/admin",
+    "http_status": 500,
+    "error_name_or_code": "ERR:E_ASSERT_REGRESSION",
+    "normalized_class": "ERR:E_ASSERT_REGRESSION",
+    "stable_frame": null,
+    "fingerprint_hash": "b9fa483da53d48277d9cbc1a84cdf60f4f1cf0e20914532f194e4ffbe07332d1"
+  },
+  "capture_hash": "7b6d3ade17a8b00da7ee475a05a838f1a69c0d42b76ee28cc15bef00d00e26e0"
+}

@@ -1,0 +1,117 @@
+{
+  "schema": "v3-1-independent-verification-1",
+  "verified_at": "2026-09-10",
+  "purpose": "Independent re-derivation of the V3.1 result from raw evidence rather than from REPORT.md prose, performed after the campaign completed. Records what reconciled, and four disclosure gaps found that the report did not previously state.",
+  "node_version": "v22.14.0",
+  "phase_0_v3_reconciliation": {
+    "capture_tree_hash": {
+      "recomputed": "8a8ef009d19a7345514d87c41a1133c89674dbc08ef4306dc51bf0fdd1da7fbf",
+      "recorded": "8a8ef009d19a7345514d87c41a1133c89674dbc08ef4306dc51bf0fdd1da7fbf",
+      "match": true,
+      "per_file_drift": 0
+    },
+    "protocol_manifest_hash": {
+      "recomputed": "e1734dcbf488d3c7e705d2217a1ec973de5180ab2e43e96d6d2640a883466b7b",
+      "recorded": "e1734dcbf488d3c7e705d2217a1ec973de5180ab2e43e96d6d2640a883466b7b",
+      "match": true
+    },
+    "frozen_corpus_hash": {
+      "recomputed": "9c139c36ba0432cb40b90ab97fa4dfb640258460963c111807d72886bcd8382a",
+      "recorded": "9c139c36ba0432cb40b90ab97fa4dfb640258460963c111807d72886bcd8382a",
+      "match": true,
+      "results_copy_byte_identical": true
+    },
+    "required_tests": "experiments/reproducer-v2/test/capture-v2.test.js: 20/20 pass under Node v22.14.0",
+    "verdict": "V3 IS VALID. RAPTURE_REPRODUCER_V3_1_STATUS=INVALID_EXPERIMENT is NOT triggered."
+  },
+  "v31_integrity": {
+    "manifest_hash": { "recomputed": "b94cd5f72e28d75f6647066df030cf1bbe6cd56cccc38989cf1ec00ac744f5e3", "match": true },
+    "impl_tree_hash": { "recomputed": "e9232b1f643934aa4cc7dff49e78c7ae23edc1af050f1e9efc2c424dc79ec45a", "match": true, "per_file_drift": 0 },
+    "test_suite": "test/selective-capture.test.js: 31/31 pass under Node v22.14.0",
+    "gates_recount": { "scored": 30, "passed": 27, "failed": 3 }
+  },
+  "hard_invariant_check": {
+    "method": "byte-level diff of the V3.1 capture tree against experiments/reproducer-v3/results/capture-freeze.json",
+    "byte_identical_to_v3": [
+      "src/capture/events.mjs", "src/capture/patch-fetch.mjs", "src/capture/patch-pg.mjs",
+      "src/capture/patch-time.mjs", "src/capture/persist.mjs", "src/capture/redact.mjs",
+      "src/oracle/fingerprint.mjs", "src/oracle/normalize.mjs", "src/replay/replay-one.mjs"
+    ],
+    "modified": ["src/capture/context.mjs", "src/capture/patch-http.mjs", "src/capture/register.mjs", "src/capture/state.mjs"],
+    "new": ["src/detector/select.mjs"],
+    "FailureFingerprintV2_frozen": true,
+    "frozen_V1_GREEDY_reducer_unchanged": true,
+    "interpretation": "The report's claim that every file determining WHAT a captured request records is byte-identical to V3 is confirmed at the byte level. The fingerprint and reduction semantics could not have been tuned to make cases pass."
+  },
+  "headline_numbers_reproduced_from_raw": {
+    "method": "re-derived from the per-repetition raw latency arrays in results/perf/phase3 and phase4, using the preregistered estimator (median across per-repetition paired MODE-vs-OFF ratios)",
+    "all_match": true,
+    "checked": {
+      "DETECTOR_ONLY_UNARMED": { "p50": 2.56, "p95": 0.38, "throughput": -1.14 },
+      "V3_ALWAYS_ON_FULL_phase3": { "p50": 19.22, "p95": 15.57, "throughput": -15.79 },
+      "SAMPLE_1": { "p50": 6.05, "p95": 2.64, "throughput": -5.46 },
+      "SAMPLE_5": { "p50": 8.11, "p95": 5.04, "throughput": -6.11 },
+      "SAMPLE_10": { "p50": 9.13, "p95": 2.29, "throughput": -5.95 },
+      "SAMPLE_25": { "p50": 10.31, "p95": 5.78, "throughput": -7.5 }
+    },
+    "stored_vs_recomputed_note": "Per-repetition stored quantiles are rounded to 2 decimals; recomputation from the raw arrays agrees within that rounding. No fabricated or edited values were found."
+  },
+  "yield_and_correctness_reproduced": {
+    "targeted_artifacts": 421,
+    "fingerprint_classes_per_incident": 1,
+    "one_off_targeted_capture": "0/120",
+    "rare_0_1pct_targeted_capture": [0.4, 0.3, 0.33],
+    "low_1pct_p95_additional_failures": 3,
+    "targeted_correctness": "4/4 incidents, 20/20 offline + 20/20 portable each (80/80), 4/4 FIX_CONFIRMED, 0 wrong-failure acceptances, 0 secret leaks, 0 wrappers/assertions/causal facts",
+    "all_match_report": true
+  },
+  "disclosure_gaps_found": [
+    {
+      "id": "V31-VERIFY-1",
+      "severity": "material",
+      "title": "The detector-only headline is estimator-sensitive and the point estimate overstates robustness",
+      "finding": "Under the preregistered estimator (median of per-repetition paired ratios) detector-only p95 overhead is +0.38%. Under ratio-of-medians -- an equally conventional, non-preregistered estimator applied to the same raw data -- it is +5.92% (per-service: express-qs +0.4%, fastify-32442 +5.9%, koa-1999 +12.7%), which would FAIL the <=5% hard gate. Throughput is -1.14% paired vs -3.85% ratio-of-medians (passes either way).",
+      "why_it_differs": "Repetition-level machine noise is strongly correlated within a repetition (e.g. rep 2 is an outlier across every service and mode). Pairing cancels it; ratio-of-medians does not. Pairing is the methodologically better choice here AND is the preregistered one, so the reported result stands as the primary estimate.",
+      "status_of_reported_result": "NOT invalidated. The preregistered estimator was frozen before measurement and no threshold was moved.",
+      "what_should_change_in_the_claim": "The prose 'essentially no cost' / '+0.38%' should be read against the report's own pooled 95% bootstrap upper bound of +9.24% (gate <=10%), which already spans the ratio-of-medians value. The honest statement is that detector-only overhead is small but bounded above near the gate, not that it is ~0.4%.",
+      "recommended_action_for_v4": "Increase repetitions or requests-per-repetition to tighten the interval before any claim of a near-zero fast path is productized."
+    },
+    {
+      "id": "V31-VERIFY-2",
+      "severity": "minor",
+      "title": "Measured requests per repetition is 5000, not the 10000 named in the V3.1 task brief",
+      "finding": "manifests/V3_1-MANIFEST.json preregisters measured_successful_requests_per_repetition = 5000. The task brief specified a minimum of 10000. Repetitions (10), concurrency (16), services and rotation all match the brief.",
+      "status": "Preregistered before implementation, therefore not a post-hoc goalpost move, but it is a deviation from the brief that was NOT recorded among the six protocol amendments.",
+      "effect": "Halves the per-repetition sample, widening the confidence intervals -- which is the same axis as V31-VERIFY-1."
+    },
+    {
+      "id": "V31-VERIFY-3",
+      "severity": "minor",
+      "title": "The brief's DIRECTUS_SCALE_UNSUPPORTED_OR_INCONCLUSIVE token is not recorded anywhere",
+      "finding": "The brief named Directus the primary large-service candidate and required recording DIRECTUS_SCALE_UNSUPPORTED_OR_INCONCLUSIVE with an exact reason if no eligible case could be established. large-app/screening.json documents Directus's disqualification substantively (knex bootstrap/migration per revision; located historical 500s were in the admin app or spanned multiple requests; disqualified for budget, not in principle), but the required token string appears nowhere in the tree.",
+      "assessment": "Substance satisfied, token missing. The substitution was NOT a silent downgrade to obtain a pass: parse-server is a 45,400-LOC application, it was carried end to end through its own route, and it FAILED the gate."
+    },
+    {
+      "id": "V31-VERIFY-4",
+      "severity": "minor",
+      "title": "Artifacts retain business-record PII, which the report does not state plainly",
+      "finding": "results/privacy/attack.json records a non-empty retainedPII list -- email addresses, a phone number and user ids drawn from database rows -- across 3 incident files. The report's 'PII in credential slots: 0' gate is scoped to credential slots only and is correctly reported as passing.",
+      "assessment": "Not a gate failure and not a contradiction: replaying a database-backed failure requires the recorded rows, so business PII in artifacts is by design. But the report never says so, which risks a reader over-reading '0 PII violations' as 'artifacts contain no PII'.",
+      "recommended_action": "State explicitly that captured artifacts contain the business data of the captured request, and that artifact handling therefore inherits the data classification of the underlying records."
+    }
+  ],
+  "naming_deviations_from_brief": {
+    "experiment_dir": { "brief": "experiments/reproducer-v3-selective/", "actual": "experiments/reproducer-v3-1/" },
+    "branch": { "brief": "research/minimal-executable-reproducer-v3-selective-capture", "actual": "research/minimal-executable-reproducer-v3-1-selective-capture" },
+    "manifest_path": { "brief": "MANIFEST.json at experiment root", "actual": "manifests/V3_1-MANIFEST.json" },
+    "assessment": "Cosmetic. Internally consistent throughout the tree and the report; no evidence is unreachable because of it."
+  },
+  "verification_verdict": {
+    "protocol_integrity": "ESTABLISHED",
+    "frozen_baselines": "RECONCILED",
+    "corpus_integrity": "RECONCILED",
+    "measurement_validity": "ESTABLISHED, with the estimator-sensitivity caveat in V31-VERIFY-1 recorded",
+    "reported_status_upheld": "MODIFY",
+    "note": "No number, threshold or verdict in REPORT.md was changed as a result of this verification. Three gates fail; MODIFY is the correct decision rule outcome."
+  }
+}

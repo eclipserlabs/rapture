@@ -1,0 +1,417 @@
+{
+  "generatedAt": "2026-09-10T11:59:17.332Z",
+  "manifest": "manifests/V3.1-MANIFEST.json",
+  "manifestHash": "288e1e3f904427b91daea81d9d116289ffda86e40684bb79df46404f19848172",
+  "implTreeHash": "9d9cc6459ba7596d4933fbb64251275fc51d795fbad4c2ae8158016c9c253f8e",
+  "gatesEvaluated": 41,
+  "gatesPassed": 33,
+  "gatesFailed": [
+    {
+      "group": "primary-deployment",
+      "gate": "SAMPLE_1: median p95 overhead",
+      "required": "<= 5%",
+      "observed": "5.86% paired / 3.9% ratio-of-medians",
+      "pass": false,
+      "note": "ESTIMATOR_DEPENDENT"
+    },
+    {
+      "group": "primary-deployment",
+      "gate": "SAMPLE_1: median throughput degradation",
+      "required": "<= 5%",
+      "observed": "-6.61% paired / -5.66% ratio-of-medians",
+      "pass": false,
+      "note": null
+    },
+    {
+      "group": "primary-deployment",
+      "gate": "SAMPLE_5: median throughput degradation",
+      "required": "<= 5%",
+      "observed": "-5.52% paired / -4.9% ratio-of-medians",
+      "pass": false,
+      "note": "ESTIMATOR_DEPENDENT"
+    },
+    {
+      "group": "primary-deployment",
+      "gate": "SAMPLE_10: median throughput degradation",
+      "required": "<= 5%",
+      "observed": "-6.63% paired / -6.44% ratio-of-medians",
+      "pass": false,
+      "note": null
+    },
+    {
+      "group": "primary-deployment",
+      "gate": "ARMED_WINDOW_10PCT: global throughput degradation",
+      "required": "<= 5%",
+      "observed": "-4.43% paired / -5.66% ratio-of-medians",
+      "pass": false,
+      "note": "ESTIMATOR_DEPENDENT"
+    },
+    {
+      "group": "sampling-scaling",
+      "gate": "SAMPLE_1 materially cheaper than SAMPLE_10",
+      "required": "materially cheaper",
+      "observed": "SAMPLE_1 -6.61% vs SAMPLE_10 -6.63% (0.02 pp apart)",
+      "pass": false,
+      "note": "cost roughly constant in selection rate = a step, not a slope"
+    },
+    {
+      "group": "v3-reference",
+      "gate": "V3_ALWAYS_ON median throughput degradation",
+      "required": "<= 15%",
+      "observed": "-15.15%",
+      "pass": false,
+      "note": null
+    },
+    {
+      "group": "large-service",
+      "gate": "Eligible large application carried end to end",
+      "required": "supported, or a clearly bounded compatibility issue",
+      "observed": "parse-community/parse-server: LARGE_APP_OFFLINE_REPLAY_FAILED; capture OK, offline replay 0/20",
+      "pass": false,
+      "note": "boot-time dependency observations are outside the frozen boundary; 16/20 with 2 outcome classes even after that blocker is removed"
+    }
+  ],
+  "estimatorDependent": [
+    "SAMPLE_1: median p95 overhead",
+    "SAMPLE_5: median throughput degradation",
+    "ARMED_WINDOW_10PCT: global throughput degradation"
+  ],
+  "gates": [
+    {
+      "group": "phase1-fastpath",
+      "gate": "Unselected requests create no capture context / buffer / boundary hit",
+      "required": "all counters 0",
+      "observed": "4 modes, all zero",
+      "pass": true,
+      "note": "detector-only, sample-0, route-unmatched, window-closed"
+    },
+    {
+      "group": "phase1-fastpath",
+      "gate": "Counters can detect the work (positive control)",
+      "required": "non-zero when selected",
+      "observed": "2000 ALS stores, 2000 buffers, 10000 hits, 8000 events",
+      "pass": true,
+      "note": null
+    },
+    {
+      "group": "primary-deployment",
+      "gate": "ROUTE_SELECTIVE_UNMATCHED: median p95 overhead",
+      "required": "<= 5%",
+      "observed": "-1.18% paired / 1.67% ratio-of-medians",
+      "pass": true,
+      "note": null
+    },
+    {
+      "group": "primary-deployment",
+      "gate": "ROUTE_SELECTIVE_UNMATCHED: median throughput degradation",
+      "required": "<= 5%",
+      "observed": "-1.14% paired / -3.24% ratio-of-medians",
+      "pass": true,
+      "note": null
+    },
+    {
+      "group": "primary-deployment",
+      "gate": "ROUTE_SELECTIVE_UNMATCHED: no single service p95 above 10%",
+      "required": "<= 10%",
+      "observed": "1.06% worst service",
+      "pass": true,
+      "note": null
+    },
+    {
+      "group": "primary-deployment",
+      "gate": "SAMPLE_1: median p95 overhead",
+      "required": "<= 5%",
+      "observed": "5.86% paired / 3.9% ratio-of-medians",
+      "pass": false,
+      "note": "ESTIMATOR_DEPENDENT"
+    },
+    {
+      "group": "primary-deployment",
+      "gate": "SAMPLE_1: median throughput degradation",
+      "required": "<= 5%",
+      "observed": "-6.61% paired / -5.66% ratio-of-medians",
+      "pass": false,
+      "note": null
+    },
+    {
+      "group": "primary-deployment",
+      "gate": "SAMPLE_1: no single service p95 above 10%",
+      "required": "<= 10%",
+      "observed": "6.37% worst service",
+      "pass": true,
+      "note": null
+    },
+    {
+      "group": "primary-deployment",
+      "gate": "SAMPLE_5: median p95 overhead",
+      "required": "<= 5%",
+      "observed": "3.55% paired / 0.94% ratio-of-medians",
+      "pass": true,
+      "note": null
+    },
+    {
+      "group": "primary-deployment",
+      "gate": "SAMPLE_5: median throughput degradation",
+      "required": "<= 5%",
+      "observed": "-5.52% paired / -4.9% ratio-of-medians",
+      "pass": false,
+      "note": "ESTIMATOR_DEPENDENT"
+    },
+    {
+      "group": "primary-deployment",
+      "gate": "SAMPLE_5: no single service p95 above 10%",
+      "required": "<= 10%",
+      "observed": "4.86% worst service",
+      "pass": true,
+      "note": null
+    },
+    {
+      "group": "primary-deployment",
+      "gate": "SAMPLE_10: median p95 overhead",
+      "required": "<= 5%",
+      "observed": "3.04% paired / 3.08% ratio-of-medians",
+      "pass": true,
+      "note": null
+    },
+    {
+      "group": "primary-deployment",
+      "gate": "SAMPLE_10: median throughput degradation",
+      "required": "<= 5%",
+      "observed": "-6.63% paired / -6.44% ratio-of-medians",
+      "pass": false,
+      "note": null
+    },
+    {
+      "group": "primary-deployment",
+      "gate": "SAMPLE_10: no single service p95 above 10%",
+      "required": "<= 10%",
+      "observed": "4.27% worst service",
+      "pass": true,
+      "note": null
+    },
+    {
+      "group": "primary-deployment",
+      "gate": "ARMED_WINDOW_10PCT: unselected-tail p95 overhead",
+      "required": "<= 5%",
+      "observed": "-2.33% worst service (global incl. selected: 11.5%)",
+      "pass": true,
+      "note": "cost is confined to the 10% actually selected"
+    },
+    {
+      "group": "primary-deployment",
+      "gate": "ARMED_WINDOW_10PCT: global throughput degradation",
+      "required": "<= 5%",
+      "observed": "-4.43% paired / -5.66% ratio-of-medians",
+      "pass": false,
+      "note": "ESTIMATOR_DEPENDENT"
+    },
+    {
+      "group": "primary-deployment",
+      "gate": "ARMED_WINDOW_CLOSED: returns to the fast path",
+      "required": "<= 5% p95 and throughput",
+      "observed": "p95 -0.52% / tput -1.61%",
+      "pass": true,
+      "note": null
+    },
+    {
+      "group": "sampling-scaling",
+      "gate": "SAMPLE_1/SAMPLE_5 materially cheaper than V3_ALWAYS_ON",
+      "required": "materially cheaper",
+      "observed": "SAMPLE_1 -6.61% vs ALWAYS_ON -15.15%",
+      "pass": true,
+      "note": null
+    },
+    {
+      "group": "sampling-scaling",
+      "gate": "SAMPLE_1 materially cheaper than SAMPLE_10",
+      "required": "materially cheaper",
+      "observed": "SAMPLE_1 -6.61% vs SAMPLE_10 -6.63% (0.02 pp apart)",
+      "pass": false,
+      "note": "cost roughly constant in selection rate = a step, not a slope"
+    },
+    {
+      "group": "selected-request",
+      "gate": "Selected requests pay ~V3 cost without catastrophic degradation",
+      "required": "no catastrophic degradation",
+      "observed": "0 request errors across all 240 repetitions",
+      "pass": true,
+      "note": null
+    },
+    {
+      "group": "v3-reference",
+      "gate": "V3_ALWAYS_ON median p95",
+      "required": "<= 20%",
+      "observed": "18.98%",
+      "pass": true,
+      "note": null
+    },
+    {
+      "group": "v3-reference",
+      "gate": "V3_ALWAYS_ON median p99",
+      "required": "<= 30%",
+      "observed": "10.01%",
+      "pass": true,
+      "note": null
+    },
+    {
+      "group": "v3-reference",
+      "gate": "V3_ALWAYS_ON median throughput degradation",
+      "required": "<= 15%",
+      "observed": "-15.15%",
+      "pass": false,
+      "note": null
+    },
+    {
+      "group": "correctness",
+      "gate": "Selected incidents auto-captured",
+      "required": "8/8",
+      "observed": "8/8",
+      "pass": true,
+      "note": null
+    },
+    {
+      "group": "correctness",
+      "gate": "Offline exact replay (dead PGPORT, dependency stopped)",
+      "required": "160/160",
+      "observed": "160/160",
+      "pass": true,
+      "note": null
+    },
+    {
+      "group": "correctness",
+      "gate": "Portable exact replay from isolated temp dir",
+      "required": "160/160",
+      "observed": "160/160",
+      "pass": true,
+      "note": null
+    },
+    {
+      "group": "correctness",
+      "gate": "Historical fix removes the failure",
+      "required": "8/8",
+      "observed": "8/8",
+      "pass": true,
+      "note": null
+    },
+    {
+      "group": "correctness",
+      "gate": "Fingerprint equals the one V3 recorded",
+      "required": "8/8",
+      "observed": "8/8",
+      "pass": true,
+      "note": null
+    },
+    {
+      "group": "correctness",
+      "gate": "Wrong-failure acceptances",
+      "required": "0",
+      "observed": "0",
+      "pass": true,
+      "note": null
+    },
+    {
+      "group": "correctness",
+      "gate": "Raw gate-tier secret leaks",
+      "required": "0",
+      "observed": "0",
+      "pass": true,
+      "note": null
+    },
+    {
+      "group": "unsampled-semantics",
+      "gate": "Unselected failure is NOT_CAPTURED, no partial reproducer",
+      "required": "all cells",
+      "observed": "16/16 cells NOT_CAPTURED",
+      "pass": true,
+      "note": null
+    },
+    {
+      "group": "manual-burden",
+      "gate": "Bug-specific wrappers",
+      "required": "0",
+      "observed": "0",
+      "pass": true,
+      "note": null
+    },
+    {
+      "group": "manual-burden",
+      "gate": "Bug-specific failure assertions",
+      "required": "0",
+      "observed": "0",
+      "pass": true,
+      "note": null
+    },
+    {
+      "group": "manual-burden",
+      "gate": "Manually supplied causal facts",
+      "required": "0",
+      "observed": "0",
+      "pass": true,
+      "note": null
+    },
+    {
+      "group": "manual-burden",
+      "gate": "Median incident-specific setup",
+      "required": "<= 5 min",
+      "observed": "0 min: one RAPTURE_V31_ROUTES value, read back from the runtime detector",
+      "pass": true,
+      "note": null
+    },
+    {
+      "group": "privacy",
+      "gate": "New capture policies: gate-tier leaks",
+      "required": "0",
+      "observed": "6/6 checks pass",
+      "pass": true,
+      "note": null
+    },
+    {
+      "group": "privacy",
+      "gate": "V3 attack suite gate tier (prior campaign, unchanged)",
+      "required": "0",
+      "observed": "0 leaks",
+      "pass": true,
+      "note": null
+    },
+    {
+      "group": "privacy",
+      "gate": "V3 gap tier",
+      "required": "unchanged, not claimed solved",
+      "observed": "unchanged; differential shows frozen V3 leaks identically",
+      "pass": null,
+      "note": "reported, never a pass"
+    },
+    {
+      "group": "integrity",
+      "gate": "No-retroactive-capture proofs",
+      "required": "all pass",
+      "observed": "9 checks",
+      "pass": true,
+      "note": null
+    },
+    {
+      "group": "integrity",
+      "gate": "Files determining what a capture records still byte-identical to V3",
+      "required": "9/9",
+      "observed": "9/9",
+      "pass": true,
+      "note": null
+    },
+    {
+      "group": "large-service",
+      "gate": "Eligible large application carried end to end",
+      "required": "supported, or a clearly bounded compatibility issue",
+      "observed": "parse-community/parse-server: LARGE_APP_OFFLINE_REPLAY_FAILED; capture OK, offline replay 0/20",
+      "pass": false,
+      "note": "boot-time dependency observations are outside the frozen boundary; 16/20 with 2 outcome classes even after that blocker is removed"
+    },
+    {
+      "group": "large-service",
+      "gate": "Application source LOC changed",
+      "required": "0",
+      "observed": "0",
+      "pass": true,
+      "note": null
+    }
+  ]
+}

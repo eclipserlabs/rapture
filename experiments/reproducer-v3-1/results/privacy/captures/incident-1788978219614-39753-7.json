@@ -1,0 +1,105 @@
+{
+  "schema": "incident-capture-v2",
+  "captured_at": "2026-09-09T18:23:39.613Z",
+  "req_id": "req-39753-1788978219541-7",
+  "request": {
+    "method": "POST",
+    "path": "/sub",
+    "query": "",
+    "headers": {
+      "host": "localhost:47221",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "accept": "*/*",
+      "accept-language": "*",
+      "sec-fetch-mode": "cors",
+      "user-agent": "node",
+      "accept-encoding": "gzip, deflate",
+      "content-length": "72"
+    },
+    "host": "localhost:47221",
+    "body": "{\"ref\":\"ticket-1\",\"note\":\"reference [REDACTED] confirmed\"}"
+  },
+  "response": {
+    "status": 500,
+    "headers": {},
+    "body": "{\"error\":\"priv substring incident\",\"code\":\"E_PRIV_SUB\"}"
+  },
+  "events": [
+    {
+      "seq": 1,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT * FROM v3priv_kv WHERE k = $1:[\"ticket-1\"]",
+      "request": {
+        "text": "SELECT * FROM v3priv_kv WHERE k = $1",
+        "values": [
+          "ticket-1"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 0,
+        "rows": [],
+        "fields": [
+          {
+            "name": "k",
+            "dataTypeID": 25
+          },
+          {
+            "name": "v",
+            "dataTypeID": 25
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "seq": 2,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT * FROM v3priv_kv WHERE k = $1:[\"ticket-1\"]",
+      "request": {
+        "text": "SELECT * FROM v3priv_kv WHERE k = $1",
+        "values": [
+          "ticket-1"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 0,
+        "rows": [],
+        "fields": [
+          {
+            "name": "k",
+            "dataTypeID": 25
+          },
+          {
+            "name": "v",
+            "dataTypeID": 25
+          }
+        ]
+      },
+      "error": null
+    }
+  ],
+  "config": {
+    "FAKE_ORIGIN": "http://localhost:47229",
+    "SECRET_CONFIG": {
+      "redacted": true,
+      "sha256": "fb78279a053e0c9cb21723f1ef16f9e992d87fe5dd310215fa58ed9340657cc6"
+    }
+  },
+  "app_error": null,
+  "fingerprint": {
+    "kind": "app",
+    "request_method": "POST",
+    "route_or_operation": "/sub",
+    "http_status": 500,
+    "error_name_or_code": "ERR:E_PRIV_SUB",
+    "normalized_class": "ERR:E_PRIV_SUB",
+    "stable_frame": null,
+    "fingerprint_hash": "1ad92524b443b37bf70ee3ebacfd5e606aff83d98e7db5dc5d20eb94c9ea6981"
+  },
+  "capture_hash": "7bd54ebbc746e56ffbf2ed21f354d030ed316927c60c4358f655fbc8884dedae"
+}

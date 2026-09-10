@@ -1,0 +1,315 @@
+{
+  "generatedAt": "2026-09-09T22:27:55.451Z",
+  "manifestHash": "b94cd5f72e28d75f6647066df030cf1bbe6cd56cccc38989cf1ec00ac744f5e3",
+  "implTreeHash": "e9232b1f643934aa4cc7dff49e78c7ae23edc1af050f1e9efc2c424dc79ec45a",
+  "gates": [
+    {
+      "group": "protocol",
+      "gate": "Preregistered manifest unmodified",
+      "observed": "b94cd5f72e28d75f",
+      "required": "b94cd5f72e28d75f",
+      "pass": true,
+      "interpretation": "thresholds and decision rules are the ones frozen before implementation"
+    },
+    {
+      "group": "performance",
+      "gate": "Detector-only median p50 overhead",
+      "observed": "2.56%",
+      "required": "<= 5%",
+      "pass": true,
+      "interpretation": "steady-state latency cost of leaving Rapture installed"
+    },
+    {
+      "group": "performance",
+      "gate": "Detector-only median p95 overhead",
+      "observed": "0.38%",
+      "required": "<= 5%",
+      "pass": true,
+      "interpretation": "tail cost while unarmed"
+    },
+    {
+      "group": "performance",
+      "gate": "Detector-only p95 overhead, 95% bootstrap upper bound",
+      "observed": "9.24% (pooled n=30)",
+      "required": "<= 10%",
+      "pass": true,
+      "interpretation": "the gate is on the interval, not the point estimate"
+    },
+    {
+      "group": "performance",
+      "gate": "Detector-only median throughput degradation",
+      "observed": "-1.14%",
+      "required": ">= -5%",
+      "pass": true,
+      "interpretation": "steady-state throughput cost"
+    },
+    {
+      "group": "performance",
+      "gate": "Detector-only throughput, 95% bootstrap worst-side bound",
+      "observed": "-4.36%",
+      "required": ">= -10%",
+      "pass": true,
+      "interpretation": "worst plausible throughput cost while unarmed"
+    },
+    {
+      "group": "reference",
+      "gate": "V3 always-on full capture (control)",
+      "observed": "p50 19.22% / p95 15.57% / tput -15.79%",
+      "required": "not a gate",
+      "pass": null,
+      "interpretation": "reproduces V3's structural cost on the same three services"
+    },
+    {
+      "group": "performance",
+      "gate": "1% sampling median p95 overhead",
+      "observed": "2.64%",
+      "required": "<= 5%",
+      "pass": true,
+      "interpretation": "cost of capturing 1 request in 100"
+    },
+    {
+      "group": "performance",
+      "gate": "1% sampling median throughput degradation",
+      "observed": "-5.46%",
+      "required": ">= -5%",
+      "pass": false,
+      "interpretation": null
+    },
+    {
+      "group": "performance",
+      "gate": "5% sampling median p95 overhead",
+      "observed": "5.04%",
+      "required": "<= 7.5%",
+      "pass": true,
+      "interpretation": null
+    },
+    {
+      "group": "performance",
+      "gate": "5% sampling median throughput degradation",
+      "observed": "-6.11%",
+      "required": ">= -7.5%",
+      "pass": true,
+      "interpretation": null
+    },
+    {
+      "group": "reference",
+      "gate": "SAMPLE_10 (mapping point, not a gate)",
+      "observed": "p95 2.29% / tput -5.95%",
+      "required": "mapping only",
+      "pass": null,
+      "interpretation": null
+    },
+    {
+      "group": "reference",
+      "gate": "SAMPLE_25 (mapping point, not a gate)",
+      "observed": "p95 5.78% / tput -7.5%",
+      "required": "mapping only",
+      "pass": null,
+      "interpretation": null
+    },
+    {
+      "group": "correctness",
+      "gate": "Targeted artifacts replaying the exact failure 20/20 offline",
+      "observed": "4/4",
+      "required": "4/4",
+      "pass": true,
+      "interpretation": null
+    },
+    {
+      "group": "correctness",
+      "gate": "Portable artifacts replaying 20/20 from an isolated directory",
+      "observed": "4/4",
+      "required": "4/4",
+      "pass": true,
+      "interpretation": null
+    },
+    {
+      "group": "correctness",
+      "gate": "Historical fixed revision removes the failure",
+      "observed": "4/4",
+      "required": "4/4",
+      "pass": true,
+      "interpretation": null
+    },
+    {
+      "group": "correctness",
+      "gate": "Wrong-failure acceptances",
+      "observed": "0",
+      "required": "0",
+      "pass": true,
+      "interpretation": null
+    },
+    {
+      "group": "correctness",
+      "gate": "Raw gate-tier secret leaks in targeted artifacts",
+      "observed": "0",
+      "required": "0",
+      "pass": true,
+      "interpretation": null
+    },
+    {
+      "group": "correctness",
+      "gate": "Targeted artifact reproduces the SAME historical failure V3 captured",
+      "observed": "4/4",
+      "required": "4/4",
+      "pass": true,
+      "interpretation": "fingerprint identity against the frozen V3 capture, not merely 'a 500 on that route'"
+    },
+    {
+      "group": "manual-burden",
+      "gate": "Median bug-specific Rapture wrappers",
+      "observed": "0",
+      "required": "0",
+      "pass": true,
+      "interpretation": null
+    },
+    {
+      "group": "manual-burden",
+      "gate": "Median bug-specific Rapture assertions",
+      "observed": "0",
+      "required": "0",
+      "pass": true,
+      "interpretation": null
+    },
+    {
+      "group": "manual-burden",
+      "gate": "Median manually supplied causal facts",
+      "observed": "0",
+      "required": "0",
+      "pass": true,
+      "interpretation": null
+    },
+    {
+      "group": "usefulness",
+      "gate": "Targeted capture probability, recurring failures at >=1%",
+      "observed": "100% (worst cell of 13)",
+      "required": ">= 90%",
+      "pass": true,
+      "interpretation": "within the preregistered per-profile request budget"
+    },
+    {
+      "group": "usefulness",
+      "gate": "Median additional failure occurrences after first detection",
+      "observed": "1",
+      "required": "<= 1",
+      "pass": true,
+      "interpretation": "the first failure only arms; this is the extra cost of that"
+    },
+    {
+      "group": "usefulness",
+      "gate": "p95 additional failure occurrences",
+      "observed": "3",
+      "required": "<= 2",
+      "pass": false,
+      "interpretation": null
+    },
+    {
+      "group": "limitation",
+      "gate": "One-off failures captured by targeted arming",
+      "observed": "0/120",
+      "required": "expected 0 — reported, not hidden",
+      "pass": null,
+      "interpretation": "post-detection arming structurally cannot capture a failure that never recurs"
+    },
+    {
+      "group": "privacy",
+      "gate": "Raw gate-tier leaks in the V3 attack suite (re-run on V3.1)",
+      "observed": "0",
+      "required": "0",
+      "pass": true,
+      "interpretation": null
+    },
+    {
+      "group": "privacy",
+      "gate": "PII in credential slots",
+      "observed": "0",
+      "required": "0",
+      "pass": true,
+      "interpretation": null
+    },
+    {
+      "group": "privacy",
+      "gate": "Replay failures caused by redaction",
+      "observed": "0",
+      "required": "0",
+      "pass": true,
+      "interpretation": null
+    },
+    {
+      "group": "limitation",
+      "gate": "V3 gap-tier shapes (JWT/PEM/card/bare password/base64)",
+      "observed": "jwt_raw_present, pem_raw_present, card_raw_present, password_value_raw_present, base64_sk_raw_present",
+      "required": "unchanged, out of boundary",
+      "pass": null,
+      "interpretation": "explicitly NOT solved by V3.1; secret-gated incidents remain outside the supported boundary"
+    },
+    {
+      "group": "privacy",
+      "gate": "Selective-capture privacy checks (detector/arming/sampling)",
+      "observed": "4/4",
+      "required": "all pass",
+      "pass": true,
+      "interpretation": null
+    },
+    {
+      "group": "integrity",
+      "gate": "No-retroactive-capture proofs",
+      "observed": "5/5",
+      "required": "all pass",
+      "pass": true,
+      "interpretation": "a failure here would be INVALID_EXPERIMENT, not a bug"
+    },
+    {
+      "group": "large-app",
+      "gate": "Eligible large application carried end to end",
+      "observed": "parse-community/parse-server: LARGE_APP_OFFLINE_REPLAY_FAILED",
+      "required": "positive, or documented INSUFFICIENT_LARGE_APP_CASE",
+      "pass": false,
+      "interpretation": "captured through the application's own route with no experiment-authored replacement route"
+    },
+    {
+      "group": "large-app",
+      "gate": "Application source LOC changed",
+      "observed": "0",
+      "required": "0",
+      "pass": true,
+      "interpretation": null
+    },
+    {
+      "group": "protocol",
+      "gate": "Frozen implementation tree hash",
+      "observed": "e9232b1f643934aa",
+      "required": "unchanged since freeze",
+      "pass": true,
+      "interpretation": "verified separately by scripts/freeze-impl.mjs re-run"
+    }
+  ],
+  "hardGatesEvaluated": 30,
+  "hardGatesPassed": 27,
+  "hardGatesFailed": [
+    {
+      "group": "performance",
+      "gate": "1% sampling median throughput degradation",
+      "observed": "-5.46%",
+      "required": ">= -5%",
+      "pass": false,
+      "interpretation": null
+    },
+    {
+      "group": "usefulness",
+      "gate": "p95 additional failure occurrences",
+      "observed": "3",
+      "required": "<= 2",
+      "pass": false,
+      "interpretation": null
+    },
+    {
+      "group": "large-app",
+      "gate": "Eligible large application carried end to end",
+      "observed": "parse-community/parse-server: LARGE_APP_OFFLINE_REPLAY_FAILED",
+      "required": "positive, or documented INSUFFICIENT_LARGE_APP_CASE",
+      "pass": false,
+      "interpretation": "captured through the application's own route with no experiment-authored replacement route"
+    }
+  ]
+}

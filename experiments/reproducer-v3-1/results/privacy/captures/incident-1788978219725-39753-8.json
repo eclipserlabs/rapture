@@ -1,0 +1,89 @@
+{
+  "schema": "incident-capture-v2",
+  "captured_at": "2026-09-09T18:23:39.724Z",
+  "req_id": "req-39753-1788978219633-8",
+  "request": {
+    "method": "POST",
+    "path": "/gap",
+    "query": "",
+    "headers": {
+      "host": "localhost:47221",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "accept": "*/*",
+      "accept-language": "*",
+      "sec-fetch-mode": "cors",
+      "user-agent": "node",
+      "accept-encoding": "gzip, deflate",
+      "content-length": "325"
+    },
+    "host": "localhost:47221",
+    "body": "{\"jwt\":\"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxNjAxMjYxNyJ9.87ffb6c73a73dc8fb12d765b73ce5593\",\"pem\":\"-----BEGIN PRIVATE KEY-----\\nMTYwMTI2MTcxNjAxMjYxNzE2MDEyNjE3\\n-----END PRIVATE KEY-----\",\"card\":\"4111111111111111\",\"password\":\"hunter2-16012617\",\"bearer\":\"Bearer b6b561abdbef895cf4c3d599\",\"b64\":\"c2stbGl2ZS05MzFhYjJiZGQ0YjZjOGJj\"}"
+  },
+  "response": {
+    "status": 500,
+    "headers": {},
+    "body": "{\"error\":\"priv gap-probe incident\",\"code\":\"E_PRIV_GAP\"}"
+  },
+  "events": [
+    {
+      "seq": 1,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:INSERT INTO v3priv_kv(k, v) VALUES ($1, $2):[\"gap\",\"{\\\"jwt\\\":\\\"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxNjAxMjYxNyJ9.87ffb6c73a73dc8fb12d765b73ce5593\\\",\\\"pem\\\":\\\"-----BEGIN PRIVATE KEY-----\\\\nMTYwMTI2MTcxNjAxMjYxNzE2MDEyNjE3\\\\n-----END PRIVATE KEY-----\\\",\\\"card\\\":\\\"4111111111111111\\\",\\\"password\\\":\\\"hunter2-16012617\\\",\\\"bearer\\\":\\\"Bearer b6b561abdbef895cf4c3d599\\\",\\\"b64\\\":\\\"c2stbGl2ZS05MzFhYjJiZGQ0YjZjOGJj\\\"}\"]",
+      "request": {
+        "text": "INSERT INTO v3priv_kv(k, v) VALUES ($1, $2)",
+        "values": [
+          "gap",
+          "{\"jwt\":\"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxNjAxMjYxNyJ9.87ffb6c73a73dc8fb12d765b73ce5593\",\"pem\":\"-----BEGIN PRIVATE KEY-----\\nMTYwMTI2MTcxNjAxMjYxNzE2MDEyNjE3\\n-----END PRIVATE KEY-----\",\"card\":\"4111111111111111\",\"password\":\"hunter2-16012617\",\"bearer\":\"Bearer b6b561abdbef895cf4c3d599\",\"b64\":\"c2stbGl2ZS05MzFhYjJiZGQ0YjZjOGJj\"}"
+        ]
+      },
+      "result": {
+        "command": "INSERT",
+        "rowCount": 1,
+        "rows": [],
+        "fields": []
+      },
+      "error": null
+    },
+    {
+      "seq": 2,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:INSERT INTO v3priv_kv(k, v) VALUES ($1, $2):[\"gap\",\"{\\\"jwt\\\":\\\"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxNjAxMjYxNyJ9.87ffb6c73a73dc8fb12d765b73ce5593\\\",\\\"pem\\\":\\\"-----BEGIN PRIVATE KEY-----\\\\nMTYwMTI2MTcxNjAxMjYxNzE2MDEyNjE3\\\\n-----END PRIVATE KEY-----\\\",\\\"card\\\":\\\"4111111111111111\\\",\\\"password\\\":\\\"hunter2-16012617\\\",\\\"bearer\\\":\\\"Bearer b6b561abdbef895cf4c3d599\\\",\\\"b64\\\":\\\"c2stbGl2ZS05MzFhYjJiZGQ0YjZjOGJj\\\"}\"]",
+      "request": {
+        "text": "INSERT INTO v3priv_kv(k, v) VALUES ($1, $2)",
+        "values": [
+          "gap",
+          "{\"jwt\":\"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxNjAxMjYxNyJ9.87ffb6c73a73dc8fb12d765b73ce5593\",\"pem\":\"-----BEGIN PRIVATE KEY-----\\nMTYwMTI2MTcxNjAxMjYxNzE2MDEyNjE3\\n-----END PRIVATE KEY-----\",\"card\":\"4111111111111111\",\"password\":\"hunter2-16012617\",\"bearer\":\"Bearer b6b561abdbef895cf4c3d599\",\"b64\":\"c2stbGl2ZS05MzFhYjJiZGQ0YjZjOGJj\"}"
+        ]
+      },
+      "result": {
+        "command": "INSERT",
+        "rowCount": 1,
+        "rows": [],
+        "fields": []
+      },
+      "error": null
+    }
+  ],
+  "config": {
+    "FAKE_ORIGIN": "http://localhost:47229",
+    "SECRET_CONFIG": {
+      "redacted": true,
+      "sha256": "fb78279a053e0c9cb21723f1ef16f9e992d87fe5dd310215fa58ed9340657cc6"
+    }
+  },
+  "app_error": null,
+  "fingerprint": {
+    "kind": "app",
+    "request_method": "POST",
+    "route_or_operation": "/gap",
+    "http_status": 500,
+    "error_name_or_code": "ERR:E_PRIV_GAP",
+    "normalized_class": "ERR:E_PRIV_GAP",
+    "stable_frame": null,
+    "fingerprint_hash": "a4e009e6608b8511f89da854a73505ba2f07f51b43bf3d601d0db9996d371257"
+  },
+  "capture_hash": "04e7944c7345ed1ac13188e9bb241f8543156e2364e1aa8f1ab776983ae50b27"
+}

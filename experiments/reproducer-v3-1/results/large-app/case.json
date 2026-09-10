@@ -1,0 +1,47 @@
+{
+  "repository": "parse-community/parse-server",
+  "bug": "Postgres query on a Parse internal field with no database column returns 500 instead of an empty result (#10308)",
+  "fix_commit": "c5c43259d1f98af5bbbbc44d9daf7c0f1f8168d3",
+  "route": "GET /parse/classes/_User?where={\"_tombstone\":{\"$exists\":true}} (the application's own REST route)",
+  "experiment_authored_route": false,
+  "application_source_changes_loc": 0,
+  "bug_specific_rapture_wrappers": 0,
+  "bug_specific_rapture_assertions": 0,
+  "manual_causal_facts": 0,
+  "rapture_integration": "node --import <register.mjs> + environment variables only",
+  "baseline_buggy": {
+    "status": 500,
+    "body": "{\"code\":1,\"error\":\"An internal server error occurred\"}"
+  },
+  "baseline_fixed": {
+    "status": 200,
+    "body": "{\"results\":[]}"
+  },
+  "baseline_reproduced": true,
+  "first_failure_status": 500,
+  "artifacts_after_first_failure": 0,
+  "second_failure_status": 500,
+  "artifacts_after_second_failure": 1,
+  "armed_automatically": true,
+  "arm_events": 1,
+  "captured_incidents": 1,
+  "incident_key": "GET /parse/classes/_User",
+  "fully_instrumented_requests": 1,
+  "captured": true,
+  "fingerprint_hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+  "fingerprint_class": "ERR:1",
+  "events_total": 12,
+  "event_kinds": [
+    "time",
+    "pg"
+  ],
+  "offline_pass": "0/20",
+  "replay_classes": 1,
+  "status": "LARGE_APP_OFFLINE_REPLAY_FAILED",
+  "gate_offline_pass": "0/20",
+  "gate_offline_failure_reason": "app did not boot; stderr: AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1139:18)\n    at afterConnectMultiple (node:net:1712:7) {\n  code: 'ECONNREFUSED',\n  [errors]: [\n    Er",
+  "diagnostic_startup_db_offline_pass": "16/20",
+  "diagnostic_replay_classes": 2,
+  "finding": "Targeted capture worked on the large application: the first failure armed generically on the application's own route key and a later selected occurrence produced an artifact whose recorded pg query is the real one the bug provokes. The artifact does NOT satisfy the frozen offline-replay gate, because parse-server performs Postgres work during STARTUP (schema bootstrap), outside any request, and the frozen capture only records boundary observations made INSIDE a captured request. With the database reachable at startup only, the captured request itself replays entirely from the artifact. The limitation is boot-time dependency access, not request-time fidelity.",
+  "secondary_finding": "The frozen offline proof forces PGPORT=54399, which has no effect on an application that connects through an explicit DATABASE_URI connection string. The dead-port guard as written does not generalize beyond libpq environment configuration."
+}

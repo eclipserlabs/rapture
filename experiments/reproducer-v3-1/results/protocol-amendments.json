@@ -1,0 +1,107 @@
+{
+  "schema": "v3-1-protocol-amendments-1",
+  "purpose": "Every departure from V3_1-MANIFEST.json, when it was made, and what was known at the time. An amendment made BEFORE the relevant results were observed is legitimate; one made after is a goalpost move and would be INVALID_EXPERIMENT.",
+  "manifest_hash": "b94cd5f72e28d75f6647066df030cf1bbe6cd56cccc38989cf1ec00ac744f5e3",
+  "amendments": [
+    {
+      "id": "V31-AMEND-1",
+      "title": "koa-1999 is not probabilistic-capable under the preregistered incident key",
+      "when": "during Phase 5 harness implementation, BEFORE any recurrence trial was run",
+      "manifest_field": "recurrence_workloads.incidents.probabilistic_capable",
+      "preregistered": [
+        "koa-1999",
+        "express-qs",
+        "fastify-32442",
+        "hapi-4564"
+      ],
+      "corrected": {
+        "probabilistic_capable": [
+          "express-qs",
+          "fastify-32442",
+          "hapi-4564"
+        ],
+        "deterministic_and_one_off_only": [
+          "koa-1999",
+          "koa-1998",
+          "express-semver"
+        ]
+      },
+      "reason": "The preregistered rationale assumed koa-1999 had 'a benign same-route request that returns 2xx on the buggy revision'. It does not, under the preregistered matching key (method + normalized pathname). koa #1999 is triggered by an ABSOLUTE-FORM request target, which node:http surfaces as req.url = 'http://example.com/u?q=1'. Its normalized key is therefore 'GET http://example.com/u', while ordinary origin-form traffic to the same route keys as 'GET /u'. Every request carrying the failing key fails, so no benign traffic can share it and no failure RATE below 100% is expressible for that key.",
+      "consequence": "The koa family contributes DETERMINISTIC and ONE_OFF profiles only. The probabilistic profiles are carried by one incident per remaining family (express, fastify, hapi).",
+      "not_a_convenience": "No incident was substituted in to restore a fourth probabilistic case, and no failing case was dropped. koa-1999 is still run, on the profiles it can express.",
+      "finding": "This is itself a product-relevant result, not just bookkeeping: detector key granularity decides what counts as 'matching traffic'. Transport-level anomalies (absolute-form targets, missing Host, malformed Host) form self-separating traffic classes in which EVERY matching request fails. For those, targeted arming captures on the very next occurrence; there is no benign traffic to instrument wastefully."
+    },
+    {
+      "id": "V31-AMEND-2",
+      "title": "Per-profile request budgets for recurrence trials",
+      "when": "during Phase 5 harness implementation, BEFORE any recurrence trial was run",
+      "manifest_field": "recurrence_workloads.trial_length",
+      "preregistered": "up to 20000 matching requests or until the strategy terminates",
+      "corrected": {
+        "ONE_OFF": 1000,
+        "RARE": 5000,
+        "LOW": 2000,
+        "MEDIUM": 1000,
+        "HIGH": 500,
+        "DETERMINISTIC": 100
+      },
+      "reason": "A uniform 20000-request runway across 6 profiles x 6 strategies x 4 incidents x 30 trials does not fit the experiment's runtime budget with sequential request streams (ordering is required for 'the failure occurrence on which capture happened' to mean anything). Budgets are scaled to each profile's failure rate.",
+      "fairness_rule": "The budget is IDENTICAL for every strategy within a profile, so no strategy is measured on a longer runway than another. Trials that exhaust the budget without an artifact are recorded as BUDGET_EXHAUSTED_NO_CAPTURE and counted as failures to capture \u2014 never discarded, never retried, never re-seeded.",
+      "censoring_disclosure": "Capture probabilities are therefore CENSORED at these budgets and must be read as 'within N matching requests', not as asymptotic probabilities. The theoretical reference 1-(1-p)^n is reported alongside so the censoring is visible."
+    },
+    {
+      "id": "V31-AMEND-3",
+      "title": "Sampling capture-probability map measured on one incident",
+      "when": "during Phase 5 harness implementation, BEFORE any recurrence trial was run",
+      "manifest_field": "recurrence_workloads.strategies_evaluated",
+      "preregistered": "all strategies on all applicable incidents",
+      "corrected": "targeted and always-on run on all 4 incidents; the four ingress-sampling rates run on the full profile set for express-qs, plus a confirmation cell on the other incidents at the DETERMINISTIC profile",
+      "reason": "Ingress sampling's capture probability is a property of the Bernoulli selection and the failure process, not of which historical bug is failing: the selection decision cannot see the incident. Measuring the full rate x profile grid on every incident multiplies runtime without adding an independent observation. The reduction is recorded here rather than presented as a full grid.",
+      "honesty_rule": "The sampling map is reported as measured on one incident and is not generalized beyond 'ingress sampling at rate p', which is all the mechanism depends on."
+    },
+    {
+      "id": "V31-AMEND-4",
+      "title": "Harness defect: ingress-sampler seed was not independent of the failure-schedule seed",
+      "type": "HARNESS_DEFECT_FOUND_AND_FULLY_RERUN",
+      "when": "during the Phase 5 sampling grid, on inspecting an implausible cell (LOW/sample-1 capturing 30/30 with median 0 additional failures)",
+      "affected": "every random-ingress-sampling cell of the recurrence campaign",
+      "not_affected": [
+        "the 40-cell / 1200-trial core recurrence grid (targeted and always-on): targeted selection is driven by arming state and consults no RNG, and always-on selects every request, so neither reads the sampler stream",
+        "Phase 3 and Phase 4 performance campaigns: their workloads contain no failing requests at all, and the observed sampled fractions matched the nominal rates to two decimals (1.01%, 5.05%, 10.03%, 25.01%), which is the signature of a correct independent Bernoulli"
+      ],
+      "defect": "The harness passed the trial's schedule seed to the service as RAPTURE_V31_SEED. Both sides draw from the same mulberry32 stream, so the SAME uniform u_i decided 'is request i a failure?' (u_i < failureRate) and 'is request i sampled?' (u_i < sampleRate). Whenever the two rates were equal the events coincided exactly: every failure was sampled and nothing else was.",
+      "evidence": "A direct replication over 2000 draws produced 2000/2000 identical values, 15 failures, 15 selected, 15 both. Trial records showed failureOccurrences=1, capturedAtFailureOccurrence=1 and fullyInstrumentedRequests=1 in 30/30 LOW/sample-1 trials.",
+      "direction_of_bias": "The defect made random sampling look DRAMATICALLY BETTER than it is (apparent 100% capture at a 1% sampling rate, on the first failure, with a single instrumented request). Discarding these results removes evidence that FLATTERED a strategy, so this correction cannot be a goalpost move.",
+      "fix": "The sampler seed is now derived from an independent hash input, samplerSeed = sha256('sampler|' + incident + '|' + profile + '|' + strategy + '|' + trial). Verified: over 30 trials x 2000 requests, 562 failures and 592 sampled requests produced 2 coincidences, against an independent expectation of ~5.6.",
+      "action": "The entire sampling grid was discarded and re-run from scratch under independent seeds. No cell was kept, and no seed was hand-picked.",
+      "implementation_unchanged": "The frozen V3.1 implementation tree (e9232b1f643934aa4cc7dff49e78c7ae23edc1af050f1e9efc2c424dc79ec45a) was NOT touched. The defect was in scripts/recurrence.mjs, which is experiment harness, not product code."
+    },
+    {
+      "id": "V31-AMEND-5",
+      "title": "Sampling grid executed as four parallel shards, one per sampling rate",
+      "type": "EXECUTION_CONDITION_DISCLOSURE",
+      "when": "after the seed-independence fix (V31-AMEND-4), before any corrected sampling cell was aggregated",
+      "reason": "Run sequentially, the corrected sampling grid needs roughly five hours: because correct ingress sampling rarely selects a failing request, almost every trial now runs its full request budget (the RARE cells alone are 4 x 30 x 5000 = 600000 sequential requests). Sharding by sampling rate runs the four rates concurrently.",
+      "what_this_does_not_change": [
+        "Every trial is still a fresh, isolated application process with its own port and its own deterministic seed, so trial outcomes are independent of execution order and identical to what a sequential run would produce.",
+        "All count-based metrics are exact and unaffected: capture probability, failure occurrence at capture, additional failures after first detection, fully instrumented requests, disarm reasons, requests issued.",
+        "No budget, rate, seed, profile or gate was altered."
+      ],
+      "what_this_does_change": "Wall-clock timings within the sampling grid (msFromFirstFailureToArtifact) are measured under four-way concurrent execution and are therefore UPPER BOUNDS. They are not comparable with the sequentially-measured targeted/always-on timings from the core grid.",
+      "reporting_rule": "Strategy comparisons are made on request and failure COUNTS, which are exact under both execution modes. Sampling wall-clock times are reported with this caveat attached and are never used to argue a strategy comparison.",
+      "uniformity": "The entire sampling grid was restarted from scratch under sharded execution, so no cell mixes execution conditions. The 264 sequentially-executed corrected trials were discarded for uniformity, not for their values."
+    },
+    {
+      "id": "V31-AMEND-6",
+      "title": "Arming sensitivity sweep narrowed to one incident and two profiles, sharded by strategy",
+      "type": "SENSITIVITY_ANALYSIS_SCOPE",
+      "when": "when launching the preregistered budget/TTL sweep, before any sweep cell completed",
+      "manifest_field": "arming_semantics.sensitivity_sweep",
+      "preregistered": "request_budget [10, 100, 1000] and ttl_seconds [30, 300]",
+      "scope_run": "express-qs only, at the LOW (1%) and RARE (0.1%) profiles, 30 trials per cell, strategies targeted-b10 / targeted-b1000 / targeted-ttl30, executed as three parallel shards",
+      "reason": "The full sweep across 3 incidents x 3 profiles x 3 settings is roughly 2 million sequential requests (>8 hours), because a small budget rarely captures and therefore runs the entire request budget every trial. LOW is the profile where the frozen policy's p95 gate actually failed and RARE is where targeted capture collapsed, so those two profiles carry all the information the sweep is meant to provide.",
+      "status_of_this_analysis": "SENSITIVITY ANALYSIS ONLY. It is NOT a gate, it does NOT replace the frozen 100-request headline policy, and it CANNOT convert the failed p95 additional-failures gate into a pass. It exists to explain the mechanism behind that failure and to quantify the acquisition/instrumentation tradeoff.",
+      "execution_note": "Sharded by strategy, so sweep wall-clock timings are upper bounds; count-based metrics are exact (same reasoning as V31-AMEND-5)."
+    }
+  ]
+}

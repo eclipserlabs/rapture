@@ -1,0 +1,85 @@
+{
+  "sentinelsSha": "d7b5c62635088a82",
+  "routes": {
+    "h": {
+      "status": 500,
+      "body": "{\"error\":\"priv header incident\",\"code\":\"E_PRIV_H\"}"
+    },
+    "q": {
+      "status": 500,
+      "body": "{\"error\":\"priv query incident\",\"code\":\"E_PRIV_Q\"}"
+    },
+    "j": {
+      "status": 500,
+      "body": "{\"error\":\"priv json incident\",\"code\":\"E_PRIV_J\"}"
+    },
+    "db": {
+      "status": 500,
+      "body": "{\"error\":\"priv db incident {\\\"email\\\":\\\"u-16012617@example.com\",\"code\":\"E_PRIV_DB\"}"
+    },
+    "cfg": {
+      "status": 500,
+      "body": "{\"error\":\"priv config incident present=yes\",\"code\":\"E_PRIV_CFG\"}"
+    },
+    "same": {
+      "status": 500,
+      "body": "{\"error\":\"priv same-secret incident\",\"code\":\"E_PRIV_SAME\"}"
+    },
+    "sub": {
+      "status": 500,
+      "body": "{\"error\":\"priv substring incident\",\"code\":\"E_PRIV_SUB\"}"
+    },
+    "gap": {
+      "status": 500,
+      "body": "{\"error\":\"priv gap-probe incident\",\"code\":\"E_PRIV_GAP\"}"
+    }
+  },
+  "gate": {
+    "captures": 8,
+    "gate_secret_leaks": [],
+    "pii_violations": [],
+    "replay_failures": [],
+    "replay_divergences": 0
+  },
+  "gap": {
+    "jwt_raw_present": true,
+    "pem_raw_present": true,
+    "card_raw_present": true,
+    "password_value_raw_present": true,
+    "base64_sk_raw_present": true
+  },
+  "retainedPII": [
+    {
+      "file": "incident-1788978219130-39753-2.json",
+      "pii": "u-16012617…"
+    },
+    {
+      "file": "incident-1788978219130-39753-2.json",
+      "pii": "+1-415-555…"
+    },
+    {
+      "file": "incident-1788978219130-39753-2.json",
+      "pii": "user-16012…"
+    },
+    {
+      "file": "incident-1788978219201-39753-3.json",
+      "pii": "u-16012617…"
+    },
+    {
+      "file": "incident-1788978219201-39753-3.json",
+      "pii": "+1-415-555…"
+    },
+    {
+      "file": "incident-1788978219426-39753-4.json",
+      "pii": "u-16012617…"
+    },
+    {
+      "file": "incident-1788978219426-39753-4.json",
+      "pii": "+1-415-555…"
+    },
+    {
+      "file": "incident-1788978219426-39753-4.json",
+      "pii": "user-16012…"
+    }
+  ]
+}

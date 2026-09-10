@@ -1,0 +1,142 @@
+{
+  "schema": "incident-capture-v2",
+  "captured_at": "2026-09-09T17:31:43.821Z",
+  "req_id": "req-35635-1788975103805-1",
+  "request": {
+    "method": "GET",
+    "path": "/parse",
+    "query": "?q=a%5B%5D%3D1%2C2%2C3%2C4",
+    "headers": {
+      "host": "127.0.0.1:48012",
+      "connection": "close"
+    },
+    "host": "127.0.0.1:48012",
+    "body": null
+  },
+  "response": {
+    "status": 500,
+    "headers": {
+      "x-powered-by": "Express",
+      "x-logged": "1",
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "59",
+      "etag": "W/\"3b-KumahO0aZGEtM0NTOF+osZ1TBv4\""
+    },
+    "body": "{\"error\":\"array limit bypassed\",\"code\":\"E_QS_LIMIT_BYPASS\"}"
+  },
+  "events": [
+    {
+      "seq": 1,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT sid, uid, role FROM v3dir_sessions WHERE sid = $1:[\"sid=[SESS:196daafb6c79]\"]",
+      "request": {
+        "text": "SELECT sid, uid, role FROM v3dir_sessions WHERE sid = $1",
+        "values": [
+          "sid=[SESS:196daafb6c79]"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 0,
+        "rows": [],
+        "fields": [
+          {
+            "name": "sid",
+            "dataTypeID": 25
+          },
+          {
+            "name": "uid",
+            "dataTypeID": 25
+          },
+          {
+            "name": "role",
+            "dataTypeID": 25
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "seq": 2,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT sid, uid, role FROM v3dir_sessions WHERE sid = $1:[\"sid=[SESS:196daafb6c79]\"]",
+      "request": {
+        "text": "SELECT sid, uid, role FROM v3dir_sessions WHERE sid = $1",
+        "values": [
+          "sid=[SESS:196daafb6c79]"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 0,
+        "rows": [],
+        "fields": [
+          {
+            "name": "sid",
+            "dataTypeID": 25
+          },
+          {
+            "name": "uid",
+            "dataTypeID": 25
+          },
+          {
+            "name": "role",
+            "dataTypeID": 25
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "seq": 3,
+      "kind": "http",
+      "op": "fetch",
+      "key": "http:GET:/health:",
+      "request": {
+        "method": "GET",
+        "url": "/health",
+        "body": null
+      },
+      "result": {
+        "status": 200,
+        "headers": {
+          "connection": "keep-alive",
+          "content-type": "application/json",
+          "date": "Wed, 09 Sep 2026 17:31:43 GMT",
+          "keep-alive": "timeout=5",
+          "transfer-encoding": "chunked"
+        },
+        "body": "{\"ok\":true}",
+        "truncated": false,
+        "unreadable": false
+      },
+      "error": null
+    },
+    {
+      "seq": 4,
+      "kind": "time",
+      "op": "now",
+      "key": "time:0",
+      "request": {},
+      "result": {
+        "value": 1788975103818
+      },
+      "error": null
+    }
+  ],
+  "config": {},
+  "app_error": null,
+  "fingerprint": {
+    "kind": "app",
+    "request_method": "GET",
+    "route_or_operation": "/parse",
+    "http_status": 500,
+    "error_name_or_code": "ERR:E_QS_LIMIT_BYPASS",
+    "normalized_class": "ERR:E_QS_LIMIT_BYPASS",
+    "stable_frame": null,
+    "fingerprint_hash": "fdb4d6b62d1b54ed623b02b6bbe7e1d7344ee721aef58f6f2b01eadd20a2c0e3"
+  },
+  "capture_hash": "a42170e669e00f7eae740d1253f04b977af393218d52242bfc0baecb12989922"
+}

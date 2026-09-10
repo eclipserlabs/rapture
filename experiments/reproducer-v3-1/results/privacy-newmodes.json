@@ -1,0 +1,51 @@
+{
+  "generatedAt": "2026-09-10T11:56:46.492Z",
+  "manifest": "manifests/V3.1-MANIFEST.json",
+  "scope": "privacy regression for the capture policies added by this brief (ROUTE_SELECTIVE, ARMED_WINDOW)",
+  "threat_model": "frozen V3 gate tier, unchanged",
+  "gap_tier": "V3 gap tier (JWT/PEM/card/bare-password/base64, bare cookie session values, bare emails) remains unsolved and is NOT claimed here",
+  "gap_tier_differential": {
+    "method": "the same sentinel-loaded request was captured under the FROZEN V3 register (always-on), under V3.1 always-on, and under V3.1 route-selective",
+    "result": "the raw cookie session value appears in the artifact in ALL THREE cases",
+    "conclusion": "the gap-tier shape is a pre-existing property of the frozen V3 capture tree (redact.mjs is byte-identical to V3); it is NOT introduced or widened by any V3.1 capture policy"
+  },
+  "findings": [
+    {
+      "id": "P10-1",
+      "description": "ROUTE_SELECTIVE unmatched traffic persists nothing",
+      "pass": true,
+      "detail": "artifacts=0 selected=0"
+    },
+    {
+      "id": "P10-2",
+      "description": "ROUTE_SELECTIVE runtime state carries no request content",
+      "pass": true,
+      "detail": "routes=[\"POST /not-this-route\"] sentinels=0"
+    },
+    {
+      "id": "P10-3",
+      "description": "ROUTE_SELECTIVE selected artifact carries no raw GATE-TIER secret",
+      "pass": true,
+      "detail": "artifacts=1 gateLeaks=0 gapTierPresent=1 (gap tier unchanged from V3, not claimed solved)"
+    },
+    {
+      "id": "P10-4",
+      "description": "ROUTE_SELECTIVE stats surface exposes no headers/cookies/body/query",
+      "pass": true,
+      "detail": "sentinels=0"
+    },
+    {
+      "id": "P10-5",
+      "description": "ARMED_WINDOW after close persists nothing and holds no content",
+      "pass": true,
+      "detail": "artifacts=0 selected=0 closed=BUDGET_EXHAUSTED"
+    },
+    {
+      "id": "P10-6",
+      "description": "ARMED_WINDOW open-window artifact carries no raw GATE-TIER secret",
+      "pass": true,
+      "detail": "artifacts=1 gateLeaks=0 gapTierPresent=1 (gap tier unchanged from V3, not claimed solved)"
+    }
+  ],
+  "allPassed": true
+}

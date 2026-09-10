@@ -1,0 +1,120 @@
+{
+  "generatedAt": "2026-09-10T10:40:27.859Z",
+  "manifest": "manifests/V3.1-MANIFEST.json",
+  "requestsPerMode": 2000,
+  "results": [
+    {
+      "mode": "OFF",
+      "instrumented": false,
+      "artifacts": 0,
+      "note": "OFF: Rapture not installed at all"
+    },
+    {
+      "mode": "DETECTOR_ONLY_UNARMED",
+      "instrumented": true,
+      "selectedExpected": false,
+      "requestsDriven": 2000,
+      "requestsSelected": 0,
+      "alsEnabled": false,
+      "alsStoresCreated": 0,
+      "eventBuffersAllocated": 0,
+      "boundaryContextHits": 0,
+      "boundaryContextMisses": 8000,
+      "eventsRecorded": 0,
+      "requestsPersisted": 0,
+      "artifacts": 0
+    },
+    {
+      "mode": "SAMPLE_0",
+      "instrumented": true,
+      "selectedExpected": false,
+      "requestsDriven": 2000,
+      "requestsSelected": 0,
+      "alsEnabled": false,
+      "alsStoresCreated": 0,
+      "eventBuffersAllocated": 0,
+      "boundaryContextHits": 0,
+      "boundaryContextMisses": 8000,
+      "eventsRecorded": 0,
+      "requestsPersisted": 0,
+      "artifacts": 0
+    },
+    {
+      "mode": "ROUTE_SELECTIVE_UNMATCHED",
+      "instrumented": true,
+      "selectedExpected": false,
+      "requestsDriven": 2000,
+      "requestsSelected": 0,
+      "alsEnabled": false,
+      "alsStoresCreated": 0,
+      "eventBuffersAllocated": 0,
+      "boundaryContextHits": 0,
+      "boundaryContextMisses": 8000,
+      "eventsRecorded": 0,
+      "requestsPersisted": 0,
+      "artifacts": 0
+    },
+    {
+      "mode": "ARMED_WINDOW_CLOSED",
+      "instrumented": true,
+      "selectedExpected": false,
+      "requestsDriven": 2000,
+      "requestsSelected": 0,
+      "alsEnabled": false,
+      "alsStoresCreated": 0,
+      "eventBuffersAllocated": 0,
+      "boundaryContextHits": 0,
+      "boundaryContextMisses": 8000,
+      "eventsRecorded": 0,
+      "requestsPersisted": 0,
+      "artifacts": 0
+    },
+    {
+      "mode": "ROUTE_SELECTIVE_MATCHED",
+      "instrumented": true,
+      "selectedExpected": true,
+      "requestsDriven": 2000,
+      "requestsSelected": 2000,
+      "alsEnabled": true,
+      "alsStoresCreated": 2000,
+      "eventBuffersAllocated": 2000,
+      "boundaryContextHits": 10000,
+      "boundaryContextMisses": 2000,
+      "eventsRecorded": 8000,
+      "requestsPersisted": 0,
+      "artifacts": 0
+    },
+    {
+      "mode": "V3_ALWAYS_ON_FULL",
+      "instrumented": true,
+      "selectedExpected": true,
+      "requestsDriven": 2000,
+      "requestsSelected": 2000,
+      "alsEnabled": true,
+      "alsStoresCreated": 2000,
+      "eventBuffersAllocated": 2000,
+      "boundaryContextHits": 10000,
+      "boundaryContextMisses": 2000,
+      "eventsRecorded": 8000,
+      "requestsPersisted": 0,
+      "artifacts": 0
+    }
+  ],
+  "gate": {
+    "unselected_modes": [
+      "DETECTOR_ONLY_UNARMED",
+      "SAMPLE_0",
+      "ROUTE_SELECTIVE_UNMATCHED",
+      "ARMED_WINDOW_CLOSED"
+    ],
+    "unselected_all_zero": true,
+    "violations": [],
+    "positive_controls": [
+      "ROUTE_SELECTIVE_MATCHED",
+      "V3_ALWAYS_ON_FULL"
+    ],
+    "positive_controls_nonzero": true,
+    "control_violations": []
+  },
+  "interpretation": "Every counter increments only on the expensive capture path. Zero across all of them for unselected traffic means an unselected request creates no AsyncLocalStorage store, allocates no event buffer, and never reaches a boundary wrapper with a live capture context — so pg result capture, fetch teeing, time/random recording, serialization and redaction cannot have run. The positive controls prove the counters detect that work when it does happen."
+}

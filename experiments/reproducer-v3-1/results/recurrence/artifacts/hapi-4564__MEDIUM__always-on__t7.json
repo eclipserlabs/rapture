@@ -1,0 +1,152 @@
+{
+  "schema": "incident-capture-v2",
+  "captured_at": "2026-09-09T17:00:22.690Z",
+  "req_id": "req-32544-1788973222678-6",
+  "request": {
+    "method": "GET",
+    "path": "/who",
+    "query": "",
+    "headers": {
+      "host": "[::1]:48753",
+      "connection": "close"
+    },
+    "host": "[::1]:48753",
+    "body": null
+  },
+  "response": {
+    "status": 500,
+    "headers": {
+      "x-logged": "1",
+      "content-type": "application/json; charset=utf-8",
+      "cache-control": "no-cache",
+      "content-length": 52
+    },
+    "body": "{\"error\":\"host parse failure\",\"code\":\"E_HOST_PARSE\"}"
+  },
+  "events": [
+    {
+      "seq": 1,
+      "kind": "time",
+      "op": "now",
+      "key": "time:0",
+      "request": {},
+      "result": {
+        "value": 1788973222678
+      },
+      "error": null
+    },
+    {
+      "seq": 2,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT sid, uid, role FROM v3dir_sessions WHERE sid = $1:[\"sid=[SESS:196daafb6c79]\"]",
+      "request": {
+        "text": "SELECT sid, uid, role FROM v3dir_sessions WHERE sid = $1",
+        "values": [
+          "sid=[SESS:196daafb6c79]"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 0,
+        "rows": [],
+        "fields": [
+          {
+            "name": "sid",
+            "dataTypeID": 25
+          },
+          {
+            "name": "uid",
+            "dataTypeID": 25
+          },
+          {
+            "name": "role",
+            "dataTypeID": 25
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "seq": 3,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT sid, uid, role FROM v3dir_sessions WHERE sid = $1:[\"sid=[SESS:196daafb6c79]\"]",
+      "request": {
+        "text": "SELECT sid, uid, role FROM v3dir_sessions WHERE sid = $1",
+        "values": [
+          "sid=[SESS:196daafb6c79]"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 0,
+        "rows": [],
+        "fields": [
+          {
+            "name": "sid",
+            "dataTypeID": 25
+          },
+          {
+            "name": "uid",
+            "dataTypeID": 25
+          },
+          {
+            "name": "role",
+            "dataTypeID": 25
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "seq": 4,
+      "kind": "http",
+      "op": "fetch",
+      "key": "http:GET:/health:",
+      "request": {
+        "method": "GET",
+        "url": "/health",
+        "body": null
+      },
+      "result": {
+        "status": 200,
+        "headers": {
+          "connection": "keep-alive",
+          "content-type": "application/json",
+          "date": "Wed, 09 Sep 2026 17:00:22 GMT",
+          "keep-alive": "timeout=5",
+          "transfer-encoding": "chunked"
+        },
+        "body": "{\"ok\":true}",
+        "truncated": false,
+        "unreadable": false
+      },
+      "error": null
+    },
+    {
+      "seq": 5,
+      "kind": "time",
+      "op": "now",
+      "key": "time:1",
+      "request": {},
+      "result": {
+        "value": 1788973222684
+      },
+      "error": null
+    }
+  ],
+  "config": {},
+  "app_error": null,
+  "fingerprint": {
+    "kind": "app",
+    "request_method": "GET",
+    "route_or_operation": "/who",
+    "http_status": 500,
+    "error_name_or_code": "ERR:E_HOST_PARSE",
+    "normalized_class": "ERR:E_HOST_PARSE",
+    "stable_frame": null,
+    "fingerprint_hash": "6a5fca8f9bbf8a749a6e3df89d2df44422f884549878910fe7332e306432e713"
+  },
+  "capture_hash": "4cd6747eaf2d35db8ca5b38504018c8ad63111d33fcf2320d087879d95415bc0"
+}

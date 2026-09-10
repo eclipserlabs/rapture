@@ -1,0 +1,188 @@
+{
+  "cells": [
+    {
+      "incident": "express-qs",
+      "family": "express",
+      "profile": "RARE",
+      "strategy": "targeted-b10",
+      "trials": 30,
+      "requestBudget": 5000,
+      "artifactsObtained": 1,
+      "failureCaptureProbability": 0.03,
+      "medianFailureOccurrencesInTrial": 5,
+      "medianAdditionalFailuresToCapture": 4,
+      "p95AdditionalFailuresToCapture": 4,
+      "medianCaptureAtFailureOccurrence": 5,
+      "medianFullyInstrumentedRequests": 50,
+      "p95FullyInstrumentedRequests": 90,
+      "medianFullyInstrumentedPerArtifact": 38,
+      "medianMatchingSuccessesInstrumented": 10,
+      "medianTimeToArtifactMs": 19185,
+      "p95TimeToArtifactMs": 19185,
+      "medianArmingDurationMs": 131,
+      "medianRequestsIssued": 5000,
+      "disarmReasons": {
+        "BUDGET_EXHAUSTED": 30
+      },
+      "terminations": {
+        "BUDGET_EXHAUSTED_NO_CAPTURE": 29,
+        "CAPTURED": 1
+      },
+      "profileFailureRate": 0.001
+    },
+    {
+      "incident": "express-qs",
+      "family": "express",
+      "profile": "RARE",
+      "strategy": "targeted-b1000",
+      "trials": 30,
+      "requestBudget": 5000,
+      "artifactsObtained": 29,
+      "failureCaptureProbability": 0.97,
+      "medianFailureOccurrencesInTrial": 2,
+      "medianAdditionalFailuresToCapture": 1,
+      "p95AdditionalFailuresToCapture": 2,
+      "medianCaptureAtFailureOccurrence": 2,
+      "medianFullyInstrumentedRequests": 386,
+      "p95FullyInstrumentedRequests": 1559,
+      "medianFullyInstrumentedPerArtifact": 386,
+      "medianMatchingSuccessesInstrumented": 385,
+      "medianTimeToArtifactMs": 9901,
+      "p95TimeToArtifactMs": 40864,
+      "medianArmingDurationMs": 9901,
+      "medianRequestsIssued": 1687,
+      "disarmReasons": {
+        "CAPTURED": 23,
+        "BUDGET_EXHAUSTED": 7
+      },
+      "terminations": {
+        "CAPTURED": 29,
+        "BUDGET_EXHAUSTED_NO_CAPTURE": 1
+      },
+      "profileFailureRate": 0.001
+    },
+    {
+      "incident": "express-qs",
+      "family": "express",
+      "profile": "RARE",
+      "strategy": "targeted-ttl30",
+      "trials": 30,
+      "requestBudget": 5000,
+      "artifactsObtained": 10,
+      "failureCaptureProbability": 0.33,
+      "medianFailureOccurrencesInTrial": 5,
+      "medianAdditionalFailuresToCapture": 3,
+      "p95AdditionalFailuresToCapture": 6,
+      "medianCaptureAtFailureOccurrence": 4,
+      "medianFullyInstrumentedRequests": 400,
+      "p95FullyInstrumentedRequests": 700,
+      "medianFullyInstrumentedPerArtifact": 292,
+      "medianMatchingSuccessesInstrumented": 100,
+      "medianTimeToArtifactMs": 19606,
+      "p95TimeToArtifactMs": 64919,
+      "medianArmingDurationMs": 1696,
+      "medianRequestsIssued": 5000,
+      "disarmReasons": {
+        "BUDGET_EXHAUSTED": 29,
+        "CAPTURED": 1
+      },
+      "terminations": {
+        "BUDGET_EXHAUSTED_NO_CAPTURE": 20,
+        "CAPTURED": 10
+      },
+      "profileFailureRate": 0.001
+    },
+    {
+      "incident": "express-qs",
+      "family": "express",
+      "profile": "LOW",
+      "strategy": "targeted-b10",
+      "trials": 30,
+      "requestBudget": 2000,
+      "artifactsObtained": 24,
+      "failureCaptureProbability": 0.8,
+      "medianFailureOccurrencesInTrial": 9,
+      "medianAdditionalFailuresToCapture": 5,
+      "p95AdditionalFailuresToCapture": 17,
+      "medianCaptureAtFailureOccurrence": 6,
+      "medianFullyInstrumentedRequests": 78,
+      "p95FullyInstrumentedRequests": 180,
+      "medianFullyInstrumentedPerArtifact": 47,
+      "medianMatchingSuccessesInstrumented": 10,
+      "medianTimeToArtifactMs": 9791,
+      "p95TimeToArtifactMs": 26930,
+      "medianArmingDurationMs": 293,
+      "medianRequestsIssued": 814,
+      "disarmReasons": {
+        "BUDGET_EXHAUSTED": 27,
+        "CAPTURED": 3
+      },
+      "terminations": {
+        "CAPTURED": 24,
+        "BUDGET_EXHAUSTED_NO_CAPTURE": 6
+      },
+      "profileFailureRate": 0.01
+    },
+    {
+      "incident": "express-qs",
+      "family": "express",
+      "profile": "LOW",
+      "strategy": "targeted-b1000",
+      "trials": 30,
+      "requestBudget": 2000,
+      "artifactsObtained": 30,
+      "failureCaptureProbability": 1,
+      "medianFailureOccurrencesInTrial": 2,
+      "medianAdditionalFailuresToCapture": 1,
+      "p95AdditionalFailuresToCapture": 1,
+      "medianCaptureAtFailureOccurrence": 2,
+      "medianFullyInstrumentedRequests": 81,
+      "p95FullyInstrumentedRequests": 382,
+      "medianFullyInstrumentedPerArtifact": 81,
+      "medianMatchingSuccessesInstrumented": 80,
+      "medianTimeToArtifactMs": 2199,
+      "p95TimeToArtifactMs": 9755,
+      "medianArmingDurationMs": 2198,
+      "medianRequestsIssued": 158,
+      "disarmReasons": {
+        "CAPTURED": 30
+      },
+      "terminations": {
+        "CAPTURED": 30
+      },
+      "profileFailureRate": 0.01
+    },
+    {
+      "incident": "express-qs",
+      "family": "express",
+      "profile": "LOW",
+      "strategy": "targeted-ttl30",
+      "trials": 30,
+      "requestBudget": 2000,
+      "artifactsObtained": 30,
+      "failureCaptureProbability": 1,
+      "medianFailureOccurrencesInTrial": 2,
+      "medianAdditionalFailuresToCapture": 1,
+      "p95AdditionalFailuresToCapture": 4,
+      "medianCaptureAtFailureOccurrence": 2,
+      "medianFullyInstrumentedRequests": 76,
+      "p95FullyInstrumentedRequests": 311,
+      "medianFullyInstrumentedPerArtifact": 76,
+      "medianMatchingSuccessesInstrumented": 75,
+      "medianTimeToArtifactMs": 1955,
+      "p95TimeToArtifactMs": 11287,
+      "medianArmingDurationMs": 1688,
+      "medianRequestsIssued": 171,
+      "disarmReasons": {
+        "CAPTURED": 16,
+        "BUDGET_EXHAUSTED": 14
+      },
+      "terminations": {
+        "CAPTURED": 30
+      },
+      "profileFailureRate": 0.01
+    }
+  ],
+  "notApplicable": [],
+  "generatedAt": "2026-09-09T18:56:07.461Z"
+}

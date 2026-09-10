@@ -1,0 +1,3851 @@
+{
+  "phase": "3",
+  "bootstrapResamples": 10000,
+  "services": {
+    "express-qs": {
+      "modes": {
+        "DETECTOR_ONLY_ALS_ENABLED": {
+          "reps": 10,
+          "requests": 5000,
+          "perRep": [
+            {
+              "rep": 1,
+              "p50": 15,
+              "p90": 23.46,
+              "p95": 27.84,
+              "p99": 52.32,
+              "rps": 956.57,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 5053134,
+              "rssDelta": 46026752,
+              "eluMeanNs": 13170816,
+              "bootMs": 583
+            },
+            {
+              "rep": 2,
+              "p50": 30.03,
+              "p90": 58.83,
+              "p95": 80.64,
+              "p99": 142.32,
+              "rps": 437.98,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 7310855,
+              "rssDelta": 34652160,
+              "eluMeanNs": 17173680,
+              "bootMs": 688
+            },
+            {
+              "rep": 3,
+              "p50": 14.07,
+              "p90": 21.8,
+              "p95": 25.38,
+              "p99": 45.39,
+              "rps": 1012.15,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 5053020,
+              "rssDelta": 43773952,
+              "eluMeanNs": 12582788,
+              "bootMs": 319
+            },
+            {
+              "rep": 4,
+              "p50": 13.84,
+              "p90": 21.2,
+              "p95": 24.88,
+              "p99": 44.92,
+              "rps": 1040.8,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 5108306,
+              "rssDelta": 45088768,
+              "eluMeanNs": 12473877,
+              "bootMs": 376
+            },
+            {
+              "rep": 5,
+              "p50": 14.21,
+              "p90": 21.83,
+              "p95": 25.3,
+              "p99": 36.93,
+              "rps": 1018.54,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 5105496,
+              "rssDelta": 44982272,
+              "eluMeanNs": 12469660,
+              "bootMs": 314
+            },
+            {
+              "rep": 6,
+              "p50": 14.46,
+              "p90": 23.73,
+              "p95": 28.39,
+              "p99": 47.29,
+              "rps": 969.93,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 5299501,
+              "rssDelta": 42401792,
+              "eluMeanNs": 12439153,
+              "bootMs": 331
+            },
+            {
+              "rep": 7,
+              "p50": 15.24,
+              "p90": 23.12,
+              "p95": 27.26,
+              "p99": 46.39,
+              "rps": 951.11,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 5447459,
+              "rssDelta": 44969984,
+              "eluMeanNs": 12692347,
+              "bootMs": 320
+            },
+            {
+              "rep": 8,
+              "p50": 16.38,
+              "p90": 27.77,
+              "p95": 32.86,
+              "p99": 48.96,
+              "rps": 863.41,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 5730466,
+              "rssDelta": 44978176,
+              "eluMeanNs": 13242898,
+              "bootMs": 582
+            },
+            {
+              "rep": 9,
+              "p50": 15.65,
+              "p90": 24.93,
+              "p95": 30.77,
+              "p99": 45.46,
+              "rps": 913.91,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 5580439,
+              "rssDelta": 42229760,
+              "eluMeanNs": 13221642,
+              "bootMs": 576
+            },
+            {
+              "rep": 10,
+              "p50": 16.25,
+              "p90": 32.89,
+              "p95": 43.72,
+              "p99": 79.41,
+              "rps": 783.7,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 5845666,
+              "rssDelta": 49135616,
+              "eluMeanNs": 13400429,
+              "bootMs": 345
+            }
+          ],
+          "errorsTotal": 0,
+          "failedTotal": 0,
+          "p50": 15.12,
+          "p90": 23.6,
+          "p95": 28.12,
+          "p99": 46.84,
+          "throughputRps": 953.84,
+          "cpuUs": 5373480,
+          "rssDelta": 44974080,
+          "eluMeanNs": 12931581.5,
+          "bootMs": 360.5,
+          "fullyInstrumentedTotal": 0,
+          "seenTotal": 50000,
+          "observedSampledFraction": 0,
+          "persistedTotal": 0,
+          "overhead": {
+            "p50": {
+              "medianPct": 7.15,
+              "minPct": -8.05,
+              "maxPct": 92.05,
+              "ci95": {
+                "lo": 2.2,
+                "hi": 12.92
+              },
+              "perRepPct": [
+                9.83,
+                92.05,
+                4.87,
+                9.01,
+                2.2,
+                5.38,
+                0.82,
+                16.84,
+                -8.05,
+                8.93
+              ]
+            },
+            "p90": {
+              "medianPct": 5.75,
+              "minPct": -23.14,
+              "maxPct": 108.62,
+              "ci95": {
+                "lo": -4.85,
+                "hi": 24.84
+              },
+              "perRepPct": [
+                7.11,
+                108.62,
+                4.38,
+                2.86,
+                -3.99,
+                7.39,
+                -12.55,
+                24.84,
+                -23.14,
+                37.46
+              ]
+            },
+            "p95": {
+              "medianPct": 4.29,
+              "minPct": -27.28,
+              "maxPct": 117.13,
+              "ci95": {
+                "lo": -9.69,
+                "hi": 30.19
+              },
+              "perRepPct": [
+                5.14,
+                117.13,
+                3.44,
+                0.04,
+                -9.69,
+                8.51,
+                -14.82,
+                22.99,
+                -27.28,
+                51.88
+              ]
+            },
+            "p99": {
+              "medianPct": 8.75,
+              "minPct": -38.67,
+              "maxPct": 68.36,
+              "ci95": {
+                "lo": -11.03,
+                "hi": 23.86
+              },
+              "perRepPct": [
+                33.34,
+                0.31,
+                14.39,
+                13.84,
+                -25.7,
+                22.59,
+                3.65,
+                -0.05,
+                -38.67,
+                68.36
+              ]
+            },
+            "throughput": {
+              "medianPct": -6.1,
+              "minPct": -45.27,
+              "maxPct": 17.78,
+              "ci95": {
+                "lo": -15.06,
+                "hi": 0.67
+              },
+              "perRepPct": [
+                -9.11,
+                -45.27,
+                -4.49,
+                -6.49,
+                0.67,
+                -5.7,
+                2.34,
+                -15.06,
+                17.78,
+                -18.17
+              ]
+            },
+            "cpu": {
+              "medianPct": 3.74,
+              "ci95": {
+                "lo": 1.38,
+                "hi": 10.05
+              }
+            },
+            "rssBytes": {
+              "median": -2977792
+            }
+          }
+        },
+        "DETECTOR_ONLY_UNARMED": {
+          "reps": 10,
+          "requests": 5000,
+          "perRep": [
+            {
+              "rep": 1,
+              "p50": 13.47,
+              "p90": 22.05,
+              "p95": 26.41,
+              "p99": 35.02,
+              "rps": 1063.6,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": false,
+              "cpuUs": 4983728,
+              "rssDelta": 43126784,
+              "eluMeanNs": 12499606,
+              "bootMs": 482
+            },
+            {
+              "rep": 2,
+              "p50": 30.07,
+              "p90": 46.29,
+              "p95": 54.11,
+              "p99": 85.42,
+              "rps": 496.72,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": false,
+              "cpuUs": 7195328,
+              "rssDelta": 42807296,
+              "eluMeanNs": 16513289,
+              "bootMs": 712
+            },
+            {
+              "rep": 3,
+              "p50": 13.78,
+              "p90": 20.8,
+              "p95": 27.63,
+              "p99": 53.31,
+              "rps": 1037.78,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": false,
+              "cpuUs": 4905900,
+              "rssDelta": 44883968,
+              "eluMeanNs": 12437540,
+              "bootMs": 313
+            },
+            {
+              "rep": 4,
+              "p50": 13.36,
+              "p90": 19.97,
+              "p95": 23.51,
+              "p99": 35.41,
+              "rps": 1090.75,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": false,
+              "cpuUs": 4825947,
+              "rssDelta": 42594304,
+              "eluMeanNs": 12288000,
+              "bootMs": 325
+            },
+            {
+              "rep": 5,
+              "p50": 13.86,
+              "p90": 21.79,
+              "p95": 27.08,
+              "p99": 41.66,
+              "rps": 1038.21,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": false,
+              "cpuUs": 5082803,
+              "rssDelta": 42045440,
+              "eluMeanNs": 12519974,
+              "bootMs": 332
+            },
+            {
+              "rep": 6,
+              "p50": 14.14,
+              "p90": 22.9,
+              "p95": 27.35,
+              "p99": 39.75,
+              "rps": 1004.02,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": false,
+              "cpuUs": 5178028,
+              "rssDelta": 46108672,
+              "eluMeanNs": 12390262,
+              "bootMs": 349
+            },
+            {
+              "rep": 7,
+              "p50": 15.14,
+              "p90": 24.58,
+              "p95": 33.89,
+              "p99": 56.71,
+              "rps": 926.78,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": false,
+              "cpuUs": 5428099,
+              "rssDelta": 46284800,
+              "eluMeanNs": 13043257,
+              "bootMs": 566
+            },
+            {
+              "rep": 8,
+              "p50": 14.79,
+              "p90": 23.2,
+              "p95": 26.45,
+              "p99": 41.78,
+              "rps": 977.33,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": false,
+              "cpuUs": 5345733,
+              "rssDelta": 44400640,
+              "eluMeanNs": 12310191,
+              "bootMs": 333
+            },
+            {
+              "rep": 9,
+              "p50": 15.3,
+              "p90": 26.09,
+              "p95": 30.64,
+              "p99": 44.27,
+              "rps": 915.25,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": false,
+              "cpuUs": 5468823,
+              "rssDelta": 47017984,
+              "eluMeanNs": 12409020,
+              "bootMs": 315
+            },
+            {
+              "rep": 10,
+              "p50": 14.84,
+              "p90": 23.88,
+              "p95": 29.08,
+              "p99": 49.55,
+              "rps": 956.21,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": false,
+              "cpuUs": 5389694,
+              "rssDelta": 45678592,
+              "eluMeanNs": 12641599,
+              "bootMs": 328
+            }
+          ],
+          "errorsTotal": 0,
+          "failedTotal": 0,
+          "p50": 14.47,
+          "p90": 23.05,
+          "p95": 27.49,
+          "p99": 43.02,
+          "throughputRps": 990.67,
+          "cpuUs": 5261880.5,
+          "rssDelta": 44642304,
+          "eluMeanNs": 12468573,
+          "bootMs": 332.5,
+          "fullyInstrumentedTotal": 0,
+          "seenTotal": 50000,
+          "observedSampledFraction": 0,
+          "persistedTotal": 0,
+          "overhead": {
+            "p50": {
+              "medianPct": 1.42,
+              "minPct": -10.1,
+              "maxPct": 92.32,
+              "ci95": {
+                "lo": -0.85,
+                "hi": 5.26
+              },
+              "perRepPct": [
+                -1.37,
+                92.32,
+                2.71,
+                5.26,
+                -0.33,
+                3.03,
+                0.14,
+                5.53,
+                -10.1,
+                -0.49
+              ]
+            },
+            "p90": {
+              "medianPct": -0.31,
+              "minPct": -19.57,
+              "maxPct": 64.15,
+              "ci95": {
+                "lo": -5.08,
+                "hi": 3.64
+              },
+              "perRepPct": [
+                0.66,
+                64.15,
+                -0.44,
+                -3.13,
+                -4.17,
+                3.64,
+                -7.03,
+                4.28,
+                -19.57,
+                -0.18
+              ]
+            },
+            "p95": {
+              "medianPct": 0.38,
+              "minPct": -27.6,
+              "maxPct": 45.71,
+              "ci95": {
+                "lo": -3.34,
+                "hi": 8.55
+              },
+              "perRepPct": [
+                -0.25,
+                45.71,
+                12.6,
+                -5.45,
+                -3.34,
+                4.5,
+                5.89,
+                -1.02,
+                -27.6,
+                1
+              ]
+            },
+            "p99": {
+              "medianPct": -10.51,
+              "minPct": -40.28,
+              "maxPct": 34.36,
+              "ci95": {
+                "lo": -27.25,
+                "hi": 14.88
+              },
+              "perRepPct": [
+                -10.75,
+                -39.79,
+                34.36,
+                -10.27,
+                -16.2,
+                3.05,
+                26.71,
+                -14.71,
+                -40.28,
+                5.06
+              ]
+            },
+            "throughput": {
+              "medianPct": -1.14,
+              "minPct": -37.93,
+              "maxPct": 17.96,
+              "ci95": {
+                "lo": -2.96,
+                "hi": 1.23
+              },
+              "perRepPct": [
+                1.06,
+                -37.93,
+                -2.08,
+                -2.01,
+                2.62,
+                -2.39,
+                -0.28,
+                -3.85,
+                17.96,
+                -0.15
+              ]
+            },
+            "cpu": {
+              "medianPct": 1.22,
+              "ci95": {
+                "lo": 0.4,
+                "hi": 3.04
+              }
+            },
+            "rssBytes": {
+              "median": -4050944
+            }
+          }
+        },
+        "OFF": {
+          "reps": 10,
+          "requests": 5000,
+          "perRep": [
+            {
+              "rep": 1,
+              "p50": 13.66,
+              "p90": 21.9,
+              "p95": 26.48,
+              "p99": 39.24,
+              "rps": 1052.41,
+              "errors": 0,
+              "failed": 0,
+              "selected": null,
+              "seen": null,
+              "persisted": null,
+              "alsEnabled": null,
+              "cpuUs": 4924673,
+              "rssDelta": 46903296,
+              "eluMeanNs": 12267011,
+              "bootMs": 173
+            },
+            {
+              "rep": 2,
+              "p50": 15.64,
+              "p90": 28.2,
+              "p95": 37.14,
+              "p99": 141.88,
+              "rps": 800.26,
+              "errors": 0,
+              "failed": 0,
+              "selected": null,
+              "seen": null,
+              "persisted": null,
+              "alsEnabled": null,
+              "cpuUs": 5290280,
+              "rssDelta": 49180672,
+              "eluMeanNs": 16473984,
+              "bootMs": 577
+            },
+            {
+              "rep": 3,
+              "p50": 13.41,
+              "p90": 20.89,
+              "p95": 24.54,
+              "p99": 39.68,
+              "rps": 1059.77,
+              "errors": 0,
+              "failed": 0,
+              "selected": null,
+              "seen": null,
+              "persisted": null,
+              "alsEnabled": null,
+              "cpuUs": 4845886,
+              "rssDelta": 49537024,
+              "eluMeanNs": 13085735,
+              "bootMs": 397
+            },
+            {
+              "rep": 4,
+              "p50": 12.69,
+              "p90": 20.61,
+              "p95": 24.87,
+              "p99": 39.46,
+              "rps": 1113.09,
+              "errors": 0,
+              "failed": 0,
+              "selected": null,
+              "seen": null,
+              "persisted": null,
+              "alsEnabled": null,
+              "cpuUs": 4802249,
+              "rssDelta": 48844800,
+              "eluMeanNs": 12126414,
+              "bootMs": 180
+            },
+            {
+              "rep": 5,
+              "p50": 13.9,
+              "p90": 22.73,
+              "p95": 28.02,
+              "p99": 49.71,
+              "rps": 1011.74,
+              "errors": 0,
+              "failed": 0,
+              "selected": null,
+              "seen": null,
+              "persisted": null,
+              "alsEnabled": null,
+              "cpuUs": 5102816,
+              "rssDelta": 46596096,
+              "eluMeanNs": 12515390,
+              "bootMs": 185
+            },
+            {
+              "rep": 6,
+              "p50": 13.72,
+              "p90": 22.1,
+              "p95": 26.17,
+              "p99": 38.57,
+              "rps": 1028.59,
+              "errors": 0,
+              "failed": 0,
+              "selected": null,
+              "seen": null,
+              "persisted": null,
+              "alsEnabled": null,
+              "cpuUs": 5135002,
+              "rssDelta": 46669824,
+              "eluMeanNs": 12524106,
+              "bootMs": 191
+            },
+            {
+              "rep": 7,
+              "p50": 15.12,
+              "p90": 26.44,
+              "p95": 32,
+              "p99": 44.76,
+              "rps": 929.37,
+              "errors": 0,
+              "failed": 0,
+              "selected": null,
+              "seen": null,
+              "persisted": null,
+              "alsEnabled": null,
+              "cpuUs": 5304334,
+              "rssDelta": 45129728,
+              "eluMeanNs": 12786623,
+              "bootMs": 219
+            },
+            {
+              "rep": 8,
+              "p50": 14.02,
+              "p90": 22.25,
+              "p95": 26.72,
+              "p99": 48.98,
+              "rps": 1016.47,
+              "errors": 0,
+              "failed": 0,
+              "selected": null,
+              "seen": null,
+              "persisted": null,
+              "alsEnabled": null,
+              "cpuUs": 5110191,
+              "rssDelta": 48279552,
+              "eluMeanNs": 12298604,
+              "bootMs": 174
+            },
+            {
+              "rep": 9,
+              "p50": 17.02,
+              "p90": 32.44,
+              "p95": 42.32,
+              "p99": 74.13,
+              "rps": 775.92,
+              "errors": 0,
+              "failed": 0,
+              "selected": null,
+              "seen": null,
+              "persisted": null,
+              "alsEnabled": null,
+              "cpuUs": 5701933,
+              "rssDelta": 44883968,
+              "eluMeanNs": 13484821,
+              "bootMs": 175
+            },
+            {
+              "rep": 10,
+              "p50": 14.92,
+              "p90": 23.93,
+              "p95": 28.79,
+              "p99": 47.17,
+              "rps": 957.67,
+              "errors": 0,
+              "failed": 0,
+              "selected": null,
+              "seen": null,
+              "persisted": null,
+              "alsEnabled": null,
+              "cpuUs": 5312061,
+              "rssDelta": 49901568,
+              "eluMeanNs": 13003083,
+              "bootMs": 196
+            }
+          ],
+          "errorsTotal": 0,
+          "failedTotal": 0,
+          "p50": 13.96,
+          "p90": 22.49,
+          "p95": 27.37,
+          "p99": 45.96,
+          "throughputRps": 1014.1,
+          "cpuUs": 5122596.5,
+          "rssDelta": 47591424,
+          "eluMeanNs": 12655364.5,
+          "bootMs": 188,
+          "fullyInstrumentedTotal": 0,
+          "seenTotal": 0,
+          "observedSampledFraction": null,
+          "persistedTotal": 0
+        },
+        "V3_ALWAYS_ON_FULL": {
+          "reps": 10,
+          "requests": 5000,
+          "perRep": [
+            {
+              "rep": 1,
+              "p50": 15.87,
+              "p90": 24.46,
+              "p95": 29.03,
+              "p99": 47.88,
+              "rps": 916.76,
+              "errors": 0,
+              "failed": 0,
+              "selected": 5000,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 5971303,
+              "rssDelta": 48877568,
+              "eluMeanNs": 12992934,
+              "bootMs": 409
+            },
+            {
+              "rep": 2,
+              "p50": 19.99,
+              "p90": 46.65,
+              "p95": 73.99,
+              "p99": 153.85,
+              "rps": 554.32,
+              "errors": 0,
+              "failed": 0,
+              "selected": 5000,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 6673101,
+              "rssDelta": 42590208,
+              "eluMeanNs": 16725674,
+              "bootMs": 500
+            },
+            {
+              "rep": 3,
+              "p50": 15.61,
+              "p90": 23.44,
+              "p95": 27.75,
+              "p99": 40.6,
+              "rps": 940.73,
+              "errors": 0,
+              "failed": 0,
+              "selected": 5000,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 5971342,
+              "rssDelta": 46407680,
+              "eluMeanNs": 12460837,
+              "bootMs": 306
+            },
+            {
+              "rep": 4,
+              "p50": 15.68,
+              "p90": 24.09,
+              "p95": 28.71,
+              "p99": 45.63,
+              "rps": 924.04,
+              "errors": 0,
+              "failed": 0,
+              "selected": 5000,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 6036564,
+              "rssDelta": 48713728,
+              "eluMeanNs": 12653529,
+              "bootMs": 313
+            },
+            {
+              "rep": 5,
+              "p50": 17.65,
+              "p90": 31.78,
+              "p95": 41.02,
+              "p99": 95.3,
+              "rps": 747.94,
+              "errors": 0,
+              "failed": 0,
+              "selected": 5000,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 6439761,
+              "rssDelta": 50003968,
+              "eluMeanNs": 13671598,
+              "bootMs": 323
+            },
+            {
+              "rep": 6,
+              "p50": 17.11,
+              "p90": 26.89,
+              "p95": 32.95,
+              "p99": 55.01,
+              "rps": 828.09,
+              "errors": 0,
+              "failed": 0,
+              "selected": 5000,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 6419315,
+              "rssDelta": 49590272,
+              "eluMeanNs": 13210605,
+              "bootMs": 311
+            },
+            {
+              "rep": 7,
+              "p50": 17.9,
+              "p90": 27.15,
+              "p95": 32.76,
+              "p99": 54.32,
+              "rps": 808.93,
+              "errors": 0,
+              "failed": 0,
+              "selected": 5000,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 6561820,
+              "rssDelta": 49913856,
+              "eluMeanNs": 13145285,
+              "bootMs": 307
+            },
+            {
+              "rep": 8,
+              "p50": 16.74,
+              "p90": 29.16,
+              "p95": 33.6,
+              "p99": 52.95,
+              "rps": 836.54,
+              "errors": 0,
+              "failed": 0,
+              "selected": 5000,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 6549727,
+              "rssDelta": 52047872,
+              "eluMeanNs": 13097961,
+              "bootMs": 334
+            },
+            {
+              "rep": 9,
+              "p50": 17.18,
+              "p90": 26.64,
+              "p95": 30.93,
+              "p99": 51.93,
+              "rps": 835.42,
+              "errors": 0,
+              "failed": 0,
+              "selected": 5000,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 6486704,
+              "rssDelta": 47943680,
+              "eluMeanNs": 13243221,
+              "bootMs": 324
+            },
+            {
+              "rep": 10,
+              "p50": 17.75,
+              "p90": 27.33,
+              "p95": 33.31,
+              "p99": 45.33,
+              "rps": 817.93,
+              "errors": 0,
+              "failed": 0,
+              "selected": 5000,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 6601800,
+              "rssDelta": 46710784,
+              "eluMeanNs": 13148538,
+              "bootMs": 334
+            }
+          ],
+          "errorsTotal": 0,
+          "failedTotal": 0,
+          "p50": 17.15,
+          "p90": 27.02,
+          "p95": 32.86,
+          "p99": 52.44,
+          "throughputRps": 831.76,
+          "cpuUs": 6463232.5,
+          "rssDelta": 48795648,
+          "eluMeanNs": 13146911.5,
+          "bootMs": 323.5,
+          "fullyInstrumentedTotal": 50000,
+          "seenTotal": 50000,
+          "observedSampledFraction": 1,
+          "persistedTotal": 0,
+          "overhead": {
+            "p50": {
+              "medianPct": 19.22,
+              "minPct": 0.98,
+              "maxPct": 27.87,
+              "ci95": {
+                "lo": 16.37,
+                "hi": 25.27
+              },
+              "perRepPct": [
+                16.14,
+                27.87,
+                16.37,
+                23.55,
+                26.99,
+                24.66,
+                18.38,
+                19.44,
+                0.98,
+                19
+              ]
+            },
+            "p90": {
+              "medianPct": 15.56,
+              "minPct": -17.87,
+              "maxPct": 65.42,
+              "ci95": {
+                "lo": 7.46,
+                "hi": 31.09
+              },
+              "perRepPct": [
+                11.67,
+                65.42,
+                12.21,
+                16.89,
+                39.78,
+                21.68,
+                2.71,
+                31.09,
+                -17.87,
+                14.24
+              ]
+            },
+            "p95": {
+              "medianPct": 15.57,
+              "minPct": -26.92,
+              "maxPct": 99.25,
+              "ci95": {
+                "lo": 7.73,
+                "hi": 31.06
+              },
+              "perRepPct": [
+                9.63,
+                99.25,
+                13.08,
+                15.44,
+                46.42,
+                25.92,
+                2.38,
+                25.75,
+                -26.92,
+                15.71
+              ]
+            },
+            "p99": {
+              "medianPct": 12.03,
+              "minPct": -29.94,
+              "maxPct": 91.72,
+              "ci95": {
+                "lo": 2.1,
+                "hi": 31.99
+              },
+              "perRepPct": [
+                22,
+                8.44,
+                2.32,
+                15.62,
+                91.72,
+                42.62,
+                21.36,
+                8.1,
+                -29.94,
+                -3.9
+              ]
+            },
+            "throughput": {
+              "medianPct": -15.79,
+              "minPct": -30.73,
+              "maxPct": 7.67,
+              "ci95": {
+                "lo": -21.53,
+                "hi": -12.1
+              },
+              "perRepPct": [
+                -12.89,
+                -30.73,
+                -11.23,
+                -16.98,
+                -26.07,
+                -19.49,
+                -12.96,
+                -17.7,
+                7.67,
+                -14.59
+              ]
+            },
+            "cpu": {
+              "medianPct": 24.65,
+              "ci95": {
+                "lo": 22.77,
+                "hi": 26.14
+              }
+            },
+            "rssBytes": {
+              "median": 2447360
+            }
+          }
+        }
+      }
+    },
+    "fastify-32442": {
+      "modes": {
+        "DETECTOR_ONLY_ALS_ENABLED": {
+          "reps": 10,
+          "requests": 5000,
+          "perRep": [
+            {
+              "rep": 1,
+              "p50": 13.96,
+              "p90": 23.88,
+              "p95": 28.63,
+              "p99": 47.24,
+              "rps": 1004.42,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 4268105,
+              "rssDelta": 47812608,
+              "eluMeanNs": 12097026,
+              "bootMs": 791
+            },
+            {
+              "rep": 2,
+              "p50": 12.26,
+              "p90": 19.74,
+              "p95": 24.45,
+              "p99": 41.41,
+              "rps": 1133.02,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 4099996,
+              "rssDelta": 48828416,
+              "eluMeanNs": 11923494,
+              "bootMs": 469
+            },
+            {
+              "rep": 3,
+              "p50": 12.7,
+              "p90": 19.55,
+              "p95": 23.75,
+              "p99": 39.2,
+              "rps": 1129.94,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 4141796,
+              "rssDelta": 47210496,
+              "eluMeanNs": 11575379,
+              "bootMs": 407
+            },
+            {
+              "rep": 4,
+              "p50": 15.06,
+              "p90": 24.86,
+              "p95": 29.01,
+              "p99": 65.16,
+              "rps": 935.63,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 4518470,
+              "rssDelta": 48492544,
+              "eluMeanNs": 12320942,
+              "bootMs": 415
+            },
+            {
+              "rep": 5,
+              "p50": 12.91,
+              "p90": 20.7,
+              "p95": 24.93,
+              "p99": 41.7,
+              "rps": 1086.96,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 4225752,
+              "rssDelta": 48975872,
+              "eluMeanNs": 11961565,
+              "bootMs": 617
+            },
+            {
+              "rep": 6,
+              "p50": 13.33,
+              "p90": 21.42,
+              "p95": 25.47,
+              "p99": 35.97,
+              "rps": 1068.83,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 4240844,
+              "rssDelta": 45907968,
+              "eluMeanNs": 12233680,
+              "bootMs": 401
+            },
+            {
+              "rep": 7,
+              "p50": 18.84,
+              "p90": 40.67,
+              "p95": 51.19,
+              "p99": 82.02,
+              "rps": 689.37,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 5280079,
+              "rssDelta": 37601280,
+              "eluMeanNs": 13818202,
+              "bootMs": 471
+            },
+            {
+              "rep": 8,
+              "p50": 14.52,
+              "p90": 24.77,
+              "p95": 29.62,
+              "p99": 46.84,
+              "rps": 960.98,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 4803707,
+              "rssDelta": 49000448,
+              "eluMeanNs": 12661295,
+              "bootMs": 452
+            },
+            {
+              "rep": 9,
+              "p50": 13.79,
+              "p90": 22.31,
+              "p95": 27.26,
+              "p99": 39.16,
+              "rps": 1032.42,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 4536707,
+              "rssDelta": 47489024,
+              "eluMeanNs": 11852660,
+              "bootMs": 409
+            },
+            {
+              "rep": 10,
+              "p50": 14.04,
+              "p90": 23.34,
+              "p95": 28.66,
+              "p99": 44.73,
+              "rps": 999.2,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 4659751,
+              "rssDelta": 47398912,
+              "eluMeanNs": 12045344,
+              "bootMs": 649
+            }
+          ],
+          "errorsTotal": 0,
+          "failedTotal": 0,
+          "p50": 13.88,
+          "p90": 22.82,
+          "p95": 27.95,
+          "p99": 43.21,
+          "throughputRps": 1018.42,
+          "cpuUs": 4393287.5,
+          "rssDelta": 47650816,
+          "eluMeanNs": 12071185,
+          "bootMs": 460.5,
+          "fullyInstrumentedTotal": 0,
+          "seenTotal": 50000,
+          "observedSampledFraction": 0,
+          "persistedTotal": 0,
+          "overhead": {
+            "p50": {
+              "medianPct": 3.61,
+              "minPct": -19.37,
+              "maxPct": 52,
+              "ci95": {
+                "lo": -7.03,
+                "hi": 16.55
+              },
+              "perRepPct": [
+                6.02,
+                0.49,
+                2.47,
+                19.62,
+                -14.61,
+                -19.37,
+                52,
+                16.55,
+                4.75,
+                0.55
+              ]
+            },
+            "p90": {
+              "medianPct": 0.84,
+              "minPct": -46.04,
+              "maxPct": 93.2,
+              "ci95": {
+                "lo": -14.08,
+                "hi": 19.17
+              },
+              "perRepPct": [
+                0.72,
+                0.96,
+                1.76,
+                19.17,
+                -26.89,
+                -46.04,
+                93.2,
+                22.16,
+                -5.88,
+                -1.28
+              ]
+            },
+            "p95": {
+              "medianPct": -0.79,
+              "minPct": -54.68,
+              "maxPct": 100.89,
+              "ci95": {
+                "lo": -17.11,
+                "hi": 13.67
+              },
+              "perRepPct": [
+                -2.9,
+                3.31,
+                -0.12,
+                12.72,
+                -31.32,
+                -54.68,
+                100.89,
+                24.02,
+                -2.97,
+                -1.46
+              ]
+            },
+            "p99": {
+              "medianPct": 15.17,
+              "minPct": -61.64,
+              "maxPct": 105.18,
+              "ci95": {
+                "lo": -20.47,
+                "hi": 31.48
+              },
+              "perRepPct": [
+                14.57,
+                18.24,
+                15.77,
+                44.72,
+                -37.56,
+                -61.64,
+                105.18,
+                22.34,
+                -6.58,
+                -3.38
+              ]
+            },
+            "throughput": {
+              "medianPct": -3.19,
+              "minPct": -38.58,
+              "maxPct": 48.7,
+              "ci95": {
+                "lo": -15.15,
+                "hi": 11.61
+              },
+              "perRepPct": [
+                -4.5,
+                -3.22,
+                -3.16,
+                -15.48,
+                23.41,
+                48.7,
+                -38.58,
+                -15.15,
+                -0.19,
+                0.4
+              ]
+            },
+            "cpu": {
+              "medianPct": 4.77,
+              "ci95": {
+                "lo": 0.62,
+                "hi": 11.69
+              }
+            },
+            "rssBytes": {
+              "median": 4882432
+            }
+          }
+        },
+        "DETECTOR_ONLY_UNARMED": {
+          "reps": 10,
+          "requests": 5000,
+          "perRep": [
+            {
+              "rep": 1,
+              "p50": 12.78,
+              "p90": 22.2,
+              "p95": 26.04,
+              "p99": 38.92,
+              "rps": 1095.53,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": false,
+              "cpuUs": 4094272,
+              "rssDelta": 42188800,
+              "eluMeanNs": 11843911,
+              "bootMs": 606
+            },
+            {
+              "rep": 2,
+              "p50": 15.88,
+              "p90": 49.31,
+              "p95": 104.08,
+              "p99": 282.44,
+              "rps": 557.41,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": false,
+              "cpuUs": 4569997,
+              "rssDelta": 41205760,
+              "eluMeanNs": 15155939,
+              "bootMs": 754
+            },
+            {
+              "rep": 3,
+              "p50": 12.31,
+              "p90": 19.31,
+              "p95": 23.26,
+              "p99": 33,
+              "rps": 1173.71,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": false,
+              "cpuUs": 4036164,
+              "rssDelta": 48668672,
+              "eluMeanNs": 11545787,
+              "bootMs": 396
+            },
+            {
+              "rep": 4,
+              "p50": 13.66,
+              "p90": 21.44,
+              "p95": 25.7,
+              "p99": 45.73,
+              "rps": 1053.07,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": false,
+              "cpuUs": 4306692,
+              "rssDelta": 48840704,
+              "eluMeanNs": 11614773,
+              "bootMs": 503
+            },
+            {
+              "rep": 5,
+              "p50": 13.41,
+              "p90": 23,
+              "p95": 28.19,
+              "p99": 41.06,
+              "rps": 1030.29,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": false,
+              "cpuUs": 4238029,
+              "rssDelta": 50339840,
+              "eluMeanNs": 11719513,
+              "bootMs": 390
+            },
+            {
+              "rep": 6,
+              "p50": 12.87,
+              "p90": 23.25,
+              "p95": 28.89,
+              "p99": 48.27,
+              "rps": 1056.64,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": false,
+              "cpuUs": 4238757,
+              "rssDelta": 50016256,
+              "eluMeanNs": 12140984,
+              "bootMs": 420
+            },
+            {
+              "rep": 7,
+              "p50": 14.36,
+              "p90": 24.94,
+              "p95": 29.32,
+              "p99": 54.15,
+              "rps": 960.43,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": false,
+              "cpuUs": 4491910,
+              "rssDelta": 49913856,
+              "eluMeanNs": 12022871,
+              "bootMs": 583
+            },
+            {
+              "rep": 8,
+              "p50": 13.46,
+              "p90": 23.27,
+              "p95": 29.42,
+              "p99": 48.51,
+              "rps": 1023.12,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": false,
+              "cpuUs": 4344642,
+              "rssDelta": 46895104,
+              "eluMeanNs": 11771748,
+              "bootMs": 404
+            },
+            {
+              "rep": 9,
+              "p50": 13.8,
+              "p90": 21.8,
+              "p95": 25.99,
+              "p99": 45.74,
+              "rps": 1045.37,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": false,
+              "cpuUs": 4405260,
+              "rssDelta": 49102848,
+              "eluMeanNs": 12002418,
+              "bootMs": 400
+            },
+            {
+              "rep": 10,
+              "p50": 14.01,
+              "p90": 23.88,
+              "p95": 28.82,
+              "p99": 45.57,
+              "rps": 1000,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": false,
+              "cpuUs": 4534710,
+              "rssDelta": 51265536,
+              "eluMeanNs": 11610480,
+              "bootMs": 439
+            }
+          ],
+          "errorsTotal": 0,
+          "failedTotal": 0,
+          "p50": 13.56,
+          "p90": 23.12,
+          "p95": 28.5,
+          "p99": 45.74,
+          "throughputRps": 1037.83,
+          "cpuUs": 4325667,
+          "rssDelta": 48971776,
+          "eluMeanNs": 11807829.5,
+          "bootMs": 429.5,
+          "fullyInstrumentedTotal": 0,
+          "seenTotal": 50000,
+          "observedSampledFraction": 0,
+          "persistedTotal": 0,
+          "overhead": {
+            "p50": {
+              "medianPct": 2.56,
+              "minPct": -22.17,
+              "maxPct": 30.1,
+              "ci95": {
+                "lo": -6,
+                "hi": 11.95
+              },
+              "perRepPct": [
+                -3.01,
+                30.1,
+                -0.71,
+                8.48,
+                -11.28,
+                -22.17,
+                15.84,
+                8.06,
+                4.81,
+                0.31
+              ]
+            },
+            "p90": {
+              "medianPct": 0.76,
+              "minPct": -41.42,
+              "maxPct": 152.24,
+              "ci95": {
+                "lo": -12.58,
+                "hi": 14.8
+              },
+              "perRepPct": [
+                -6.38,
+                152.24,
+                0.49,
+                2.79,
+                -18.77,
+                -41.42,
+                18.45,
+                14.8,
+                -8.05,
+                1.04
+              ]
+            },
+            "p95": {
+              "medianPct": -1.54,
+              "minPct": -48.6,
+              "maxPct": 339.72,
+              "ci95": {
+                "lo": -14.92,
+                "hi": 15.05
+              },
+              "perRepPct": [
+                -11.67,
+                339.72,
+                -2.18,
+                -0.16,
+                -22.33,
+                -48.6,
+                15.05,
+                23.2,
+                -7.51,
+                -0.9
+              ]
+            },
+            "p99": {
+              "medianPct": 0.01,
+              "minPct": -48.52,
+              "maxPct": 706.43,
+              "ci95": {
+                "lo": -20.53,
+                "hi": 26.68
+              },
+              "perRepPct": [
+                -5.62,
+                706.43,
+                -2.54,
+                1.57,
+                -38.52,
+                -48.52,
+                35.46,
+                26.68,
+                9.13,
+                -1.55
+              ]
+            },
+            "throughput": {
+              "medianPct": 0.53,
+              "minPct": -52.39,
+              "maxPct": 47,
+              "ci95": {
+                "lo": -9.66,
+                "hi": 9.02
+              },
+              "perRepPct": [
+                4.16,
+                -52.39,
+                0.59,
+                -4.87,
+                16.98,
+                47,
+                -14.43,
+                -9.66,
+                1.07,
+                0.48
+              ]
+            },
+            "cpu": {
+              "medianPct": 2.96,
+              "ci95": {
+                "lo": -0.59,
+                "hi": 7.55
+              }
+            },
+            "rssBytes": {
+              "median": 8216576
+            }
+          }
+        },
+        "OFF": {
+          "reps": 10,
+          "requests": 5000,
+          "perRep": [
+            {
+              "rep": 1,
+              "p50": 13.17,
+              "p90": 23.71,
+              "p95": 29.49,
+              "p99": 41.24,
+              "rps": 1051.75,
+              "errors": 0,
+              "failed": 0,
+              "selected": null,
+              "seen": null,
+              "persisted": null,
+              "alsEnabled": null,
+              "cpuUs": 4118611,
+              "rssDelta": 45838336,
+              "eluMeanNs": 11923438,
+              "bootMs": 602
+            },
+            {
+              "rep": 2,
+              "p50": 12.2,
+              "p90": 19.55,
+              "p95": 23.67,
+              "p99": 35.02,
+              "rps": 1170.69,
+              "errors": 0,
+              "failed": 0,
+              "selected": null,
+              "seen": null,
+              "persisted": null,
+              "alsEnabled": null,
+              "cpuUs": 3921301,
+              "rssDelta": 45703168,
+              "eluMeanNs": 11749924,
+              "bootMs": 477
+            },
+            {
+              "rep": 3,
+              "p50": 12.4,
+              "p90": 19.22,
+              "p95": 23.78,
+              "p99": 33.86,
+              "rps": 1166.86,
+              "errors": 0,
+              "failed": 0,
+              "selected": null,
+              "seen": null,
+              "persisted": null,
+              "alsEnabled": null,
+              "cpuUs": 3957596,
+              "rssDelta": 55955456,
+              "eluMeanNs": 11531378,
+              "bootMs": 266
+            },
+            {
+              "rep": 4,
+              "p50": 12.59,
+              "p90": 20.86,
+              "p95": 25.74,
+              "p99": 45.02,
+              "rps": 1106.93,
+              "errors": 0,
+              "failed": 0,
+              "selected": null,
+              "seen": null,
+              "persisted": null,
+              "alsEnabled": null,
+              "cpuUs": 4065819,
+              "rssDelta": 39149568,
+              "eluMeanNs": 11571346,
+              "bootMs": 295
+            },
+            {
+              "rep": 5,
+              "p50": 15.12,
+              "p90": 28.31,
+              "p95": 36.29,
+              "p99": 66.78,
+              "rps": 880.75,
+              "errors": 0,
+              "failed": 0,
+              "selected": null,
+              "seen": null,
+              "persisted": null,
+              "alsEnabled": null,
+              "cpuUs": 4370649,
+              "rssDelta": 31940608,
+              "eluMeanNs": 12916433,
+              "bootMs": 287
+            },
+            {
+              "rep": 6,
+              "p50": 16.54,
+              "p90": 39.69,
+              "p95": 56.19,
+              "p99": 93.77,
+              "rps": 718.8,
+              "errors": 0,
+              "failed": 0,
+              "selected": null,
+              "seen": null,
+              "persisted": null,
+              "alsEnabled": null,
+              "cpuUs": 4472473,
+              "rssDelta": 56418304,
+              "eluMeanNs": 13740895,
+              "bootMs": 292
+            },
+            {
+              "rep": 7,
+              "p50": 12.39,
+              "p90": 21.05,
+              "p95": 25.48,
+              "p99": 39.97,
+              "rps": 1122.33,
+              "errors": 0,
+              "failed": 0,
+              "selected": null,
+              "seen": null,
+              "persisted": null,
+              "alsEnabled": null,
+              "cpuUs": 4091515,
+              "rssDelta": 41545728,
+              "eluMeanNs": 11827507,
+              "bootMs": 286
+            },
+            {
+              "rep": 8,
+              "p50": 12.46,
+              "p90": 20.27,
+              "p95": 23.88,
+              "p99": 38.29,
+              "rps": 1132.5,
+              "errors": 0,
+              "failed": 0,
+              "selected": null,
+              "seen": null,
+              "persisted": null,
+              "alsEnabled": null,
+              "cpuUs": 4125303,
+              "rssDelta": 38830080,
+              "eluMeanNs": 11676705,
+              "bootMs": 784
+            },
+            {
+              "rep": 9,
+              "p50": 13.17,
+              "p90": 23.71,
+              "p95": 28.1,
+              "p99": 41.91,
+              "rps": 1034.34,
+              "errors": 0,
+              "failed": 0,
+              "selected": null,
+              "seen": null,
+              "persisted": null,
+              "alsEnabled": null,
+              "cpuUs": 4242149,
+              "rssDelta": 37478400,
+              "eluMeanNs": 12053920,
+              "bootMs": 296
+            },
+            {
+              "rep": 10,
+              "p50": 13.96,
+              "p90": 23.64,
+              "p95": 29.08,
+              "p99": 46.29,
+              "rps": 995.22,
+              "errors": 0,
+              "failed": 0,
+              "selected": null,
+              "seen": null,
+              "persisted": null,
+              "alsEnabled": null,
+              "cpuUs": 4442674,
+              "rssDelta": 40759296,
+              "eluMeanNs": 11974665,
+              "bootMs": 299
+            }
+          ],
+          "errorsTotal": 0,
+          "failedTotal": 0,
+          "p50": 12.88,
+          "p90": 22.35,
+          "p95": 26.92,
+          "p99": 41.58,
+          "throughputRps": 1079.34,
+          "cpuUs": 4121957,
+          "rssDelta": 41152512,
+          "eluMeanNs": 11875472.5,
+          "bootMs": 295.5,
+          "fullyInstrumentedTotal": 0,
+          "seenTotal": 0,
+          "observedSampledFraction": null,
+          "persistedTotal": 0
+        },
+        "V3_ALWAYS_ON_FULL": {
+          "reps": 10,
+          "requests": 5000,
+          "perRep": [
+            {
+              "rep": 1,
+              "p50": 14.33,
+              "p90": 22.96,
+              "p95": 27.44,
+              "p99": 47.86,
+              "rps": 998,
+              "errors": 0,
+              "failed": 0,
+              "selected": 5000,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 5146497,
+              "rssDelta": 54427648,
+              "eluMeanNs": 12279808,
+              "bootMs": 512
+            },
+            {
+              "rep": 2,
+              "p50": 14.73,
+              "p90": 26.74,
+              "p95": 36.32,
+              "p99": 101.71,
+              "rps": 886.84,
+              "errors": 0,
+              "failed": 0,
+              "selected": 5000,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 5351715,
+              "rssDelta": 57376768,
+              "eluMeanNs": 12927050,
+              "bootMs": 399
+            },
+            {
+              "rep": 3,
+              "p50": 13.54,
+              "p90": 21.54,
+              "p95": 26.99,
+              "p99": 43.78,
+              "rps": 1054.85,
+              "errors": 0,
+              "failed": 0,
+              "selected": 5000,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 5165551,
+              "rssDelta": 57671680,
+              "eluMeanNs": 11949341,
+              "bootMs": 397
+            },
+            {
+              "rep": 4,
+              "p50": 15.12,
+              "p90": 26.23,
+              "p95": 30.75,
+              "p99": 51.87,
+              "rps": 922.68,
+              "errors": 0,
+              "failed": 0,
+              "selected": 5000,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 5467716,
+              "rssDelta": 57843712,
+              "eluMeanNs": 12392014,
+              "bootMs": 441
+            },
+            {
+              "rep": 5,
+              "p50": 15,
+              "p90": 25.7,
+              "p95": 29.7,
+              "p99": 42.22,
+              "rps": 952.93,
+              "errors": 0,
+              "failed": 0,
+              "selected": 5000,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 5511035,
+              "rssDelta": 57102336,
+              "eluMeanNs": 12157503,
+              "bootMs": 394
+            },
+            {
+              "rep": 6,
+              "p50": 16.93,
+              "p90": 31.56,
+              "p95": 41.26,
+              "p99": 71.14,
+              "rps": 795.17,
+              "errors": 0,
+              "failed": 0,
+              "selected": 5000,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 5680220,
+              "rssDelta": 57122816,
+              "eluMeanNs": 12645904,
+              "bootMs": 403
+            },
+            {
+              "rep": 7,
+              "p50": 15.47,
+              "p90": 26.43,
+              "p95": 31.75,
+              "p99": 43.35,
+              "rps": 923.19,
+              "errors": 0,
+              "failed": 0,
+              "selected": 5000,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 5576952,
+              "rssDelta": 59486208,
+              "eluMeanNs": 12035902,
+              "bootMs": 428
+            },
+            {
+              "rep": 8,
+              "p50": 15.36,
+              "p90": 24.48,
+              "p95": 28.84,
+              "p99": 44.02,
+              "rps": 925.07,
+              "errors": 0,
+              "failed": 0,
+              "selected": 5000,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 5650638,
+              "rssDelta": 58642432,
+              "eluMeanNs": 12238768,
+              "bootMs": 423
+            },
+            {
+              "rep": 9,
+              "p50": 15.84,
+              "p90": 25.46,
+              "p95": 29.89,
+              "p99": 46.91,
+              "rps": 907.94,
+              "errors": 0,
+              "failed": 0,
+              "selected": 5000,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 5626727,
+              "rssDelta": 53956608,
+              "eluMeanNs": 12310284,
+              "bootMs": 417
+            },
+            {
+              "rep": 10,
+              "p50": 16.11,
+              "p90": 27.5,
+              "p95": 32.53,
+              "p99": 45.18,
+              "rps": 877.65,
+              "errors": 0,
+              "failed": 0,
+              "selected": 5000,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 5752293,
+              "rssDelta": 57192448,
+              "eluMeanNs": 12459432,
+              "bootMs": 442
+            }
+          ],
+          "errorsTotal": 0,
+          "failedTotal": 0,
+          "p50": 15.24,
+          "p90": 25.97,
+          "p95": 30.32,
+          "p99": 46.05,
+          "throughputRps": 922.94,
+          "cpuUs": 5543993.5,
+          "rssDelta": 57284608,
+          "eluMeanNs": 12295046,
+          "bootMs": 420,
+          "fullyInstrumentedTotal": 50000,
+          "seenTotal": 50000,
+          "observedSampledFraction": 1,
+          "persistedTotal": 0,
+          "overhead": {
+            "p50": {
+              "medianPct": 17.74,
+              "minPct": -0.75,
+              "maxPct": 24.8,
+              "ci95": {
+                "lo": 5.78,
+                "hi": 21.78
+              },
+              "perRepPct": [
+                8.76,
+                20.75,
+                9.2,
+                20.07,
+                -0.75,
+                2.36,
+                24.8,
+                23.27,
+                20.3,
+                15.42
+              ]
+            },
+            "p90": {
+              "medianPct": 14.21,
+              "minPct": -20.47,
+              "maxPct": 36.81,
+              "ci95": {
+                "lo": -3.2,
+                "hi": 25.55
+              },
+              "perRepPct": [
+                -3.2,
+                36.81,
+                12.08,
+                25.76,
+                -9.24,
+                -20.47,
+                25.55,
+                20.74,
+                7.41,
+                16.33
+              ]
+            },
+            "p95": {
+              "medianPct": 12.69,
+              "minPct": -26.57,
+              "maxPct": 53.44,
+              "ci95": {
+                "lo": -6.95,
+                "hi": 22.04
+              },
+              "perRepPct": [
+                -6.95,
+                53.44,
+                13.5,
+                19.49,
+                -18.17,
+                -26.57,
+                24.6,
+                20.8,
+                6.38,
+                11.87
+              ]
+            },
+            "p99": {
+              "medianPct": 13.44,
+              "minPct": -36.79,
+              "maxPct": 190.4,
+              "ci95": {
+                "lo": -7.84,
+                "hi": 22.26
+              },
+              "perRepPct": [
+                16.05,
+                190.4,
+                29.31,
+                15.2,
+                -36.79,
+                -24.13,
+                8.45,
+                14.96,
+                11.92,
+                -2.39
+              ]
+            },
+            "throughput": {
+              "medianPct": -12.02,
+              "minPct": -24.25,
+              "maxPct": 10.62,
+              "ci95": {
+                "lo": -17.74,
+                "hi": -0.7
+              },
+              "perRepPct": [
+                -5.11,
+                -24.25,
+                -9.6,
+                -16.65,
+                8.2,
+                10.62,
+                -17.74,
+                -18.32,
+                -12.22,
+                -11.81
+              ]
+            },
+            "cpu": {
+              "medianPct": 31.58,
+              "ci95": {
+                "lo": 27,
+                "hi": 36.31
+              }
+            },
+            "rssBytes": {
+              "median": 16455680
+            }
+          }
+        }
+      }
+    },
+    "koa-1999": {
+      "modes": {
+        "DETECTOR_ONLY_ALS_ENABLED": {
+          "reps": 10,
+          "requests": 5000,
+          "perRep": [
+            {
+              "rep": 1,
+              "p50": 11.27,
+              "p90": 18.54,
+              "p95": 22.22,
+              "p99": 37.56,
+              "rps": 1236.4,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 4140118,
+              "rssDelta": 50487296,
+              "eluMeanNs": 11906805,
+              "bootMs": 331
+            },
+            {
+              "rep": 2,
+              "p50": 25.49,
+              "p90": 41.29,
+              "p95": 50.52,
+              "p99": 79.25,
+              "rps": 567.92,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 6334307,
+              "rssDelta": 35815424,
+              "eluMeanNs": 15130067,
+              "bootMs": 456
+            },
+            {
+              "rep": 3,
+              "p50": 11.27,
+              "p90": 17.78,
+              "p95": 21.95,
+              "p99": 36.79,
+              "rps": 1259.45,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 4084986,
+              "rssDelta": 33611776,
+              "eluMeanNs": 11863783,
+              "bootMs": 250
+            },
+            {
+              "rep": 4,
+              "p50": 12.31,
+              "p90": 20.56,
+              "p95": 27.6,
+              "p99": 60.37,
+              "rps": 1081.08,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 4452803,
+              "rssDelta": 35921920,
+              "eluMeanNs": 12306957,
+              "bootMs": 287
+            },
+            {
+              "rep": 5,
+              "p50": 12.01,
+              "p90": 19.73,
+              "p95": 24.57,
+              "p99": 45.57,
+              "rps": 1166.04,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 4281202,
+              "rssDelta": 56205312,
+              "eluMeanNs": 11780308,
+              "bootMs": 263
+            },
+            {
+              "rep": 6,
+              "p50": 12.24,
+              "p90": 19.75,
+              "p95": 24.03,
+              "p99": 43.03,
+              "rps": 1150.75,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 4329292,
+              "rssDelta": 55169024,
+              "eluMeanNs": 12028639,
+              "bootMs": 253
+            },
+            {
+              "rep": 7,
+              "p50": 12.17,
+              "p90": 20.45,
+              "p95": 25.21,
+              "p99": 40.75,
+              "rps": 1146.53,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 4386193,
+              "rssDelta": 55750656,
+              "eluMeanNs": 11785059,
+              "bootMs": 262
+            },
+            {
+              "rep": 8,
+              "p50": 12.18,
+              "p90": 19.39,
+              "p95": 24.14,
+              "p99": 45.63,
+              "rps": 1157.41,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 4372641,
+              "rssDelta": 44593152,
+              "eluMeanNs": 11896750,
+              "bootMs": 273
+            },
+            {
+              "rep": 9,
+              "p50": 12.45,
+              "p90": 20.91,
+              "p95": 24.95,
+              "p99": 37.02,
+              "rps": 1128.16,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 4503765,
+              "rssDelta": 39370752,
+              "eluMeanNs": 11950835,
+              "bootMs": 266
+            },
+            {
+              "rep": 10,
+              "p50": 12.86,
+              "p90": 21.32,
+              "p95": 25.12,
+              "p99": 41.65,
+              "rps": 1105.46,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 4601578,
+              "rssDelta": 38285312,
+              "eluMeanNs": 11864648,
+              "bootMs": 318
+            }
+          ],
+          "errorsTotal": 0,
+          "failedTotal": 0,
+          "p50": 12.21,
+          "p90": 20.1,
+          "p95": 24.76,
+          "p99": 42.34,
+          "throughputRps": 1148.64,
+          "cpuUs": 4379417,
+          "rssDelta": 41981952,
+          "eluMeanNs": 11901777.5,
+          "bootMs": 269.5,
+          "fullyInstrumentedTotal": 0,
+          "seenTotal": 50000,
+          "observedSampledFraction": 0,
+          "persistedTotal": 0,
+          "overhead": {
+            "p50": {
+              "medianPct": 7.77,
+              "minPct": 0.71,
+              "maxPct": 14.87,
+              "ci95": {
+                "lo": 4.59,
+                "hi": 10.62
+              },
+              "perRepPct": [
+                0.71,
+                14.87,
+                5.57,
+                12.43,
+                6.5,
+                7.69,
+                8.81,
+                2.69,
+                7.84,
+                10.44
+              ]
+            },
+            "p90": {
+              "medianPct": 7.04,
+              "minPct": -3.38,
+              "maxPct": 16.68,
+              "ci95": {
+                "lo": 0.08,
+                "hi": 11.79
+              },
+              "perRepPct": [
+                -3.38,
+                14.29,
+                7.79,
+                16.68,
+                2.81,
+                0.89,
+                6.29,
+                -2.64,
+                9.29,
+                10.15
+              ]
+            },
+            "p95": {
+              "medianPct": 4.58,
+              "minPct": -6.74,
+              "maxPct": 32.81,
+              "ci95": {
+                "lo": 1.59,
+                "hi": 8.42
+              },
+              "perRepPct": [
+                -6.74,
+                4.92,
+                7.01,
+                32.81,
+                8.52,
+                1.52,
+                4.24,
+                2.47,
+                8.42,
+                1.59
+              ]
+            },
+            "p99": {
+              "medianPct": 1.97,
+              "minPct": -14.5,
+              "maxPct": 62.82,
+              "ci95": {
+                "lo": -11.98,
+                "hi": 13.51
+              },
+              "perRepPct": [
+                -10.19,
+                -13.78,
+                -14.5,
+                62.82,
+                18.67,
+                13.51,
+                4.78,
+                4.72,
+                -10.21,
+                -0.78
+              ]
+            },
+            "throughput": {
+              "medianPct": -5.78,
+              "minPct": -16.3,
+              "maxPct": -0.27,
+              "ci95": {
+                "lo": -7.15,
+                "hi": -3.48
+              },
+              "perRepPct": [
+                -0.27,
+                -6.1,
+                -4.36,
+                -16.3,
+                -5.46,
+                -5.06,
+                -6.49,
+                -1.9,
+                -7.15,
+                -7.61
+              ]
+            },
+            "cpu": {
+              "medianPct": 6.87,
+              "ci95": {
+                "lo": 5.51,
+                "hi": 8.22
+              }
+            },
+            "rssBytes": {
+              "median": -7864320
+            }
+          }
+        },
+        "DETECTOR_ONLY_UNARMED": {
+          "reps": 10,
+          "requests": 5000,
+          "perRep": [
+            {
+              "rep": 1,
+              "p50": 11.49,
+              "p90": 19.92,
+              "p95": 24.4,
+              "p99": 42.94,
+              "rps": 1205.69,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": false,
+              "cpuUs": 4049561,
+              "rssDelta": 55152640,
+              "eluMeanNs": 12184150,
+              "bootMs": 357
+            },
+            {
+              "rep": 2,
+              "p50": 24.7,
+              "p90": 45.58,
+              "p95": 59.61,
+              "p99": 101.68,
+              "rps": 546.27,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": false,
+              "cpuUs": 6295985,
+              "rssDelta": 50262016,
+              "eluMeanNs": 15192199,
+              "bootMs": 494
+            },
+            {
+              "rep": 3,
+              "p50": 10.68,
+              "p90": 16.73,
+              "p95": 20.67,
+              "p99": 40.09,
+              "rps": 1315.1,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": false,
+              "cpuUs": 4042693,
+              "rssDelta": 54484992,
+              "eluMeanNs": 11842029,
+              "bootMs": 336
+            },
+            {
+              "rep": 4,
+              "p50": 10.81,
+              "p90": 16.78,
+              "p95": 20.07,
+              "p99": 38.82,
+              "rps": 1307.19,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": false,
+              "cpuUs": 3984377,
+              "rssDelta": 44134400,
+              "eluMeanNs": 11850536,
+              "bootMs": 252
+            },
+            {
+              "rep": 5,
+              "p50": 11.35,
+              "p90": 19.38,
+              "p95": 22.54,
+              "p99": 47.07,
+              "rps": 1205.11,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": false,
+              "cpuUs": 4224804,
+              "rssDelta": 57741312,
+              "eluMeanNs": 12024630,
+              "bootMs": 325
+            },
+            {
+              "rep": 6,
+              "p50": 12.78,
+              "p90": 24.12,
+              "p95": 28.82,
+              "p99": 49.4,
+              "rps": 1050.2,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": false,
+              "cpuUs": 4420715,
+              "rssDelta": 37994496,
+              "eluMeanNs": 12256040,
+              "bootMs": 267
+            },
+            {
+              "rep": 7,
+              "p50": 13.15,
+              "p90": 24.58,
+              "p95": 32.93,
+              "p99": 66.24,
+              "rps": 995.62,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": false,
+              "cpuUs": 4401284,
+              "rssDelta": 37195776,
+              "eluMeanNs": 12529432,
+              "bootMs": 269
+            },
+            {
+              "rep": 8,
+              "p50": 13.02,
+              "p90": 22.98,
+              "p95": 28.37,
+              "p99": 50.03,
+              "rps": 1058.2,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": false,
+              "cpuUs": 4575746,
+              "rssDelta": 58236928,
+              "eluMeanNs": 12097612,
+              "bootMs": 251
+            },
+            {
+              "rep": 9,
+              "p50": 13.24,
+              "p90": 23.45,
+              "p95": 29.44,
+              "p99": 43.3,
+              "rps": 1044.5,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": false,
+              "cpuUs": 4435736,
+              "rssDelta": 54239232,
+              "eluMeanNs": 11884054,
+              "bootMs": 257
+            },
+            {
+              "rep": 10,
+              "p50": 11.82,
+              "p90": 20.11,
+              "p95": 24.9,
+              "p99": 42.61,
+              "rps": 1169.04,
+              "errors": 0,
+              "failed": 0,
+              "selected": 0,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": false,
+              "cpuUs": 4511840,
+              "rssDelta": 39055360,
+              "eluMeanNs": 11836827,
+              "bootMs": 269
+            }
+          ],
+          "errorsTotal": 0,
+          "failedTotal": 0,
+          "p50": 12.3,
+          "p90": 21.54,
+          "p95": 26.63,
+          "p99": 45.19,
+          "throughputRps": 1113.62,
+          "cpuUs": 4410999.5,
+          "rssDelta": 52250624,
+          "eluMeanNs": 12061121,
+          "bootMs": 269,
+          "fullyInstrumentedTotal": 0,
+          "seenTotal": 50000,
+          "observedSampledFraction": 0,
+          "persistedTotal": 0,
+          "overhead": {
+            "p50": {
+              "medianPct": 6.23,
+              "minPct": -1.29,
+              "maxPct": 17.53,
+              "ci95": {
+                "lo": 0.64,
+                "hi": 12.99
+              },
+              "perRepPct": [
+                2.72,
+                11.29,
+                0.01,
+                -1.29,
+                0.64,
+                12.43,
+                17.53,
+                9.75,
+                14.69,
+                1.55
+              ]
+            },
+            "p90": {
+              "medianPct": 9.62,
+              "minPct": -4.78,
+              "maxPct": 27.76,
+              "ci95": {
+                "lo": 1.39,
+                "hi": 24.38
+              },
+              "perRepPct": [
+                3.81,
+                26.15,
+                1.39,
+                -4.78,
+                1.02,
+                23.18,
+                27.76,
+                15.36,
+                22.6,
+                3.89
+              ]
+            },
+            "p95": {
+              "medianPct": 11.4,
+              "minPct": -3.44,
+              "maxPct": 36.16,
+              "ci95": {
+                "lo": 0.68,
+                "hi": 24.82
+              },
+              "perRepPct": [
+                2.41,
+                23.8,
+                0.77,
+                -3.44,
+                -0.46,
+                21.75,
+                36.16,
+                20.4,
+                27.89,
+                0.68
+              ]
+            },
+            "p99": {
+              "medianPct": 7.82,
+              "minPct": -6.82,
+              "maxPct": 70.31,
+              "ci95": {
+                "lo": 2.68,
+                "hi": 22.57
+              },
+              "perRepPct": [
+                2.68,
+                10.61,
+                -6.82,
+                4.7,
+                22.57,
+                30.31,
+                70.31,
+                14.82,
+                5.03,
+                1.49
+              ]
+            },
+            "throughput": {
+              "medianPct": -6.21,
+              "minPct": -18.8,
+              "maxPct": 1.2,
+              "ci95": {
+                "lo": -13.36,
+                "hi": -1.44
+              },
+              "perRepPct": [
+                -2.75,
+                -9.68,
+                -0.13,
+                1.2,
+                -2.29,
+                -13.36,
+                -18.8,
+                -10.31,
+                -14.04,
+                -2.29
+              ]
+            },
+            "cpu": {
+              "medianPct": 6.21,
+              "ci95": {
+                "lo": 4.41,
+                "hi": 6.86
+              }
+            },
+            "rssBytes": {
+              "median": 1634304
+            }
+          }
+        },
+        "OFF": {
+          "reps": 10,
+          "requests": 5000,
+          "perRep": [
+            {
+              "rep": 1,
+              "p50": 11.19,
+              "p90": 19.18,
+              "p95": 23.83,
+              "p99": 41.82,
+              "rps": 1239.77,
+              "errors": 0,
+              "failed": 0,
+              "selected": null,
+              "seen": null,
+              "persisted": null,
+              "alsEnabled": null,
+              "cpuUs": 3944929,
+              "rssDelta": 49700864,
+              "eluMeanNs": 12050474,
+              "bootMs": 152
+            },
+            {
+              "rep": 2,
+              "p50": 22.19,
+              "p90": 36.13,
+              "p95": 48.15,
+              "p99": 91.92,
+              "rps": 604.81,
+              "errors": 0,
+              "failed": 0,
+              "selected": null,
+              "seen": null,
+              "persisted": null,
+              "alsEnabled": null,
+              "cpuUs": 5971214,
+              "rssDelta": 50221056,
+              "eluMeanNs": 15153265,
+              "bootMs": 268
+            },
+            {
+              "rep": 3,
+              "p50": 10.68,
+              "p90": 16.5,
+              "p95": 20.52,
+              "p99": 43.03,
+              "rps": 1316.83,
+              "errors": 0,
+              "failed": 0,
+              "selected": null,
+              "seen": null,
+              "persisted": null,
+              "alsEnabled": null,
+              "cpuUs": 3865451,
+              "rssDelta": 51257344,
+              "eluMeanNs": 11705382,
+              "bootMs": 151
+            },
+            {
+              "rep": 4,
+              "p50": 10.95,
+              "p90": 17.62,
+              "p95": 20.78,
+              "p99": 37.08,
+              "rps": 1291.66,
+              "errors": 0,
+              "failed": 0,
+              "selected": null,
+              "seen": null,
+              "persisted": null,
+              "alsEnabled": null,
+              "cpuUs": 3853719,
+              "rssDelta": 51814400,
+              "eluMeanNs": 11942747,
+              "bootMs": 137
+            },
+            {
+              "rep": 5,
+              "p50": 11.27,
+              "p90": 19.19,
+              "p95": 22.64,
+              "p99": 38.4,
+              "rps": 1233.35,
+              "errors": 0,
+              "failed": 0,
+              "selected": null,
+              "seen": null,
+              "persisted": null,
+              "alsEnabled": null,
+              "cpuUs": 3953442,
+              "rssDelta": 48992256,
+              "eluMeanNs": 11866638,
+              "bootMs": 143
+            },
+            {
+              "rep": 6,
+              "p50": 11.37,
+              "p90": 19.58,
+              "p95": 23.67,
+              "p99": 37.91,
+              "rps": 1212.12,
+              "errors": 0,
+              "failed": 0,
+              "selected": null,
+              "seen": null,
+              "persisted": null,
+              "alsEnabled": null,
+              "cpuUs": 4032426,
+              "rssDelta": 50651136,
+              "eluMeanNs": 11691217,
+              "bootMs": 149
+            },
+            {
+              "rep": 7,
+              "p50": 11.19,
+              "p90": 19.24,
+              "p95": 24.19,
+              "p99": 38.89,
+              "rps": 1226.09,
+              "errors": 0,
+              "failed": 0,
+              "selected": null,
+              "seen": null,
+              "persisted": null,
+              "alsEnabled": null,
+              "cpuUs": 4123359,
+              "rssDelta": 49934336,
+              "eluMeanNs": 11662808,
+              "bootMs": 140
+            },
+            {
+              "rep": 8,
+              "p50": 11.87,
+              "p90": 19.92,
+              "p95": 23.56,
+              "p99": 43.57,
+              "rps": 1179.8,
+              "errors": 0,
+              "failed": 0,
+              "selected": null,
+              "seen": null,
+              "persisted": null,
+              "alsEnabled": null,
+              "cpuUs": 4268315,
+              "rssDelta": 50368512,
+              "eluMeanNs": 11984416,
+              "bootMs": 160
+            },
+            {
+              "rep": 9,
+              "p50": 11.55,
+              "p90": 19.13,
+              "p95": 23.02,
+              "p99": 41.23,
+              "rps": 1215.07,
+              "errors": 0,
+              "failed": 0,
+              "selected": null,
+              "seen": null,
+              "persisted": null,
+              "alsEnabled": null,
+              "cpuUs": 4172416,
+              "rssDelta": 49324032,
+              "eluMeanNs": 11837086,
+              "bootMs": 142
+            },
+            {
+              "rep": 10,
+              "p50": 11.64,
+              "p90": 19.36,
+              "p95": 24.73,
+              "p99": 41.98,
+              "rps": 1196.46,
+              "errors": 0,
+              "failed": 0,
+              "selected": null,
+              "seen": null,
+              "persisted": null,
+              "alsEnabled": null,
+              "cpuUs": 4252154,
+              "rssDelta": 50237440,
+              "eluMeanNs": 11876372,
+              "bootMs": 143
+            }
+          ],
+          "errorsTotal": 0,
+          "failedTotal": 0,
+          "p50": 11.32,
+          "p90": 19.21,
+          "p95": 23.61,
+          "p99": 41.52,
+          "throughputRps": 1220.58,
+          "cpuUs": 4077892.5,
+          "rssDelta": 50229248,
+          "eluMeanNs": 11871505,
+          "bootMs": 146,
+          "fullyInstrumentedTotal": 0,
+          "seenTotal": 0,
+          "observedSampledFraction": null,
+          "persistedTotal": 0
+        },
+        "V3_ALWAYS_ON_FULL": {
+          "reps": 10,
+          "requests": 5000,
+          "perRep": [
+            {
+              "rep": 1,
+              "p50": 13.57,
+              "p90": 23.98,
+              "p95": 29.23,
+              "p99": 77,
+              "rps": 991.87,
+              "errors": 0,
+              "failed": 0,
+              "selected": 5000,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 5238005,
+              "rssDelta": 46960640,
+              "eluMeanNs": 12643148,
+              "bootMs": 266
+            },
+            {
+              "rep": 2,
+              "p50": 28.75,
+              "p90": 46.15,
+              "p95": 52.09,
+              "p99": 82.83,
+              "rps": 517.33,
+              "errors": 0,
+              "failed": 0,
+              "selected": 5000,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 7470878,
+              "rssDelta": 42938368,
+              "eluMeanNs": 15800509,
+              "bootMs": 654
+            },
+            {
+              "rep": 3,
+              "p50": 12.96,
+              "p90": 20.62,
+              "p95": 24.27,
+              "p99": 33.35,
+              "rps": 1117.07,
+              "errors": 0,
+              "failed": 0,
+              "selected": 5000,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 4942675,
+              "rssDelta": 47542272,
+              "eluMeanNs": 12113658,
+              "bootMs": 272
+            },
+            {
+              "rep": 4,
+              "p50": 13.22,
+              "p90": 20.11,
+              "p95": 24.35,
+              "p99": 34.44,
+              "rps": 1109.39,
+              "errors": 0,
+              "failed": 0,
+              "selected": 5000,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 5033532,
+              "rssDelta": 44400640,
+              "eluMeanNs": 12087872,
+              "bootMs": 268
+            },
+            {
+              "rep": 5,
+              "p50": 13.89,
+              "p90": 22.39,
+              "p95": 27.81,
+              "p99": 40.06,
+              "rps": 1027.12,
+              "errors": 0,
+              "failed": 0,
+              "selected": 5000,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 5260250,
+              "rssDelta": 43843584,
+              "eluMeanNs": 12233166,
+              "bootMs": 264
+            },
+            {
+              "rep": 6,
+              "p50": 14.19,
+              "p90": 22.96,
+              "p95": 27.26,
+              "p99": 49.75,
+              "rps": 1004.62,
+              "errors": 0,
+              "failed": 0,
+              "selected": 5000,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 5330178,
+              "rssDelta": 47767552,
+              "eluMeanNs": 12336195,
+              "bootMs": 267
+            },
+            {
+              "rep": 7,
+              "p50": 14.62,
+              "p90": 25.96,
+              "p95": 31.07,
+              "p99": 44.9,
+              "rps": 941.97,
+              "errors": 0,
+              "failed": 0,
+              "selected": 5000,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 5611841,
+              "rssDelta": 41779200,
+              "eluMeanNs": 12648657,
+              "bootMs": 335
+            },
+            {
+              "rep": 8,
+              "p50": 14.16,
+              "p90": 23.62,
+              "p95": 28.22,
+              "p99": 38.54,
+              "rps": 996.61,
+              "errors": 0,
+              "failed": 0,
+              "selected": 5000,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 5576569,
+              "rssDelta": 44941312,
+              "eluMeanNs": 12529803,
+              "bootMs": 356
+            },
+            {
+              "rep": 9,
+              "p50": 14.37,
+              "p90": 23.18,
+              "p95": 27.07,
+              "p99": 43.74,
+              "rps": 1001.4,
+              "errors": 0,
+              "failed": 0,
+              "selected": 5000,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 5390295,
+              "rssDelta": 46088192,
+              "eluMeanNs": 12475476,
+              "bootMs": 349
+            },
+            {
+              "rep": 10,
+              "p50": 15.46,
+              "p90": 27.39,
+              "p95": 33.3,
+              "p99": 51.06,
+              "rps": 899.77,
+              "errors": 0,
+              "failed": 0,
+              "selected": 5000,
+              "seen": 5000,
+              "persisted": 0,
+              "alsEnabled": true,
+              "cpuUs": 5735836,
+              "rssDelta": 44449792,
+              "eluMeanNs": 12603255,
+              "bootMs": 275
+            }
+          ],
+          "errorsTotal": 0,
+          "failedTotal": 0,
+          "p50": 14.18,
+          "p90": 23.4,
+          "p95": 28.02,
+          "p99": 44.32,
+          "throughputRps": 999.01,
+          "cpuUs": 5360236.5,
+          "rssDelta": 44695552,
+          "eluMeanNs": 12502639.5,
+          "bootMs": 273.5,
+          "fullyInstrumentedTotal": 50000,
+          "seenTotal": 50000,
+          "observedSampledFraction": 1,
+          "persistedTotal": 0,
+          "overhead": {
+            "p50": {
+              "medianPct": 23.78,
+              "minPct": 19.37,
+              "maxPct": 32.79,
+              "ci95": {
+                "lo": 21.02,
+                "hi": 29.52
+              },
+              "perRepPct": [
+                21.27,
+                29.52,
+                21.38,
+                20.66,
+                23.17,
+                24.8,
+                30.7,
+                19.37,
+                24.4,
+                32.79
+              ]
+            },
+            "p90": {
+              "medianPct": 23.06,
+              "minPct": 14.09,
+              "maxPct": 41.53,
+              "ci95": {
+                "lo": 17.28,
+                "hi": 29.98
+              },
+              "perRepPct": [
+                25.02,
+                27.75,
+                24.97,
+                14.09,
+                16.72,
+                17.28,
+                34.94,
+                18.58,
+                21.16,
+                41.53
+              ]
+            },
+            "p95": {
+              "medianPct": 19.04,
+              "minPct": 8.18,
+              "maxPct": 34.67,
+              "ci95": {
+                "lo": 16.39,
+                "hi": 25.56
+              },
+              "perRepPct": [
+                22.66,
+                8.18,
+                18.3,
+                17.17,
+                22.83,
+                15.18,
+                28.45,
+                19.79,
+                17.6,
+                34.67
+              ]
+            },
+            "p99": {
+              "medianPct": 5.2,
+              "minPct": -22.48,
+              "maxPct": 84.14,
+              "ci95": {
+                "lo": -9.89,
+                "hi": 23.34
+              },
+              "perRepPct": [
+                84.14,
+                -9.89,
+                -22.48,
+                -7.11,
+                4.3,
+                31.22,
+                15.45,
+                -11.55,
+                6.1,
+                21.63
+              ]
+            },
+            "throughput": {
+              "medianPct": -16.92,
+              "minPct": -24.8,
+              "maxPct": -14.11,
+              "ci95": {
+                "lo": -20.38,
+                "hi": -15
+              },
+              "perRepPct": [
+                -20,
+                -14.46,
+                -15.17,
+                -14.11,
+                -16.72,
+                -17.12,
+                -23.17,
+                -15.53,
+                -17.58,
+                -24.8
+              ]
+            },
+            "cpu": {
+              "medianPct": 31.42,
+              "ci95": {
+                "lo": 29.19,
+                "hi": 33.84
+              }
+            },
+            "rssBytes": {
+              "median": -5287936
+            }
+          }
+        }
+      }
+    }
+  },
+  "acrossServices": {
+    "DETECTOR_ONLY_ALS_ENABLED": {
+      "p50": {
+        "medianPct": 7.15,
+        "perServicePct": [
+          7.15,
+          3.61,
+          7.77
+        ],
+        "minPct": 3.61,
+        "maxPct": 7.77,
+        "pooled": {
+          "n": 30,
+          "medianPct": 6.26,
+          "ci95": {
+            "lo": 3.72,
+            "hi": 8.97
+          },
+          "minPct": -19.37,
+          "maxPct": 92.05
+        }
+      },
+      "p90": {
+        "medianPct": 5.75,
+        "perServicePct": [
+          5.75,
+          0.84,
+          7.04
+        ],
+        "minPct": 0.84,
+        "maxPct": 7.04,
+        "pooled": {
+          "n": 30,
+          "medianPct": 3.62,
+          "ci95": {
+            "lo": 0.81,
+            "hi": 8.54
+          },
+          "minPct": -46.04,
+          "maxPct": 108.62
+        }
+      },
+      "p95": {
+        "medianPct": 4.29,
+        "perServicePct": [
+          4.29,
+          -0.79,
+          4.58
+        ],
+        "minPct": -0.79,
+        "maxPct": 4.58,
+        "pooled": {
+          "n": 30,
+          "medianPct": 3.38,
+          "ci95": {
+            "lo": -0.04,
+            "hi": 7.72
+          },
+          "minPct": -54.68,
+          "maxPct": 117.13
+        }
+      },
+      "p99": {
+        "medianPct": 8.75,
+        "perServicePct": [
+          8.75,
+          15.17,
+          1.97
+        ],
+        "minPct": 1.97,
+        "maxPct": 15.17,
+        "pooled": {
+          "n": 30,
+          "medianPct": 4.75,
+          "ci95": {
+            "lo": -2.08,
+            "hi": 15.17
+          },
+          "minPct": -61.64,
+          "maxPct": 105.18
+        }
+      },
+      "throughput": {
+        "medianPct": -5.78,
+        "perServicePct": [
+          -6.1,
+          -3.19,
+          -5.78
+        ],
+        "minPct": -6.1,
+        "maxPct": -3.19,
+        "pooled": {
+          "n": 30,
+          "medianPct": -5.26,
+          "ci95": {
+            "lo": -6.82,
+            "hi": -3.19
+          },
+          "minPct": -45.27,
+          "maxPct": 48.7
+        }
+      },
+      "cpu": {
+        "medianPct": 4.77,
+        "perServicePct": [
+          3.74,
+          4.77,
+          6.87
+        ],
+        "minPct": 3.74,
+        "maxPct": 6.87,
+        "pooled": {
+          "n": 3,
+          "medianPct": 4.77,
+          "ci95": {
+            "lo": 3.74,
+            "hi": 6.87
+          },
+          "minPct": 3.74,
+          "maxPct": 6.87
+        }
+      }
+    },
+    "DETECTOR_ONLY_UNARMED": {
+      "p50": {
+        "medianPct": 2.56,
+        "perServicePct": [
+          1.42,
+          2.56,
+          6.23
+        ],
+        "minPct": 1.42,
+        "maxPct": 6.23,
+        "pooled": {
+          "n": 30,
+          "medianPct": 2.72,
+          "ci95": {
+            "lo": 0.08,
+            "hi": 6.8
+          },
+          "minPct": -22.17,
+          "maxPct": 92.32
+        }
+      },
+      "p90": {
+        "medianPct": 0.76,
+        "perServicePct": [
+          -0.31,
+          0.76,
+          9.62
+        ],
+        "minPct": -0.31,
+        "maxPct": 9.62,
+        "pooled": {
+          "n": 30,
+          "medianPct": 1.21,
+          "ci95": {
+            "lo": -0.31,
+            "hi": 4.09
+          },
+          "minPct": -41.42,
+          "maxPct": 152.24
+        }
+      },
+      "p95": {
+        "medianPct": 0.38,
+        "perServicePct": [
+          0.38,
+          -1.54,
+          11.4
+        ],
+        "minPct": -1.54,
+        "maxPct": 11.4,
+        "pooled": {
+          "n": 30,
+          "medianPct": 0.73,
+          "ci95": {
+            "lo": -0.96,
+            "hi": 9.24
+          },
+          "minPct": -48.6,
+          "maxPct": 339.72
+        }
+      },
+      "p99": {
+        "medianPct": 0.01,
+        "perServicePct": [
+          -10.51,
+          0.01,
+          7.82
+        ],
+        "minPct": -10.51,
+        "maxPct": 7.82,
+        "pooled": {
+          "n": 30,
+          "medianPct": 2.87,
+          "ci95": {
+            "lo": -4.08,
+            "hi": 9.87
+          },
+          "minPct": -48.52,
+          "maxPct": 706.43
+        }
+      },
+      "throughput": {
+        "medianPct": -1.14,
+        "perServicePct": [
+          -1.14,
+          0.53,
+          -6.21
+        ],
+        "minPct": -6.21,
+        "maxPct": 0.53,
+        "pooled": {
+          "n": 30,
+          "medianPct": -2.18,
+          "ci95": {
+            "lo": -4.36,
+            "hi": 0.18
+          },
+          "minPct": -52.39,
+          "maxPct": 47
+        }
+      },
+      "cpu": {
+        "medianPct": 2.96,
+        "perServicePct": [
+          1.22,
+          2.96,
+          6.21
+        ],
+        "minPct": 1.22,
+        "maxPct": 6.21,
+        "pooled": {
+          "n": 3,
+          "medianPct": 2.96,
+          "ci95": {
+            "lo": 1.22,
+            "hi": 6.21
+          },
+          "minPct": 1.22,
+          "maxPct": 6.21
+        }
+      }
+    },
+    "V3_ALWAYS_ON_FULL": {
+      "p50": {
+        "medianPct": 19.22,
+        "perServicePct": [
+          19.22,
+          17.74,
+          23.78
+        ],
+        "minPct": 17.74,
+        "maxPct": 23.78,
+        "pooled": {
+          "n": 30,
+          "medianPct": 20.71,
+          "ci95": {
+            "lo": 19.19,
+            "hi": 23.41
+          },
+          "minPct": -0.75,
+          "maxPct": 32.79
+        }
+      },
+      "p90": {
+        "medianPct": 15.56,
+        "perServicePct": [
+          15.56,
+          14.21,
+          23.06
+        ],
+        "minPct": 14.21,
+        "maxPct": 23.06,
+        "pooled": {
+          "n": 30,
+          "medianPct": 17.93,
+          "ci95": {
+            "lo": 14.17,
+            "hi": 24.99
+          },
+          "minPct": -20.47,
+          "maxPct": 65.42
+        }
+      },
+      "p95": {
+        "medianPct": 15.57,
+        "perServicePct": [
+          15.57,
+          12.69,
+          19.04
+        ],
+        "minPct": 12.69,
+        "maxPct": 19.04,
+        "pooled": {
+          "n": 30,
+          "medianPct": 17.39,
+          "ci95": {
+            "lo": 13.29,
+            "hi": 21.73
+          },
+          "minPct": -26.92,
+          "maxPct": 99.25
+        }
+      },
+      "p99": {
+        "medianPct": 12.03,
+        "perServicePct": [
+          12.03,
+          13.44,
+          5.2
+        ],
+        "minPct": 5.2,
+        "maxPct": 13.44,
+        "pooled": {
+          "n": 30,
+          "medianPct": 10.18,
+          "ci95": {
+            "lo": 2.85,
+            "hi": 15.84
+          },
+          "minPct": -36.79,
+          "maxPct": 190.4
+        }
+      },
+      "throughput": {
+        "medianPct": -15.79,
+        "perServicePct": [
+          -15.79,
+          -12.02,
+          -16.92
+        ],
+        "minPct": -16.92,
+        "maxPct": -12.02,
+        "pooled": {
+          "n": 30,
+          "medianPct": -16.09,
+          "ci95": {
+            "lo": -17.64,
+            "hi": -13.53
+          },
+          "minPct": -30.73,
+          "maxPct": 10.62
+        }
+      },
+      "cpu": {
+        "medianPct": 31.42,
+        "perServicePct": [
+          24.65,
+          31.58,
+          31.42
+        ],
+        "minPct": 24.65,
+        "maxPct": 31.58,
+        "pooled": {
+          "n": 3,
+          "medianPct": 31.42,
+          "ci95": {
+            "lo": 24.65,
+            "hi": 31.58
+          },
+          "minPct": 24.65,
+          "maxPct": 31.58
+        }
+      }
+    }
+  }
+}

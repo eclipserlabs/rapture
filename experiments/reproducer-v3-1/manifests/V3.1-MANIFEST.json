@@ -1,0 +1,134 @@
+{
+  "experiment": "Rapture Reproducer V3.1 — Selective Capture and Performance Boundary Closure",
+  "manifest_role": "Protocol for the selective-capture brief. Extends and does NOT supersede manifests/V3_1-MANIFEST.json (sha256 b94cd5f7...), whose campaigns (detector-only, sampling, targeted recurrence, large-app, privacy) remain valid and are cited as-is. This manifest preregisters ONLY the work that brief requires and the prior campaign did not perform.",
+  "frozen_before": "any Phase 1 / Phase 2 / Phase 3 measurement under this protocol",
+  "inherits_unchanged": {
+    "frozen_V3_capture_tree_hash": "8a8ef009d19a7345514d87c41a1133c89674dbc08ef4306dc51bf0fdd1da7fbf",
+    "expected_v2_frozen_commit": "44a86c4edd364c0a37c3c577d8b283f7d87fa683",
+    "v3_verdict": "MODIFY — not rewritten, not reinterpreted",
+    "FailureFingerprintV2": "frozen, unmodified",
+    "V1_GREEDY_reducer": "frozen, unmodified",
+    "privacy_threat_model": "V3 gate tier retained; V3 gap tier explicitly NOT solved"
+  },
+  "gaps_this_manifest_closes": [
+    "ROUTE_SELECTIVE was never implemented or measured as a performance mode.",
+    "ARMED_INCIDENT_WINDOW was never implemented or measured as a performance mode.",
+    "Phase 1 fast-path attribution counters were never recorded as an explicit artifact with a zero expectation for unselected traffic.",
+    "Correctness under selective capture covered 4 of the 8 frozen V3 incidents (80/80 offline + 80/80 portable); this brief requires all 8 (160/160 + 160/160).",
+    "Performance repetitions measured 5000 requests each; this brief requires >= 10000."
+  ],
+  "implementation_change_disclosure": {
+    "when": "before any measurement under this manifest, after the prior campaign completed",
+    "files_changed": ["src/detector/select.mjs", "src/capture/state.mjs"],
+    "what": [
+      "select.mjs: added STRATEGY.ROUTE_SELECTIVE and STRATEGY.ARMED_WINDOW, a pre-armed generic rule set parsed from RAPTURE_V31_ROUTES (comma-separated 'METHOD /normalized/path'), and a bounded window governed by RAPTURE_V31_WINDOW_MS / RAPTURE_V31_WINDOW_BUDGET.",
+      "state.mjs: added Phase 1 attribution counters (alsStoresCreated, eventBuffersAllocated, boundaryContextHits, boundaryContextMisses), gated behind RAPTURE_V31_ATTRIB=1 so they can never be live during a performance measurement."
+    ],
+    "why_this_is_not_post_hoc_tuning": "These modes were required by the protocol and had never been implemented; no existing measurement is altered, and no threshold is moved. The change adds missing capability, it does not tune a measured one.",
+    "invariant_preserved": "The 9 files that determine what a captured request records (events, patch-pg, patch-fetch, patch-time, persist, redact, both oracle files, replay engine) remain BYTE-IDENTICAL to the frozen V3 capture tree. Verified after the change.",
+    "prior_campaign_validity": "Detector-only, sampling, recurrence, large-app and privacy results were produced under impl tree e9232b1f and remain valid for the modes they measured. They are reported at their original values."
+  },
+  "phase_1_fast_path_attribution": {
+    "method": "Drive each selection mode with a workload whose requests are all unselected, with RAPTURE_V31_ATTRIB=1, then read the counters.",
+    "hard_expectations_for_unselected_traffic": {
+      "alsStoresCreated": 0,
+      "eventBuffersAllocated": 0,
+      "boundaryContextHits": 0,
+      "eventsRecorded": 0,
+      "requestsPersisted": 0
+    },
+    "positive_control": "The same counters must be NON-zero for selected requests, proving the counters can detect the work they claim is absent.",
+    "failure_condition": "If unselected requests still create capture contexts, allocate event buffers or record boundary events, the sampling architecture does not attack the measured bottleneck and that is reported as such."
+  },
+  "phase_2_performance": {
+    "services": ["express-qs", "koa-1999", "fastify-32442"],
+    "revision": "fixed (successful) revisions, as V3",
+    "repetitions_per_mode_per_service": 10,
+    "measured_requests_per_repetition": 10000,
+    "warmup_requests": 500,
+    "concurrency": 16,
+    "mode_order": "randomized per repetition with a recorded seed",
+    "modes": [
+      "OFF",
+      "V3_ALWAYS_ON_FULL",
+      "SAMPLE_1",
+      "SAMPLE_5",
+      "SAMPLE_10",
+      "ROUTE_SELECTIVE_UNMATCHED_ONLY",
+      "ROUTE_SELECTIVE_MIXED_10PCT",
+      "ARMED_WINDOW_CLOSED"
+    ],
+    "mode_definitions": {
+      "ROUTE_SELECTIVE_UNMATCHED_ONLY": "a route is configured but the measured workload never matches it — the floor case for unmatched traffic",
+      "ROUTE_SELECTIVE_MIXED_10PCT": "the configured route receives ~10% of traffic; latency is reported for UNMATCHED requests only, which is the population the deployment gate governs",
+      "ARMED_WINDOW_CLOSED": "an incident window was opened and has since closed; measures whether the process returns to the cheap fast path"
+    },
+    "statistics": {
+      "point_estimate": "median across per-repetition paired MODE-vs-OFF ratios (the estimator frozen by the prior manifest, retained for comparability)",
+      "secondary_estimate": "ratio-of-medians reported ALONGSIDE, because independent verification showed the detector-only headline is estimator-sensitive",
+      "interval": "95% bootstrap over per-repetition estimates, 10000 resamples",
+      "rule": "both estimators are reported for every gated mode; a gate is called PASS only if it passes under both, otherwise it is reported as ESTIMATOR_DEPENDENT"
+    },
+    "raw_data": "every per-repetition file preserved with its full latency array; aggregation never overwrites raw"
+  },
+  "performance_gates": {
+    "primary_deployment_gate": {
+      "population": "unselected traffic at SAMPLE_1, SAMPLE_5, SAMPLE_10, and unmatched ROUTE_SELECTIVE traffic",
+      "median_p95_overhead_vs_off": "<= 5%",
+      "median_throughput_degradation_vs_off": "<= 5%",
+      "no_single_service_p95_overhead_above": "10%"
+    },
+    "sampling_scaling_gate": "SAMPLE_1 and SAMPLE_5 must be materially cheaper than V3_ALWAYS_ON and SAMPLE_10; cost roughly constant in selection rate FAILS the architectural thesis",
+    "selected_request_gate": "selected requests may pay approximately the V3 capture cost but must preserve correctness",
+    "v3_reference_gates": { "median_p95": "<= 20%", "median_p99": "<= 30%", "median_throughput_degradation": "<= 15%" }
+  },
+  "phase_3_correctness": {
+    "cases": "all 8 frozen V3 headline incidents",
+    "selection": "forced into the selected population using ONLY generic selection configuration (RAPTURE_V31_ROUTES); no bug-specific capture logic",
+    "hard_gates": {
+      "selected_incidents_auto_capture": "8/8",
+      "offline_exact_replay": "160/160",
+      "portable_exact_replay": "160/160",
+      "fix_confirmed": "8/8",
+      "wrong_failure_acceptances": 0,
+      "unexpected_live_external_effects": 0,
+      "bug_specific_wrappers": 0,
+      "bug_specific_failure_assertions": 0,
+      "manual_causal_facts": 0,
+      "raw_gate_secret_leaks": 0
+    },
+    "offline_conditions": "Postgres stopped or unreachable AND fake external dependency stopped; replay must fail closed, never reach live dependencies"
+  },
+  "phase_4_unsampled_failure_semantics": {
+    "requirement": "trigger a known V3 failure on a request deliberately outside the selected population; the runtime must report NOT_CAPTURED and must not emit an incomplete reproducer",
+    "reporting": "state exactly which failures are capturable per mode; distinguish persistence sampling from execution-interception sampling"
+  },
+  "phase_5_large_service_probe": {
+    "status": "already executed under the prior manifest (parse-community/parse-server, 45,400 LOC, 0 application source changes)",
+    "reused_verbatim": true,
+    "not_re_run": "no eligibility change, no substitution, no re-screening"
+  },
+  "manual_burden_gate": {
+    "median_incident_specific_setup_minutes": "<= 5",
+    "bug_specific_wrappers": 0,
+    "bug_specific_assertions": 0,
+    "manual_causal_facts": 0
+  },
+  "anti_goalpost_rules": [
+    "Do not replace a service because its selective-capture performance is bad.",
+    "Do not change request count, concurrency or repetition count after seeing results.",
+    "Do not redefine 'unselected' after measurement.",
+    "Do not count persistence sampling as interception sampling.",
+    "Do not claim unsampled failures are captured.",
+    "Do not hide run-to-run variance or adverse repetitions.",
+    "Do not loosen exact-failure matching.",
+    "Do not tune the reducer.",
+    "Report a gate as ESTIMATOR_DEPENDENT rather than choosing the flattering estimator."
+  ],
+  "decision_rules": {
+    "CONTINUE": "Unselected traffic <=5% median p95 and <=5% throughput with no service >10% p95; overhead clearly scales down with selection rate; all 8 selected V3 incidents preserve exact replay/privacy/fix discrimination; large-service probe supported or bounded.",
+    "MODIFY": "Selective capture materially reduces overhead and correctness holds, but one deployment/performance/large-service boundary remains clearly identifiable and narrow.",
+    "KILL": "Meaningful coverage still requires expensive interception on essentially every request; performance does not improve as selection rate falls; exactness/privacy must be weakened; or generic integration needs bug-specific instrumentation.",
+    "INVALID_EXPERIMENT": "Manifest or freeze integrity violated, headline implementation changed after results, corpus selectively replaced, methodology changed post hoc, or correctness measurements untrustworthy."
+  }
+}
