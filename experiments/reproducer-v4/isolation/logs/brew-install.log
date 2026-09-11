@@ -1,0 +1,128 @@
+==> Auto-updating Homebrew...
+Adjust how often this is run with `$HOMEBREW_AUTO_UPDATE_SECS` or disable with
+`$HOMEBREW_NO_AUTO_UPDATE=1`. Hide these hints with `$HOMEBREW_NO_ENV_HINTS=1` (see `man brew`).
+==> Auto-updated Homebrew!
+Updated 2 taps (homebrew/core and homebrew/cask).
+==> New Formulae
+budget-tracker: Feature rich TUI budget tracker app
+elasticmq: In-memory message queue with an Amazon SQS-compatible interface
+ffmpeg@8: Play, record, convert, and stream select audio and video codecs
+forgejo-runner: Official Actions runner for Forgejo instances
+glci: Run GitLab CI/CD pipelines locally
+hister: Self-hosted search engine for your browsing history
+libmysofa: Reader for AES SOFA files to get better HRTFs
+ntfs2btrfs: In-place conversion of NTFS filesystem to Btrfs
+osctrl-mcp: Fast and efficient osquery management
+pnpm@11: Fast, disk space efficient package manager
+robot-framework-robocop: Static code analysis tool (linter) and code formatter for Robot Framework
+rubocop: Ruby static code analyzer and formatter, based on the community Ruby style guide
+sabiql: Fast, safe-by-design, driverless, Vim-first DB TUI with ER diagrams
+shpool: Persistent shell session manager
+skillspector: Security scanner for AI agent skills
+snx-rs: Open-source client for Check Point VPN tunnels
+speedtest-go: CLI and Go API to Test Internet Speed using speedtest.net
+tailcat: Netcat-like tool over Tailscale's data plane, without its control plane
+tgrep: Trigram-indexed grep for fast regex search in large codebases
+trealla-prolog: Compact and efficient ISO Prolog interpreter written in plain old C
+virglrenderer: VirGL virtual OpenGL renderer
+xevd: Very fast Essential Video Decoder, MPEG-5 EVC (Essential Video Coding)
+
+You have 30 outdated formulae installed.
+
+Warning: You are using macOS 13.
+We (and Apple) do not provide support for this old version.
+
+You will have better luck with MacPorts which still supports older versions of macOS:
+  https://www.macports.org
+==> Would install 2 formulae:
+colima docker
+==> Would install 2 dependencies for colima:
+go
+lima
+==> Would install 2 dependencies for docker:
+go
+go-md2man
+==> Downloading https://raw.githubusercontent.com/Homebrew/homebrew-core/546ca92b72812b334ca0cec8c5073244f674e775/Formula/g/go.rb
+Already downloaded: /Users/wira/Library/Caches/Homebrew/downloads/3d03af80343cce2808800021d4717710dca626060cfb8af932ca32da363ea8bb--go.rb
+==> Downloading https://raw.githubusercontent.com/Homebrew/homebrew-core/546ca92b72812b334ca0cec8c5073244f674e775/Formula/l/lima.rb
+Already downloaded: /Users/wira/Library/Caches/Homebrew/downloads/c8c853608392aa77c05f5c9175490a638da5275d9dfeadef89ba2ea8f1f1ab1d--lima.rb
+==> Fetching downloads for: colima and docker
+✔︎ API Source colima.rb
+✔︎ API Source docker.rb
+✔︎ API Source go.rb
+✔︎ Resource go--gobootstrap
+✔︎ API Source lima.rb
+✔︎ Bottle go-md2man (2.0.7)
+✔︎ Formula lima (2.2.0)
+✔︎ Formula colima (0.10.3)
+✔︎ Formula docker (29.8.0)
+✔︎ Formula go (1.27.1)
+Warning: A newer Command Line Tools release is available.
+Update them from Software Update in System Settings.
+
+If that doesn't show you any updates, run:
+  sudo rm -rf /Library/Developer/CommandLineTools
+  sudo xcode-select --install
+
+Alternatively, manually download them from:
+  https://developer.apple.com/download/all/.
+You should download the Command Line Tools for Xcode 15.2.
+==> Installing dependencies for colima: go and lima
+==> Installing colima dependency: go
+Warning: A newer Command Line Tools release is available.
+Update them from Software Update in System Settings.
+
+If that doesn't show you any updates, run:
+  sudo rm -rf /Library/Developer/CommandLineTools
+  sudo xcode-select --install
+
+Alternatively, manually download them from:
+  https://developer.apple.com/download/all/.
+You should download the Command Line Tools for Xcode 15.2.
+[34m==>[0m [1m./make.bash[0m
+🍺  /usr/local/Cellar/go/1.27.1: 15,577 files, 245.2MB, built in 6 minutes
+==> Installing colima dependency: lima
+Warning: A newer Command Line Tools release is available.
+Update them from Software Update in System Settings.
+
+If that doesn't show you any updates, run:
+  sudo rm -rf /Library/Developer/CommandLineTools
+  sudo xcode-select --install
+
+Alternatively, manually download them from:
+  https://developer.apple.com/download/all/.
+You should download the Command Line Tools for Xcode 15.2.
+[34m==>[0m [1mmake native VERSION=2.2.0[0m
+🍺  /usr/local/Cellar/lima/2.2.0: 145 files, 51.7MB, built in 13 minutes
+==> Installing colima
+[34m==>[0m [1mgo build -ldflags=-s -w -X github.com/abiosoft/colima/config.appVersion=0.10[0m
+🍺  /usr/local/Cellar/colima/0.10.3: 12 files, 12MB, built in 1 minute 17 seconds
+Warning: A newer Command Line Tools release is available.
+Update them from Software Update in System Settings.
+
+If that doesn't show you any updates, run:
+  sudo rm -rf /Library/Developer/CommandLineTools
+  sudo xcode-select --install
+
+Alternatively, manually download them from:
+  https://developer.apple.com/download/all/.
+You should download the Command Line Tools for Xcode 15.2.
+==> Installing docker dependency: go-md2man
+==> Pouring go-md2man--2.0.7.ventura.bottle.tar.gz
+🍺  /usr/local/Cellar/go-md2man/2.0.7: 7 files, 2.3MB
+==> Installing docker
+[34m==>[0m [1mgo build -ldflags=-s -w -X github.com/docker/cli/cli/version.BuildTime=2026-[0m
+[34m==>[0m [1mgo-md2man -in=man/Dockerfile.5.md -out=/usr/local/Cellar/docker/29.8.0/share[0m
+[34m==>[0m [1mgo-md2man -in=man/docker-build.1.md -out=/usr/local/Cellar/docker/29.8.0/sha[0m
+[34m==>[0m [1mgo-md2man -in=man/docker-config-json.5.md -out=/usr/local/Cellar/docker/29.8[0m
+[34m==>[0m [1mgo-md2man -in=man/docker-run.1.md -out=/usr/local/Cellar/docker/29.8.0/share[0m
+[34m==>[0m [1mgo-md2man -in=man/docker.1.md -out=/usr/local/Cellar/docker/29.8.0/share/man[0m
+🍺  /usr/local/Cellar/docker/29.8.0: 17 files, 30.9MB, built in 1 minute 41 seconds
+==> Caveats
+zsh completions have been installed to:
+  /usr/local/share/zsh/site-functions
+==> colima
+To start colima now and restart at login:
+  brew services start colima
+Or, if you don't want/need a background service you can just run:
+  /usr/local/opt/colima/bin/colima start -f

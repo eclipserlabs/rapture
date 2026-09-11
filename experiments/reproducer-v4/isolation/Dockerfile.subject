@@ -1,0 +1,32 @@
+# Subject container for the V4 value probe.
+# Deliberately carries a COMPLETE set of network clients (curl, wget, git, npm,
+# node, python3) so that every adversarial audit check fails by absence of
+# route -- never by "command not found", which does not count as isolation.
+FROM node:22-bookworm-slim
+
+ARG OPENCODE_VERSION=1.18.30
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      ca-certificates curl wget git unzip python3 iproute2 iputils-ping \
+      dnsutils netcat-openbsd procps less \
+    && rm -rf /var/lib/apt/lists/*
+
+# opencode installs into $HOME/.opencode/bin; install it as root then relocate
+# so the runtime binary does not live inside the isolated HOME we mount later.
+RUN curl -fsSL https://opencode.ai/install | VERSION=${OPENCODE_VERSION} bash \
+    && mv /root/.opencode /opt/opencode \
+    && ln -s /opt/opencode/bin/opencode /usr/local/bin/opencode \
+    && rm -rf /root/.cache
+
+# Isolated identity: fresh HOME and fresh XDG roots. Nothing from the host.
+ENV HOME=/isolated/home \
+    XDG_CONFIG_HOME=/isolated/config \
+    XDG_DATA_HOME=/isolated/data \
+    XDG_CACHE_HOME=/isolated/cache \
+    XDG_STATE_HOME=/isolated/state
+
+RUN mkdir -p /isolated/home /isolated/config /isolated/data /isolated/cache /isolated/state /work \
+    && chmod 700 /isolated
+
+WORKDIR /work
+CMD ["sleep", "infinity"]

@@ -1,0 +1,128 @@
+time="2026-09-11T20:55:21+08:00" level=info msg="starting colima"
+time="2026-09-11T20:55:21+08:00" level=info msg="runtime: docker"
+time="2026-09-11T20:55:21+08:00" level=info msg="creating and starting ..." context=vm
+time="2026-09-11T20:55:21+08:00" level=info msg="downloading disk image ..." context=vm
+time="2026-09-11T20:59:23+08:00" level=info msg="Terminal is not available, proceeding without opening an editor"
+time="2026-09-11T20:59:23+08:00" level=warning msg="vmType vz: On Intel Mac, macOS 15.5 or later is required to run Linux 6.12 or later. Update macOS, or change vmType to `qemu` if the VM does not start up. (https://github.com/lima-vm/lima/issues/3334)"
+time="2026-09-11T20:59:24+08:00" level=info msg="Starting the instance `colima` with internal VM driver `vz`"
+time="2026-09-11T20:59:24+08:00" level=warning msg="vmType vz: On Intel Mac, macOS 15.5 or later is required to run Linux 6.12 or later. Update macOS, or change vmType to `qemu` if the VM does not start up. (https://github.com/lima-vm/lima/issues/3334)"
+time="2026-09-11T20:59:24+08:00" level=warning msg="vmType vz: On Intel Mac, macOS 15.5 or later is required to run Linux 6.12 or later. Update macOS, or change vmType to `qemu` if the VM does not start up. (https://github.com/lima-vm/lima/issues/3334)"
+time="2026-09-11T20:59:24+08:00" level=info msg="Attempting to download the image" arch=x86_64 digest= location=/Users/wira/Library/Caches/colima/caches/5bfdf1067a8e288910a570fb8c6edbb2340ab7bbc09d2133d64ced3c888a78ed
+time="2026-09-11T20:59:24+08:00" level=info msg="Decompressing the image (5bfdf1067a8e288910a570fb8c6edbb2340ab7bbc09d2133d64ced3c888a78ed)"
+time="2026-09-11T20:59:24+08:00" level=info msg="decompressing  with external \"gzip\""
+time="2026-09-11T20:59:52+08:00" level=info msg="Downloaded the image from `/Users/wira/Library/Caches/colima/caches/5bfdf1067a8e288910a570fb8c6edbb2340ab7bbc09d2133d64ced3c888a78ed`"
+time="2026-09-11T20:59:52+08:00" level=info msg="Resize instance colima's disk from 3.5GiB to 20GiB"
+time="2026-09-11T20:59:52+08:00" level=warning msg="[hostagent] vmType vz: On Intel Mac, macOS 15.5 or later is required to run Linux 6.12 or later. Update macOS, or change vmType to `qemu` if the VM does not start up. (https://github.com/lima-vm/lima/issues/3334)"
+time="2026-09-11T20:59:53+08:00" level=info msg="[hostagent] hostagent socket created at /Users/wira/.colima/_lima/colima/ha.sock"
+time="2026-09-11T20:59:53+08:00" level=info msg="[hostagent] Starting VZ (hint: to watch the boot progress, see `/Users/wira/.colima/_lima/colima/serial*.log`)"
+time="2026-09-11T20:59:53+08:00" level=info msg="[hostagent] Mounting disk `colima` on `/mnt/lima-colima`"
+time="2026-09-11T20:59:53+08:00" level=info msg="[hostagent] Converting `/Users/wira/.colima/_lima/_disks/colima/datadisk` (raw) to a raw disk `/Users/wira/.colima/_lima/_disks/colima/datadisk`"
+time="2026-09-11T20:59:54+08:00" level=info msg="[hostagent] [VZ] - vm state change: running"
+time="2026-09-11T21:00:06+08:00" level=info msg="[hostagent] SSH server does not seem to be running on vsock port, using usernet forwarder"
+time="2026-09-11T21:00:07+08:00" level=info msg="SSH Local Port: 55496"
+time="2026-09-11T21:00:07+08:00" level=info msg="[hostagent] Waiting for the essential requirement 1 of 3: `ssh`"
+time="2026-09-11T21:00:08+08:00" level=info msg="[hostagent] The essential requirement 1 of 3 is satisfied"
+time="2026-09-11T21:00:08+08:00" level=info msg="[hostagent] Waiting for the essential requirement 2 of 3: `user session is ready for ssh`"
+time="2026-09-11T21:00:11+08:00" level=info msg="[hostagent] The essential requirement 2 of 3 is satisfied"
+time="2026-09-11T21:00:11+08:00" level=info msg="[hostagent] Waiting for the essential requirement 3 of 3: `Explicitly start ssh ControlMaster`"
+time="2026-09-11T21:00:12+08:00" level=info msg="[hostagent] The essential requirement 3 of 3 is satisfied"
+time="2026-09-11T21:00:12+08:00" level=info msg="[hostagent] Waiting for the guest agent to be running"
+time="2026-09-11T21:00:12+08:00" level=info msg="[hostagent] Forwarding `/var/run/docker.sock` (guest) to `/Users/wira/.colima/default/docker.sock` (host)"
+time="2026-09-11T21:00:12+08:00" level=info msg="[hostagent] Forwarding `/var/run/containerd/containerd.sock` (guest) to `/Users/wira/.colima/default/containerd.sock` (host)"
+time="2026-09-11T21:00:12+08:00" level=info msg="[hostagent] Forwarding `/var/run/docker.sock` (guest) to `/Users/wira/.colima/docker.sock` (host)"
+time="2026-09-11T21:00:12+08:00" level=warning msg="[hostagent] guest agent events closed unexpectedly" error="rpc error: code = Unavailable desc = connection error: desc = \"transport: Error while dialing: Error Domain=NSPOSIXErrorDomain Code=54 Description=\\\"The operation couldn’t be completed. Connection reset by peer\\\" UserInfo={\\n}\""
+time="2026-09-11T21:00:22+08:00" level=info msg="[hostagent] Guest agent is running"
+time="2026-09-11T21:00:22+08:00" level=info msg="[hostagent] Time sync: guest agent is alive, starting time synchronization"
+time="2026-09-11T21:00:22+08:00" level=info msg="[hostagent] Waiting for the final requirement 1 of 1: `boot scripts must have finished`"
+time="2026-09-11T21:00:22+08:00" level=info msg="[hostagent] Not forwarding TCP 0.0.0.0:22"
+time="2026-09-11T21:00:22+08:00" level=info msg="[hostagent] Not forwarding TCP [::]:22"
+time="2026-09-11T21:00:22+08:00" level=info msg="[hostagent] The final requirement 1 of 1 is satisfied"
+time="2026-09-11T21:00:22+08:00" level=info msg="READY. Run `limactl shell colima` to open the shell."
+installing: 386 OK
+installing: arm64 OK
+{
+  "supported": [
+    "linux/amd64",
+    "linux/arm64",
+    "linux/386"
+  ],
+  "emulators": [
+    "python3.12",
+    "qemu-aarch64",
+    "qemu-i386"
+  ]
+}
+time="2026-09-11T21:00:25+08:00" level=info msg="provisioning ..." context=docker
+colima
+Successfully created context "colima"
+colima
+Current context is now "colima"
+time="2026-09-11T21:00:28+08:00" level=info msg="starting ..." context=docker
+time="2026-09-11T21:00:32+08:00" level=info msg="Sending SIGINT to hostagent process 56866"
+time="2026-09-11T21:00:32+08:00" level=info msg="Waiting for the host agent and the driver processes to shut down"
+time="2026-09-11T21:00:32+08:00" level=info msg="[hostagent] Received SIGINT, shutting down the host agent"
+time="2026-09-11T21:00:32+08:00" level=info msg="[hostagent] Shutting down the host agent"
+time="2026-09-11T21:00:32+08:00" level=info msg="[hostagent] Stopping forwarding `/var/run/docker.sock` (guest) to `/Users/wira/.colima/default/docker.sock` (host)"
+time="2026-09-11T21:00:32+08:00" level=info msg="[hostagent] Stopping forwarding `/var/run/containerd/containerd.sock` (guest) to `/Users/wira/.colima/default/containerd.sock` (host)"
+time="2026-09-11T21:00:32+08:00" level=info msg="[hostagent] Stopping forwarding `/var/run/docker.sock` (guest) to `/Users/wira/.colima/docker.sock` (host)"
+time="2026-09-11T21:00:32+08:00" level=info msg="[hostagent] Unmounting disk `colima`"
+time="2026-09-11T21:00:32+08:00" level=info msg="[hostagent] Shutting down VZ"
+time="2026-09-11T21:00:33+08:00" level=info msg="[hostagent] [VZ] - vm state change: stopped"
+time="2026-09-11T21:00:33+08:00" level=info msg="Waiting for the instance to shut down"
+time="2026-09-11T21:00:33+08:00" level=info msg="The instance colima has shut down"
+time="2026-09-11T21:00:36+08:00" level=info msg="Using the existing instance `colima`"
+time="2026-09-11T21:00:37+08:00" level=info msg="Starting the instance `colima` with internal VM driver `vz`"
+time="2026-09-11T21:00:37+08:00" level=warning msg="vmType vz: On Intel Mac, macOS 15.5 or later is required to run Linux 6.12 or later. Update macOS, or change vmType to `qemu` if the VM does not start up. (https://github.com/lima-vm/lima/issues/3334)"
+time="2026-09-11T21:00:37+08:00" level=warning msg="vmType vz: On Intel Mac, macOS 15.5 or later is required to run Linux 6.12 or later. Update macOS, or change vmType to `qemu` if the VM does not start up. (https://github.com/lima-vm/lima/issues/3334)"
+time="2026-09-11T21:00:37+08:00" level=warning msg="[hostagent] vmType vz: On Intel Mac, macOS 15.5 or later is required to run Linux 6.12 or later. Update macOS, or change vmType to `qemu` if the VM does not start up. (https://github.com/lima-vm/lima/issues/3334)"
+time="2026-09-11T21:00:38+08:00" level=info msg="[hostagent] hostagent socket created at /Users/wira/.colima/_lima/colima/ha.sock"
+time="2026-09-11T21:00:38+08:00" level=info msg="[hostagent] Starting VZ (hint: to watch the boot progress, see `/Users/wira/.colima/_lima/colima/serial*.log`)"
+time="2026-09-11T21:00:38+08:00" level=info msg="[hostagent] Mounting disk `colima` on `/mnt/lima-colima`"
+time="2026-09-11T21:00:38+08:00" level=info msg="[hostagent] Converting `/Users/wira/.colima/_lima/_disks/colima/datadisk` (raw) to a raw disk `/Users/wira/.colima/_lima/_disks/colima/datadisk`"
+time="2026-09-11T21:00:38+08:00" level=info msg="[hostagent] [VZ] - vm state change: running"
+time="2026-09-11T21:00:46+08:00" level=info msg="[hostagent] SSH server does not seem to be running on vsock port, using usernet forwarder"
+time="2026-09-11T21:00:47+08:00" level=info msg="SSH Local Port: 55516"
+time="2026-09-11T21:00:47+08:00" level=info msg="[hostagent] Waiting for the essential requirement 1 of 3: `ssh`"
+time="2026-09-11T21:00:47+08:00" level=info msg="[hostagent] The essential requirement 1 of 3 is satisfied"
+time="2026-09-11T21:00:47+08:00" level=info msg="[hostagent] Waiting for the essential requirement 2 of 3: `user session is ready for ssh`"
+time="2026-09-11T21:00:51+08:00" level=info msg="[hostagent] The essential requirement 2 of 3 is satisfied"
+time="2026-09-11T21:00:51+08:00" level=info msg="[hostagent] Waiting for the essential requirement 3 of 3: `Explicitly start ssh ControlMaster`"
+time="2026-09-11T21:00:51+08:00" level=info msg="[hostagent] The essential requirement 3 of 3 is satisfied"
+time="2026-09-11T21:00:51+08:00" level=info msg="[hostagent] Waiting for the guest agent to be running"
+time="2026-09-11T21:00:51+08:00" level=info msg="[hostagent] Forwarding `/var/run/docker.sock` (guest) to `/Users/wira/.colima/default/docker.sock` (host)"
+time="2026-09-11T21:00:51+08:00" level=info msg="[hostagent] Forwarding `/var/run/containerd/containerd.sock` (guest) to `/Users/wira/.colima/default/containerd.sock` (host)"
+time="2026-09-11T21:00:51+08:00" level=info msg="[hostagent] Forwarding `/var/run/docker.sock` (guest) to `/Users/wira/.colima/docker.sock` (host)"
+time="2026-09-11T21:00:51+08:00" level=info msg="[hostagent] Guest agent is running"
+time="2026-09-11T21:00:51+08:00" level=info msg="[hostagent] Waiting for the final requirement 1 of 1: `boot scripts must have finished`"
+time="2026-09-11T21:00:51+08:00" level=info msg="[hostagent] Time sync: guest agent is alive, starting time synchronization"
+time="2026-09-11T21:00:51+08:00" level=info msg="[hostagent] Not forwarding TCP 192.168.5.1:53"
+time="2026-09-11T21:00:51+08:00" level=info msg="[hostagent] Forwarding TCP from 127.0.0.1:53 to 127.0.0.1:53"
+time="2026-09-11T21:00:51+08:00" level=info msg="[hostagent] Forwarding `127.0.0.1:53` (guest) to `/tmp/lima-psl-127.0.0.1-53-1109134584/sock` (host)"
+time="2026-09-11T21:00:51+08:00" level=info msg="[hostagent] Not forwarding TCP 0.0.0.0:22"
+time="2026-09-11T21:00:51+08:00" level=info msg="[hostagent] Not forwarding TCP [fe80::5055:55ff:febd:b5d4]:53"
+time="2026-09-11T21:00:51+08:00" level=info msg="[hostagent] Not forwarding TCP [::]:22"
+time="2026-09-11T21:00:51+08:00" level=info msg="[hostagent] Forwarding TCP from [::1]:53 to 127.0.0.1:53"
+time="2026-09-11T21:00:51+08:00" level=info msg="[hostagent] Forwarding `[::1]:53` (guest) to `/tmp/lima-psl-127.0.0.1-53-4054094865/sock` (host)"
+time="2026-09-11T21:00:51+08:00" level=info msg="[hostagent] Stopping forwarding `[::1]:53` (guest) to `/tmp/lima-psl-127.0.0.1-53-4054094865/sock` (host)"
+time="2026-09-11T21:00:51+08:00" level=warning msg="[hostagent] failed to set up forwarding tcp port 53 (negligible if already forwarded)" error="listen tcp 0.0.0.0:53: bind: address already in use"
+time="2026-09-11T21:00:56+08:00" level=info msg="[hostagent] Time sync: guest clock adjusted (was 458ms off)"
+time="2026-09-11T21:04:46+08:00" level=info msg="[hostagent] Time sync: guest clock adjusted (was -175ms off)"
+time="2026-09-11T21:05:06+08:00" level=info msg="[hostagent] Time sync: guest clock adjusted (was 882ms off)"
+time="2026-09-11T21:07:29+08:00" level=info msg="[hostagent] The final requirement 1 of 1 is satisfied"
+time="2026-09-11T21:07:29+08:00" level=info msg="READY. Run `limactl shell colima` to open the shell."
+installing: 386 OK
+installing: arm64 OK
+{
+  "supported": [
+    "linux/amd64",
+    "linux/arm64",
+    "linux/386"
+  ],
+  "emulators": [
+    "python3.12",
+    "qemu-aarch64",
+    "qemu-i386"
+  ]
+}
+time="2026-09-11T21:07:32+08:00" level=info msg=done
+EXIT=0

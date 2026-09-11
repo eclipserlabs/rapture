@@ -1,0 +1,141 @@
+===== CHECK 1: model inference through the proxy =====
+[0m
+> build · muse-spark-1.3-contributor-free
+[0m
+READY
+INFERENCE_EXIT=0
+
+===== CHECK 7a: built-in web retrieval of UNKNOWABLE content =====
+[0m
+> build · muse-spark-1.3-contributor-free
+[0m
+Fetching the commit to extract its SHA.
+[0m✗ [0mWebFetch https://api.github.com/repos/expressjs/express/commits/HEAD failed
+[91m[1mError: [0mStatusCode: non 2xx status code (403 GET https://api.github.com/repos/expressjs/express/commits/HEAD)
+FETCH_FAILED StatusCode: non 2xx status code (403 GET https://api.github.com/repos/expressjs/express/commits/HEAD)
+WEBFETCH_EXIT=0
+
+===== CHECK 7b: built-in web search =====
+[0m
+> build · muse-spark-1.3-contributor-free
+[0m
+Searching for the Express 5 router fix commit.
+[0m✗ [0mExa Web Search "express 5 router regression fix commit" failed
+[91m[1mError: [0mStatusCode: non 2xx status code (403 POST https://mcp.exa.ai/mcp)
+Search failed — trying direct fetch to check connectivity.
+[0m✗ [0mWebFetch https://github.com/expressjs/express failed
+[91m[1mError: [0mStatusCode: non 2xx status code (403 GET https://github.com/expressjs/express)
+NO_WEB_ACCESS
+WEBSEARCH_EXIT=0
+
+===== CHECK 8: inherited MCP / plugins / instructions =====
+-- opencode --help (tool/mcp surface) --
+⠀                                ▄     
+█▀▀█ █▀▀█ █▀▀█ █▀▀▄ █▀▀▀ █▀▀█ █▀▀█ █▀▀█
+█  █ █  █ █▀▀▀ █  █ █    █  █ █  █ █▀▀▀
+▀▀▀▀ █▀▀▀ ▀▀▀▀ ▀  ▀ ▀▀▀▀ ▀▀▀▀ ▀▀▀▀ ▀▀▀▀
+
+Commands:
+  opencode completion          generate shell completion script
+  opencode acp                 start ACP (Agent Client Protocol) server
+  opencode mcp                 manage MCP (Model Context Protocol) servers
+  opencode [project]           start opencode tui                                          [default]
+  opencode attach <url>        attach to a running opencode server
+  opencode run [message..]     run opencode with a message
+  opencode debug               debugging and troubleshooting tools
+  opencode providers           manage AI providers and credentials                   [aliases: auth]
+  opencode agent               manage agents
+  opencode upgrade [target]    upgrade opencode to the latest or a specific version
+  opencode uninstall           uninstall opencode and remove all related files
+  opencode serve               starts a headless opencode server
+  opencode web                 start opencode server and open web interface
+  opencode models [provider]   list all available models
+  opencode stats               show token usage and cost statistics
+  opencode export [sessionID]  export session data as JSON
+  opencode import <file>       import session data from JSON file or URL
+  opencode github              manage GitHub agent
+  opencode pr <number>         fetch and checkout a GitHub PR branch, then run opencode
+  opencode session             manage sessions
+  opencode plugin <module>     install plugin and update config                      [aliases: plug]
+  opencode db                  database tools
+
+Positionals:
+  project  path to start opencode in                                                        [string]
+
+Options:
+  -h, --help          show help                                                            [boolean]
+  -v, --version       show version number                                                  [boolean]
+      --print-logs    print logs to stderr                                                 [boolean]
+      --log-level     log level                 [string] [choices: "DEBUG", "INFO", "WARN", "ERROR"]
+      --pure          run without external plugins                                         [boolean]
+      --port          port to listen on                                        [number] [default: 0]
+      --hostname      hostname to listen on                          [string] [default: "127.0.0.1"]
+-- XDG_CONFIG_HOME tree --
+/isolated/config:
+total 16
+drwxr-xr-x 1 root root 4096 Sep 11 13:27 .
+drwx------ 1 root root 4096 Sep 11 13:23 ..
+drwxr-xr-x 2 root root 4096 Sep 11 13:27 opencode
+
+/isolated/config/opencode:
+total 16
+drwxr-xr-x 2 root root 4096 Sep 11 13:27 .
+drwxr-xr-x 1 root root 4096 Sep 11 13:27 ..
+-rw-r--r-- 1 root root   63 Sep 11 13:27 .gitignore
+-rw-r--r-- 1 root root   50 Sep 11 13:27 opencode.jsonc
+-- HOME tree --
+/isolated/home:
+total 16
+drwxr-xr-x 1 root root 4096 Sep 11 13:24 .
+drwx------ 1 root root 4096 Sep 11 13:23 ..
+drwxr-xr-x 3 root root 4096 Sep 11 13:24 .npm
+
+/isolated/home/.npm:
+total 12
+drwxr-xr-x 3 root root 4096 Sep 11 13:24 .
+drwxr-xr-x 1 root root 4096 Sep 11 13:24 ..
+drwxr-xr-x 2 root root 4096 Sep 11 13:25 _logs
+-rw-r--r-- 1 root root    0 Sep 11 13:24 _update-notifier-last-checked
+
+/isolated/home/.npm/_logs:
+total 16
+drwxr-xr-x 2 root root 4096 Sep 11 13:25 .
+drwxr-xr-x 3 root root 4096 Sep 11 13:24 ..
+-rw-r--r-- 1 root root 2263 Sep 11 13:24 2026-09-11T13_24_09_057Z-debug-0.log
+-rw-r--r-- 1 root root 2205 Sep 11 13:25 2026-09-11T13_25_57_837Z-debug-0.log
+-- any opencode.json* anywhere --
+/isolated/config/opencode/opencode.jsonc
+-- jean present? --
+NO_JEAN_ENV
+-- plugin dirs --
+
+===== CHECK 10: credential inspection =====
+-- auth store provider keys --
+/isolated/data/opencode/auth.json providers= ['opencode']
+-- credential-shaped files on the filesystem --
+/etc/ssl/certs/QuoVadis_Root_CA_3_G3.pem
+/etc/ssl/certs/GlobalSign_Root_CA_-_R6.pem
+/etc/ssl/certs/BJCA_Global_Root_CA2.pem
+/etc/ssl/certs/emSign_Root_CA_-_G1.pem
+/etc/ssl/certs/AffirmTrust_Networking.pem
+/etc/ssl/certs/GTS_Root_R2.pem
+/etc/ssl/certs/ePKI_Root_Certification_Authority.pem
+/etc/ssl/certs/CommScope_Public_Trust_RSA_Root-02.pem
+/etc/ssl/certs/COMODO_RSA_Certification_Authority.pem
+/etc/ssl/certs/Hellenic_Academic_and_Research_Institutions_RootCA_2015.pem
+/etc/ssl/certs/Hongkong_Post_Root_CA_3.pem
+/etc/ssl/certs/Starfield_Class_2_CA.pem
+/etc/ssl/certs/Certainly_Root_R1.pem
+/etc/ssl/certs/IdenTrust_Commercial_Root_CA_1.pem
+/etc/ssl/certs/AC_RAIZ_FNMT-RCM.pem
+/etc/ssl/certs/CommScope_Public_Trust_ECC_Root-02.pem
+/etc/ssl/certs/SSL.com_TLS_RSA_Root_CA_2022.pem
+/etc/ssl/certs/SecureSign_Root_CA15.pem
+/etc/ssl/certs/Telekom_Security_TLS_ECC_Root_2020.pem
+/etc/ssl/certs/Certum_Trusted_Network_CA_2.pem
+-- env vars that look like secrets --
+-- git remotes in workspace --
+fatal: not a git repository (or any parent up to mount point /)
+Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).
+fatal: not a git repository (or any parent up to mount point /)
+Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).

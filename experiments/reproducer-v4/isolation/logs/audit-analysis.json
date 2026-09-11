@@ -1,0 +1,168 @@
+{
+  "rows": [
+    {
+      "check": "node_global_fetch_api_github",
+      "expected": "BLOCKED",
+      "subject": "BLOCKED",
+      "control": "REACHED",
+      "verdict": "PASS",
+      "subject_detail": "ERR EAI_AGAIN fetch failed",
+      "control_detail": "REACHED status=200"
+    },
+    {
+      "check": "node_https_request_api_github",
+      "expected": "BLOCKED",
+      "subject": "BLOCKED",
+      "control": "REACHED",
+      "verdict": "PASS",
+      "subject_detail": "ERR EAI_AGAIN getaddrinfo EAI_AGAIN api.github.com",
+      "control_detail": "REACHED status=200"
+    },
+    {
+      "check": "npm_view_express_version",
+      "expected": "BLOCKED",
+      "subject": "PROXY_DENIED",
+      "control": "REACHED",
+      "verdict": "PASS",
+      "subject_detail": "npm error code E403\nnpm error 403 403 Forbidden - GET https://registry.npmjs.org/express\nnpm error 403 In most cases, you or one of your dependencies are requesting\nnpm error 403 a package version that is forbidden by yo",
+      "control_detail": "5.2.1"
+    },
+    {
+      "check": "git_ls_remote_express",
+      "expected": "BLOCKED",
+      "subject": "PROXY_DENIED",
+      "control": "REACHED",
+      "verdict": "PASS",
+      "subject_detail": "fatal: unable to access 'https://github.com/expressjs/express/': CONNECT tunnel failed, response 403",
+      "control_detail": "53d4a0d606c0388f764f192b306ce0e90200e7e8\tHEAD"
+    },
+    {
+      "check": "curl_example_com",
+      "expected": "BLOCKED",
+      "subject": "PROXY_DENIED",
+      "control": "REACHED",
+      "verdict": "PASS",
+      "subject_detail": "curl: (56) CONNECT tunnel failed, response 403\nCURL_HTTP=000",
+      "control_detail": "CURL_HTTP=200"
+    },
+    {
+      "check": "wget_example_com",
+      "expected": "BLOCKED",
+      "subject": "PROXY_DENIED",
+      "control": "REACHED",
+      "verdict": "PASS",
+      "subject_detail": "--2026-09-11 13:33:53--  https://example.com/\nConnecting to 10.83.0.10:3128... connected.\nProxy tunneling failed: ForbiddenUnable to establish SSL connection.",
+      "control_detail": "--2026-09-11 13:26:05--  https://example.com/\nResolving example.com (example.com)... 104.20.23.154, 172.66.147.243\nConnecting to example.com (example.com)|104.2"
+    },
+    {
+      "check": "direct_ip_socket_no_dns",
+      "expected": "BLOCKED",
+      "subject": "BLOCKED",
+      "control": "REACHED",
+      "verdict": "PASS",
+      "subject_detail": "ERR ENETUNREACH connect ENETUNREACH 20.205.243.166:443 - Local (0.0.0.0:0)",
+      "control_detail": "REACHED tcp connect to 20.205.243.166"
+    },
+    {
+      "check": "direct_ip_https_curl",
+      "expected": "BLOCKED",
+      "subject": "PROXY_DENIED",
+      "control": "REACHED",
+      "verdict": "PASS",
+      "subject_detail": "curl: (56) CONNECT tunnel failed, response 403\nCURL_HTTP=000",
+      "control_detail": "CURL_HTTP=301"
+    },
+    {
+      "check": "ipv6_literal_connect",
+      "expected": "BLOCKED_NO_CONTROL_POSSIBLE",
+      "subject": "BLOCKED",
+      "control": "BLOCKED",
+      "verdict": "PASS_UNATTRIBUTABLE_IPV6_ABSENT_HOSTWIDE",
+      "subject_detail": "ERR ENETUNREACH connect ENETUNREACH 2606:4700:4700::1111:443 - Local (:::0)",
+      "control_detail": "ERR ENETUNREACH connect ENETUNREACH 2606:4700:4700::1111:443 - Local (:::0)"
+    },
+    {
+      "check": "proxy_tcp_reachable",
+      "expected": "REACHED",
+      "subject": "REACHED",
+      "control": "FAILED_UNCLASSIFIED",
+      "verdict": "PASS",
+      "subject_detail": "",
+      "control_detail": ""
+    },
+    {
+      "check": "proxy_denies_non_allowlisted",
+      "expected": "PROXY_DENIED",
+      "subject": "PROXY_DENIED",
+      "control": "BLOCKED",
+      "verdict": "PASS",
+      "subject_detail": "curl: (56) CONNECT tunnel failed, response 403\nCURL_HTTP=000",
+      "control_detail": "curl: (28) Connection timed out after 10008 milliseconds\nCURL_HTTP=000"
+    },
+    {
+      "check": "dns_a_record_github",
+      "expected": "INFO",
+      "subject": "FAILED_UNCLASSIFIED",
+      "control": "INFO_OK",
+      "verdict": "INFO",
+      "subject_detail": "",
+      "control_detail": "20.205.243.166  github.com"
+    },
+    {
+      "check": "dns_txt_exfil_channel",
+      "expected": "INFO",
+      "subject": "INFO_OK",
+      "control": "INFO_OK",
+      "verdict": "INFO",
+      "subject_detail": "",
+      "control_detail": "\"work-accounts-domain-verification=Tcj6JjIMZOw2KsSEw2Nt2rLae89tN6\"\n\"apple-domain-verification=30afIBcvSuDV2PLX\"\n\"Z29vZ2xl\"\n\"cisco-ci-domain-verification=47c38bc"
+    },
+    {
+      "check": "default_route_absent",
+      "expected": "EMPTY_OUTPUT",
+      "subject": "EMPTY",
+      "control": "NON_EMPTY",
+      "verdict": "PASS",
+      "subject_detail": "",
+      "control_detail": "default via 172.18.0.1 dev eth0"
+    },
+    {
+      "check": "proxy_allows_allowlisted_host",
+      "expected": "REACHED",
+      "subject": "REACHED",
+      "control": "INCONCLUSIVE_TIMEOUT",
+      "verdict": "PASS",
+      "subject_detail": "CURL_HTTP=200",
+      "control_detail": ""
+    },
+    {
+      "check": "ipv6_route_table",
+      "expected": "EMPTY_OUTPUT",
+      "subject": "EMPTY",
+      "control": "EMPTY",
+      "verdict": "PASS",
+      "subject_detail": "",
+      "control_detail": ""
+    },
+    {
+      "check": "ipv4_route_table",
+      "expected": "INFO",
+      "subject": "INFO_OK",
+      "control": "INFO_OK",
+      "verdict": "INFO",
+      "subject_detail": "10.83.0.0/24 dev eth0 proto kernel scope link src 10.83.0.2",
+      "control_detail": "default via 172.18.0.1 dev eth0 \n172.18.0.0/16 dev eth0 proto kernel scope link src 172.18.0.3"
+    },
+    {
+      "check": "interfaces",
+      "expected": "INFO",
+      "subject": "INFO_OK",
+      "control": "INFO_OK",
+      "verdict": "INFO",
+      "subject_detail": "lo               UNKNOWN        127.0.0.1/8 ::1/128 \neth0@if16        UP             10.83.0.2/24",
+      "control_detail": "lo               UNKNOWN        127.0.0.1/8 ::1/128 \neth0@if17        UP             172.18.0.3/16"
+    }
+  ],
+  "failing": [],
+  "network_checks_all_pass": true
+}

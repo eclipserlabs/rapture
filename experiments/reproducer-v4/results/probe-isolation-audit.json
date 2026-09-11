@@ -1,0 +1,183 @@
+{
+  "schema": "v4-probe-isolation-audit-1",
+  "recorded_at": "2026-09-11T13:35:51.740976Z",
+  "performed_before": "any probe manifest freeze, any calibration run, any of the five repair cases",
+  "authorization": {
+    "decision": "AUTHORIZE_ISOLATION_IMPLEMENTATION",
+    "scope": "infrastructure implementation and adversarial isolation audit only",
+    "isolation_design_checkpoint": "e462d1b3",
+    "v3_3": "5416f275",
+    "product_result": "NONE"
+  },
+  "deviation_from_approved_design": {
+    "item": "container runtime",
+    "approved": "OrbStack, with Docker Desktop as fallback",
+    "used": "Colima 0.10.3 (Lima VM, Ubuntu 24.04, dockerd 29.5.2) + docker CLI 29.8.0",
+    "reason": "this host is macOS 13.7.8 on Intel; the OrbStack cask requires macOS >= 14, and so does the docker-desktop cask. Neither named runtime is installable here.",
+    "authorized_by": "host_change_authorized.constraint -- 'do not install additional infrastructure products unless OrbStack cannot implement the frozen design'",
+    "design_property_preserved": "the frozen design's enforcement argument is that --internal is a property of the Linux bridge inside the VM, not of the desktop app. Colima runs the same dockerd in a Linux VM, so the argument transfers unchanged -- and was verified empirically rather than assumed (see default_route_absent and direct_ip_socket_no_dns).",
+    "not_verified_by_substitution": "nothing in the audit relies on the runtime's identity; every check is an observation from inside the subject."
+  },
+  "topology": {
+    "subject_network": "internal=true ipv6=false subnet=10.83.0.0/24",
+    "subject_interfaces": "lo               UNKNOWN        127.0.0.1/8 ::1/128 \neth0@if16        UP             10.83.0.2/24",
+    "subject_routes": "10.83.0.0/24 dev eth0 proto kernel scope link src 10.83.0.2",
+    "subject_default_route": "ABSENT (empty output; control container shows 'default via 172.18.0.1')",
+    "proxy_attachments": "v4-egress-net=172.18.0.2 gw=172.18.0.1 v4-subject-net=10.83.0.10 gw=invalid IP",
+    "proxy_acl": "squid, CONNECT-only, dstdomain api.opencode.ai opencode.ai; http_access deny all",
+    "no_ip_allowlist": true,
+    "no_cdn_range_allowlist": true,
+    "wildcard_opencode_ai_used": false
+  },
+  "mandatory_audit": {
+    "1_model_inference_through_proxy": {
+      "expected": "PASS",
+      "result": "PASS",
+      "evidence": "4/4 runs returned exactly READY (1 initial + 3 post-hardening repetitions)"
+    },
+    "2_node_global_fetch_api_github": {
+      "expected": "BLOCKED_BY_NETWORK",
+      "result": "PASS",
+      "subject": "ERR EAI_AGAIN fetch failed",
+      "control": "REACHED status=200"
+    },
+    "3_node_https_request_api_github": {
+      "expected": "BLOCKED_BY_NETWORK",
+      "result": "PASS",
+      "subject": "ERR EAI_AGAIN getaddrinfo EAI_AGAIN api.github.com",
+      "control": "REACHED status=200"
+    },
+    "4_npm_view_express_version": {
+      "expected": "BLOCKED_BY_NETWORK",
+      "result": "PASS",
+      "subject": "npm error code E403\nnpm error 403 403 Forbidden - GET https://registry.npmjs.org/express\nnpm error 403 In most cases, you or one of your dependencies are requesting\nnpm error 403 a package version that is forbidden by yo",
+      "control": "5.2.1"
+    },
+    "5_git_ls_remote_express": {
+      "expected": "BLOCKED_BY_NETWORK",
+      "result": "PASS",
+      "subject": "fatal: unable to access 'https://github.com/expressjs/express/': CONNECT tunnel failed, response 403",
+      "control": "53d4a0d606c0388f764f192b306ce0e90200e7e8\tHEAD"
+    },
+    "6_curl_and_wget_public_endpoint": {
+      "expected": "BLOCKED_BY_NETWORK",
+      "curl": "PASS",
+      "curl_subject": "curl: (56) CONNECT tunnel failed, response 403\nCURL_HTTP=000",
+      "wget": "PASS",
+      "wget_subject": "--2026-09-11 13:33:53--  https://example.com/\nConnecting to 10.83.0.10:3128... connected.\nProxy tunneling failed: ForbiddenUnable to establish SSL connection."
+    },
+    "7_opencode_builtin_web_retrieval": {
+      "expected": "BLOCKED_OR_UNAVAILABLE_WITH_PROOF",
+      "result": "BLOCKED_WITH_PROOF",
+      "webfetch": "WebFetch https://api.github.com/repos/expressjs/express/commits/HEAD -> 403; agent printed FETCH_FAILED",
+      "websearch": "opencode's built-in Exa search -> CONNECT mcp.exa.ai:443 TCP_DENIED/403; agent printed NO_WEB_ACCESS",
+      "unknowable_content_test": "asked for the live HEAD sha of expressjs/express, which cannot be in model weights. Ground truth 53d4a0d606c0388f764f192b306ce0e90200e7e8 appeared 0 times in subject output; no 40-hex string of any kind was produced.",
+      "provider_web_bypass": "NONE OBSERVED -- built-in web tools address the target host directly and are refused by the dstdomain ACL; they are not tunnelled through the allowed opencode.ai connection"
+    },
+    "8_inherited_mcp_plugins_connectors": {
+      "expected": "NONE",
+      "result": "NONE",
+      "opencode_mcp_list": "No MCP servers configured",
+      "config_in_subject": "/isolated/config/opencode/opencode.jsonc contains only {\"$schema\": \"https://opencode.ai/config.json\"} -- generated by opencode inside the container",
+      "jean": "no jean binary, no jean socket, no JEAN_* environment variable present",
+      "host_global_config_mounted": false
+    },
+    "9_direct_socket_egress_ignoring_proxy": {
+      "expected": "BLOCKED_BY_NETWORK",
+      "result": "PASS",
+      "subject": "ERR ENETUNREACH connect ENETUNREACH 20.205.243.166:443 - Local (0.0.0.0:0)",
+      "control": "REACHED tcp connect to 20.205.243.166",
+      "note": "raw TCP to a literal IP -- no DNS, no proxy, no HTTP client involved. ENETUNREACH is a kernel routing result."
+    },
+    "10_credential_and_config_inspection": {
+      "expected": "ONLY_MINIMAL_PROVIDER_AUTH_PRESENT",
+      "result": "PASS",
+      "host_auth_providers": [
+        "openai",
+        "opencode",
+        "opencode-go"
+      ],
+      "subject_auth_providers": [
+        "opencode"
+      ],
+      "excluded": [
+        "openai",
+        "opencode-go"
+      ],
+      "subject_auth_sha256": "d670df780da7588ee0f09471a9cd9076573ba124e63f2eba366da6b07a131881",
+      "credential_shaped_files_in_subject": [
+        "/etc/ssl/certs/* (OS CA bundle)",
+        "/usr/lib/ssl/cert.pem (same bundle)"
+      ],
+      "secret_shaped_env_vars": "none",
+      "mounts": [
+        "<isolation>/subject-auth -> /isolated/data/opencode",
+        "<isolation>/audit-workspace -> /work"
+      ],
+      "rapture_repo_mounted": false,
+      "ssh_keys_present": false,
+      "git_credentials_present": false
+    }
+  },
+  "audit_integrity": {
+    "missing_binary_never_counted_as_blocked": "every client was verified PRESENT in-container before its check; curl, wget, git, npm, node, python3, dig, nc are all installed deliberately",
+    "unexplained_timeout_never_counted_as_blocked": "no check resolved as INCONCLUSIVE_TIMEOUT; every block carries an explicit errno or proxy status",
+    "control_comparison": "an identical container from the same image, differing ONLY in network attachment (v4-egress-net instead of v4-subject-net), ran the identical script. Every blocked check REACHED its target in the control.",
+    "alternate_interface_check": "subject has exactly lo and eth0 (10.83.0.2/24); no default route; 172.18.0.1, 172.18.0.2, 192.168.5.1, 192.168.5.2 all ENETUNREACH",
+    "ipv6_check": "no IPv6 route in the subject; IPv6 literal connect is ENETUNREACH. Recorded as PASS_UNATTRIBUTABLE: the control container is also IPv6-less, so this VM provides no IPv6 anywhere. IPv6 offers no bypass, but the block cannot be attributed to the internal-network design.",
+    "dns_check": "subject's embedded resolver returns SERVFAIL for external names; dig TXT returns nothing. The control resolves github.com and retrieves real TXT records, so the subject's DNS failure is attributable to network attachment. No DNS data channel.",
+    "proxy_logs_preserved": "logs/squid-access.log",
+    "subject_error_output_preserved": "logs/audit-subject.jsonl (raw exit codes and output for every check)"
+  },
+  "bypass_found_and_closed_during_audit": {
+    "finding": "the Colima VM's sshd listens on the subject bridge gateway 10.83.0.1 and tcp/22 was OPEN from inside the subject container",
+    "why_it_matters": "a shell on the VM is a host with full internet; this is a pivot the design did not anticipate",
+    "closure": "iptables -I INPUT -i br-<subject-net> -j DROP inside the VM. Container-to-container traffic on that bridge does not traverse INPUT, so subject -> proxy is unaffected.",
+    "verified_after": "10.83.0.1 tcp/22, 53, 2375, 3128 all closed/filtered from the subject; proxy:3128 still OPEN; inference still 3/3; full network audit re-run with 0 failures",
+    "persistence": "re-applied idempotently by net-up.sh; must be re-asserted after any colima restart"
+  },
+  "hostname_allowlist_decision": {
+    "allowlist": [
+      "api.opencode.ai",
+      "opencode.ai"
+    ],
+    "allowed_in_practice": {
+      "api.opencode.ai:443": 2,
+      "opencode.ai:443": 8
+    },
+    "denied_in_practice": {
+      "registry.npmjs.org:443": 10,
+      "github.com:443": 4,
+      "example.com:443": 6,
+      "20.205.243.166:443": 3,
+      "api.github.com:443": 4,
+      "models.opencode.ai:443": 7,
+      "mcp.exa.ai:443": 1
+    },
+    "models_opencode_ai": "attempted 7 times and DENIED every time, yet inference succeeded 4/4. The frozen rule permits adding a hostname only if inference FAILS without it. It did not fail, so models.opencode.ai was NOT added.",
+    "mcp_exa_ai": "opencode ships a built-in Exa web-search tool that addresses mcp.exa.ai. Denied. It must never be added to the allowlist -- it is a general web-retrieval channel."
+  },
+  "residual_limitations": [
+    "The model provider itself is not isolated: these are public express/fastify/hapi bugs and the model's training data may contain the historical fixes. Inherent to the corpus choice; recorded, not solved.",
+    "IPv6 blocking is not attributable to the design, only to this VM having no IPv6 at all.",
+    "The allowlist was validated against 4 inference runs of a trivial prompt. A long repair run may exercise additional hostnames; any such attempt will appear in the squid deny log and must be evaluated under the frozen rule rather than pre-approved.",
+    "Host free disk fell from 6.9 GB to ~2 GB during setup. Probe runs should re-check headroom before starting."
+  ],
+  "success_condition_check": {
+    "model_inference_works": true,
+    "all_arbitrary_subject_internet_paths_fail_structurally": true,
+    "builtin_web_retrieval_cannot_expose_public_bug_fix_info": true,
+    "no_unrelated_host_credentials_or_external_tools_inherited": true
+  },
+  "network_checks_all_pass": true,
+  "failing_checks": [],
+  "verdict": "RAPTURE_REPRODUCER_VALUE_PROBE_ISOLATION=VALID",
+  "not_done_per_authorization": [
+    "V4-PROBE-MANIFEST.json NOT frozen",
+    "no calibration run",
+    "none of the five repair cases invoked",
+    "V3.3 unmodified",
+    "corpus unmodified",
+    "subject model unchanged (opencode/muse-spark-1.3-contributor-free)"
+  ]
+}

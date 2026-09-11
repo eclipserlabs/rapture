@@ -1,0 +1,22 @@
+--- bridge host 10.83.0.1 port scan ---
+OPEN 10.83.0.1:22
+closed 10.83.0.1:53
+closed 10.83.0.1:80
+closed 10.83.0.1:2375
+closed 10.83.0.1:2376
+closed 10.83.0.1:3128
+closed 10.83.0.1:8080
+--- egress-side addresses (must be unreachable) ---
+172.18.0.1 -> ENETUNREACH
+172.18.0.2 -> ENETUNREACH
+192.168.5.1 -> ENETUNREACH
+192.168.5.2 -> ENETUNREACH
+--- host.docker.internal ---
+no host.docker.internal
+--- re-scan VM host from subject ---
+closed/filtered 10.83.0.1:22
+closed/filtered 10.83.0.1:53
+closed/filtered 10.83.0.1:2375
+closed/filtered 10.83.0.1:3128
+--- proxy still reachable? ---
+OPEN proxy:3128
