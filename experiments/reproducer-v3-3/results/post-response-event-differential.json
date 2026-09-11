@@ -1,0 +1,82 @@
+{
+  "schema": "v3-3-post-response-event-differential-1",
+  "generatedAt": "2026-09-11T04:21:25.386Z",
+  "question": "does V3.3 quiescence lose boundary events that V3.2 retained?",
+  "rows": [
+    {
+      "arm": "V3.2 (ALS pinned, never quiesces)",
+      "route": "/inflight",
+      "incidents": 8,
+      "incidentsWithEvents": 0,
+      "eventCounts": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "arm": "V3.2 (ALS pinned, never quiesces)",
+      "route": "/boom",
+      "incidents": 8,
+      "incidentsWithEvents": 8,
+      "eventCounts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ]
+    },
+    {
+      "arm": "V3.3 (lifecycle quiescence)",
+      "route": "/inflight",
+      "incidents": 8,
+      "incidentsWithEvents": 0,
+      "eventCounts": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "arm": "V3.3 (lifecycle quiescence)",
+      "route": "/boom",
+      "incidents": 8,
+      "incidentsWithEvents": 8,
+      "eventCounts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ]
+    }
+  ],
+  "awaited_case": {
+    "v3_2": "8/8",
+    "v3_3": "8/8",
+    "identical": true
+  },
+  "post_response_case": {
+    "v3_2": "0/8",
+    "v3_3": "0/8",
+    "identical": true
+  },
+  "conclusion": "NOT a V3.3 regression: both implementations behave identically. A boundary operation that completes AFTER its HTTP response is absent from the artifact in V3.2 as well, because the incident is serialized at response finalize. Quiescence does not change what is captured."
+}

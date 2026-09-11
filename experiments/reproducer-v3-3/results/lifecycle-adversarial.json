@@ -1,0 +1,98 @@
+{
+  "schema": "v3-3-lifecycle-adversarial-1",
+  "generatedAt": "2026-09-11T04:23:10.953Z",
+  "critical_invariant": "the storage may be disabled only when zero selected contexts AND zero outstanding capture-owned boundary operations remain; HTTP response completion is explicitly not the authority",
+  "findings": [
+    {
+      "id": "ADV-1",
+      "description": "storage stays enabled while capture-owned pg ops remain in flight after their responses finished",
+      "pass": true,
+      "detail": "alsEnabled=true outstandingOps=8 activeContexts=0"
+    },
+    {
+      "id": "ADV-2",
+      "description": "storage quiesces only once every outstanding op has completed",
+      "pass": true,
+      "detail": "alsEnabled=false outstandingOps=0 disableCount=1"
+    },
+    {
+      "id": "ADV-3",
+      "description": "quiescence loses no boundary event that the frozen V3.2 baseline retained",
+      "pass": true,
+      "detail": "post-response ops: artifacts=8 eventCounts=[0,0,0,0,0,0,0,0] — identical to V3.2 baseline (0/8), pre-existing persist-at-response-finish property, not a quiescence regression"
+    },
+    {
+      "id": "ADV-4",
+      "description": "unmatched traffic running while selected ops are outstanding does not trigger a premature disable",
+      "pass": true,
+      "detail": "alsEnabled=true outstandingOps=0"
+    },
+    {
+      "id": "ADV-5",
+      "description": "unmatched traffic never contaminates the detached selected incident",
+      "pass": true,
+      "detail": "artifacts=8 contaminated=0 finalAlsEnabled=false"
+    },
+    {
+      "id": "ADV-6",
+      "description": "unselected requests never appear in any incident under pool pressure + quiescence cycling",
+      "pass": true,
+      "detail": "artifacts=200 contaminated=0"
+    },
+    {
+      "id": "ADV-7",
+      "description": "two concurrently-selected incidents completing out of order stay isolated",
+      "pass": true,
+      "detail": "artifacts=200 crossContaminated=0"
+    },
+    {
+      "id": "ADV-8",
+      "description": "at least 1000 enable/disable lifecycle transitions completed",
+      "pass": true,
+      "detail": "enable=505 disable=505 total=1010"
+    },
+    {
+      "id": "ADV-9",
+      "description": "every incident across those transitions is complete and correctly classified",
+      "pass": true,
+      "detail": "artifacts=505 wellFormed=505"
+    },
+    {
+      "id": "ADV-10",
+      "description": "no unmatched request leaked into any incident across 1000+ transitions",
+      "pass": true,
+      "detail": "contaminated=0"
+    },
+    {
+      "id": "ADV-11",
+      "description": "the route remained configured as armed throughout every cycle",
+      "pass": true,
+      "detail": "[\"GET /boom\"]"
+    },
+    {
+      "id": "ADV-12",
+      "description": "storage ends quiescent",
+      "pass": true,
+      "detail": "alsEnabled=false"
+    },
+    {
+      "id": "ADV-13",
+      "description": "rapid alternating armed/unmatched at concurrency 16: no contamination",
+      "pass": true,
+      "detail": "artifacts=300 contaminated=0"
+    },
+    {
+      "id": "ADV-14",
+      "description": "no selected incident lost its boundary events during concurrent cycling",
+      "pass": true,
+      "detail": "artifacts=300 withZeroEvents=0"
+    },
+    {
+      "id": "ADV-15",
+      "description": "outstanding-op counter returns to zero (no leaked ownership)",
+      "pass": true,
+      "detail": "outstandingOps=0"
+    }
+  ],
+  "allPassed": true
+}

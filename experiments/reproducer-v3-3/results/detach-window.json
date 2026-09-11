@@ -1,0 +1,58 @@
+{
+  "schema": "v3-3-detach-window-1",
+  "generatedAt": "2026-09-11T04:17:13.136Z",
+  "quiesce_timer_ms": 100,
+  "question": "how long after its HTTP response can a selected request start capture-owned work and still have it recorded?",
+  "rows": [
+    {
+      "detachDelayMs": 0,
+      "incidents": 5,
+      "incidentsRetainingDetachedPgEvent": 0,
+      "retained": "0/5"
+    },
+    {
+      "detachDelayMs": 25,
+      "incidents": 5,
+      "incidentsRetainingDetachedPgEvent": 0,
+      "retained": "0/5"
+    },
+    {
+      "detachDelayMs": 50,
+      "incidents": 5,
+      "incidentsRetainingDetachedPgEvent": 0,
+      "retained": "0/5"
+    },
+    {
+      "detachDelayMs": 75,
+      "incidents": 5,
+      "incidentsRetainingDetachedPgEvent": 0,
+      "retained": "0/5"
+    },
+    {
+      "detachDelayMs": 100,
+      "incidents": 5,
+      "incidentsRetainingDetachedPgEvent": 0,
+      "retained": "0/5"
+    },
+    {
+      "detachDelayMs": 150,
+      "incidents": 5,
+      "incidentsRetainingDetachedPgEvent": 0,
+      "retained": "0/5"
+    },
+    {
+      "detachDelayMs": 300,
+      "incidents": 5,
+      "incidentsRetainingDetachedPgEvent": 0,
+      "retained": "0/5"
+    },
+    {
+      "detachDelayMs": 600,
+      "incidents": 5,
+      "incidentsRetainingDetachedPgEvent": 0,
+      "retained": "0/5"
+    }
+  ],
+  "finding": "work detached from the response and starting after the quiescence macrotask fires is not recorded; the storage has already been disabled and currentRequest() returns null",
+  "significance": "this is undecidable in general: nothing observable distinguishes a selected context that will schedule more work from one that is finished, so no counter-based authority can be sound for arbitrarily detached work"
+}

@@ -1,0 +1,93 @@
+{
+  "frozen_at": "2026-09-11T05:17:07.542Z",
+  "tree_hash": "5416f2752c885bb8d61abd49888fc29a34e06b814ea278c551d2ebf291417f1d",
+  "prior_tree_hash": "ed03834d3f4be1c24c932e23f2247a5ea274949dbe323998330e028dabe40002",
+  "changed_since_prior": [
+    "src/capture/patch-fetch.mjs",
+    "src/capture/patch-http.mjs",
+    "src/capture/patch-pg.mjs",
+    "src/capture/persist.mjs",
+    "src/capture/redact.mjs",
+    "src/capture/state.mjs"
+  ],
+  "byte_identical_to_frozen_v3": [
+    "src/capture/events.mjs",
+    "src/capture/patch-time.mjs",
+    "src/oracle/fingerprint.mjs",
+    "src/oracle/normalize.mjs",
+    "src/replay/replay-one.mjs"
+  ],
+  "byte_identical_count": 5,
+  "files": [
+    {
+      "path": "src/capture/context.mjs",
+      "sha256": "ccfbb2eebe5f095ae0e79f8742e21c29f7c151b99fae9ecdc51c1e67e043094a",
+      "bytes": 2046
+    },
+    {
+      "path": "src/capture/events.mjs",
+      "sha256": "4b298312c197fc5be3dd244cea6f0a0df6029869d77fce07510086bc394a1cd6",
+      "bytes": 4385
+    },
+    {
+      "path": "src/capture/patch-fetch.mjs",
+      "sha256": "fd3b1a4a6e342b7a0b58ce18b178b4b6eaf50b12f158e8e1a2b721e489f12cad",
+      "bytes": 4115
+    },
+    {
+      "path": "src/capture/patch-http.mjs",
+      "sha256": "2510fda3d067e425b12156a361bd9195cd7ad184d782e7cf6290af6a71cb0b82",
+      "bytes": 8943
+    },
+    {
+      "path": "src/capture/patch-pg.mjs",
+      "sha256": "85f76651f60c7f9b0fabfe8dcb79057ca21ae58c4febbda20d5c0bb2e0c5bd95",
+      "bytes": 8203
+    },
+    {
+      "path": "src/capture/patch-time.mjs",
+      "sha256": "65297650e2de5b64e9dbb0f729687fbc7a1d75ed066bf8ff27f310ca88d82ca0",
+      "bytes": 3713
+    },
+    {
+      "path": "src/capture/persist.mjs",
+      "sha256": "b549e9797c8e3663a33e2a5de5be92a1c43423a79581b020ad26530e2450709a",
+      "bytes": 4760
+    },
+    {
+      "path": "src/capture/redact.mjs",
+      "sha256": "25429826a3f1e8dbc6bc12912c6740fd0d946b9bb6e0bb6fc913a7b4aa3cfa8b",
+      "bytes": 13985
+    },
+    {
+      "path": "src/capture/register.mjs",
+      "sha256": "14521c2f43a24650537f323305357d2487095a0ae4436a4d04a5d0346b9ebe45",
+      "bytes": 4317
+    },
+    {
+      "path": "src/capture/state.mjs",
+      "sha256": "5c9a6d538a8694a0f85aeca2f21d8311ddd8b3f7400859799409300218fc98b6",
+      "bytes": 9982
+    },
+    {
+      "path": "src/oracle/fingerprint.mjs",
+      "sha256": "9e5a6595850187626af5b51e7c106e62c9b6658bf429c76c7c3ced8733e22cbc",
+      "bytes": 3883
+    },
+    {
+      "path": "src/oracle/normalize.mjs",
+      "sha256": "280de06b362e8e8c0e5c4e95a360efa24ff9d34c7129b2b9933d71bf78c4a29b",
+      "bytes": 1553
+    },
+    {
+      "path": "src/replay/replay-one.mjs",
+      "sha256": "977414c59e8bd1e4df4c4019b16233a31ecfb39ac925f5af285dc0d9715fbd83",
+      "bytes": 4986
+    },
+    {
+      "path": "src/detector/select.mjs",
+      "sha256": "33faddd51dcb186f560eb315207f11db60835a83a4277fe4104379b46b5858c6",
+      "bytes": 14984
+    }
+  ]
+}

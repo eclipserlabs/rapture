@@ -1,0 +1,142 @@
+{
+  "experiment": "Rapture Reproducer V3.3 — AsyncLocalStorage Lifecycle Closure",
+  "frozen_before": "any Phase 1-4 evaluation and before the lifecycle implementation is measured",
+  "purpose": "Determine whether a route can remain configured as armed while AsyncLocalStorage is actually disabled, removing the fixed process-wide async_hooks tax that failed V3.2 Gate 1. This is the FINAL capture-mechanism experiment. There is no V3.4.",
+  "v3_2_checkpoint": {
+    "commit": "8f10861df9b8a1c06b0877e93cb02eb6878d5523",
+    "implementation_tree": "773dfeef4b7edec1d987797f9b9c922e70563d8fbac6021f1b1ce1aad81a8342",
+    "manifest": "1101611db49f726c7a4a8e668fef13b61c8c3af09b657b9479af7b5269a99dbb",
+    "gate_1_result": "FAIL — unmatched p95 +6.63%/+6.75%, throughput -7.74%/-7.79% at 10% armed; ARMED_UNMATCHED_ONLY -5.86% throughput with 0 selected and 0 boundary events",
+    "verification": "re-derived independently from run 2 raw artifacts; run 1 is provenance-only and every one of its repetitions remains marked invalid"
+  },
+  "diagnosis_carried_forward": {
+    "statement": "the remaining overhead is lifecycle/global-hook cost, not accidental capture work",
+    "evidence": "0 capture contexts and 0 boundary events on unmatched traffic, yet -5.86% throughput",
+    "blocking_code": "state.maybeQuiesceAls() returns early on selector.hasActiveArming(); for a pre-armed route rule set that predicate is permanently true, so the storage can never be disabled once enabled"
+  },
+
+  "lifecycle_authority": {
+    "rule": "AsyncLocalStorage may be disabled ONLY when BOTH of the following are zero: (a) selected request contexts in flight, and (b) outstanding capture-owned asynchronous boundary operations that may still complete.",
+    "explicitly_not_the_authority": "HTTP response completion. A pg query or outbound fetch initiated inside a selected context can outlive the HTTP stack; treating 'response finished' as 'ownership finished' would lose or misattribute evidence.",
+    "capture_ownership_interval": {
+      "opens": "a boundary operation is initiated while a selected capture context is active and interception is enabled",
+      "closes": "that operation's boundary event has been recorded, or its failure has been recorded",
+      "pg_callback_form": "opens at orig.apply, closes when the wrapped callback has recorded",
+      "pg_promise_form": "opens at orig.apply, closes in the settled handler after recording",
+      "pg_sync_form": "opens and closes synchronously around recordEvent",
+      "fetch_form": "opens before origFetch, closes after the response body has been read and the event recorded (including the error path)"
+    },
+    "route_configuration_is_not_ownership": "a configured or armed route rule expresses only what WOULD be selected in future. Selection enables the storage lazily at ingress, synchronously, before the application handler runs. Therefore route configuration must never by itself pin the storage open.",
+    "quiescence_procedure": "deferred by a macrotask, then BOTH conditions re-checked immediately before disable(); disable() is never called while either counter is non-zero",
+    "forbidden": "calling disable() while any capture-owned work remains outstanding, under any circumstance, for any performance benefit"
+  },
+
+  "phase_1_lifecycle_mechanism": {
+    "required_states": {
+      "ARMED_NEVER_SELECTED": "route configured, nothing ever selected: storage never enabled, unmatched traffic performs zero capture work",
+      "SELECTED_ACTIVE": "storage active, capture behaves identically to V3.2",
+      "POST_SELECTED_QUIESCENT": "after all capture-owned work completes, storage disables even though the route remains configured as armed",
+      "REACTIVATED": "a later selected request lazily re-enables capture and produces a correct incident"
+    },
+    "required_counters": [
+      "alsEnableCount", "alsDisableCount", "selectedRequests", "activeSelectedContexts",
+      "outstandingCaptureOps", "unmatchedCaptureContexts", "unmatchedBoundaryEvents", "persistedArtifacts"
+    ]
+  },
+
+  "phase_2_adversarial_lifecycle_correctness": {
+    "tests": [
+      "selected request A starts a pg operation whose completion is deliberately delayed past its HTTP response; the storage must not quiesce while ownership is outstanding",
+      "selected A and unselected B overlap under pg pool pressure; B must never appear in A's artifact",
+      "selected A and selected B overlap and complete in reverse order; observations must remain isolated",
+      "selected request starts an outbound fetch whose completion is delayed across another unmatched request",
+      "at least 1000 selected -> unmatched -> selected lifecycle transitions",
+      "rapid alternating armed and unmatched traffic at concurrency 16",
+      "the route remains configured as armed during every quiescence cycle"
+    ],
+    "hard_gates": {
+      "cross_request_contamination": 0,
+      "lost_selected_boundary_events": 0,
+      "wrong_owner_events": 0,
+      "premature_als_disable": 0,
+      "wrong_failure_acceptances": 0
+    },
+    "vacuity_rule": "a test whose observed population is zero is recorded as a FAILURE, never as a pass"
+  },
+
+  "phase_3_frozen_correctness_regression": {
+    "corpus": "the 8 frozen V3/V3.2 historical incidents, unchanged",
+    "required": {
+      "auto_capture": "8/8", "offline_replay": "160/160", "portable_replay": "160/160",
+      "fix_confirmed": "8/8", "fingerprints_unchanged": "8/8",
+      "wrong_failure_acceptances": 0, "unexpected_live_effects": 0, "raw_session_credential_leaks": 0
+    },
+    "additional": [
+      "V3.2 session-credential behaviour unchanged: opaque handles surrogated, signature-bearing credentials PRIVACY_BLOCKED",
+      "BOOT_TIME_DEPENDENCY_ACCESS remains deterministically detected and unsupported",
+      "neither boundary is reopened"
+    ]
+  },
+
+  "phase_4_performance": {
+    "services": ["express-qs", "koa-1999", "fastify-32442"],
+    "modes": ["OFF_MIXED", "ARMED_NEVER_SELECTED", "POST_CAPTURE_QUIESCENT_UNMATCHED", "ARMED_MIXED_1", "ARMED_MIXED_10"],
+    "activation_requirement": [
+      "POST_CAPTURE_QUIESCENT_UNMATCHED forces at least 150 legitimate selected captures first",
+      "the storage must be verified quiescent from runtime counters BEFORE measured unmatched traffic begins",
+      "the route remains configured as armed throughout",
+      "the process is NEVER restarted between the forced captures and the measured traffic"
+    ],
+    "methodology": {
+      "repetitions_per_service_per_mode": 10,
+      "measured_requests_per_repetition": 20000,
+      "concurrency": 16,
+      "warmup_requests": 1000,
+      "fresh_process_per_repetition": true,
+      "order": "randomized per repetition with a recorded seed",
+      "raw_data": "full per-population latency arrays preserved"
+    },
+    "environment": "the corrected V3.2 semantics, unchanged: pre-campaign quiescence gate governs whether the campaign may START; a repetition is invalidated only by FOREIGN contention, never by benchmark-generated load, and never by its Rapture outcome",
+    "estimators": {
+      "primary": "median across per-repetition paired TREATMENT-vs-OFF_MIXED ratios",
+      "secondary": "ratio-of-medians reported alongside",
+      "rule": "a gate PASSES only under both estimators; otherwise ESTIMATOR_DEPENDENT and treated as not passing"
+    }
+  },
+
+  "performance_gates": {
+    "primary_post_quiescence_gate": {
+      "population": "POST_CAPTURE_QUIESCENT_UNMATCHED",
+      "median_unmatched_p95_overhead_vs_off": "<= 5%",
+      "median_whole_service_throughput_degradation_vs_off": "<= 5%",
+      "no_single_service_unmatched_p95_overhead_above": "10%"
+    },
+    "mechanism_gate": {
+      "requirement": "POST_CAPTURE_QUIESCENT_UNMATCHED must be materially cheaper than V3.2's post-activation armed-unmatched result",
+      "reference": "V3.2 observed -5.86% throughput and +5.07% unmatched p95 with zero selected requests after prior activation",
+      "materially_cheaper": "the throughput degradation must improve by at least 3 percentage points, i.e. be no worse than -2.86%"
+    },
+    "correctness_gate": "every lifecycle and frozen-corpus correctness gate must pass simultaneously",
+    "thresholds_unchanged_from_v3_2": true
+  },
+
+  "anti_goalpost_rules": [
+    "do not change the <=5% primary thresholds",
+    "do not reduce repetitions or request count",
+    "do not change concurrency",
+    "do not restart the process to obtain the post-capture quiescent measurement",
+    "do not call disable() while capture-owned work remains outstanding",
+    "do not weaken ownership semantics to improve performance",
+    "do not tune pg/fetch adapters",
+    "do not introduce per-service optimizations",
+    "do not reopen sampling",
+    "do not design V3.4"
+  ],
+
+  "decision_rules": {
+    "CONTINUE": "the storage safely quiesces after selected work, post-capture unmatched traffic meets <=5% p95 and <=5% throughput overhead, and all correctness/privacy/ownership regressions remain green. Freeze capture research and proceed directly to V4.",
+    "KILL": "safe quiescence cannot remove enough of the fixed cost to meet the frozen thresholds, or achieving it causes ownership/context/correctness failures. Stop optimizing route-targeted in-process capture and state plainly that low-overhead continuously armed route-targeted in-process capture is not supported.",
+    "INVALID_EXPERIMENT": "implementation changed after headline results, benchmark parameters changed, protocol integrity failed, or post-quiescence measurements were obtained through process restart rather than true lifecycle quiescence",
+    "MODIFY": "NOT an allowed default outcome. Permitted only if an external/infrastructure issue prevents the preregistered experiment from answering the question. It may not be used to introduce another architectural blocker justifying V3.4."
+  }
+}

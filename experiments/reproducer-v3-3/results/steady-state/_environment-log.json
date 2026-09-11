@@ -1,0 +1,902 @@
+[
+  {
+    "rep": 1,
+    "service": "express-qs",
+    "mode": "ARMED_MIXED_1",
+    "invalid": false
+  },
+  {
+    "rep": 1,
+    "service": "express-qs",
+    "mode": "OFF_MIXED",
+    "invalid": false
+  },
+  {
+    "rep": 1,
+    "service": "express-qs",
+    "mode": "ARMED_NEVER_SELECTED",
+    "invalid": false
+  },
+  {
+    "rep": 1,
+    "service": "express-qs",
+    "mode": "ARMED_MIXED_10",
+    "invalid": false
+  },
+  {
+    "rep": 1,
+    "service": "express-qs",
+    "mode": "POST_CAPTURE_QUIESCENT_UNMATCHED",
+    "invalid": false
+  },
+  {
+    "rep": 1,
+    "service": "koa-1999",
+    "mode": "OFF_MIXED",
+    "invalid": false
+  },
+  {
+    "rep": 1,
+    "service": "koa-1999",
+    "mode": "ARMED_MIXED_10",
+    "invalid": false
+  },
+  {
+    "rep": 1,
+    "service": "koa-1999",
+    "mode": "ARMED_NEVER_SELECTED",
+    "invalid": false
+  },
+  {
+    "rep": 1,
+    "service": "koa-1999",
+    "mode": "POST_CAPTURE_QUIESCENT_UNMATCHED",
+    "invalid": false
+  },
+  {
+    "rep": 1,
+    "service": "koa-1999",
+    "mode": "ARMED_MIXED_1",
+    "invalid": false
+  },
+  {
+    "rep": 1,
+    "service": "fastify-32442",
+    "mode": "ARMED_MIXED_10",
+    "invalid": false
+  },
+  {
+    "rep": 1,
+    "service": "fastify-32442",
+    "mode": "ARMED_MIXED_1",
+    "invalid": false
+  },
+  {
+    "rep": 1,
+    "service": "fastify-32442",
+    "mode": "POST_CAPTURE_QUIESCENT_UNMATCHED",
+    "invalid": false
+  },
+  {
+    "rep": 1,
+    "service": "fastify-32442",
+    "mode": "OFF_MIXED",
+    "invalid": false
+  },
+  {
+    "rep": 1,
+    "service": "fastify-32442",
+    "mode": "ARMED_NEVER_SELECTED",
+    "invalid": false
+  },
+  {
+    "rep": 2,
+    "service": "express-qs",
+    "mode": "ARMED_MIXED_10",
+    "invalid": false
+  },
+  {
+    "rep": 2,
+    "service": "express-qs",
+    "mode": "ARMED_MIXED_1",
+    "invalid": false
+  },
+  {
+    "rep": 2,
+    "service": "express-qs",
+    "mode": "ARMED_NEVER_SELECTED",
+    "invalid": false
+  },
+  {
+    "rep": 2,
+    "service": "express-qs",
+    "mode": "POST_CAPTURE_QUIESCENT_UNMATCHED",
+    "invalid": false
+  },
+  {
+    "rep": 2,
+    "service": "express-qs",
+    "mode": "OFF_MIXED",
+    "invalid": false
+  },
+  {
+    "rep": 2,
+    "service": "koa-1999",
+    "mode": "ARMED_MIXED_1",
+    "invalid": false
+  },
+  {
+    "rep": 2,
+    "service": "koa-1999",
+    "mode": "ARMED_MIXED_10",
+    "invalid": false
+  },
+  {
+    "rep": 2,
+    "service": "koa-1999",
+    "mode": "OFF_MIXED",
+    "invalid": false
+  },
+  {
+    "rep": 2,
+    "service": "koa-1999",
+    "mode": "POST_CAPTURE_QUIESCENT_UNMATCHED",
+    "invalid": false
+  },
+  {
+    "rep": 2,
+    "service": "koa-1999",
+    "mode": "ARMED_NEVER_SELECTED",
+    "invalid": false
+  },
+  {
+    "rep": 2,
+    "service": "fastify-32442",
+    "mode": "POST_CAPTURE_QUIESCENT_UNMATCHED",
+    "invalid": false
+  },
+  {
+    "rep": 2,
+    "service": "fastify-32442",
+    "mode": "ARMED_MIXED_1",
+    "invalid": false
+  },
+  {
+    "rep": 2,
+    "service": "fastify-32442",
+    "mode": "OFF_MIXED",
+    "invalid": false
+  },
+  {
+    "rep": 2,
+    "service": "fastify-32442",
+    "mode": "ARMED_NEVER_SELECTED",
+    "invalid": false
+  },
+  {
+    "rep": 2,
+    "service": "fastify-32442",
+    "mode": "ARMED_MIXED_10",
+    "invalid": false
+  },
+  {
+    "rep": 3,
+    "service": "express-qs",
+    "mode": "ARMED_MIXED_10",
+    "invalid": false
+  },
+  {
+    "rep": 3,
+    "service": "express-qs",
+    "mode": "POST_CAPTURE_QUIESCENT_UNMATCHED",
+    "invalid": false
+  },
+  {
+    "rep": 3,
+    "service": "express-qs",
+    "mode": "ARMED_NEVER_SELECTED",
+    "invalid": false
+  },
+  {
+    "rep": 3,
+    "service": "express-qs",
+    "mode": "OFF_MIXED",
+    "invalid": false
+  },
+  {
+    "rep": 3,
+    "service": "express-qs",
+    "mode": "ARMED_MIXED_1",
+    "invalid": false
+  },
+  {
+    "rep": 3,
+    "service": "koa-1999",
+    "mode": "ARMED_NEVER_SELECTED",
+    "invalid": false
+  },
+  {
+    "rep": 3,
+    "service": "koa-1999",
+    "mode": "ARMED_MIXED_1",
+    "invalid": false
+  },
+  {
+    "rep": 3,
+    "service": "koa-1999",
+    "mode": "ARMED_MIXED_10",
+    "invalid": false
+  },
+  {
+    "rep": 3,
+    "service": "koa-1999",
+    "mode": "POST_CAPTURE_QUIESCENT_UNMATCHED",
+    "invalid": false
+  },
+  {
+    "rep": 3,
+    "service": "koa-1999",
+    "mode": "OFF_MIXED",
+    "invalid": false
+  },
+  {
+    "rep": 3,
+    "service": "fastify-32442",
+    "mode": "ARMED_MIXED_1",
+    "invalid": false
+  },
+  {
+    "rep": 3,
+    "service": "fastify-32442",
+    "mode": "ARMED_NEVER_SELECTED",
+    "invalid": false
+  },
+  {
+    "rep": 3,
+    "service": "fastify-32442",
+    "mode": "OFF_MIXED",
+    "invalid": false
+  },
+  {
+    "rep": 3,
+    "service": "fastify-32442",
+    "mode": "POST_CAPTURE_QUIESCENT_UNMATCHED",
+    "invalid": false
+  },
+  {
+    "rep": 3,
+    "service": "fastify-32442",
+    "mode": "ARMED_MIXED_10",
+    "invalid": false
+  },
+  {
+    "rep": 4,
+    "service": "express-qs",
+    "mode": "ARMED_NEVER_SELECTED",
+    "invalid": false
+  },
+  {
+    "rep": 4,
+    "service": "express-qs",
+    "mode": "POST_CAPTURE_QUIESCENT_UNMATCHED",
+    "invalid": false
+  },
+  {
+    "rep": 4,
+    "service": "express-qs",
+    "mode": "ARMED_MIXED_10",
+    "invalid": false
+  },
+  {
+    "rep": 4,
+    "service": "express-qs",
+    "mode": "ARMED_MIXED_1",
+    "invalid": false
+  },
+  {
+    "rep": 4,
+    "service": "express-qs",
+    "mode": "OFF_MIXED",
+    "invalid": false
+  },
+  {
+    "rep": 4,
+    "service": "koa-1999",
+    "mode": "OFF_MIXED",
+    "invalid": false
+  },
+  {
+    "rep": 4,
+    "service": "koa-1999",
+    "mode": "ARMED_MIXED_1",
+    "invalid": false
+  },
+  {
+    "rep": 4,
+    "service": "koa-1999",
+    "mode": "POST_CAPTURE_QUIESCENT_UNMATCHED",
+    "invalid": false
+  },
+  {
+    "rep": 4,
+    "service": "koa-1999",
+    "mode": "ARMED_MIXED_10",
+    "invalid": false
+  },
+  {
+    "rep": 4,
+    "service": "koa-1999",
+    "mode": "ARMED_NEVER_SELECTED",
+    "invalid": false
+  },
+  {
+    "rep": 4,
+    "service": "fastify-32442",
+    "mode": "ARMED_MIXED_10",
+    "invalid": false
+  },
+  {
+    "rep": 4,
+    "service": "fastify-32442",
+    "mode": "ARMED_NEVER_SELECTED",
+    "invalid": false
+  },
+  {
+    "rep": 4,
+    "service": "fastify-32442",
+    "mode": "OFF_MIXED",
+    "invalid": false
+  },
+  {
+    "rep": 4,
+    "service": "fastify-32442",
+    "mode": "POST_CAPTURE_QUIESCENT_UNMATCHED",
+    "invalid": false
+  },
+  {
+    "rep": 4,
+    "service": "fastify-32442",
+    "mode": "ARMED_MIXED_1",
+    "invalid": false
+  },
+  {
+    "rep": 5,
+    "service": "express-qs",
+    "mode": "ARMED_MIXED_10",
+    "invalid": false
+  },
+  {
+    "rep": 5,
+    "service": "express-qs",
+    "mode": "ARMED_NEVER_SELECTED",
+    "invalid": false
+  },
+  {
+    "rep": 5,
+    "service": "express-qs",
+    "mode": "ARMED_MIXED_1",
+    "invalid": false
+  },
+  {
+    "rep": 5,
+    "service": "express-qs",
+    "mode": "OFF_MIXED",
+    "invalid": false
+  },
+  {
+    "rep": 5,
+    "service": "express-qs",
+    "mode": "POST_CAPTURE_QUIESCENT_UNMATCHED",
+    "invalid": false
+  },
+  {
+    "rep": 5,
+    "service": "koa-1999",
+    "mode": "POST_CAPTURE_QUIESCENT_UNMATCHED",
+    "invalid": false
+  },
+  {
+    "rep": 5,
+    "service": "koa-1999",
+    "mode": "ARMED_MIXED_10",
+    "invalid": false
+  },
+  {
+    "rep": 5,
+    "service": "koa-1999",
+    "mode": "ARMED_NEVER_SELECTED",
+    "invalid": false
+  },
+  {
+    "rep": 5,
+    "service": "koa-1999",
+    "mode": "ARMED_MIXED_1",
+    "invalid": false
+  },
+  {
+    "rep": 5,
+    "service": "koa-1999",
+    "mode": "OFF_MIXED",
+    "invalid": false
+  },
+  {
+    "rep": 5,
+    "service": "fastify-32442",
+    "mode": "OFF_MIXED",
+    "invalid": false
+  },
+  {
+    "rep": 5,
+    "service": "fastify-32442",
+    "mode": "ARMED_MIXED_10",
+    "invalid": false
+  },
+  {
+    "rep": 5,
+    "service": "fastify-32442",
+    "mode": "POST_CAPTURE_QUIESCENT_UNMATCHED",
+    "invalid": false
+  },
+  {
+    "rep": 5,
+    "service": "fastify-32442",
+    "mode": "ARMED_MIXED_1",
+    "invalid": false
+  },
+  {
+    "rep": 5,
+    "service": "fastify-32442",
+    "mode": "ARMED_NEVER_SELECTED",
+    "invalid": false
+  },
+  {
+    "rep": 6,
+    "service": "express-qs",
+    "mode": "OFF_MIXED",
+    "invalid": false
+  },
+  {
+    "rep": 6,
+    "service": "express-qs",
+    "mode": "ARMED_NEVER_SELECTED",
+    "invalid": false
+  },
+  {
+    "rep": 6,
+    "service": "express-qs",
+    "mode": "ARMED_MIXED_10",
+    "invalid": false
+  },
+  {
+    "rep": 6,
+    "service": "express-qs",
+    "mode": "ARMED_MIXED_1",
+    "invalid": false
+  },
+  {
+    "rep": 6,
+    "service": "express-qs",
+    "mode": "POST_CAPTURE_QUIESCENT_UNMATCHED",
+    "invalid": false
+  },
+  {
+    "rep": 6,
+    "service": "koa-1999",
+    "mode": "ARMED_NEVER_SELECTED",
+    "invalid": false
+  },
+  {
+    "rep": 6,
+    "service": "koa-1999",
+    "mode": "ARMED_MIXED_10",
+    "invalid": false
+  },
+  {
+    "rep": 6,
+    "service": "koa-1999",
+    "mode": "ARMED_MIXED_1",
+    "invalid": false
+  },
+  {
+    "rep": 6,
+    "service": "koa-1999",
+    "mode": "POST_CAPTURE_QUIESCENT_UNMATCHED",
+    "invalid": false
+  },
+  {
+    "rep": 6,
+    "service": "koa-1999",
+    "mode": "OFF_MIXED",
+    "invalid": false
+  },
+  {
+    "rep": 6,
+    "service": "fastify-32442",
+    "mode": "ARMED_NEVER_SELECTED",
+    "invalid": false
+  },
+  {
+    "rep": 6,
+    "service": "fastify-32442",
+    "mode": "ARMED_MIXED_1",
+    "invalid": false
+  },
+  {
+    "rep": 6,
+    "service": "fastify-32442",
+    "mode": "OFF_MIXED",
+    "invalid": false
+  },
+  {
+    "rep": 6,
+    "service": "fastify-32442",
+    "mode": "POST_CAPTURE_QUIESCENT_UNMATCHED",
+    "invalid": false
+  },
+  {
+    "rep": 6,
+    "service": "fastify-32442",
+    "mode": "ARMED_MIXED_10",
+    "invalid": false
+  },
+  {
+    "rep": 7,
+    "service": "express-qs",
+    "mode": "OFF_MIXED",
+    "invalid": false
+  },
+  {
+    "rep": 7,
+    "service": "express-qs",
+    "mode": "POST_CAPTURE_QUIESCENT_UNMATCHED",
+    "invalid": false
+  },
+  {
+    "rep": 7,
+    "service": "express-qs",
+    "mode": "ARMED_MIXED_1",
+    "invalid": false
+  },
+  {
+    "rep": 7,
+    "service": "express-qs",
+    "mode": "ARMED_NEVER_SELECTED",
+    "invalid": false
+  },
+  {
+    "rep": 7,
+    "service": "express-qs",
+    "mode": "ARMED_MIXED_10",
+    "invalid": false
+  },
+  {
+    "rep": 7,
+    "service": "koa-1999",
+    "mode": "ARMED_MIXED_1",
+    "invalid": false
+  },
+  {
+    "rep": 7,
+    "service": "koa-1999",
+    "mode": "ARMED_NEVER_SELECTED",
+    "invalid": false
+  },
+  {
+    "rep": 7,
+    "service": "koa-1999",
+    "mode": "POST_CAPTURE_QUIESCENT_UNMATCHED",
+    "invalid": false
+  },
+  {
+    "rep": 7,
+    "service": "koa-1999",
+    "mode": "OFF_MIXED",
+    "invalid": false
+  },
+  {
+    "rep": 7,
+    "service": "koa-1999",
+    "mode": "ARMED_MIXED_10",
+    "invalid": false
+  },
+  {
+    "rep": 7,
+    "service": "fastify-32442",
+    "mode": "ARMED_NEVER_SELECTED",
+    "invalid": false
+  },
+  {
+    "rep": 7,
+    "service": "fastify-32442",
+    "mode": "ARMED_MIXED_1",
+    "invalid": false
+  },
+  {
+    "rep": 7,
+    "service": "fastify-32442",
+    "mode": "OFF_MIXED",
+    "invalid": false
+  },
+  {
+    "rep": 7,
+    "service": "fastify-32442",
+    "mode": "ARMED_MIXED_10",
+    "invalid": false
+  },
+  {
+    "rep": 7,
+    "service": "fastify-32442",
+    "mode": "POST_CAPTURE_QUIESCENT_UNMATCHED",
+    "invalid": false
+  },
+  {
+    "rep": 8,
+    "service": "express-qs",
+    "mode": "ARMED_NEVER_SELECTED",
+    "invalid": false
+  },
+  {
+    "rep": 8,
+    "service": "express-qs",
+    "mode": "ARMED_MIXED_1",
+    "invalid": false
+  },
+  {
+    "rep": 8,
+    "service": "express-qs",
+    "mode": "POST_CAPTURE_QUIESCENT_UNMATCHED",
+    "invalid": false
+  },
+  {
+    "rep": 8,
+    "service": "express-qs",
+    "mode": "ARMED_MIXED_10",
+    "invalid": false
+  },
+  {
+    "rep": 8,
+    "service": "express-qs",
+    "mode": "OFF_MIXED",
+    "invalid": false
+  },
+  {
+    "rep": 8,
+    "service": "koa-1999",
+    "mode": "POST_CAPTURE_QUIESCENT_UNMATCHED",
+    "invalid": false
+  },
+  {
+    "rep": 8,
+    "service": "koa-1999",
+    "mode": "OFF_MIXED",
+    "invalid": false
+  },
+  {
+    "rep": 8,
+    "service": "koa-1999",
+    "mode": "ARMED_MIXED_1",
+    "invalid": false
+  },
+  {
+    "rep": 8,
+    "service": "koa-1999",
+    "mode": "ARMED_NEVER_SELECTED",
+    "invalid": false
+  },
+  {
+    "rep": 8,
+    "service": "koa-1999",
+    "mode": "ARMED_MIXED_10",
+    "invalid": false
+  },
+  {
+    "rep": 8,
+    "service": "fastify-32442",
+    "mode": "ARMED_MIXED_1",
+    "invalid": false
+  },
+  {
+    "rep": 8,
+    "service": "fastify-32442",
+    "mode": "ARMED_NEVER_SELECTED",
+    "invalid": false
+  },
+  {
+    "rep": 8,
+    "service": "fastify-32442",
+    "mode": "OFF_MIXED",
+    "invalid": false
+  },
+  {
+    "rep": 8,
+    "service": "fastify-32442",
+    "mode": "ARMED_MIXED_10",
+    "invalid": false
+  },
+  {
+    "rep": 8,
+    "service": "fastify-32442",
+    "mode": "POST_CAPTURE_QUIESCENT_UNMATCHED",
+    "invalid": false
+  },
+  {
+    "rep": 9,
+    "service": "express-qs",
+    "mode": "ARMED_MIXED_1",
+    "invalid": false
+  },
+  {
+    "rep": 9,
+    "service": "express-qs",
+    "mode": "POST_CAPTURE_QUIESCENT_UNMATCHED",
+    "invalid": false
+  },
+  {
+    "rep": 9,
+    "service": "express-qs",
+    "mode": "OFF_MIXED",
+    "invalid": false
+  },
+  {
+    "rep": 9,
+    "service": "express-qs",
+    "mode": "ARMED_NEVER_SELECTED",
+    "invalid": false
+  },
+  {
+    "rep": 9,
+    "service": "express-qs",
+    "mode": "ARMED_MIXED_10",
+    "invalid": false
+  },
+  {
+    "rep": 9,
+    "service": "koa-1999",
+    "mode": "ARMED_MIXED_1",
+    "invalid": false
+  },
+  {
+    "rep": 9,
+    "service": "koa-1999",
+    "mode": "ARMED_MIXED_10",
+    "invalid": false
+  },
+  {
+    "rep": 9,
+    "service": "koa-1999",
+    "mode": "OFF_MIXED",
+    "invalid": false
+  },
+  {
+    "rep": 9,
+    "service": "koa-1999",
+    "mode": "POST_CAPTURE_QUIESCENT_UNMATCHED",
+    "invalid": false
+  },
+  {
+    "rep": 9,
+    "service": "koa-1999",
+    "mode": "ARMED_NEVER_SELECTED",
+    "invalid": false
+  },
+  {
+    "rep": 9,
+    "service": "fastify-32442",
+    "mode": "ARMED_MIXED_10",
+    "invalid": false
+  },
+  {
+    "rep": 9,
+    "service": "fastify-32442",
+    "mode": "OFF_MIXED",
+    "invalid": false
+  },
+  {
+    "rep": 9,
+    "service": "fastify-32442",
+    "mode": "ARMED_MIXED_1",
+    "invalid": false
+  },
+  {
+    "rep": 9,
+    "service": "fastify-32442",
+    "mode": "POST_CAPTURE_QUIESCENT_UNMATCHED",
+    "invalid": false
+  },
+  {
+    "rep": 9,
+    "service": "fastify-32442",
+    "mode": "ARMED_NEVER_SELECTED",
+    "invalid": false
+  },
+  {
+    "rep": 10,
+    "service": "express-qs",
+    "mode": "ARMED_MIXED_1",
+    "invalid": false
+  },
+  {
+    "rep": 10,
+    "service": "express-qs",
+    "mode": "ARMED_NEVER_SELECTED",
+    "invalid": false
+  },
+  {
+    "rep": 10,
+    "service": "express-qs",
+    "mode": "ARMED_MIXED_10",
+    "invalid": false
+  },
+  {
+    "rep": 10,
+    "service": "express-qs",
+    "mode": "OFF_MIXED",
+    "invalid": false
+  },
+  {
+    "rep": 10,
+    "service": "express-qs",
+    "mode": "POST_CAPTURE_QUIESCENT_UNMATCHED",
+    "invalid": false
+  },
+  {
+    "rep": 10,
+    "service": "koa-1999",
+    "mode": "POST_CAPTURE_QUIESCENT_UNMATCHED",
+    "invalid": false
+  },
+  {
+    "rep": 10,
+    "service": "koa-1999",
+    "mode": "ARMED_NEVER_SELECTED",
+    "invalid": false
+  },
+  {
+    "rep": 10,
+    "service": "koa-1999",
+    "mode": "OFF_MIXED",
+    "invalid": false
+  },
+  {
+    "rep": 10,
+    "service": "koa-1999",
+    "mode": "ARMED_MIXED_1",
+    "invalid": false
+  },
+  {
+    "rep": 10,
+    "service": "koa-1999",
+    "mode": "ARMED_MIXED_10",
+    "invalid": false
+  },
+  {
+    "rep": 10,
+    "service": "fastify-32442",
+    "mode": "ARMED_NEVER_SELECTED",
+    "invalid": false
+  },
+  {
+    "rep": 10,
+    "service": "fastify-32442",
+    "mode": "POST_CAPTURE_QUIESCENT_UNMATCHED",
+    "invalid": false
+  },
+  {
+    "rep": 10,
+    "service": "fastify-32442",
+    "mode": "OFF_MIXED",
+    "invalid": false
+  },
+  {
+    "rep": 10,
+    "service": "fastify-32442",
+    "mode": "ARMED_MIXED_1",
+    "invalid": false
+  },
+  {
+    "rep": 10,
+    "service": "fastify-32442",
+    "mode": "ARMED_MIXED_10",
+    "invalid": false
+  }
+]

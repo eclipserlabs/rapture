@@ -1,0 +1,68 @@
+{
+  "schema": "v3-1-large-app-screening-1",
+  "purpose": "Documented screening of larger existing Node backend applications for the Phase 7 case. Recorded so that an INSUFFICIENT_LARGE_APP_CASE verdict, had it been reached, would be auditable rather than asserted.",
+  "eligibility_criteria": [
+    "public repository",
+    "Node/TypeScript backend APPLICATION (not a framework or library)",
+    "historical bug predating V3.1 with identifiable buggy and fixed revisions",
+    "bug observable through the application's OWN existing HTTP route",
+    "application starts through its normal application entry point",
+    "no experiment-authored replacement route implementing the bug",
+    "no application source edits to accommodate Rapture",
+    "fits the Node/http/pg/fetch boundary sufficiently for meaningful evaluation",
+    "runs locally without private credentials"
+  ],
+  "candidates": [
+    {
+      "repository": "parse-community/parse-server",
+      "clone": ".rapture/reproducer-v3/corpus-screening/parse-server",
+      "application_scale": "192 source files, ~45,400 LOC in src/, 840 installed packages",
+      "backend": "Node/Babel, express app mounted by ParseServer, Postgres via pg-promise -> pg",
+      "eligible": true,
+      "selected": true,
+      "bug": "Postgres query on a Parse internal field that has no database column returns HTTP 500 instead of an empty result",
+      "issue": "#10308",
+      "fix_commit": "c5c43259d1f98af5bbbbc44d9daf7c0f1f8168d3",
+      "buggy_revision": "3f888b1 (parent of the fix)",
+      "route": "GET /parse/classes/_User?where={\"_tombstone\":{\"$exists\":true}} — the application's own REST route",
+      "boundary_fit": "PostgresStorageAdapter reaches pg through pg-promise, whose lib/query.js calls the pg Client's own query(text, values, callback). The frozen Module._load hook patches pg's Client/Pool prototypes, so this is captured generically with no application change.",
+      "why_selected": "The only screened candidate whose historical bug is (a) reachable through the application's own HTTP route, (b) caused by the exact dependency class V3 supports (Postgres via pg), and (c) runnable locally with no private credentials."
+    },
+    {
+      "repository": "directus/directus",
+      "clone": ".rapture/reproducer-v3/corpus-screening/directus",
+      "eligible": false,
+      "selected": false,
+      "reason": "V3 screened this at directory level and could not pin a single-request historical bug inside the frozen boundary within budget. Re-checked for V3.1: the API package depends on knex with a database bootstrap/migration step per revision, and the historical single-request 500s located were in the admin app or in flows spanning multiple requests. Not disqualified in principle — disqualified for this experiment's budget, and recorded as such."
+    },
+    {
+      "repository": "nocodb/nocodb",
+      "clone": ".rapture/reproducer-v3/corpus-screening/nocodb",
+      "eligible": false,
+      "selected": false,
+      "reason": "2.2 GB monorepo; the backend requires a full meta-database bootstrap and a build per revision. No single-request historical bug with clean buggy/fixed revisions identified inside the boundary within budget."
+    },
+    {
+      "repository": "payloadcms/payload",
+      "clone": ".rapture/reproducer-v3/corpus-screening/payload",
+      "eligible": false,
+      "selected": false,
+      "reason": "Next.js-coupled application; its HTTP entry runs through the Next runtime rather than a node:http-compatible stack the frozen boundary supports."
+    },
+    {
+      "repository": "ether/etherpad-lite",
+      "clone": ".rapture/reproducer-v3/corpus-screening/etherpad-lite",
+      "eligible": false,
+      "selected": false,
+      "reason": "Primary behaviour is WebSocket/session based, which is explicitly outside the V3 boundary (bounded single request only). Its HTTP API surface yielded no pinnable historical 500 inside the boundary."
+    },
+    {
+      "repository": "ToolJet/ToolJet",
+      "clone": ".rapture/reproducer-v3/corpus-screening/tooljet",
+      "eligible": false,
+      "selected": false,
+      "reason": "NestJS/TypeORM server requiring a multi-service bootstrap; no single-request historical bug with runnable buggy/fixed revisions identified within budget."
+    }
+  ],
+  "outcome": "One eligible case found and pursued (parse-server). Per the manifest, an eligible case that FAILED under generic capture would have been reported as a real negative result and not replaced."
+}

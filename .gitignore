@@ -34,6 +34,10 @@ experiments/reproducer-v3-1/logs/
 !experiments/reproducer-v3-2/**
 experiments/reproducer-v3-2/results/tmp-*/
 experiments/reproducer-v3-2/logs/
+!experiments/reproducer-v3-3
+!experiments/reproducer-v3-3/**
+experiments/reproducer-v3-3/results/tmp-*/
+experiments/reproducer-v3-3/logs/
 .tmp/
 .turbo/
 .rapture/

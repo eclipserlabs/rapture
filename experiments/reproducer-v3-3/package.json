@@ -1,0 +1,10 @@
+{
+  "name": "reproducer-v3-3-experiment",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Rapture Reproducer V3.2 experiment: AsyncLocalStorage lifecycle closure (not a product)",
+  "scripts": {
+    "test": "node --test \"test/*.test.js\""
+  }
+}

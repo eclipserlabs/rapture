@@ -1,0 +1,132 @@
+{
+  "schema": "v3-3-lifecycle-states-1",
+  "generatedAt": "2026-09-11T05:17:24.688Z",
+  "route_armed_throughout": "GET /boom",
+  "trace": [
+    {
+      "state": "ARMED_NEVER_SELECTED",
+      "note": "40 unmatched requests, route armed",
+      "alsEnabled": false,
+      "alsEnableCount": 0,
+      "alsDisableCount": 0,
+      "activeSelectedContexts": 0,
+      "outstandingCaptureOps": 0,
+      "selectedRequests": 0,
+      "routesStillArmed": [
+        "GET /boom"
+      ],
+      "unmatchedCaptureContexts": 0,
+      "unmatchedBoundaryEvents": 0,
+      "persistedArtifacts": 0
+    },
+    {
+      "state": "SELECTED_ACTIVE",
+      "note": "one selected request just issued",
+      "alsEnabled": true,
+      "alsEnableCount": 1,
+      "alsDisableCount": 0,
+      "activeSelectedContexts": 0,
+      "outstandingCaptureOps": 0,
+      "selectedRequests": 1,
+      "routesStillArmed": [
+        "GET /boom"
+      ],
+      "unmatchedCaptureContexts": 0,
+      "unmatchedBoundaryEvents": 0,
+      "persistedArtifacts": 1
+    },
+    {
+      "state": "POST_SELECTED_QUIESCENT",
+      "note": "after capture-owned work drained; route still armed",
+      "alsEnabled": false,
+      "alsEnableCount": 1,
+      "alsDisableCount": 1,
+      "activeSelectedContexts": 0,
+      "outstandingCaptureOps": 0,
+      "selectedRequests": 1,
+      "routesStillArmed": [
+        "GET /boom"
+      ],
+      "unmatchedCaptureContexts": 0,
+      "unmatchedBoundaryEvents": 0,
+      "persistedArtifacts": 1
+    },
+    {
+      "state": "REACTIVATED",
+      "note": "a later selected request",
+      "alsEnabled": false,
+      "alsEnableCount": 2,
+      "alsDisableCount": 2,
+      "activeSelectedContexts": 0,
+      "outstandingCaptureOps": 0,
+      "selectedRequests": 2,
+      "routesStillArmed": [
+        "GET /boom"
+      ],
+      "unmatchedCaptureContexts": 0,
+      "unmatchedBoundaryEvents": 0,
+      "persistedArtifacts": 2
+    },
+    {
+      "state": "QUIESCENT_AGAIN",
+      "note": "second quiescence cycle",
+      "alsEnabled": false,
+      "alsEnableCount": 2,
+      "alsDisableCount": 2,
+      "activeSelectedContexts": 0,
+      "outstandingCaptureOps": 0,
+      "selectedRequests": 2,
+      "routesStillArmed": [
+        "GET /boom"
+      ],
+      "unmatchedCaptureContexts": 0,
+      "unmatchedBoundaryEvents": 0,
+      "persistedArtifacts": 2
+    }
+  ],
+  "findings": [
+    {
+      "id": "LC-1",
+      "description": "route armed but storage never enabled, zero capture work",
+      "pass": true,
+      "detail": "alsEnabled=false enableCount=0 selected=0"
+    },
+    {
+      "id": "LC-2",
+      "description": "a selected request enables the storage and produces an incident",
+      "pass": true,
+      "detail": "enableCount=1 selected=1 artifacts=1"
+    },
+    {
+      "id": "LC-3",
+      "description": "storage disables after selected work even though the route remains armed",
+      "pass": true,
+      "detail": "alsEnabled=false disableCount=1 outstandingOps=0 armed=[\"GET /boom\"]"
+    },
+    {
+      "id": "LC-4",
+      "description": "post-quiescence unmatched traffic performs zero capture work and does not re-enable",
+      "pass": true,
+      "detail": "alsEnabled=false enableCount unchanged=true events unchanged=true"
+    },
+    {
+      "id": "LC-5",
+      "description": "a later selected request lazily re-enables capture and produces a correct incident",
+      "pass": true,
+      "detail": "enableCount=2 selected=2 artifacts=2"
+    },
+    {
+      "id": "LC-6",
+      "description": "the cycle repeats: storage quiesces again after the second capture",
+      "pass": true,
+      "detail": "disableCount=2"
+    },
+    {
+      "id": "LC-7",
+      "description": "every incident produced across enable/disable cycles is complete and correctly classified",
+      "pass": true,
+      "detail": "artifacts=2 wellFormed=2 events=4,4"
+    }
+  ],
+  "allPassed": true
+}

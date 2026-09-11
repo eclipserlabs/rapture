@@ -1,0 +1,46 @@
+{
+  "schema": "v3-3-decision-semantics-1",
+  "recorded_at": "2026-09-11T05:16:35.554Z",
+  "recorded_before_any_headline_performance_result_was_inspected": true,
+  "frozen_manifest": {
+    "path": "manifests/V3.3-MANIFEST.json",
+    "sha256": "cda338d1685c14eb354c9328123f48931b2554ae1e7798d4002082286d02f38c",
+    "modified": false
+  },
+  "formal_pass_gate": {
+    "population": "POST_CAPTURE_QUIESCENT_UNMATCHED",
+    "verbatim_from_frozen_manifest": {
+      "median_unmatched_p95_overhead_vs_off": "<= 5%",
+      "median_whole_service_throughput_degradation_vs_off": "<= 5%",
+      "no_single_service_unmatched_p95_overhead_above": "10%"
+    },
+    "mechanism_gate_verbatim": {
+      "requirement": "POST_CAPTURE_QUIESCENT_UNMATCHED must be materially cheaper than V3.2's post-activation armed-unmatched result",
+      "reference": "V3.2 observed -5.86% throughput and +5.07% unmatched p95 with zero selected requests after prior activation",
+      "materially_cheaper": "the throughput degradation must improve by at least 3 percentage points, i.e. be no worse than -2.86%"
+    },
+    "note": "the frozen manifest scopes the formal pass gate to POST_CAPTURE_QUIESCENT_UNMATCHED ONLY. That rule is preserved here and is NOT rewritten. ARMED_MIXED_10 is a preregistered Phase 4 mode but is not part of the formal pass gate."
+  },
+  "what_each_mode_actually_tests": {
+    "POST_CAPTURE_QUIESCENT_UNMATCHED": "whether the fixed V3.2 AsyncLocalStorage floor DISAPPEARS after selected work has fully drained, while the route remains configured as armed. This is an episodic/bursty deployment: capture happened, then stopped.",
+    "ARMED_MIXED_10": "the ORIGINAL realistic steady-state question from V3.2 Gate 1: whether unmatched traffic remains near-OFF while selected traffic is ACTIVELY occurring in the same process. This is a continuously-armed deployment.",
+    "ARMED_NEVER_SELECTED": "the floor for a process that has never captured anything (H1 control).",
+    "ARMED_MIXED_1": "continuous arming at a low selected rate."
+  },
+  "interpretation_rules_fixed_in_advance": {
+    "quiescent_pass_and_mixed_10_pass": "route-targeted capture economics are CLOSED. Freeze capture research and proceed to V4.",
+    "quiescent_pass_but_mixed_10_fail": "the ALS lifecycle optimisation works, but continuously active 10% targeted traffic still misses the transparent-overhead objective. The broad deployment problem must NOT be described as solved; the supported boundary narrows to bursty/episodic capture — armed, captured, drained — rather than continuously mixed traffic.",
+    "quiescent_fail": "the fixed ALS tax survives lifecycle quiescence. Accept the negative result and stop optimising route-targeted in-process capture."
+  },
+  "forbidden_inference": "POST_CAPTURE_QUIESCENT_UNMATCHED passing must NOT be read as evidence that continuously mixed route targeting is cheap. They are different deployment regimes and are reported separately.",
+  "additional_required_reporting": [
+    "ALS active wall-clock fraction for ARMED_MIXED_1 and ARMED_MIXED_10",
+    "whether ARMED_MIXED_10 meets the original V3.2 targets of <=5% unmatched p95 and <=5% throughput, stated separately from the formal V3.3 gate"
+  ],
+  "post_response_boundary": {
+    "statement": "boundary operations that complete AFTER response finalisation are outside the executable-incident persistence boundary. The incident is serialised when the response finishes, so such observations are absent from the artifact.",
+    "differentially_established": "V3.2 (never quiesces) and V3.3 (quiescence) behave identically: awaited work 8/8 vs 8/8 with 4 events each; post-response work 0/8 vs 0/8. This is a pre-existing property of deferred persist-at-response-finish, not a quiescence regression.",
+    "scope_rule": "this boundary is RECORDED, not broadened, in V3.3."
+  },
+  "estimator_rule": "both preregistered estimators are reported; a gate PASSES only under both, otherwise ESTIMATOR_DEPENDENT and treated as not passing"
+}

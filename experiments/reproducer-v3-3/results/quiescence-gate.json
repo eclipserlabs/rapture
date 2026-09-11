@@ -1,0 +1,697 @@
+{
+  "criteria": {
+    "logical_cpus": 4,
+    "max_load1_per_cpu": 0.35,
+    "max_load5_per_cpu": 0.6,
+    "forbidden_process_patterns": [
+      "replay-raw-slowboot",
+      "classcheck",
+      "parse-server",
+      "reproducer-v3-2/services/",
+      "reproducer-v3/headline/services/",
+      "steady-state.mjs",
+      "perf-brief.mjs",
+      "regression-8.mjs",
+      "selective-correctness",
+      "leak-diagnosis.mjs"
+    ],
+    "allowed_process_patterns": [
+      "fake-external.mjs"
+    ],
+    "min_available_mem_mb": 500,
+    "max_swapins_per_second": 400,
+    "stabilization_window_seconds": 60,
+    "sample_interval_seconds": 10,
+    "rule": "every sample in the stabilization window must satisfy every criterion; a single violation restarts the window"
+  },
+  "passed_at": "2026-09-11T05:37:58.636Z",
+  "samples": [
+    {
+      "swapin_rate_per_s": 0,
+      "at": "2026-09-11T05:33:07.054Z",
+      "logical_cpus": 4,
+      "load1": 1.64,
+      "load5": 1.77,
+      "load15": 1.9,
+      "load1_per_cpu": 0.41,
+      "load5_per_cpu": 0.442,
+      "free_mem_mb": 1111,
+      "available_mem_mb": 3254,
+      "total_mem_mb": 8192,
+      "swapins": 14849349,
+      "orphaned_experiment_processes": [],
+      "heavy_processes": [
+        {
+          "pid": 3948,
+          "cpu": 97.4,
+          "cmd": "/System/Library/PrivateFrameworks/PhotoLibraryServices.framework/Versions/A/Support/photol"
+        }
+      ],
+      "pass": false,
+      "failures": [
+        "load1/cpu 0.41 > 0.35"
+      ]
+    },
+    {
+      "swapin_rate_per_s": 0,
+      "at": "2026-09-11T05:33:17.108Z",
+      "logical_cpus": 4,
+      "load1": 1.62,
+      "load5": 1.76,
+      "load15": 1.89,
+      "load1_per_cpu": 0.405,
+      "load5_per_cpu": 0.44,
+      "free_mem_mb": 1111,
+      "available_mem_mb": 3254,
+      "total_mem_mb": 8192,
+      "swapins": 14849349,
+      "orphaned_experiment_processes": [],
+      "heavy_processes": [
+        {
+          "pid": 3948,
+          "cpu": 98.1,
+          "cmd": "/System/Library/PrivateFrameworks/PhotoLibraryServices.framework/Versions/A/Support/photol"
+        }
+      ],
+      "pass": false,
+      "failures": [
+        "load1/cpu 0.405 > 0.35"
+      ]
+    },
+    {
+      "swapin_rate_per_s": 0,
+      "at": "2026-09-11T05:33:27.162Z",
+      "logical_cpus": 4,
+      "load1": 1.68,
+      "load5": 1.77,
+      "load15": 1.89,
+      "load1_per_cpu": 0.419,
+      "load5_per_cpu": 0.442,
+      "free_mem_mb": 1110,
+      "available_mem_mb": 3253,
+      "total_mem_mb": 8192,
+      "swapins": 14849349,
+      "orphaned_experiment_processes": [],
+      "heavy_processes": [
+        {
+          "pid": 3948,
+          "cpu": 97.3,
+          "cmd": "/System/Library/PrivateFrameworks/PhotoLibraryServices.framework/Versions/A/Support/photol"
+        }
+      ],
+      "pass": false,
+      "failures": [
+        "load1/cpu 0.419 > 0.35"
+      ]
+    },
+    {
+      "swapin_rate_per_s": 0,
+      "at": "2026-09-11T05:33:37.216Z",
+      "logical_cpus": 4,
+      "load1": 1.57,
+      "load5": 1.74,
+      "load15": 1.88,
+      "load1_per_cpu": 0.393,
+      "load5_per_cpu": 0.435,
+      "free_mem_mb": 1111,
+      "available_mem_mb": 3254,
+      "total_mem_mb": 8192,
+      "swapins": 14849349,
+      "orphaned_experiment_processes": [],
+      "heavy_processes": [
+        {
+          "pid": 3948,
+          "cpu": 97.2,
+          "cmd": "/System/Library/PrivateFrameworks/PhotoLibraryServices.framework/Versions/A/Support/photol"
+        }
+      ],
+      "pass": false,
+      "failures": [
+        "load1/cpu 0.393 > 0.35"
+      ]
+    },
+    {
+      "swapin_rate_per_s": 0,
+      "at": "2026-09-11T05:33:47.275Z",
+      "logical_cpus": 4,
+      "load1": 1.79,
+      "load5": 1.78,
+      "load15": 1.89,
+      "load1_per_cpu": 0.448,
+      "load5_per_cpu": 0.445,
+      "free_mem_mb": 1110,
+      "available_mem_mb": 3253,
+      "total_mem_mb": 8192,
+      "swapins": 14849349,
+      "orphaned_experiment_processes": [],
+      "heavy_processes": [
+        {
+          "pid": 3948,
+          "cpu": 97,
+          "cmd": "/System/Library/PrivateFrameworks/PhotoLibraryServices.framework/Versions/A/Support/photol"
+        }
+      ],
+      "pass": false,
+      "failures": [
+        "load1/cpu 0.448 > 0.35"
+      ]
+    },
+    {
+      "swapin_rate_per_s": 0,
+      "at": "2026-09-11T05:33:57.328Z",
+      "logical_cpus": 4,
+      "load1": 1.82,
+      "load5": 1.79,
+      "load15": 1.9,
+      "load1_per_cpu": 0.456,
+      "load5_per_cpu": 0.447,
+      "free_mem_mb": 1108,
+      "available_mem_mb": 3251,
+      "total_mem_mb": 8192,
+      "swapins": 14849349,
+      "orphaned_experiment_processes": [],
+      "heavy_processes": [
+        {
+          "pid": 3948,
+          "cpu": 97.7,
+          "cmd": "/System/Library/PrivateFrameworks/PhotoLibraryServices.framework/Versions/A/Support/photol"
+        }
+      ],
+      "pass": false,
+      "failures": [
+        "load1/cpu 0.456 > 0.35"
+      ]
+    },
+    {
+      "swapin_rate_per_s": 0,
+      "at": "2026-09-11T05:34:07.381Z",
+      "logical_cpus": 4,
+      "load1": 1.7,
+      "load5": 1.76,
+      "load15": 1.88,
+      "load1_per_cpu": 0.424,
+      "load5_per_cpu": 0.44,
+      "free_mem_mb": 1109,
+      "available_mem_mb": 3252,
+      "total_mem_mb": 8192,
+      "swapins": 14849349,
+      "orphaned_experiment_processes": [],
+      "heavy_processes": [
+        {
+          "pid": 3948,
+          "cpu": 99.2,
+          "cmd": "/System/Library/PrivateFrameworks/PhotoLibraryServices.framework/Versions/A/Support/photol"
+        }
+      ],
+      "pass": false,
+      "failures": [
+        "load1/cpu 0.424 > 0.35"
+      ]
+    },
+    {
+      "swapin_rate_per_s": 0,
+      "at": "2026-09-11T05:34:17.436Z",
+      "logical_cpus": 4,
+      "load1": 1.74,
+      "load5": 1.77,
+      "load15": 1.89,
+      "load1_per_cpu": 0.436,
+      "load5_per_cpu": 0.442,
+      "free_mem_mb": 1108,
+      "available_mem_mb": 3252,
+      "total_mem_mb": 8192,
+      "swapins": 14849349,
+      "orphaned_experiment_processes": [],
+      "heavy_processes": [
+        {
+          "pid": 3948,
+          "cpu": 98.5,
+          "cmd": "/System/Library/PrivateFrameworks/PhotoLibraryServices.framework/Versions/A/Support/photol"
+        }
+      ],
+      "pass": false,
+      "failures": [
+        "load1/cpu 0.436 > 0.35"
+      ]
+    },
+    {
+      "swapin_rate_per_s": 0,
+      "at": "2026-09-11T05:34:27.491Z",
+      "logical_cpus": 4,
+      "load1": 1.78,
+      "load5": 1.78,
+      "load15": 1.89,
+      "load1_per_cpu": 0.445,
+      "load5_per_cpu": 0.444,
+      "free_mem_mb": 1108,
+      "available_mem_mb": 3251,
+      "total_mem_mb": 8192,
+      "swapins": 14849349,
+      "orphaned_experiment_processes": [],
+      "heavy_processes": [
+        {
+          "pid": 3948,
+          "cpu": 98.2,
+          "cmd": "/System/Library/PrivateFrameworks/PhotoLibraryServices.framework/Versions/A/Support/photol"
+        }
+      ],
+      "pass": false,
+      "failures": [
+        "load1/cpu 0.445 > 0.35"
+      ]
+    },
+    {
+      "swapin_rate_per_s": 0,
+      "at": "2026-09-11T05:34:37.543Z",
+      "logical_cpus": 4,
+      "load1": 1.89,
+      "load5": 1.8,
+      "load15": 1.89,
+      "load1_per_cpu": 0.474,
+      "load5_per_cpu": 0.45,
+      "free_mem_mb": 1109,
+      "available_mem_mb": 3253,
+      "total_mem_mb": 8192,
+      "swapins": 14849349,
+      "orphaned_experiment_processes": [],
+      "heavy_processes": [
+        {
+          "pid": 3948,
+          "cpu": 97.8,
+          "cmd": "/System/Library/PrivateFrameworks/PhotoLibraryServices.framework/Versions/A/Support/photol"
+        }
+      ],
+      "pass": false,
+      "failures": [
+        "load1/cpu 0.474 > 0.35"
+      ]
+    },
+    {
+      "swapin_rate_per_s": 0,
+      "at": "2026-09-11T05:34:47.598Z",
+      "logical_cpus": 4,
+      "load1": 1.76,
+      "load5": 1.77,
+      "load15": 1.88,
+      "load1_per_cpu": 0.439,
+      "load5_per_cpu": 0.443,
+      "free_mem_mb": 1110,
+      "available_mem_mb": 3253,
+      "total_mem_mb": 8192,
+      "swapins": 14849349,
+      "orphaned_experiment_processes": [],
+      "heavy_processes": [
+        {
+          "pid": 3948,
+          "cpu": 98.6,
+          "cmd": "/System/Library/PrivateFrameworks/PhotoLibraryServices.framework/Versions/A/Support/photol"
+        }
+      ],
+      "pass": false,
+      "failures": [
+        "load1/cpu 0.439 > 0.35"
+      ]
+    },
+    {
+      "swapin_rate_per_s": 0,
+      "at": "2026-09-11T05:34:57.654Z",
+      "logical_cpus": 4,
+      "load1": 1.72,
+      "load5": 1.76,
+      "load15": 1.88,
+      "load1_per_cpu": 0.43,
+      "load5_per_cpu": 0.441,
+      "free_mem_mb": 1110,
+      "available_mem_mb": 3254,
+      "total_mem_mb": 8192,
+      "swapins": 14849349,
+      "orphaned_experiment_processes": [],
+      "heavy_processes": [],
+      "pass": false,
+      "failures": [
+        "load1/cpu 0.43 > 0.35"
+      ]
+    },
+    {
+      "swapin_rate_per_s": 0,
+      "at": "2026-09-11T05:35:07.728Z",
+      "logical_cpus": 4,
+      "load1": 2.06,
+      "load5": 1.84,
+      "load15": 1.9,
+      "load1_per_cpu": 0.514,
+      "load5_per_cpu": 0.459,
+      "free_mem_mb": 1078,
+      "available_mem_mb": 3223,
+      "total_mem_mb": 8192,
+      "swapins": 14849349,
+      "orphaned_experiment_processes": [],
+      "heavy_processes": [
+        {
+          "pid": 75113,
+          "cpu": 103.9,
+          "cmd": "/System/Library/PrivateFrameworks/MediaAnalysis.framework/Versions/A/mediaanalysisd"
+        }
+      ],
+      "pass": false,
+      "failures": [
+        "load1/cpu 0.514 > 0.35"
+      ]
+    },
+    {
+      "swapin_rate_per_s": 0,
+      "at": "2026-09-11T05:35:17.786Z",
+      "logical_cpus": 4,
+      "load1": 1.74,
+      "load5": 1.77,
+      "load15": 1.88,
+      "load1_per_cpu": 0.435,
+      "load5_per_cpu": 0.444,
+      "free_mem_mb": 1103,
+      "available_mem_mb": 3248,
+      "total_mem_mb": 8192,
+      "swapins": 14849349,
+      "orphaned_experiment_processes": [],
+      "heavy_processes": [],
+      "pass": false,
+      "failures": [
+        "load1/cpu 0.435 > 0.35"
+      ]
+    },
+    {
+      "swapin_rate_per_s": 0,
+      "at": "2026-09-11T05:35:27.838Z",
+      "logical_cpus": 4,
+      "load1": 1.63,
+      "load5": 1.75,
+      "load15": 1.87,
+      "load1_per_cpu": 0.406,
+      "load5_per_cpu": 0.437,
+      "free_mem_mb": 1099,
+      "available_mem_mb": 3245,
+      "total_mem_mb": 8192,
+      "swapins": 14849349,
+      "orphaned_experiment_processes": [],
+      "heavy_processes": [],
+      "pass": false,
+      "failures": [
+        "load1/cpu 0.406 > 0.35"
+      ]
+    },
+    {
+      "swapin_rate_per_s": 0,
+      "at": "2026-09-11T05:35:37.893Z",
+      "logical_cpus": 4,
+      "load1": 1.62,
+      "load5": 1.74,
+      "load15": 1.86,
+      "load1_per_cpu": 0.404,
+      "load5_per_cpu": 0.435,
+      "free_mem_mb": 1099,
+      "available_mem_mb": 3238,
+      "total_mem_mb": 8192,
+      "swapins": 14849349,
+      "orphaned_experiment_processes": [],
+      "heavy_processes": [
+        {
+          "pid": 365,
+          "cpu": 54.8,
+          "cmd": "/usr/libexec/containermanagerd --runmode=agent --user-container-mode=current --bundle-cont"
+        },
+        {
+          "pid": 492,
+          "cpu": 39.4,
+          "cmd": "/System/Library/PrivateFrameworks/CacheDelete.framework/deleted"
+        }
+      ],
+      "pass": false,
+      "failures": [
+        "load1/cpu 0.404 > 0.35"
+      ]
+    },
+    {
+      "swapin_rate_per_s": 0,
+      "at": "2026-09-11T05:35:47.945Z",
+      "logical_cpus": 4,
+      "load1": 1.67,
+      "load5": 1.75,
+      "load15": 1.87,
+      "load1_per_cpu": 0.419,
+      "load5_per_cpu": 0.437,
+      "free_mem_mb": 1083,
+      "available_mem_mb": 3222,
+      "total_mem_mb": 8192,
+      "swapins": 14849349,
+      "orphaned_experiment_processes": [],
+      "heavy_processes": [],
+      "pass": false,
+      "failures": [
+        "load1/cpu 0.419 > 0.35"
+      ]
+    },
+    {
+      "swapin_rate_per_s": 0,
+      "at": "2026-09-11T05:35:57.999Z",
+      "logical_cpus": 4,
+      "load1": 1.5,
+      "load5": 1.71,
+      "load15": 1.85,
+      "load1_per_cpu": 0.374,
+      "load5_per_cpu": 0.427,
+      "free_mem_mb": 1084,
+      "available_mem_mb": 3224,
+      "total_mem_mb": 8192,
+      "swapins": 14849349,
+      "orphaned_experiment_processes": [],
+      "heavy_processes": [],
+      "pass": false,
+      "failures": [
+        "load1/cpu 0.374 > 0.35"
+      ]
+    },
+    {
+      "swapin_rate_per_s": 0,
+      "at": "2026-09-11T05:36:08.053Z",
+      "logical_cpus": 4,
+      "load1": 1.49,
+      "load5": 1.7,
+      "load15": 1.84,
+      "load1_per_cpu": 0.373,
+      "load5_per_cpu": 0.425,
+      "free_mem_mb": 1100,
+      "available_mem_mb": 3240,
+      "total_mem_mb": 8192,
+      "swapins": 14849349,
+      "orphaned_experiment_processes": [],
+      "heavy_processes": [],
+      "pass": false,
+      "failures": [
+        "load1/cpu 0.373 > 0.35"
+      ]
+    },
+    {
+      "swapin_rate_per_s": 0,
+      "at": "2026-09-11T05:36:18.105Z",
+      "logical_cpus": 4,
+      "load1": 1.42,
+      "load5": 1.68,
+      "load15": 1.83,
+      "load1_per_cpu": 0.354,
+      "load5_per_cpu": 0.419,
+      "free_mem_mb": 1099,
+      "available_mem_mb": 3238,
+      "total_mem_mb": 8192,
+      "swapins": 14849349,
+      "orphaned_experiment_processes": [],
+      "heavy_processes": [],
+      "pass": false,
+      "failures": [
+        "load1/cpu 0.354 > 0.35"
+      ]
+    },
+    {
+      "swapin_rate_per_s": 0,
+      "at": "2026-09-11T05:36:28.157Z",
+      "logical_cpus": 4,
+      "load1": 1.36,
+      "load5": 1.65,
+      "load15": 1.82,
+      "load1_per_cpu": 0.34,
+      "load5_per_cpu": 0.413,
+      "free_mem_mb": 1104,
+      "available_mem_mb": 3243,
+      "total_mem_mb": 8192,
+      "swapins": 14849349,
+      "orphaned_experiment_processes": [],
+      "heavy_processes": [],
+      "pass": true,
+      "failures": []
+    },
+    {
+      "swapin_rate_per_s": 0,
+      "at": "2026-09-11T05:36:38.211Z",
+      "logical_cpus": 4,
+      "load1": 1.22,
+      "load5": 1.61,
+      "load15": 1.81,
+      "load1_per_cpu": 0.306,
+      "load5_per_cpu": 0.404,
+      "free_mem_mb": 1106,
+      "available_mem_mb": 3244,
+      "total_mem_mb": 8192,
+      "swapins": 14849349,
+      "orphaned_experiment_processes": [],
+      "heavy_processes": [],
+      "pass": true,
+      "failures": []
+    },
+    {
+      "swapin_rate_per_s": 0,
+      "at": "2026-09-11T05:36:48.264Z",
+      "logical_cpus": 4,
+      "load1": 1.43,
+      "load5": 1.64,
+      "load15": 1.82,
+      "load1_per_cpu": 0.357,
+      "load5_per_cpu": 0.411,
+      "free_mem_mb": 1105,
+      "available_mem_mb": 3244,
+      "total_mem_mb": 8192,
+      "swapins": 14849349,
+      "orphaned_experiment_processes": [],
+      "heavy_processes": [],
+      "pass": false,
+      "failures": [
+        "load1/cpu 0.357 > 0.35"
+      ]
+    },
+    {
+      "swapin_rate_per_s": 0,
+      "at": "2026-09-11T05:36:58.315Z",
+      "logical_cpus": 4,
+      "load1": 1.44,
+      "load5": 1.64,
+      "load15": 1.81,
+      "load1_per_cpu": 0.359,
+      "load5_per_cpu": 0.41,
+      "free_mem_mb": 1108,
+      "available_mem_mb": 3246,
+      "total_mem_mb": 8192,
+      "swapins": 14849349,
+      "orphaned_experiment_processes": [],
+      "heavy_processes": [],
+      "pass": false,
+      "failures": [
+        "load1/cpu 0.359 > 0.35"
+      ]
+    },
+    {
+      "swapin_rate_per_s": 0,
+      "at": "2026-09-11T05:37:08.369Z",
+      "logical_cpus": 4,
+      "load1": 1.29,
+      "load5": 1.6,
+      "load15": 1.8,
+      "load1_per_cpu": 0.322,
+      "load5_per_cpu": 0.4,
+      "free_mem_mb": 1111,
+      "available_mem_mb": 3250,
+      "total_mem_mb": 8192,
+      "swapins": 14849349,
+      "orphaned_experiment_processes": [],
+      "heavy_processes": [],
+      "pass": true,
+      "failures": []
+    },
+    {
+      "swapin_rate_per_s": 0,
+      "at": "2026-09-11T05:37:18.423Z",
+      "logical_cpus": 4,
+      "load1": 1.09,
+      "load5": 1.55,
+      "load15": 1.77,
+      "load1_per_cpu": 0.272,
+      "load5_per_cpu": 0.387,
+      "free_mem_mb": 1115,
+      "available_mem_mb": 3254,
+      "total_mem_mb": 8192,
+      "swapins": 14849349,
+      "orphaned_experiment_processes": [],
+      "heavy_processes": [],
+      "pass": true,
+      "failures": []
+    },
+    {
+      "swapin_rate_per_s": 0,
+      "at": "2026-09-11T05:37:28.474Z",
+      "logical_cpus": 4,
+      "load1": 1.08,
+      "load5": 1.53,
+      "load15": 1.76,
+      "load1_per_cpu": 0.271,
+      "load5_per_cpu": 0.382,
+      "free_mem_mb": 1114,
+      "available_mem_mb": 3253,
+      "total_mem_mb": 8192,
+      "swapins": 14849349,
+      "orphaned_experiment_processes": [],
+      "heavy_processes": [],
+      "pass": true,
+      "failures": []
+    },
+    {
+      "swapin_rate_per_s": 0,
+      "at": "2026-09-11T05:37:38.527Z",
+      "logical_cpus": 4,
+      "load1": 1.08,
+      "load5": 1.51,
+      "load15": 1.75,
+      "load1_per_cpu": 0.269,
+      "load5_per_cpu": 0.378,
+      "free_mem_mb": 1115,
+      "available_mem_mb": 3254,
+      "total_mem_mb": 8192,
+      "swapins": 14849349,
+      "orphaned_experiment_processes": [],
+      "heavy_processes": [],
+      "pass": true,
+      "failures": []
+    },
+    {
+      "swapin_rate_per_s": 0,
+      "at": "2026-09-11T05:37:48.580Z",
+      "logical_cpus": 4,
+      "load1": 0.91,
+      "load5": 1.46,
+      "load15": 1.73,
+      "load1_per_cpu": 0.227,
+      "load5_per_cpu": 0.365,
+      "free_mem_mb": 1116,
+      "available_mem_mb": 3254,
+      "total_mem_mb": 8192,
+      "swapins": 14849349,
+      "orphaned_experiment_processes": [],
+      "heavy_processes": [],
+      "pass": true,
+      "failures": []
+    },
+    {
+      "swapin_rate_per_s": 0,
+      "at": "2026-09-11T05:37:58.633Z",
+      "logical_cpus": 4,
+      "load1": 0.85,
+      "load5": 1.43,
+      "load15": 1.72,
+      "load1_per_cpu": 0.212,
+      "load5_per_cpu": 0.357,
+      "free_mem_mb": 1115,
+      "available_mem_mb": 3253,
+      "total_mem_mb": 8192,
+      "swapins": 14849349,
+      "orphaned_experiment_processes": [],
+      "heavy_processes": [],
+      "pass": true,
+      "failures": []
+    }
+  ]
+}

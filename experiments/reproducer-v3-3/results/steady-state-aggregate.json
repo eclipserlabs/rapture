@@ -1,0 +1,430 @@
+{
+  "generatedAt": "2026-09-11T06:17:25.586Z",
+  "manifest": "1101611db49f726c7a4a8e668fef13b61c8c3af09b657b9479af7b5269a99dbb",
+  "implementation": "773dfeef4b7edec1d987797f9b9c922e70563d8fbac6021f1b1ce1aad81a8342",
+  "run": "run 2 (corrected per-repetition criterion)",
+  "repetitions": 150,
+  "invalid_environment": 0,
+  "invalid_detail": [],
+  "perService": {
+    "ARMED_MIXED_1": {
+      "express-qs": {
+        "reps": 10,
+        "unmatched": {
+          "p50": 10.59,
+          "p95": 16.09,
+          "p99": 24.24
+        },
+        "selectedP95": 15.93,
+        "throughputRps": 1417.29,
+        "unmatchedP95OverheadPaired": 4.38,
+        "unmatchedP95OverheadRatio": 4.06,
+        "throughputDeltaPaired": -5.46,
+        "throughputDeltaRatio": -5.54,
+        "armedFractionActual": 1,
+        "alsActiveFraction": 0.79,
+        "alsEnableCountDuringMeasurement": 1046,
+        "quiescedBeforeMeasurement": [
+          null
+        ],
+        "selectedTotal": 2000,
+        "eventsTotal": 8000,
+        "persistedTotal": 0
+      },
+      "fastify-32442": {
+        "reps": 10,
+        "unmatched": {
+          "p50": 9.93,
+          "p95": 15.57,
+          "p99": 26.76
+        },
+        "selectedP95": 15.45,
+        "throughputRps": 1495.38,
+        "unmatchedP95OverheadPaired": 1.16,
+        "unmatchedP95OverheadRatio": 1.44,
+        "throughputDeltaPaired": -4.34,
+        "throughputDeltaRatio": -3.41,
+        "armedFractionActual": 1,
+        "alsActiveFraction": 0.796,
+        "alsEnableCountDuringMeasurement": 1042,
+        "quiescedBeforeMeasurement": [
+          null
+        ],
+        "selectedTotal": 2000,
+        "eventsTotal": 8000,
+        "persistedTotal": 0
+      },
+      "koa-1999": {
+        "reps": 10,
+        "unmatched": {
+          "p50": 8.84,
+          "p95": 13.87,
+          "p99": 22.73
+        },
+        "selectedP95": 13.65,
+        "throughputRps": 1671.89,
+        "unmatchedP95OverheadPaired": 1.65,
+        "unmatchedP95OverheadRatio": 2.01,
+        "throughputDeltaPaired": -4.27,
+        "throughputDeltaRatio": -4.72,
+        "armedFractionActual": 1,
+        "alsActiveFraction": 0.877,
+        "alsEnableCountDuringMeasurement": 926,
+        "quiescedBeforeMeasurement": [
+          null
+        ],
+        "selectedTotal": 2000,
+        "eventsTotal": 8000,
+        "persistedTotal": 0
+      }
+    },
+    "ARMED_MIXED_10": {
+      "express-qs": {
+        "reps": 10,
+        "unmatched": {
+          "p50": 10.87,
+          "p95": 16.47,
+          "p99": 24.72
+        },
+        "selectedP95": 16.61,
+        "throughputRps": 1386.15,
+        "unmatchedP95OverheadPaired": 6.68,
+        "unmatchedP95OverheadRatio": 6.56,
+        "throughputDeltaPaired": -7.28,
+        "throughputDeltaRatio": -7.61,
+        "armedFractionActual": 10,
+        "alsActiveFraction": 0.99,
+        "alsEnableCountDuringMeasurement": 143,
+        "quiescedBeforeMeasurement": [
+          null
+        ],
+        "selectedTotal": 20000,
+        "eventsTotal": 80000,
+        "persistedTotal": 0
+      },
+      "fastify-32442": {
+        "reps": 10,
+        "unmatched": {
+          "p50": 10.15,
+          "p95": 16.09,
+          "p99": 27.12
+        },
+        "selectedP95": 15.97,
+        "throughputRps": 1458.68,
+        "unmatchedP95OverheadPaired": 5.4,
+        "unmatchedP95OverheadRatio": 4.83,
+        "throughputDeltaPaired": -6.43,
+        "throughputDeltaRatio": -5.78,
+        "armedFractionActual": 10,
+        "alsActiveFraction": 0.985,
+        "alsEnableCountDuringMeasurement": 139,
+        "quiescedBeforeMeasurement": [
+          null
+        ],
+        "selectedTotal": 20000,
+        "eventsTotal": 80000,
+        "persistedTotal": 0
+      },
+      "koa-1999": {
+        "reps": 10,
+        "unmatched": {
+          "p50": 8.97,
+          "p95": 14.16,
+          "p99": 22.98
+        },
+        "selectedP95": 14.27,
+        "throughputRps": 1648.4,
+        "unmatchedP95OverheadPaired": 4.03,
+        "unmatchedP95OverheadRatio": 4.19,
+        "throughputDeltaPaired": -6.01,
+        "throughputDeltaRatio": -6.06,
+        "armedFractionActual": 10,
+        "alsActiveFraction": 0.993,
+        "alsEnableCountDuringMeasurement": 109,
+        "quiescedBeforeMeasurement": [
+          null
+        ],
+        "selectedTotal": 20000,
+        "eventsTotal": 80000,
+        "persistedTotal": 0
+      }
+    },
+    "ARMED_NEVER_SELECTED": {
+      "express-qs": {
+        "reps": 10,
+        "unmatched": {
+          "p50": 10.11,
+          "p95": 15.55,
+          "p99": 23.5
+        },
+        "selectedP95": null,
+        "throughputRps": 1476.56,
+        "unmatchedP95OverheadPaired": -0.64,
+        "unmatchedP95OverheadRatio": 0.59,
+        "throughputDeltaPaired": -0.71,
+        "throughputDeltaRatio": -1.59,
+        "armedFractionActual": 0,
+        "alsActiveFraction": 0,
+        "alsEnableCountDuringMeasurement": 0,
+        "quiescedBeforeMeasurement": [
+          null
+        ],
+        "selectedTotal": 0,
+        "eventsTotal": 0,
+        "persistedTotal": 0
+      },
+      "fastify-32442": {
+        "reps": 10,
+        "unmatched": {
+          "p50": 9.68,
+          "p95": 15.43,
+          "p99": 26.63
+        },
+        "selectedP95": null,
+        "throughputRps": 1526.9,
+        "unmatchedP95OverheadPaired": -0.93,
+        "unmatchedP95OverheadRatio": 0.56,
+        "throughputDeltaPaired": -1.39,
+        "throughputDeltaRatio": -1.37,
+        "armedFractionActual": 0,
+        "alsActiveFraction": 0,
+        "alsEnableCountDuringMeasurement": 0,
+        "quiescedBeforeMeasurement": [
+          null
+        ],
+        "selectedTotal": 0,
+        "eventsTotal": 0,
+        "persistedTotal": 0
+      },
+      "koa-1999": {
+        "reps": 10,
+        "unmatched": {
+          "p50": 8.52,
+          "p95": 13.75,
+          "p99": 23.01
+        },
+        "selectedP95": null,
+        "throughputRps": 1725.56,
+        "unmatchedP95OverheadPaired": 0.25,
+        "unmatchedP95OverheadRatio": 1.15,
+        "throughputDeltaPaired": -0.86,
+        "throughputDeltaRatio": -1.66,
+        "armedFractionActual": 0,
+        "alsActiveFraction": 0,
+        "alsEnableCountDuringMeasurement": 0,
+        "quiescedBeforeMeasurement": [
+          null
+        ],
+        "selectedTotal": 0,
+        "eventsTotal": 0,
+        "persistedTotal": 0
+      }
+    },
+    "POST_CAPTURE_QUIESCENT_UNMATCHED": {
+      "express-qs": {
+        "reps": 10,
+        "unmatched": {
+          "p50": 10.18,
+          "p95": 15.54,
+          "p99": 22.84
+        },
+        "selectedP95": null,
+        "throughputRps": 1471.84,
+        "unmatchedP95OverheadPaired": 0.05,
+        "unmatchedP95OverheadRatio": 0.55,
+        "throughputDeltaPaired": -1.21,
+        "throughputDeltaRatio": -1.9,
+        "armedFractionActual": 0,
+        "alsActiveFraction": 0.027,
+        "alsEnableCountDuringMeasurement": 0,
+        "quiescedBeforeMeasurement": [
+          true
+        ],
+        "selectedTotal": 0,
+        "eventsTotal": 0,
+        "persistedTotal": 0
+      },
+      "fastify-32442": {
+        "reps": 10,
+        "unmatched": {
+          "p50": 9.75,
+          "p95": 15.32,
+          "p99": 26.26
+        },
+        "selectedP95": null,
+        "throughputRps": 1515.1,
+        "unmatchedP95OverheadPaired": -0.57,
+        "unmatchedP95OverheadRatio": -0.18,
+        "throughputDeltaPaired": -2.22,
+        "throughputDeltaRatio": -2.13,
+        "armedFractionActual": 0,
+        "alsActiveFraction": 0.026,
+        "alsEnableCountDuringMeasurement": 0,
+        "quiescedBeforeMeasurement": [
+          true
+        ],
+        "selectedTotal": 0,
+        "eventsTotal": 0,
+        "persistedTotal": 0
+      },
+      "koa-1999": {
+        "reps": 10,
+        "unmatched": {
+          "p50": 8.57,
+          "p95": 13.58,
+          "p99": 22.2
+        },
+        "selectedP95": null,
+        "throughputRps": 1725.85,
+        "unmatchedP95OverheadPaired": 1.07,
+        "unmatchedP95OverheadRatio": -0.1,
+        "throughputDeltaPaired": -1.27,
+        "throughputDeltaRatio": -1.64,
+        "armedFractionActual": 0,
+        "alsActiveFraction": 0.03,
+        "alsEnableCountDuringMeasurement": 0,
+        "quiescedBeforeMeasurement": [
+          true
+        ],
+        "selectedTotal": 0,
+        "eventsTotal": 0,
+        "persistedTotal": 0
+      }
+    },
+    "OFF_MIXED": {
+      "express-qs": {
+        "reps": 10,
+        "unmatched": {
+          "p50": 9.97,
+          "p95": 15.46,
+          "p99": 23.26
+        },
+        "throughputRps": 1500.38
+      },
+      "fastify-32442": {
+        "reps": 10,
+        "unmatched": {
+          "p50": 9.57,
+          "p95": 15.35,
+          "p99": 25.93
+        },
+        "throughputRps": 1548.13
+      },
+      "koa-1999": {
+        "reps": 10,
+        "unmatched": {
+          "p50": 8.43,
+          "p95": 13.59,
+          "p99": 22.51
+        },
+        "throughputRps": 1754.69
+      }
+    }
+  },
+  "acrossServices": {
+    "ARMED_MIXED_1": {
+      "unmatchedP95": {
+        "paired": 1.65,
+        "ratio": 2.01,
+        "perServicePaired": [
+          4.38,
+          1.16,
+          1.65
+        ],
+        "max": 4.38,
+        "pooledCI": {
+          "lo": 1.16,
+          "hi": 3.89
+        }
+      },
+      "throughput": {
+        "paired": -4.34,
+        "ratio": -4.72,
+        "perServicePaired": [
+          -5.46,
+          -4.34,
+          -4.27
+        ],
+        "min": -5.46
+      }
+    },
+    "ARMED_MIXED_10": {
+      "unmatchedP95": {
+        "paired": 5.4,
+        "ratio": 4.83,
+        "perServicePaired": [
+          6.68,
+          5.4,
+          4.03
+        ],
+        "max": 6.68,
+        "pooledCI": {
+          "lo": 3.78,
+          "hi": 6.68
+        }
+      },
+      "throughput": {
+        "paired": -6.43,
+        "ratio": -6.06,
+        "perServicePaired": [
+          -7.28,
+          -6.43,
+          -6.01
+        ],
+        "min": -7.28
+      }
+    },
+    "ARMED_NEVER_SELECTED": {
+      "unmatchedP95": {
+        "paired": -0.64,
+        "ratio": 0.59,
+        "perServicePaired": [
+          -0.64,
+          -0.93,
+          0.25
+        ],
+        "max": 0.25,
+        "pooledCI": {
+          "lo": -1.83,
+          "hi": 1.87
+        }
+      },
+      "throughput": {
+        "paired": -0.86,
+        "ratio": -1.59,
+        "perServicePaired": [
+          -0.71,
+          -1.39,
+          -0.86
+        ],
+        "min": -1.39
+      }
+    },
+    "POST_CAPTURE_QUIESCENT_UNMATCHED": {
+      "unmatchedP95": {
+        "paired": 0.05,
+        "ratio": -0.1,
+        "perServicePaired": [
+          0.05,
+          -0.57,
+          1.07
+        ],
+        "max": 1.07,
+        "pooledCI": {
+          "lo": -2.27,
+          "hi": 1.91
+        }
+      },
+      "throughput": {
+        "paired": -1.27,
+        "ratio": -1.9,
+        "perServicePaired": [
+          -1.21,
+          -2.22,
+          -1.27
+        ],
+        "min": -2.22
+      }
+    }
+  }
+}
