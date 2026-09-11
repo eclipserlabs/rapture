@@ -1,0 +1,140 @@
+{
+  "schema": "v3-2-parse-server-offline-1",
+  "generatedAt": "2026-09-10T15:32:58.368Z",
+  "runs": 20,
+  "expected_fingerprint": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+  "question": "is the unsupported boot-time-dependency condition deterministic and fail-closed?",
+  "exact_replays": "0/20",
+  "false_passes": 0,
+  "outcome_classes": [
+    {
+      "class": "FAIL_CLOSED:app did not boot",
+      "count": 20
+    }
+  ],
+  "outcome_class_count": 1,
+  "deterministic": true,
+  "fail_closed": true,
+  "raw": [
+    {
+      "pass": false,
+      "hash": null,
+      "error": "app did not boot; stderr: AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1139:18)\n    at after",
+      "ms": 8301
+    },
+    {
+      "pass": false,
+      "hash": null,
+      "error": "app did not boot; stderr: AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1139:18)\n    at after",
+      "ms": 4108
+    },
+    {
+      "pass": false,
+      "hash": null,
+      "error": "app did not boot; stderr: AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1139:18)\n    at after",
+      "ms": 3331
+    },
+    {
+      "pass": false,
+      "hash": null,
+      "error": "app did not boot; stderr: AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1139:18)\n    at after",
+      "ms": 3653
+    },
+    {
+      "pass": false,
+      "hash": null,
+      "error": "app did not boot; stderr: AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1139:18)\n    at after",
+      "ms": 5757
+    },
+    {
+      "pass": false,
+      "hash": null,
+      "error": "app did not boot; stderr: AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1139:18)\n    at after",
+      "ms": 4559
+    },
+    {
+      "pass": false,
+      "hash": null,
+      "error": "app did not boot; stderr: AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1139:18)\n    at after",
+      "ms": 5785
+    },
+    {
+      "pass": false,
+      "hash": null,
+      "error": "app did not boot; stderr: AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1139:18)\n    at after",
+      "ms": 3027
+    },
+    {
+      "pass": false,
+      "hash": null,
+      "error": "app did not boot; stderr: AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1139:18)\n    at after",
+      "ms": 3646
+    },
+    {
+      "pass": false,
+      "hash": null,
+      "error": "app did not boot; stderr: AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1139:18)\n    at after",
+      "ms": 2876
+    },
+    {
+      "pass": false,
+      "hash": null,
+      "error": "app did not boot; stderr: AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1139:18)\n    at after",
+      "ms": 3638
+    },
+    {
+      "pass": false,
+      "hash": null,
+      "error": "app did not boot; stderr: AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1139:18)\n    at after",
+      "ms": 3020
+    },
+    {
+      "pass": false,
+      "hash": null,
+      "error": "app did not boot; stderr: AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1139:18)\n    at after",
+      "ms": 3473
+    },
+    {
+      "pass": false,
+      "hash": null,
+      "error": "app did not boot; stderr: AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1139:18)\n    at after",
+      "ms": 3177
+    },
+    {
+      "pass": false,
+      "hash": null,
+      "error": "app did not boot; stderr: AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1139:18)\n    at after",
+      "ms": 3322
+    },
+    {
+      "pass": false,
+      "hash": null,
+      "error": "app did not boot; stderr: AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1139:18)\n    at after",
+      "ms": 2875
+    },
+    {
+      "pass": false,
+      "hash": null,
+      "error": "app did not boot; stderr: AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1139:18)\n    at after",
+      "ms": 3337
+    },
+    {
+      "pass": false,
+      "hash": null,
+      "error": "app did not boot; stderr: AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1139:18)\n    at after",
+      "ms": 3787
+    },
+    {
+      "pass": false,
+      "hash": null,
+      "error": "app did not boot; stderr: AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1139:18)\n    at after",
+      "ms": 3170
+    },
+    {
+      "pass": false,
+      "hash": null,
+      "error": "app did not boot; stderr: AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1139:18)\n    at after",
+      "ms": 3483
+    }
+  ]
+}

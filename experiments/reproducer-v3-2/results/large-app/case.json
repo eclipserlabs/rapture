@@ -1,0 +1,31 @@
+{
+  "repository": "parse-community/parse-server",
+  "bug": "Postgres query on a Parse internal field with no database column returns 500 instead of an empty result (#10308)",
+  "fix_commit": "c5c43259d1f98af5bbbbc44d9daf7c0f1f8168d3",
+  "route": "GET /parse/classes/_User?where={\"_tombstone\":{\"$exists\":true}} (the application's own REST route)",
+  "experiment_authored_route": false,
+  "application_source_changes_loc": 0,
+  "bug_specific_rapture_wrappers": 0,
+  "bug_specific_rapture_assertions": 0,
+  "manual_causal_facts": 0,
+  "rapture_integration": "node --import <register.mjs> + environment variables only",
+  "baseline_buggy": {
+    "status": 500,
+    "body": "{\"code\":1,\"error\":\"An internal server error occurred\"}"
+  },
+  "baseline_fixed": {
+    "status": 200,
+    "body": "{\"results\":[]}"
+  },
+  "baseline_reproduced": true,
+  "first_failure_status": 500,
+  "artifacts_after_first_failure": 0,
+  "second_failure_status": 500,
+  "artifacts_after_second_failure": 1,
+  "armed_automatically": true,
+  "arm_events": 1,
+  "captured_incidents": 1,
+  "incident_key": "GET /parse/classes/_User",
+  "fully_instrumented_requests": 1,
+  "captured": true
+}

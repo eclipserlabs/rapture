@@ -1,0 +1,52 @@
+{
+  "swapin_rate_per_s": null,
+  "at": "2026-09-10T15:59:51.656Z",
+  "logical_cpus": 4,
+  "load1": 15.73,
+  "load5": 8.62,
+  "load15": 6.18,
+  "load1_per_cpu": 3.932,
+  "load5_per_cpu": 2.155,
+  "free_mem_mb": 139,
+  "available_mem_mb": 2494,
+  "total_mem_mb": 8192,
+  "swapins": 12926216,
+  "orphaned_experiment_processes": [],
+  "heavy_processes": [
+    {
+      "pid": 3967,
+      "cpu": 40.5,
+      "cmd": "/Applications/Helium.app/Contents/Frameworks/Helium Framework.framework/Versions/151.0.792"
+    }
+  ],
+  "pass": false,
+  "failures": [
+    "load1/cpu 3.932 > 0.35",
+    "load5/cpu 2.155 > 0.6"
+  ],
+  "criteria": {
+    "logical_cpus": 4,
+    "max_load1_per_cpu": 0.35,
+    "max_load5_per_cpu": 0.6,
+    "forbidden_process_patterns": [
+      "replay-raw-slowboot",
+      "classcheck",
+      "parse-server",
+      "reproducer-v3-2/services/",
+      "reproducer-v3/headline/services/",
+      "steady-state.mjs",
+      "perf-brief.mjs",
+      "regression-8.mjs",
+      "selective-correctness",
+      "leak-diagnosis.mjs"
+    ],
+    "allowed_process_patterns": [
+      "fake-external.mjs"
+    ],
+    "min_available_mem_mb": 500,
+    "max_swapins_per_second": 400,
+    "stabilization_window_seconds": 60,
+    "sample_interval_seconds": 10,
+    "rule": "every sample in the stabilization window must satisfy every criterion; a single violation restarts the window"
+  }
+}

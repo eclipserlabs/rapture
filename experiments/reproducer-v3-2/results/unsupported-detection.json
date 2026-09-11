@@ -1,0 +1,32 @@
+{
+  "schema": "v3-2-unsupported-detection-1",
+  "generatedAt": "2026-09-10T15:47:12.192Z",
+  "mechanism": "boundary operations observed before the first inbound request are counted; a non-zero count marks the artifact offline_replay_supported=false with unsupported_condition=BOOT_TIME_DEPENDENCY_ACCESS",
+  "findings": [
+    {
+      "id": "UND-neg-koa-1999",
+      "description": "in-request-only fixture is NOT flagged unsupported",
+      "pass": true,
+      "detail": "bootOps=0 offlineSupported=true"
+    },
+    {
+      "id": "UND-neg-express-qs",
+      "description": "in-request-only fixture is NOT flagged unsupported",
+      "pass": true,
+      "detail": "bootOps=0 offlineSupported=true"
+    },
+    {
+      "id": "UND-neg-hapi-4564",
+      "description": "in-request-only fixture is NOT flagged unsupported",
+      "pass": true,
+      "detail": "bootOps=0 offlineSupported=true"
+    },
+    {
+      "id": "UND-pos-parse-server",
+      "description": "parse-server capture is flagged BOOT_TIME_DEPENDENCY_ACCESS at capture time",
+      "pass": true,
+      "detail": "triggerStatus=500 artifacts=1 flagged=1 bootOps=55 fingerprintPreserved=true"
+    }
+  ],
+  "allPassed": true
+}

@@ -1,0 +1,35 @@
+{
+  "schema": "v3-2-session-location-1",
+  "generatedAt": "2026-09-10T14:38:11.043Z",
+  "note": "measured against the CURRENT V3.2 tree; redact.mjs is byte-identical to frozen V3, so these locations are inherited V3 behaviour",
+  "existing_mechanism": "redact.mjs SESSION_PAIR maps `(sess|session|sid)=<value>` to `[SESS:sha12]`; SENSITIVE_HEADER covers cookie/set-cookie/authorization/x-api-key/*token*/*secret*",
+  "sentinels": {
+    "opaque": "sess-OPAQUE0011223344",
+    "signed": "s:abc123.SIGNATUREdeadbeefcafe",
+    "bearerish": "eyJhbGciOiJIUzI1NiJ9.PAYLOAD.SIG",
+    "irrelevant": "theme-dark-not-a-secret"
+  },
+  "locations": {
+    "opaque": {
+      "value": "sess-OPAQUE0011223344",
+      "rawOccurrences": 0,
+      "paths": []
+    },
+    "signed": {
+      "value": "s:abc123.SIGNATUREdeadbeefcafe",
+      "rawOccurrences": 0,
+      "paths": []
+    },
+    "bearerish": {
+      "value": "eyJhbGciOiJIUzI1NiJ9.PAYLOAD.SIG",
+      "rawOccurrences": 0,
+      "paths": []
+    },
+    "irrelevant": {
+      "value": "theme-dark-not-a-secret",
+      "rawOccurrences": 0,
+      "paths": []
+    }
+  },
+  "surrogates_present": []
+}

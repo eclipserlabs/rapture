@@ -1,0 +1,66 @@
+{
+  "schema": "v3-2-floor-attribution-1",
+  "measured_at": "2026-09-10T17:27:22.126Z",
+  "logical_cpus": 4,
+  "window_seconds": 60,
+  "load1_per_cpu": 0.495,
+  "load5_per_cpu": 0.457,
+  "load15_per_cpu": 0.477,
+  "ceiling_load1_per_cpu": 0.35,
+  "ceiling_load5_per_cpu": 0.6,
+  "total_process_cpu_percent": 73.1,
+  "cpu_capacity_percent": 400,
+  "cpu_utilization_fraction": 0.183,
+  "load_not_explained_by_cpu": "load average 1.98 vs 0.73 cores of actual CPU time; the remainder is threads blocked in I/O, not computation",
+  "attribution": [
+    {
+      "bucket": "macOS system",
+      "medianCpuPercent": 0.7,
+      "totalCpuPercent": 35.1,
+      "peakRssMb": 70,
+      "processes": 426
+    },
+    {
+      "bucket": "Zed",
+      "medianCpuPercent": 8.5,
+      "totalCpuPercent": 20.7,
+      "peakRssMb": 138,
+      "processes": 3
+    },
+    {
+      "bucket": "Claude (this session)",
+      "medianCpuPercent": 10.3,
+      "totalCpuPercent": 10.8,
+      "peakRssMb": 574,
+      "processes": 1
+    },
+    {
+      "bucket": "WindowServer",
+      "medianCpuPercent": 5.5,
+      "totalCpuPercent": 5.5,
+      "peakRssMb": 40,
+      "processes": 1
+    },
+    {
+      "bucket": "other",
+      "medianCpuPercent": 0.4,
+      "totalCpuPercent": 1,
+      "peakRssMb": 32,
+      "processes": 42
+    },
+    {
+      "bucket": "quiescence gate (mine)",
+      "medianCpuPercent": 0,
+      "totalCpuPercent": 0,
+      "peakRssMb": 50,
+      "processes": 2
+    },
+    {
+      "bucket": "fake-external (required dependency)",
+      "medianCpuPercent": 0,
+      "totalCpuPercent": 0,
+      "peakRssMb": 31,
+      "processes": 1
+    }
+  ]
+}

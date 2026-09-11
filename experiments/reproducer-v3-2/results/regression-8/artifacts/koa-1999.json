@@ -1,0 +1,144 @@
+{
+  "schema": "incident-capture-v2",
+  "captured_at": "2026-09-10T15:47:26.821Z",
+  "req_id": "req-94607-1789055246684-1",
+  "request": {
+    "method": "GET",
+    "path": "http://example.com/u",
+    "query": "?q=1",
+    "headers": {
+      "host": "127.0.0.1:47901",
+      "connection": "close"
+    },
+    "host": "127.0.0.1:47901",
+    "body": null
+  },
+  "response": {
+    "status": 500,
+    "headers": {
+      "x-logged": "1",
+      "content-type": "application/json; charset=utf-8",
+      "content-length": 48
+    },
+    "body": "{\"error\":\"URL mismatch\",\"code\":\"E_URL_MISMATCH\"}"
+  },
+  "events": [
+    {
+      "seq": 1,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT sid, uid, role FROM v3dir_sessions WHERE sid = $1:[\"sid=[SESS:196daafb6c79]\"]",
+      "request": {
+        "text": "SELECT sid, uid, role FROM v3dir_sessions WHERE sid = $1",
+        "values": [
+          "sid=[SESS:196daafb6c79]"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 0,
+        "rows": [],
+        "fields": [
+          {
+            "name": "sid",
+            "dataTypeID": 25
+          },
+          {
+            "name": "uid",
+            "dataTypeID": 25
+          },
+          {
+            "name": "role",
+            "dataTypeID": 25
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "seq": 2,
+      "kind": "pg",
+      "op": "query",
+      "key": "pg:SELECT sid, uid, role FROM v3dir_sessions WHERE sid = $1:[\"sid=[SESS:196daafb6c79]\"]",
+      "request": {
+        "text": "SELECT sid, uid, role FROM v3dir_sessions WHERE sid = $1",
+        "values": [
+          "sid=[SESS:196daafb6c79]"
+        ]
+      },
+      "result": {
+        "command": "SELECT",
+        "rowCount": 0,
+        "rows": [],
+        "fields": [
+          {
+            "name": "sid",
+            "dataTypeID": 25
+          },
+          {
+            "name": "uid",
+            "dataTypeID": 25
+          },
+          {
+            "name": "role",
+            "dataTypeID": 25
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "seq": 3,
+      "kind": "http",
+      "op": "fetch",
+      "key": "http:GET:/health:",
+      "request": {
+        "method": "GET",
+        "url": "/health",
+        "body": null
+      },
+      "result": {
+        "status": 200,
+        "headers": {
+          "connection": "keep-alive",
+          "content-type": "application/json",
+          "date": "Thu, 10 Sep 2026 15:47:26 GMT",
+          "keep-alive": "timeout=5",
+          "transfer-encoding": "chunked"
+        },
+        "body": "{\"ok\":true}",
+        "truncated": false,
+        "unreadable": false
+      },
+      "error": null
+    },
+    {
+      "seq": 4,
+      "kind": "time",
+      "op": "now",
+      "key": "time:0",
+      "request": {},
+      "result": {
+        "value": 1789055246810
+      },
+      "error": null
+    }
+  ],
+  "config": {
+    "FAKE_ORIGIN": "http://localhost:47109"
+  },
+  "app_error": null,
+  "boundary_ops_outside_request": 0,
+  "offline_replay_supported": true,
+  "fingerprint": {
+    "kind": "app",
+    "request_method": "GET",
+    "route_or_operation": "http://example.com/u",
+    "http_status": 500,
+    "error_name_or_code": "ERR:E_URL_MISMATCH",
+    "normalized_class": "ERR:E_URL_MISMATCH",
+    "stable_frame": null,
+    "fingerprint_hash": "63c92c1932732bca8177a8a0cfe128adb8ad99f2548e7382f588312c4e592ecc"
+  },
+  "capture_hash": "c491acba1626db91dbb17c3fe62391249ae2d196abaf3678c19ff2c71382fede"
+}

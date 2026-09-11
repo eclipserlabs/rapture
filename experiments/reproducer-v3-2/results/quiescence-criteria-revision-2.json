@@ -1,0 +1,14 @@
+{
+  "schema": "v3-2-quiescence-harness-fix-1",
+  "revised_at": "2026-09-10T16:49:53.999Z",
+  "change": "orphan detection now excludes the measuring process own PID and its parent shell",
+  "reason": "scripts/steady-state.mjs is itself on the forbidden-orphan list, so the campaign process detected ITSELF and refused to start. Self-reference bug in the guard, not a host condition.",
+  "thresholds_unchanged": [
+    "max_load1_per_cpu 0.35",
+    "max_load5_per_cpu 0.60",
+    "min_available_mem_mb 500",
+    "max_swapins_per_second 400",
+    "60s stabilization window"
+  ],
+  "scope": "experiment harness only; no Rapture capture, replay, privacy, routing or fingerprint code touched; implementation tree remains 773dfeef with zero drift"
+}

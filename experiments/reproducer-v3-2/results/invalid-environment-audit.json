@@ -1,0 +1,59 @@
+{
+  "schema": "v3-2-invalid-environment-audit-1",
+  "recorded_at": "2026-09-10T13:34:33.380Z",
+  "rule": "repetitions are marked INVALID_ENVIRONMENT on objective host evidence only, never because of their Rapture outcome",
+  "discarded_repetitions": [
+    {
+      "id": "express-qs/ARMED_MIXED_10/rep1",
+      "observed": "unmatched p95 269.28ms, whole-service 129.0 rps, armed 10.0%, 0 errors, 2000 selected, 8000 events"
+    },
+    {
+      "id": "express-qs/OFF_MIXED/rep1",
+      "observed": "unmatched p95 169.93ms, whole-service 194.1 rps, armed 10.0%, 0 errors"
+    }
+  ],
+  "window": {
+    "started_approx": "2026-09-10T21:22 local",
+    "detected": "2026-09-10T21:27 local"
+  },
+  "objective_evidence": {
+    "logical_cpus": 4,
+    "load_average_at_detection": [
+      50.6,
+      43.77,
+      58.64
+    ],
+    "load1_per_cpu_at_detection": 12.65,
+    "throughput_observed_rps": [
+      129,
+      194.1
+    ],
+    "throughput_expected_same_handler_rps": "~1000 (V3.1 campaign, same handler and workload shape)"
+  },
+  "interfering_processes": [
+    {
+      "command": "bash /tmp/classcheck.sh",
+      "pid": 43929,
+      "started": "Thu Sep 10 06:10:40 2026",
+      "elapsed_at_kill": "~15h",
+      "description": "leftover 6-iteration parse-server replay loop from the prior V3.1 session; each iteration repeatedly booted parse-server (45,400 LOC) with 120s boot / 180s total timeouts"
+    },
+    {
+      "command": "node large-app/replay-raw-slowboot.mjs",
+      "description": "child of the above; respawned with a new PID after each kill until the parent loop itself was terminated"
+    },
+    {
+      "command": "services/express-qs.mjs / koa-1999.mjs / fastify-32442.mjs",
+      "pids": [
+        65271,
+        65278,
+        65285
+      ],
+      "description": "orphaned V3.2 fixture services left running by earlier smoke tests"
+    }
+  ],
+  "disposition": "excluded from every headline estimator; retained here for audit only",
+  "invalidity_reason": "host contention, not experiment outcome. No gate value was computed or inspected from these repetitions.",
+  "remediation": "entire process tree terminated; machine-quiescence protocol (scripts/quiescence.mjs) preregistered in results/quiescence-gate.json before Phase 1 restarts from repetition 1",
+  "headline_rule": "pre-cleanup and post-cleanup measurements are never mixed; Phase 1 restarts at repetition 1 on the corrected pg-ownership implementation"
+}

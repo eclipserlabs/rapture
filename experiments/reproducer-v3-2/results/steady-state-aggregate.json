@@ -1,0 +1,370 @@
+{
+  "generatedAt": "2026-09-11T00:58:58.241Z",
+  "manifest": "1101611db49f726c7a4a8e668fef13b61c8c3af09b657b9479af7b5269a99dbb",
+  "implementation": "773dfeef4b7edec1d987797f9b9c922e70563d8fbac6021f1b1ce1aad81a8342",
+  "run": "run 2 (corrected per-repetition criterion)",
+  "repetitions": 150,
+  "invalid_environment": 0,
+  "invalid_detail": [],
+  "perService": {
+    "ARMED_MIXED_1": {
+      "express-qs": {
+        "reps": 10,
+        "unmatched": {
+          "p50": 10.56,
+          "p95": 15.93,
+          "p99": 23.88
+        },
+        "selectedP95": 15.82,
+        "throughputRps": 1429.03,
+        "unmatchedP95OverheadPaired": 5.15,
+        "unmatchedP95OverheadRatio": 4.36,
+        "throughputDeltaPaired": -5.92,
+        "throughputDeltaRatio": -5.44,
+        "armedFractionActual": 1,
+        "selectedTotal": 2000,
+        "eventsTotal": 8000,
+        "persistedTotal": 0
+      },
+      "fastify-32442": {
+        "reps": 10,
+        "unmatched": {
+          "p50": 9.94,
+          "p95": 15.58,
+          "p99": 27.22
+        },
+        "selectedP95": 15.55,
+        "throughputRps": 1489.15,
+        "unmatchedP95OverheadPaired": 3.22,
+        "unmatchedP95OverheadRatio": 4.08,
+        "throughputDeltaPaired": -5.54,
+        "throughputDeltaRatio": -5.93,
+        "armedFractionActual": 1,
+        "selectedTotal": 2000,
+        "eventsTotal": 8000,
+        "persistedTotal": 0
+      },
+      "koa-1999": {
+        "reps": 10,
+        "unmatched": {
+          "p50": 8.79,
+          "p95": 13.81,
+          "p99": 22.58
+        },
+        "selectedP95": 13.54,
+        "throughputRps": 1686.13,
+        "unmatchedP95OverheadPaired": 1.02,
+        "unmatchedP95OverheadRatio": 1.91,
+        "throughputDeltaPaired": -3.86,
+        "throughputDeltaRatio": -3.81,
+        "armedFractionActual": 1,
+        "selectedTotal": 2000,
+        "eventsTotal": 8000,
+        "persistedTotal": 0
+      }
+    },
+    "ARMED_MIXED_10": {
+      "express-qs": {
+        "reps": 10,
+        "unmatched": {
+          "p50": 10.82,
+          "p95": 16.42,
+          "p99": 24.41
+        },
+        "selectedP95": 16.26,
+        "throughputRps": 1387.88,
+        "unmatchedP95OverheadPaired": 8.82,
+        "unmatchedP95OverheadRatio": 7.58,
+        "throughputDeltaPaired": -7.8,
+        "throughputDeltaRatio": -8.16,
+        "armedFractionActual": 10,
+        "selectedTotal": 20000,
+        "eventsTotal": 80000,
+        "persistedTotal": 0
+      },
+      "fastify-32442": {
+        "reps": 10,
+        "unmatched": {
+          "p50": 10.15,
+          "p95": 15.98,
+          "p99": 27.6
+        },
+        "selectedP95": 15.93,
+        "throughputRps": 1459.7,
+        "unmatchedP95OverheadPaired": 6.63,
+        "unmatchedP95OverheadRatio": 6.75,
+        "throughputDeltaPaired": -7.74,
+        "throughputDeltaRatio": -7.79,
+        "armedFractionActual": 10,
+        "selectedTotal": 20000,
+        "eventsTotal": 80000,
+        "persistedTotal": 0
+      },
+      "koa-1999": {
+        "reps": 10,
+        "unmatched": {
+          "p50": 8.92,
+          "p95": 14.05,
+          "p99": 22.8
+        },
+        "selectedP95": 14.07,
+        "throughputRps": 1660.85,
+        "unmatchedP95OverheadPaired": 3.03,
+        "unmatchedP95OverheadRatio": 3.62,
+        "throughputDeltaPaired": -5.69,
+        "throughputDeltaRatio": -5.25,
+        "armedFractionActual": 10,
+        "selectedTotal": 20000,
+        "eventsTotal": 80000,
+        "persistedTotal": 0
+      }
+    },
+    "ARMED_MIXED_25": {
+      "express-qs": {
+        "reps": 10,
+        "unmatched": {
+          "p50": 11.15,
+          "p95": 16.93,
+          "p99": 26.17
+        },
+        "selectedP95": 16.88,
+        "throughputRps": 1351,
+        "unmatchedP95OverheadPaired": 10.39,
+        "unmatchedP95OverheadRatio": 10.92,
+        "throughputDeltaPaired": -10.18,
+        "throughputDeltaRatio": -10.6,
+        "armedFractionActual": 25,
+        "selectedTotal": 50000,
+        "eventsTotal": 200000,
+        "persistedTotal": 0
+      },
+      "fastify-32442": {
+        "reps": 10,
+        "unmatched": {
+          "p50": 10.31,
+          "p95": 16.41,
+          "p99": 27.34
+        },
+        "selectedP95": 16.45,
+        "throughputRps": 1432.1,
+        "unmatchedP95OverheadPaired": 9.27,
+        "unmatchedP95OverheadRatio": 9.66,
+        "throughputDeltaPaired": -9.59,
+        "throughputDeltaRatio": -9.54,
+        "armedFractionActual": 25,
+        "selectedTotal": 50000,
+        "eventsTotal": 200000,
+        "persistedTotal": 0
+      },
+      "koa-1999": {
+        "reps": 10,
+        "unmatched": {
+          "p50": 9.02,
+          "p95": 14.66,
+          "p99": 23.29
+        },
+        "selectedP95": 14.7,
+        "throughputRps": 1630.66,
+        "unmatchedP95OverheadPaired": 10.09,
+        "unmatchedP95OverheadRatio": 8.14,
+        "throughputDeltaPaired": -7.49,
+        "throughputDeltaRatio": -6.97,
+        "armedFractionActual": 25,
+        "selectedTotal": 50000,
+        "eventsTotal": 200000,
+        "persistedTotal": 0
+      }
+    },
+    "ARMED_UNMATCHED_ONLY": {
+      "express-qs": {
+        "reps": 10,
+        "unmatched": {
+          "p50": 10.55,
+          "p95": 15.88,
+          "p99": 23.22
+        },
+        "selectedP95": null,
+        "throughputRps": 1427.76,
+        "unmatchedP95OverheadPaired": 5.07,
+        "unmatchedP95OverheadRatio": 4.04,
+        "throughputDeltaPaired": -5.86,
+        "throughputDeltaRatio": -5.52,
+        "armedFractionActual": 0,
+        "selectedTotal": 0,
+        "eventsTotal": 0,
+        "persistedTotal": 0
+      },
+      "fastify-32442": {
+        "reps": 10,
+        "unmatched": {
+          "p50": 9.95,
+          "p95": 15.72,
+          "p99": 26.52
+        },
+        "selectedP95": null,
+        "throughputRps": 1488.59,
+        "unmatchedP95OverheadPaired": 6.08,
+        "unmatchedP95OverheadRatio": 5.02,
+        "throughputDeltaPaired": -5.88,
+        "throughputDeltaRatio": -5.97,
+        "armedFractionActual": 0,
+        "selectedTotal": 0,
+        "eventsTotal": 0,
+        "persistedTotal": 0
+      },
+      "koa-1999": {
+        "reps": 10,
+        "unmatched": {
+          "p50": 8.82,
+          "p95": 13.85,
+          "p99": 22.61
+        },
+        "selectedP95": null,
+        "throughputRps": 1680.4,
+        "unmatchedP95OverheadPaired": 1.33,
+        "unmatchedP95OverheadRatio": 2.17,
+        "throughputDeltaPaired": -3.48,
+        "throughputDeltaRatio": -4.13,
+        "armedFractionActual": 0,
+        "selectedTotal": 0,
+        "eventsTotal": 0,
+        "persistedTotal": 0
+      }
+    },
+    "OFF_MIXED": {
+      "express-qs": {
+        "reps": 10,
+        "unmatched": {
+          "p50": 9.88,
+          "p95": 15.26,
+          "p99": 22.91
+        },
+        "throughputRps": 1511.21
+      },
+      "fastify-32442": {
+        "reps": 10,
+        "unmatched": {
+          "p50": 9.34,
+          "p95": 14.97,
+          "p99": 25.02
+        },
+        "throughputRps": 1583.09
+      },
+      "koa-1999": {
+        "reps": 10,
+        "unmatched": {
+          "p50": 8.4,
+          "p95": 13.56,
+          "p99": 22.46
+        },
+        "throughputRps": 1752.85
+      }
+    }
+  },
+  "acrossServices": {
+    "ARMED_MIXED_1": {
+      "unmatchedP95": {
+        "paired": 3.22,
+        "ratio": 4.08,
+        "perServicePaired": [
+          5.15,
+          3.22,
+          1.02
+        ],
+        "max": 5.15,
+        "pooledCI": {
+          "lo": 1.36,
+          "hi": 5.23
+        }
+      },
+      "throughput": {
+        "paired": -5.54,
+        "ratio": -5.44,
+        "perServicePaired": [
+          -5.92,
+          -5.54,
+          -3.86
+        ],
+        "min": -5.92
+      }
+    },
+    "ARMED_MIXED_10": {
+      "unmatchedP95": {
+        "paired": 6.63,
+        "ratio": 6.75,
+        "perServicePaired": [
+          8.82,
+          6.63,
+          3.03
+        ],
+        "max": 8.82,
+        "pooledCI": {
+          "lo": 3.41,
+          "hi": 8.61
+        }
+      },
+      "throughput": {
+        "paired": -7.74,
+        "ratio": -7.79,
+        "perServicePaired": [
+          -7.8,
+          -7.74,
+          -5.69
+        ],
+        "min": -7.8
+      }
+    },
+    "ARMED_MIXED_25": {
+      "unmatchedP95": {
+        "paired": 10.09,
+        "ratio": 9.66,
+        "perServicePaired": [
+          10.39,
+          9.27,
+          10.09
+        ],
+        "max": 10.39,
+        "pooledCI": {
+          "lo": 8.22,
+          "hi": 10.6
+        }
+      },
+      "throughput": {
+        "paired": -9.59,
+        "ratio": -9.54,
+        "perServicePaired": [
+          -10.18,
+          -9.59,
+          -7.49
+        ],
+        "min": -10.18
+      }
+    },
+    "ARMED_UNMATCHED_ONLY": {
+      "unmatchedP95": {
+        "paired": 5.07,
+        "ratio": 4.04,
+        "perServicePaired": [
+          5.07,
+          6.08,
+          1.33
+        ],
+        "max": 6.08,
+        "pooledCI": {
+          "lo": 3.78,
+          "hi": 5.83
+        }
+      },
+      "throughput": {
+        "paired": -5.86,
+        "ratio": -5.52,
+        "perServicePaired": [
+          -5.86,
+          -5.88,
+          -3.48
+        ],
+        "min": -5.88
+      }
+    }
+  }
+}

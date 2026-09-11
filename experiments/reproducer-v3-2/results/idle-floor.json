@@ -1,0 +1,263 @@
+{
+  "schema": "v3-2-idle-floor-1",
+  "measured_at": "2026-09-10T14:20:27.483Z",
+  "trigger": "historical load fully drained (load15/cpu fell below 1.25)",
+  "logical_cpus": 4,
+  "window_seconds": 120,
+  "sample_interval_seconds": 10,
+  "samples": [
+    {
+      "at": "2026-09-10T14:18:26.635Z",
+      "load1_per_cpu": 0.487,
+      "load5_per_cpu": 0.587,
+      "load15_per_cpu": 1.19,
+      "available_mem_mb": 2301,
+      "swapin_rate_per_s": null,
+      "orphans": 0,
+      "evaluation": {
+        "pass": false,
+        "failures": [
+          "load1/cpu 0.487 > 0.35"
+        ]
+      }
+    },
+    {
+      "at": "2026-09-10T14:18:36.691Z",
+      "load1_per_cpu": 0.528,
+      "load5_per_cpu": 0.593,
+      "load15_per_cpu": 1.185,
+      "available_mem_mb": 2305,
+      "swapin_rate_per_s": 32,
+      "orphans": 0,
+      "evaluation": {
+        "pass": false,
+        "failures": [
+          "load1/cpu 0.528 > 0.35"
+        ]
+      }
+    },
+    {
+      "at": "2026-09-10T14:18:46.763Z",
+      "load1_per_cpu": 0.522,
+      "load5_per_cpu": 0.589,
+      "load15_per_cpu": 1.177,
+      "available_mem_mb": 2303,
+      "swapin_rate_per_s": 25,
+      "orphans": 0,
+      "evaluation": {
+        "pass": false,
+        "failures": [
+          "load1/cpu 0.522 > 0.35"
+        ]
+      }
+    },
+    {
+      "at": "2026-09-10T14:18:56.831Z",
+      "load1_per_cpu": 0.518,
+      "load5_per_cpu": 0.586,
+      "load15_per_cpu": 1.167,
+      "available_mem_mb": 2304,
+      "swapin_rate_per_s": 0,
+      "orphans": 0,
+      "evaluation": {
+        "pass": false,
+        "failures": [
+          "load1/cpu 0.518 > 0.35"
+        ]
+      }
+    },
+    {
+      "at": "2026-09-10T14:19:06.902Z",
+      "load1_per_cpu": 0.515,
+      "load5_per_cpu": 0.583,
+      "load15_per_cpu": 1.16,
+      "available_mem_mb": 2301,
+      "swapin_rate_per_s": 0,
+      "orphans": 0,
+      "evaluation": {
+        "pass": false,
+        "failures": [
+          "load1/cpu 0.515 > 0.35"
+        ]
+      }
+    },
+    {
+      "at": "2026-09-10T14:19:16.965Z",
+      "load1_per_cpu": 0.473,
+      "load5_per_cpu": 0.572,
+      "load15_per_cpu": 1.15,
+      "available_mem_mb": 2301,
+      "swapin_rate_per_s": 51,
+      "orphans": 0,
+      "evaluation": {
+        "pass": false,
+        "failures": [
+          "load1/cpu 0.473 > 0.35"
+        ]
+      }
+    },
+    {
+      "at": "2026-09-10T14:19:27.029Z",
+      "load1_per_cpu": 0.437,
+      "load5_per_cpu": 0.561,
+      "load15_per_cpu": 1.14,
+      "available_mem_mb": 2299,
+      "swapin_rate_per_s": 0,
+      "orphans": 0,
+      "evaluation": {
+        "pass": false,
+        "failures": [
+          "load1/cpu 0.437 > 0.35"
+        ]
+      }
+    },
+    {
+      "at": "2026-09-10T14:19:37.106Z",
+      "load1_per_cpu": 0.446,
+      "load5_per_cpu": 0.559,
+      "load15_per_cpu": 1.133,
+      "available_mem_mb": 2301,
+      "swapin_rate_per_s": 0,
+      "orphans": 0,
+      "evaluation": {
+        "pass": false,
+        "failures": [
+          "load1/cpu 0.446 > 0.35"
+        ]
+      }
+    },
+    {
+      "at": "2026-09-10T14:19:47.162Z",
+      "load1_per_cpu": 0.436,
+      "load5_per_cpu": 0.553,
+      "load15_per_cpu": 1.123,
+      "available_mem_mb": 2300,
+      "swapin_rate_per_s": 0,
+      "orphans": 0,
+      "evaluation": {
+        "pass": false,
+        "failures": [
+          "load1/cpu 0.436 > 0.35"
+        ]
+      }
+    },
+    {
+      "at": "2026-09-10T14:19:57.231Z",
+      "load1_per_cpu": 0.427,
+      "load5_per_cpu": 0.547,
+      "load15_per_cpu": 1.113,
+      "available_mem_mb": 2296,
+      "swapin_rate_per_s": 6,
+      "orphans": 0,
+      "evaluation": {
+        "pass": false,
+        "failures": [
+          "load1/cpu 0.427 > 0.35"
+        ]
+      }
+    },
+    {
+      "at": "2026-09-10T14:20:07.297Z",
+      "load1_per_cpu": 0.473,
+      "load5_per_cpu": 0.554,
+      "load15_per_cpu": 1.113,
+      "available_mem_mb": 2295,
+      "swapin_rate_per_s": 6,
+      "orphans": 0,
+      "evaluation": {
+        "pass": false,
+        "failures": [
+          "load1/cpu 0.473 > 0.35"
+        ]
+      }
+    },
+    {
+      "at": "2026-09-10T14:20:17.353Z",
+      "load1_per_cpu": 0.497,
+      "load5_per_cpu": 0.557,
+      "load15_per_cpu": 1.107,
+      "available_mem_mb": 2295,
+      "swapin_rate_per_s": 23,
+      "orphans": 0,
+      "evaluation": {
+        "pass": false,
+        "failures": [
+          "load1/cpu 0.497 > 0.35"
+        ]
+      }
+    },
+    {
+      "at": "2026-09-10T14:20:27.423Z",
+      "load1_per_cpu": 0.476,
+      "load5_per_cpu": 0.55,
+      "load15_per_cpu": 1.097,
+      "available_mem_mb": 2292,
+      "swapin_rate_per_s": 38,
+      "orphans": 0,
+      "evaluation": {
+        "pass": false,
+        "failures": [
+          "load1/cpu 0.476 > 0.35"
+        ]
+      }
+    }
+  ],
+  "idle_floor": {
+    "load1_per_cpu": {
+      "median": 0.476,
+      "min": 0.427,
+      "max": 0.528
+    },
+    "load5_per_cpu": {
+      "median": 0.561,
+      "min": 0.547,
+      "max": 0.593
+    },
+    "load15_per_cpu": {
+      "median": 1.14,
+      "min": 1.097,
+      "max": 1.19
+    },
+    "available_mem_mb": {
+      "median": 2301
+    },
+    "swapin_rate_per_s": {
+      "median": 6
+    }
+  },
+  "criteria": {
+    "max_load1_per_cpu": 0.35,
+    "max_load5_per_cpu": 0.6,
+    "min_available_mem_mb": 500,
+    "max_swapins_per_second": 400
+  },
+  "gate_passed_any_sample": false,
+  "gate_passed_all_samples": false,
+  "binding_constraints": [
+    "load1/cpu"
+  ],
+  "orphaned_experiment_processes": 0,
+  "total_process_cpu_percent": 35.6,
+  "top_cpu_consumers": [
+    {
+      "cpu": 15.7,
+      "rssMb": 97,
+      "cmd": "/Applications/Zed.app/Contents/MacOS/zed"
+    },
+    {
+      "cpu": 7.1,
+      "rssMb": 28,
+      "cmd": "/System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer -daemon"
+    },
+    {
+      "cpu": 5.8,
+      "rssMb": 542,
+      "cmd": "/Users/wira/.local/share/claude/versions/2.1.233"
+    },
+    {
+      "cpu": 3.4,
+      "rssMb": 358,
+      "cmd": "/Applications/Helium.app/Contents/Frameworks/Helium Framework.framework/Versions/151.0.7922.169"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "schema": "v3-2-session-safety-1",
+  "generatedAt": "2026-09-10T14:39:11.413Z",
+  "mechanism": "shape-derived standalone credential classification: markers are fixed points, signature-bearing values are blocked, opaque handles become a deterministic [SESS:sha12] surrogate applied identically to headers, pg parameters and replay keys",
+  "findings": [
+    {
+      "id": "SESS-1",
+      "description": "opaque session handle never persists raw",
+      "pass": true,
+      "detail": "artifacts=1 rawPresent=false"
+    },
+    {
+      "id": "SESS-2",
+      "description": "the same credential yields ONE stable surrogate everywhere it appears",
+      "pass": true,
+      "detail": "distinctSurrogates=1 [SESS:6cda0c40268c]"
+    },
+    {
+      "id": "SESS-3",
+      "description": "cookie header and pg parameter carry the identical surrogate",
+      "pass": true,
+      "detail": "cookie=\"sess=[SESS:6cda0c40268c]; theme=dark\" pgValues=[\"[SESS:6cda0c40268c]\",\"[SESS:6cda0c40268c]\"]"
+    },
+    {
+      "id": "SESS-4",
+      "description": "irrelevant cookie value is preserved, not mangled",
+      "pass": true,
+      "detail": "cookie=\"sess=[SESS:6cda0c40268c]; theme=dark\""
+    },
+    {
+      "id": "SESS-5",
+      "description": "surrogated artifact still replays the exact failure offline",
+      "pass": true,
+      "detail": "pass=true class=ERR:E_SESS_PROBE status=500"
+    },
+    {
+      "id": "SESS-6-signed",
+      "description": "signed cookie is privacy-blocked and never persists raw",
+      "pass": true,
+      "detail": "raw=false blocked=1 executable=false"
+    },
+    {
+      "id": "SESS-6-JWT-shaped",
+      "description": "JWT-shaped token is privacy-blocked and never persists raw",
+      "pass": true,
+      "detail": "raw=false blocked=1 executable=false"
+    },
+    {
+      "id": "SESS-7",
+      "description": "an unselected request's session credential never reaches a selected incident (raw)",
+      "pass": true,
+      "detail": "incidents=30 rawUnselectedPresent=false"
+    },
+    {
+      "id": "SESS-8",
+      "description": "not even the SURROGATE of an unselected credential reaches a selected incident",
+      "pass": true,
+      "detail": "surrogate=[SESS:06c925e14ea1] present=false"
+    }
+  ],
+  "allPassed": true
+}

@@ -1,0 +1,26 @@
+{
+  "schema": "v3-2-quiescence-criteria-revision-1",
+  "revised_at": "2026-09-10T13:38:36.109Z",
+  "revised_before_any_headline_result_was_inspected": true,
+  "revisions": [
+    {
+      "criterion": "max_swapins_delta",
+      "was": "cumulative swap-ins since gate start <= 5000",
+      "now": "swap-in RATE per sample interval <= 400/s",
+      "reason": "the cumulative form grows monotonically while the gate waits, so it can never be satisfied by a machine that is merely idle-but-previously-busy. It measured elapsed time, not contention."
+    },
+    {
+      "criterion": "min_free_mem_mb",
+      "was": 200,
+      "now": 80,
+      "reason": "macOS deliberately keeps free memory low because most RAM is file cache; raw free memory is not a pressure signal on this OS. Active swapping is, and is now measured directly."
+    }
+  ],
+  "unchanged": [
+    "max_load1_per_cpu 0.35",
+    "max_load5_per_cpu 0.60",
+    "zero orphaned experiment processes",
+    "60s stabilization window, 10s samples, any violation restarts the window"
+  ],
+  "note": "no performance result had been produced or inspected under the V3.2 protocol at the time of this revision; the two pre-cleanup repetitions were already excluded as INVALID_ENVIRONMENT on host evidence."
+}

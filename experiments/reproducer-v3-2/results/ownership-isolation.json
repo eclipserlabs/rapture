@@ -1,0 +1,81 @@
+{
+  "schema": "v3-2-ownership-isolation-differential-1",
+  "generatedAt": "2026-09-10T16:00:50.699Z",
+  "question": "does a boundary observation always belong to the request that issued it, under pool pressure?",
+  "design": "pool max is far below concurrency so nearly every query is queued and dispatched from a foreign request's stack, which is the exact condition that produced the defect",
+  "concurrency": 16,
+  "poolMax": 2,
+  "single_variable": "the two arms differ in exactly one file, src/capture/patch-pg.mjs; every other file is identical",
+  "defect": {
+    "mechanism": "a queued pg pool connection request is dispatched synchronously from the stack of whichever request RELEASES a connection, so AsyncLocalStorage reports the releasing request context and the nested Client.query records into a foreign incident",
+    "consequences": [
+      "correctness: a captured incident contains boundary events it did not issue",
+      "privacy: SQL parameters and result rows of a request that was NEVER selected can be persisted into another request incident",
+      "nondeterminism: contamination is load- and timing-dependent"
+    ],
+    "fix": "bind the caller capture context to the pool connect callback so the observation belongs to the issuing request whatever dispatches it"
+  },
+  "arms": {
+    "without_fix": {
+      "patch_pg_sha": "069957e7ecfe34e2",
+      "allPassed": false,
+      "findings": [
+        {
+          "id": "OWN-A1",
+          "description": "unselected request markers never appear in any captured incident",
+          "pass": false,
+          "detail": "incidents=40 contaminated=1"
+        },
+        {
+          "id": "OWN-A2",
+          "description": "each incident contains only its own request marker",
+          "pass": true,
+          "detail": "incidents=40 withForeignMarkers=0"
+        },
+        {
+          "id": "OWN-B1",
+          "description": "two concurrently-captured incidents never exchange boundary observations",
+          "pass": true,
+          "detail": "incidents=300 crossContaminated=0"
+        },
+        {
+          "id": "OWN-B2",
+          "description": "no incident contains markers from both armed routes",
+          "pass": false,
+          "detail": "incidents=300 mixed=2"
+        }
+      ]
+    },
+    "with_fix": {
+      "patch_pg_sha": "f5165cadcf64677c",
+      "allPassed": true,
+      "findings": [
+        {
+          "id": "OWN-A1",
+          "description": "unselected request markers never appear in any captured incident",
+          "pass": true,
+          "detail": "incidents=40 contaminated=0"
+        },
+        {
+          "id": "OWN-A2",
+          "description": "each incident contains only its own request marker",
+          "pass": true,
+          "detail": "incidents=40 withForeignMarkers=0"
+        },
+        {
+          "id": "OWN-B1",
+          "description": "two concurrently-captured incidents never exchange boundary observations",
+          "pass": true,
+          "detail": "incidents=300 crossContaminated=0"
+        },
+        {
+          "id": "OWN-B2",
+          "description": "no incident contains markers from both armed routes",
+          "pass": true,
+          "detail": "incidents=300 mixed=0"
+        }
+      ]
+    }
+  },
+  "test_sensitivity": "the suite demonstrably detects the defect; a zero-incident run is recorded as a FAILURE so it cannot pass vacuously"
+}

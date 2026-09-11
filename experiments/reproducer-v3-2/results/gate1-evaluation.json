@@ -1,0 +1,72 @@
+{
+  "schema": "v3-2-gate1-evaluation-1",
+  "generatedAt": "2026-09-11T01:01:04.790Z",
+  "manifest": "1101611db49f726c7a4a8e668fef13b61c8c3af09b657b9479af7b5269a99dbb",
+  "implementation": "773dfeef4b7edec1d987797f9b9c922e70563d8fbac6021f1b1ce1aad81a8342",
+  "run": "run 2",
+  "repetitions": 150,
+  "invalid_environment": 0,
+  "primary_condition": "ARMED_MIXED_10",
+  "gates": [
+    {
+      "gate": "median unmatched p95 overhead @10% armed",
+      "required": "<= 5%",
+      "observed": "6.63% paired / 6.75% ratio-of-medians",
+      "pass": false,
+      "note": "fails under both estimators"
+    },
+    {
+      "gate": "median whole-service throughput degradation @10% armed",
+      "required": "<= 5%",
+      "observed": "-7.74% paired / -7.79% ratio-of-medians",
+      "pass": false,
+      "note": "fails under both estimators"
+    },
+    {
+      "gate": "no single service unmatched p95 above 10% @10% armed",
+      "required": "<= 10%",
+      "observed": "8.82% worst service",
+      "pass": true
+    },
+    {
+      "gate": "unmatched capture contexts",
+      "required": "0",
+      "observed": "0",
+      "pass": true
+    },
+    {
+      "gate": "unmatched boundary capture events",
+      "required": "0",
+      "observed": "0",
+      "pass": true
+    }
+  ],
+  "passed": 3,
+  "failed": 2,
+  "gate_1_verdict": "FAIL",
+  "secondary_reporting": {
+    "ARMED_MIXED_1": {
+      "unmatchedP95": 3.22,
+      "throughput": -5.54
+    },
+    "ARMED_MIXED_10": {
+      "unmatchedP95": 6.63,
+      "throughput": -7.74
+    },
+    "ARMED_MIXED_25": {
+      "unmatchedP95": 10.09,
+      "throughput": -9.59
+    },
+    "ARMED_UNMATCHED_ONLY": {
+      "unmatchedP95": 5.07,
+      "throughput": -5.86
+    }
+  },
+  "causal_finding": {
+    "statement": "the work-avoidance property holds perfectly and is NOT the problem; the cost is the process-wide async_hooks tax, which is paid permanently once capture has been activated even when zero capture work is performed",
+    "decisive_evidence": "ARMED_UNMATCHED_ONLY: 150 captures forced during activation, then 0 requests selected and 0 boundary events recorded during the entire measured interval, alsEnabled=true throughout, median throughput 1488.1 rps against OFF_MIXED 1578.4 rps (-5.7%) and unmatched p95 +5.07%",
+    "mechanism": "AsyncLocalStorage is enabled lazily by the first selected request and can never quiesce again while a route remains armed, because hasActivePreArm() reports the pre-armed rule set as live arming",
+    "flat_floor": "the degradation is approximately flat in armed rate (-5.86% at 0% armed, -5.54% at 1%, -7.74% at 10%, -9.59% at 25%), so most of it is the activation tax rather than the cost of the selected requests themselves",
+    "relation_to_v3_1": "V3.1 measured this configuration at -1.14% throughput, but in a process that had NEVER activated capture. That result is not comparable and its host was additionally contended; V3.2 supersedes it."
+  }
+}

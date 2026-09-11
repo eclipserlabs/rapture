@@ -1,0 +1,47 @@
+{
+  "criteria": {
+    "logical_cpus": 4,
+    "max_load1_per_cpu": 0.35,
+    "max_load5_per_cpu": 0.6,
+    "forbidden_process_patterns": [
+      "replay-raw-slowboot",
+      "classcheck",
+      "parse-server",
+      "reproducer-v3-2/services/",
+      "reproducer-v3/headline/services/",
+      "steady-state.mjs",
+      "perf-brief.mjs",
+      "regression-8.mjs",
+      "selective-correctness",
+      "leak-diagnosis.mjs"
+    ],
+    "allowed_process_patterns": [
+      "fake-external.mjs"
+    ],
+    "min_available_mem_mb": 500,
+    "max_swapins_per_second": 400,
+    "stabilization_window_seconds": 60,
+    "sample_interval_seconds": 10,
+    "rule": "every sample in the stabilization window must satisfy every criterion; a single violation restarts the window"
+  },
+  "snapshot": {
+    "swapin_rate_per_s": null,
+    "at": "2026-09-10T23:55:58.561Z",
+    "logical_cpus": 4,
+    "load1": 0.88,
+    "load5": 1.89,
+    "load15": 2.38,
+    "load1_per_cpu": 0.22,
+    "load5_per_cpu": 0.472,
+    "free_mem_mb": 1998,
+    "available_mem_mb": 3694,
+    "total_mem_mb": 8192,
+    "swapins": 14837893,
+    "orphaned_experiment_processes": [],
+    "heavy_processes": [],
+    "evaluation": {
+      "pass": true,
+      "failures": []
+    }
+  }
+}

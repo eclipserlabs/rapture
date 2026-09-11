@@ -1,0 +1,188 @@
+{
+  "experiment": "Rapture Reproducer V3.2 — Route-Targeted Capture Boundary Closure",
+  "frozen_before": "any Phase 1, 2, 3 or 4 measurement",
+  "purpose": "Decide whether route-targeted capture is bounded, safe and predictable enough to STOP capture-mechanism research and proceed to V4 repair-value testing. This is not another broad capture experiment.",
+  "v3_1_checkpoint": {
+    "commit": "a8d774a55eb01175373c990b9699bf334f9f348e",
+    "branch_created": "research/minimal-executable-reproducer-v3-2-route-boundary",
+    "verification": "results/v31-checkpoint-verification.json",
+    "note": "committed with --no-verify; the repo pre-commit hook invokes ./node_modules/@fastify/pre-commit/hook which is not installed. Pre-existing repo condition."
+  },
+  "frozen_architecture": {
+    "keep": [
+      "route-targeted pre-request selection",
+      "currentRequest() as the capture-context predicate",
+      "frozen V3 FailureFingerprintV2 semantics",
+      "frozen V1/V2 GREEDY reduction",
+      "fail-closed replay for unrecorded DB/network effects",
+      "Node 22+ single-process boundary",
+      "existing pg/fetch/time/random/config capture model"
+    ],
+    "killed": "random request sampling as a recommended deployment architecture",
+    "rule": "process-wide async_hooks must not be reintroduced to support random sampling"
+  },
+  "phase_1_steady_state": {
+    "question": "Does unmatched traffic remain near OFF after route-targeted capture is ALREADY active in the same long-running process?",
+    "services": ["express-qs", "koa-1999", "fastify-32442"],
+    "workload_equivalence": {
+      "problem": "each frozen V3 fixture exposes only ONE substantive route, so a mixed-traffic control cannot be built from it without comparing unlike work",
+      "solution": "V3.2-local copies of the three fixtures register the SAME options object and the SAME handler at a second path (/parse-b, /u-b, /v-b). Both populations therefore perform byte-identical application work (pg session lookup + outbound fetch + framework routing) while normalizing to distinct route keys.",
+      "control_rule": "OFF_MIXED executes the IDENTICAL two-route request mix as its treatment arm. Unmatched latency is never compared against a different OFF workload.",
+      "disclosure": "these are experiment perf fixtures, not application code; no corpus application source is modified and the frozen 8-case corpus is untouched"
+    },
+    "modes": {
+      "OFF_MIXED": "capture disabled; identical two-route mix",
+      "ARMED_UNMATCHED_ONLY": "route targeting configured; 0% of measured traffic matches",
+      "ARMED_MIXED_1": "~1% armed-route traffic, 99% unmatched",
+      "ARMED_MIXED_10": "~10% armed-route traffic, 90% unmatched",
+      "ARMED_MIXED_25": "~25% armed-route traffic, 75% unmatched"
+    },
+    "activation_requirement": "capture must ALREADY have been exercised before the measured interval: each treatment repetition forces at least 100 selected captures during warmup, verified from runtime counters, before any measured request is issued",
+    "methodology": {
+      "repetitions_per_service_per_mode": 10,
+      "measured_requests_per_repetition": 20000,
+      "concurrency": 16,
+      "warmup_requests": 1000,
+      "fresh_process_per_repetition": true,
+      "order": "randomized per repetition with a recorded seed",
+      "raw_data": "every repetition preserved with full per-population latency arrays"
+    },
+    "metrics": [
+      "unmatched p50/p90/p95/p99", "selected p50/p95", "whole-service throughput",
+      "CPU user/system", "RSS", "heap", "event-loop utilization", "GC count",
+      "capture context count", "boundary-context hit count",
+      "event-buffer allocation count", "persisted artifact count"
+    ],
+    "estimators": {
+      "primary": "median across per-repetition paired TREATMENT-vs-OFF_MIXED ratios",
+      "secondary": "ratio-of-medians, reported alongside",
+      "rule": "a gate PASSES only under both estimators; otherwise ESTIMATOR_DEPENDENT and treated as not passing"
+    },
+    "hard_gate": {
+      "population": "unmatched requests in an already-active mixed-traffic process",
+      "median_unmatched_p95_overhead": "<= 5%",
+      "median_whole_service_throughput_degradation_at_10pct_armed": "<= 5%",
+      "single_service_unmatched_p95_at_10pct_armed": "> 10% is failure",
+      "unmatched_capture_contexts": 0,
+      "unmatched_boundary_capture_events": 0
+    },
+    "secondary_reporting": "1%, 10% and 25% all reported so indirect contention scaling is visible even if the 10% gate passes"
+  },
+  "phase_2_session_credential_safety": {
+    "question": "Can persisted executable incidents avoid containing live session credentials while retaining replay fidelity?",
+    "rule": "that this is a pre-existing V3 gap does NOT make it acceptable for production",
+    "threat_classes": [
+      "cookie headers containing session identifiers",
+      "signed session cookies",
+      "bearer-like session tokens carried in cookies",
+      "opaque random session handles",
+      "Set-Cookie responses where captured",
+      "session identifiers later reused as DB lookup parameters"
+    ],
+    "design_order": [
+      "locate exactly where raw cookie data enters the persisted artifact",
+      "determine whether replay needs raw value, equality identity, structural format, or cryptographic validity",
+      "prefer a deterministic surrogate when only identity/equality is required",
+      "the transformation must be idempotent and stable wherever the same logical credential appears",
+      "if replay requires an unrecoverable cryptographic credential, do NOT persist it; emit PRIVACY_BLOCKED_SESSION_CREDENTIAL",
+      "never silently redact in a way that causes a DIFFERENT failure during replay"
+    ],
+    "forbidden": [
+      "persisting live cookie/session credentials",
+      "encrypting secrets into the artifact and calling it redaction",
+      "embedding encryption keys alongside the artifact",
+      "weakening secret scanning",
+      "replacing exact failure identity with any-5xx behaviour",
+      "hard-coding corpus cookie names as the entire solution"
+    ],
+    "required_cases": [
+      "opaque session id where only equality matters",
+      "session value reused as a pg lookup parameter",
+      "signed / cryptographically meaningful session cookie",
+      "same credential appearing across request and boundary events",
+      "irrelevant cookie values",
+      "the existing V3/V3.1 privacy attack suite"
+    ],
+    "hard_gate": {
+      "raw_session_credentials_in_persisted_captures": 0,
+      "raw_session_credentials_in_reduced_artifacts": 0,
+      "wrong_failure_acceptances": 0,
+      "redaction_induced_false_replays": 0,
+      "privacy_block_behaviour": "deterministic and explicit when fidelity cannot be preserved safely"
+    },
+    "interpretation": "an explicitly privacy-blocked credential-dependent incident class is ACCEPTABLE; leaking the credential, or claiming successful replay when the transformation changed application behaviour, is NOT"
+  },
+  "phase_3_parse_server": {
+    "question": "Why does parse-server replay only 16/20 across two outcome classes?",
+    "rule": "diagnose before fixing; add no capture dimension until a causal mechanism is established",
+    "initial_reproduction": {
+      "source": "frozen V3.1 checkpoint artifact",
+      "runs": 100,
+      "record": ["outcome-class frequencies", "complete fingerprints", "earliest observable divergence"]
+    },
+    "decision_tree": [
+      "1 fresh process per replay vs repeated replay in one process — module-global / process-lifetime contamination",
+      "2 fresh temp state vs reused temp state — hidden filesystem or cache dependence",
+      "3 enumerate active handles, timers, async resources, detached work around the request — request-external async behaviour",
+      "4 compare captured event sequence and boundary consumption across outcome classes — first deterministic divergence",
+      "5 compare time/random/config/environment consumption — uncaptured nondeterminism already inside the boundary",
+      "6 module-global caches / singletons / process init state — replay depending on mutable state outside the request capture",
+      "7 ONE controlled intervention removing or forcing the suspected factor — causal evidence, not correlation"
+    ],
+    "valid_outcomes": {
+      "SUPPORTED_AFTER_GENERIC_FIX": "root cause inside the declared boundary; generic fix justified by the diagnosis; 20/20 exact in fresh processes; no bug-specific rule",
+      "DETERMINISTIC_UNSUPPORTED_BOUNDARY": "specific causal mechanism demonstrated; lies outside the boundary; runtime detects the unsupported condition BEFORE emitting a trustworthy artifact, or marks it non-portable, consistently in >= 20/20 attempts",
+      "UNRESOLVED_NONDETERMINISM": "two or more unexplained replay outcome classes remain"
+    },
+    "anti_cheating": [
+      "no special-casing by repository name",
+      "no special-casing the historical bug",
+      "no manually encoding the expected second outcome",
+      "no arbitrary process snapshots",
+      "no whole-heap/global serialization",
+      "16/20 is not sufficient"
+    ]
+  },
+  "phase_4_regression": {
+    "trigger": "required if Phase 2 or Phase 3 modifies any generic capture, privacy, replay, context or bootstrap code",
+    "corpus": "the 8 frozen V3/V3.1 historical incidents, unchanged",
+    "required": {
+      "auto_capture_supported": "8/8",
+      "offline_exact_replay": "160/160",
+      "portable_exact_replay": "160/160",
+      "fix_confirmed": "8/8",
+      "wrong_failure_acceptances": 0,
+      "unexpected_live_external_effects": 0,
+      "bug_specific_wrappers": 0,
+      "bug_specific_assertions": 0,
+      "manual_causal_facts": 0,
+      "raw_gate_secret_leaks": 0
+    },
+    "fingerprint_requirement": "existing cases must retain the same intended failure identity; any drift must be explained and may not be tuned per case"
+  },
+  "decision_gates": {
+    "gate_1_steady_state_economics": "at 10% armed: unmatched median p95 overhead <= 5%, median whole-service throughput degradation <= 5%, no service > 10% unmatched p95",
+    "gate_2_session_safety": "zero raw session credentials persist; transformable incidents retain exact replay; untransformable ones fail closed as privacy-blocked",
+    "gate_3_large_app_determinism": "parse-server becomes 20/20 exact after a justified generic in-boundary fix, OR is causally reduced to a named unsupported condition detected deterministically and never emitted as a trusted reproducer",
+    "gate_4_existing_correctness": "all frozen historical correctness/oracle/privacy gates remain intact after any generic change"
+  },
+  "decision_rules": {
+    "CONTINUE": "all four gates pass; freeze route-targeted capture as the supported architecture and recommend V4; do not propose V3.3",
+    "MODIFY": "exactly one narrow newly-identified boundary remains, its causal mechanism is known, and one final falsifiable experiment could settle it",
+    "KILL": "mixed-traffic economics not production-plausible; session-safe exact replay fundamentally requires live secrets; large-app nondeterminism cannot be bounded or detected; or existing exactness must be weakened",
+    "INVALID_EXPERIMENT": "preregistration/freeze integrity violated, thresholds changed after results, headline code tuned post hoc, controls not workload-equivalent, or measurements cannot be independently reconstructed"
+  },
+  "anti_goalpost_rules": [
+    "no sampling research",
+    "no new repositories because parse-server is difficult",
+    "no replacing parse-server with an easier large app",
+    "no change to the 8-case frozen corpus",
+    "no weakening FailureFingerprintV2",
+    "no treating any 5xx as successful replay",
+    "no classifying an unexplained flaky outcome as a bounded unsupported case",
+    "no calling a privacy leak acceptable because it existed in V3",
+    "no treating encrypted live credentials in artifacts as safe",
+    "no optimizing selected-request performance unless required for correctness",
+    "no agent repair, no product surfaces, no proceeding into V4 in this branch"
+  ]
+}

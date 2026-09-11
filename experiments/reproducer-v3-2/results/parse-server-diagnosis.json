@@ -1,0 +1,2458 @@
+{
+  "schema": "v3-2-parse-server-diagnosis-1",
+  "generatedAt": "2026-09-10T15:19:47.444Z",
+  "expected_fingerprint": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+  "runs_per_arm": 100,
+  "design": "same capture artifact, same application revision, same host; the ONLY variable across arms is the capture implementation. Arm C differs from arm B in exactly one file (patch-pg.mjs), which is the controlled intervention.",
+  "harness_note": "the V3.1 large-app replay harness never exited after firing its own total timeout (the boot-poll timer chain kept rescheduling), so a single replay could run for many minutes. Fixed in the V3.2 copy; recorded outcomes are unaffected, only the time to report them.",
+  "arms": {
+    "A_prefix_v31": {
+      "register": "/Users/wira/Documents/rapture/rapture/experiments/.v32-armA/src/capture/register.mjs",
+      "runs": 100,
+      "exact": "100/100",
+      "exactRate": 1,
+      "outcomeClasses": [
+        {
+          "class": "PASS:ERR:1:d8a95e924b03",
+          "count": 100
+        }
+      ],
+      "outcomeClassCount": 1,
+      "medianMs": 1697,
+      "raw": [
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 4766
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 2785
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 2954
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 2768
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 4001
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 2466
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1701
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1700
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 2031
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 3665
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 2883
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1880
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1848
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1694
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1705
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1693
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1702
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1693
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1697
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1690
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1697
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1701
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1692
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1703
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1782
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1694
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1697
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1704
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1700
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1694
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1693
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1700
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1696
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1706
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1695
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1692
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1701
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1699
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1693
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1691
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1702
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1696
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1701
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1697
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1694
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1707
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1702
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1700
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1696
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1701
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1696
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1694
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1699
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1691
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1692
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1695
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1692
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1701
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1706
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1695
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1698
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1697
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1760
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 2468
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1693
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1697
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1701
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1691
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1697
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1692
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1692
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1690
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1691
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1695
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1698
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1690
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1694
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1698
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1705
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1696
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1693
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1692
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1693
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1693
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1694
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1691
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1702
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1690
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1705
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1694
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1553
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1691
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1692
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1704
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1703
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1692
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1693
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1701
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1701
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1696
+        }
+      ]
+    },
+    "B_postfix_v32": {
+      "register": "/Users/wira/Documents/rapture/rapture/experiments/reproducer-v3-2/src/capture/register.mjs",
+      "runs": 100,
+      "exact": "100/100",
+      "exactRate": 1,
+      "outcomeClasses": [
+        {
+          "class": "PASS:ERR:1:d8a95e924b03",
+          "count": 100
+        }
+      ],
+      "outcomeClassCount": 1,
+      "medianMs": 1695,
+      "raw": [
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1698
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1698
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1704
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1696
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1542
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1694
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1692
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1691
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1690
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1697
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1695
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1701
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1703
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1693
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1691
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1694
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1693
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1691
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1691
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1694
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1690
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1690
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1694
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1694
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1692
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1693
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1695
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1702
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1694
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1711
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1704
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1692
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1688
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1693
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1691
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1692
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1702
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1691
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1694
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1691
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1709
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1694
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1695
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1849
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1695
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1697
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1689
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1698
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1692
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1688
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1696
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1844
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1691
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1694
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1696
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1696
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1696
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1694
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1700
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1691
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1693
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1695
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1694
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1693
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1694
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1693
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1694
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1693
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1697
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1702
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1694
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1695
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1699
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1700
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1694
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1692
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1698
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1700
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1698
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1700
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1694
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1696
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1696
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1703
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1694
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1700
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1698
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1697
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1693
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1695
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1698
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1700
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1699
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1700
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1704
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1856
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1691
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1700
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1693
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1700
+        }
+      ]
+    },
+    "C_only_pg_reverted": {
+      "register": "/Users/wira/Documents/rapture/rapture/experiments/.v32-armC/src/capture/register.mjs",
+      "runs": 100,
+      "exact": "100/100",
+      "exactRate": 1,
+      "outcomeClasses": [
+        {
+          "class": "PASS:ERR:1:d8a95e924b03",
+          "count": 100
+        }
+      ],
+      "outcomeClassCount": 1,
+      "medianMs": 1697,
+      "raw": [
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1697
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1697
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1699
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1699
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1693
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1701
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1699
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1698
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1695
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1707
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1698
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1717
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1699
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1557
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1700
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1706
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1696
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1699
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1703
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1696
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1698
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1701
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1697
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1708
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1695
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1701
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1695
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1701
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1697
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1697
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1701
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1705
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1702
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1700
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1697
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1694
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1693
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1706
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1696
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1699
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1552
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1718
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1705
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1699
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1708
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1553
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1705
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1700
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1696
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1698
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1692
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1701
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1712
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1706
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1692
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1699
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1701
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1700
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1704
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1697
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1700
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1710
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 2123
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 2157
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1849
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1694
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1693
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1700
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1700
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1697
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1690
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1693
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1690
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1689
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1698
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1702
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1696
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1693
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1694
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1691
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1694
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1692
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1693
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1690
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1695
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1692
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1695
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1693
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1692
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1699
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1694
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1690
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1696
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1696
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1695
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1692
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1703
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1693
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1693
+        },
+        {
+          "pass": true,
+          "hash": "d8a95e924b032903ad743bd5837a9628582db1d8a4ecc6642961afe22a7437a1",
+          "klass": "ERR:1",
+          "status": 500,
+          "error": null,
+          "ms": 1695
+        }
+      ]
+    }
+  }
+}

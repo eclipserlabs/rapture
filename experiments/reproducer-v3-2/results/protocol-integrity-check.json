@@ -1,0 +1,82 @@
+{
+  "schema": "v3-2-protocol-integrity-check-1",
+  "performed_at": "2026-09-10T23:38:10.269Z",
+  "question": "was the per-repetition load correction a RUNNER_IMPLEMENTATION_BUG or a PROTOCOL_AMENDMENT?",
+  "frozen_manifest": {
+    "path": "manifests/V3.2-MANIFEST.json",
+    "sha256": "1101611db49f726c7a4a8e668fef13b61c8c3af09b657b9479af7b5269a99dbb",
+    "modified": false
+  },
+  "finding_1_manifest_is_silent_on_per_repetition_environment": {
+    "occurrences_of_quiescence_in_manifest": 0,
+    "phase_1_methodology_verbatim": {
+      "repetitions_per_service_per_mode": 10,
+      "measured_requests_per_repetition": 20000,
+      "concurrency": 16,
+      "warmup_requests": 1000,
+      "fresh_process_per_repetition": true,
+      "order": "randomized per repetition with a recorded seed",
+      "raw_data": "every repetition preserved with full per-population latency arrays"
+    },
+    "phase_1_keys_present": [
+      "question",
+      "services",
+      "workload_equivalence",
+      "modes",
+      "activation_requirement",
+      "methodology",
+      "metrics",
+      "estimators",
+      "hard_gate",
+      "secondary_reporting"
+    ],
+    "conclusion": "the frozen manifest contains NO per-repetition environmental-invalidation rule and NO idle-load requirement during measurement. It never required the host to remain idle while the benchmark generated load."
+  },
+  "finding_2_governing_instruction_language": {
+    "source": "user instruction, measurement_validity.before_phase_1_restart",
+    "verbatim": "If unexpected background contention appears during a repetition, mark that repetition INVALID_ENVIRONMENT with the objective evidence and rerun it; never discard a repetition because of its Rapture outcome.",
+    "also_verbatim": "Require the machine to remain within the preregistered quiescence bounds for a fixed stabilization window before starting measurements.",
+    "conclusion": "the governing language scopes the idle bounds to BEFORE STARTING measurements, and scopes per-repetition invalidation to 'unexpected background contention'. Neither requires idle load thresholds during active benchmark execution."
+  },
+  "classification": "RUNNER_IMPLEMENTATION_BUG",
+  "classification_rationale": "the runner reused the idle-start predicate as the during-measurement predicate. Because a 16-way concurrent benchmark necessarily raises the load average, that predicate invalidated every repetition by construction. No frozen threshold, benchmark parameter or decision rule was changed to fix it; only the runner's choice of predicate was corrected to the one the protocol actually specified.",
+  "supporting_evidence": {
+    "run_1_repetitions": 150,
+    "invalidated": 150,
+    "invalidated_on_load_thresholds_only": 150,
+    "invalidated_with_foreign_orphan_processes": 0,
+    "invalidated_on_swap": 0,
+    "invalidated_on_memory": 0,
+    "pre_campaign_gate": "PASSED at load1/cpu 0.26",
+    "note": "a predicate that rejects 100% of repetitions while observing zero foreign contamination is measuring the workload, not the environment"
+  },
+  "what_did_not_change": [
+    "frozen manifest 1101611d (not modified)",
+    "frozen Rapture implementation tree 773dfeef (zero drift)",
+    "pre-campaign quiescence gate: load1/cpu <= 0.35, load5/cpu <= 0.60, available memory >= 500MB, swap-in rate <= 400/s, 60s stabilization window",
+    "every Phase 1 benchmark parameter: 3 services x 5 modes x 10 repetitions x 20000 requests, concurrency 16, 1000 warmup, >=150 forced captures, work-equivalent OFF control",
+    "all Gate 1 performance thresholds"
+  ],
+  "run_1_disposition": {
+    "status": "INVALID_RUNNER_CRITERION",
+    "location": "results/steady-state-run1-provenance",
+    "relabelled": false,
+    "used_in_headline_estimator": false,
+    "permitted_use": "provenance only: demonstrates that the old runtime guard invalidated benchmark-generated load by construction"
+  },
+  "ordering_guarantee": {
+    "claim": "PARTIAL outcome blindness, not complete blindness",
+    "what_was_NOT_computed_or_inspected": [
+      "any treatment-vs-control comparison",
+      "any Gate 1 statistic",
+      "any paired or ratio-of-medians estimator",
+      "any per-mode or per-service aggregate"
+    ],
+    "what_WAS_observed_before_the_correction": [
+      "one Run 1 repetition's raw values while diagnosing the 150/150 invalidation: throughput ~1433 rps, unmatched p95 ~16.04 ms, errors 0",
+      "these were read to establish that the repetitions had executed successfully at all, not to evaluate any hypothesis"
+    ],
+    "honest_statement": "complete outcome blindness is NOT claimed. A single repetition's absolute throughput and latency were seen before the runner criterion was corrected. No comparative quantity — which is what every Gate 1 threshold is defined on — was computed or inspected.",
+    "why_the_correction_is_still_mechanically_justified": "the predicate rejected 150/150 repetitions while observing zero foreign contamination; that is a property of the predicate and the workload, independent of any performance value observed"
+  }
+}

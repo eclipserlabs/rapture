@@ -1,0 +1,25 @@
+{
+  "schema": "v3-2-per-repetition-criterion-correction-1",
+  "corrected_at": "2026-09-10T23:27:05.138Z",
+  "error": "the per-repetition environment check applied the PRE-CAMPAIGN idle quiescence gate to samples taken WHILE the benchmark was running",
+  "consequence": "all 150 repetitions of run 1 were marked INVALID_ENVIRONMENT",
+  "evidence_this_was_a_category_error": {
+    "repetitions": 150,
+    "failed_on_load_thresholds_only": 150,
+    "failed_with_foreign_orphaned_processes": 0,
+    "failed_on_swap": 0,
+    "failed_on_memory": 0,
+    "pre_campaign_gate": "PASSED at load1/cpu 0.26 (results/quiescence-phase1-start.json)",
+    "interpretation": "elevated load during a repetition is the benchmark's own 16-way concurrent traffic, i.e. the workload under test, not background contention"
+  },
+  "correction": "a repetition is invalidated by FOREIGN contention only: orphaned experiment processes, swap pressure, or memory exhaustion. Load thresholds continue to gate whether the campaign may START.",
+  "thresholds_unchanged": [
+    "pre-campaign gate max_load1_per_cpu 0.35",
+    "max_load5_per_cpu 0.60",
+    "min_available_mem_mb 500",
+    "max_swapins_per_second 400",
+    "60s stabilization window"
+  ],
+  "not_a_goalpost_move": "no benchmark parameter changed; no comparative or gate result was computed or inspected before the correction; run 1 is preserved intact rather than relabelled",
+  "disposition": "run 1 retained for provenance under results/steady-state-run1-provenance and excluded from headline estimators; the campaign is re-run from repetition 1 under the corrected criterion"
+}

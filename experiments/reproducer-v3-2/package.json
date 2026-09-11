@@ -1,0 +1,10 @@
+{
+  "name": "reproducer-v3-2-experiment",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Rapture Reproducer V3.2 experiment: route-targeted capture boundary closure (not a product)",
+  "scripts": {
+    "test": "node --test \"test/*.test.js\""
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "schema": "v3-2-checkpoint-verification-1",
+  "verified_at": "2026-09-10T12:24:52.955Z",
+  "checkpoint_commit": "a8d774a55eb01175373c990b9699bf334f9f348e",
+  "branch": "research/minimal-executable-reproducer-v3-2-route-boundary",
+  "node": "v22.14.0",
+  "checks": {
+    "part1_manifest_hash": "b94cd5f7... reproduces",
+    "part2_manifest_hash": "288e1e3f... reproduces",
+    "impl_tree_hash": "ed03834d... reproduces, 0 per-file drift",
+    "v3_byte_identical_files": "9/9 incl. fingerprint.mjs, normalize.mjs, redact.mjs, replay-one.mjs",
+    "changed_vs_v3": [
+      "src/capture/context.mjs",
+      "src/capture/patch-http.mjs",
+      "src/capture/register.mjs",
+      "src/capture/state.mjs"
+    ],
+    "correctness_corpus": "8/8 captured, 160/160 offline, 160/160 portable, 8/8 FIX_CONFIRMED, 8/8 fingerprint==V3, 0 wrong-failure, 0 gate leaks",
+    "fingerprints_rederived_against_v3_summary": "8/8",
+    "perf_artifacts": "240 raw repetitions, 10000 requests each, full latency arrays, 0 request errors",
+    "perf_headline_rederived_from_raw_arrays": "all 7 modes match the reported aggregate exactly",
+    "gates": "41 evaluated, 33 passed, 8 failed",
+    "privacy": "new-policy suite all pass; Part I gate-tier attack suite 0 leaks",
+    "parse_server": "recorded as LARGE_APP_OFFLINE_REPLAY_FAILED, offline 0/20, diagnostic 16/20 across 2 classes, 0 app source changes",
+    "unsampled_semantics": "16/16 NOT_CAPTURED",
+    "fastpath_attribution": "unselected all-zero; positive controls non-zero",
+    "no_retroactive_capture": "all proofs pass",
+    "test_suite": "31/31 pass"
+  },
+  "verdict": "V3.1 PROTOCOL INTEGRITY CONFIRMED — committed as an immutable research checkpoint"
+}

@@ -1,0 +1,53 @@
+{
+  "schema": "v3-2-phase1-deferral-1",
+  "status": "DEFERRED_ENVIRONMENT",
+  "not_blocked": "PERFORMANCE_ENVIRONMENT_BLOCKED is NOT claimed; the escalation path is not yet exhausted",
+  "recorded_at": "2026-09-10T14:34:44.703Z",
+  "reason": "host idle floor exceeds the preregistered quiescence gate after the historical load fully drained",
+  "measured_idle_floor": {
+    "load1_per_cpu": {
+      "median": 0.476,
+      "min": 0.427,
+      "max": 0.528
+    },
+    "load5_per_cpu": {
+      "median": 0.561,
+      "min": 0.547,
+      "max": 0.593
+    },
+    "load15_per_cpu": {
+      "median": 1.14,
+      "min": 1.097,
+      "max": 1.19
+    },
+    "available_mem_mb": {
+      "median": 2301
+    },
+    "swapin_rate_per_s": {
+      "median": 6
+    }
+  },
+  "binding_constraint": [
+    "load1/cpu"
+  ],
+  "gate_passed_on_any_sample": false,
+  "cpu_utilization_note": "total process CPU was 35.6% of 400% while load1 sat near 1.9, i.e. the floor is I/O/memory-pressure driven rather than CPU contention",
+  "frozen_for_resumption": {
+    "implementation": "b60e839a445926e53ed0ae0a8da7c8da95cd8f05639a7ffa02422faa9410aab8",
+    "manifest": "1101611db49f726c7a4a8e668fef13b61c8c3af09b657b9479af7b5269a99dbb",
+    "gate": "unchanged 0.35 load1/cpu, 0.60 load5/cpu, 60s stabilization window"
+  },
+  "resumption_path": [
+    "re-run the identical quiescence gate",
+    "if it passes, execute Phase 1 from repetition 1",
+    "if it fails, report load/process state",
+    "user closes Zed and Helium manually, re-gate",
+    "if still failing, reboot and re-gate from zero",
+    "only then consider PERFORMANCE_ENVIRONMENT_BLOCKED"
+  ],
+  "preserved_evidence": [
+    "results/idle-floor.json",
+    "results/invalid-environment-audit.json",
+    "results/quiescence-criteria-revision.json"
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "generatedAt": "2026-09-10T12:48:32.863Z",
+  "question": "after route-targeted capture is activated, do later UNMATCHED requests find a live capture context?",
+  "method": "activate N selected requests, then issue M unmatched requests; zero measured requests are selected, so every non-null currentRequest() is a context that outlived its request",
+  "rows": [
+    {
+      "service": "express-qs",
+      "condition": "10-conc16",
+      "activationRequests": 150,
+      "unmatchedRequests": 500,
+      "selectedDuringUnmatched": 0,
+      "alsStoresCreated": 0,
+      "eventBuffersAllocated": 0,
+      "boundaryContextHits": 0,
+      "eventsRecorded": 0,
+      "leakByModule": {}
+    },
+    {
+      "service": "express-qs",
+      "condition": "32-conc16",
+      "activationRequests": 150,
+      "unmatchedRequests": 500,
+      "selectedDuringUnmatched": 0,
+      "alsStoresCreated": 0,
+      "eventBuffersAllocated": 0,
+      "boundaryContextHits": 0,
+      "eventsRecorded": 0,
+      "leakByModule": {}
+    },
+    {
+      "service": "koa-1999",
+      "condition": "10-conc16",
+      "activationRequests": 150,
+      "unmatchedRequests": 500,
+      "selectedDuringUnmatched": 0,
+      "alsStoresCreated": 0,
+      "eventBuffersAllocated": 0,
+      "boundaryContextHits": 0,
+      "eventsRecorded": 0,
+      "leakByModule": {}
+    },
+    {
+      "service": "koa-1999",
+      "condition": "32-conc16",
+      "activationRequests": 150,
+      "unmatchedRequests": 500,
+      "selectedDuringUnmatched": 0,
+      "alsStoresCreated": 0,
+      "eventBuffersAllocated": 0,
+      "boundaryContextHits": 0,
+      "eventsRecorded": 0,
+      "leakByModule": {}
+    }
+  ]
+}
