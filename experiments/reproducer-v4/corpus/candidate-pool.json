@@ -1,0 +1,246 @@
+{
+  "schema": "v4-candidate-pool-1",
+  "frozen_at": "2026-09-11T07:38:52.207Z",
+  "frozen_before": "any subject-agent run (no calibration or headline run has occurred)",
+  "manifest": "9ce3c4388a389e15ed84754bba2bd262af23ece5a3b700edc87bf8f7fc7d4f04",
+  "frozen_capture": "V3.3 5416f2752c885bb8d61abd49888fc29a34e06b814ea278c551d2ebf291417f1d (0 modifications)",
+  "headline_denominator": [
+    "koa-1961",
+    "express-cookie-maxage",
+    "express-jsonp",
+    "fastify-prefix",
+    "hapi-failaction",
+    "send-416",
+    "fastify-port",
+    "finalhandler-headers"
+  ],
+  "supported_cases": [
+    {
+      "id": "koa-1961",
+      "repository": "koajs/koa",
+      "stack": "koa",
+      "buggy_rev": "e0ba8ef",
+      "fixed_rev": "3f3ac48",
+      "fingerprint_class": "ERR:E_LENGTH_OVERFLOW",
+      "fingerprint_strength": "STRUCTURED_SPECIFIC",
+      "captured_events": 0,
+      "event_kinds": [],
+      "subgroup": "LOGIC_ONLY_OR_TRIGGER_DOMINANT",
+      "offline_replay_supported": true
+    },
+    {
+      "id": "express-cookie-maxage",
+      "repository": "expressjs/express",
+      "stack": "express",
+      "buggy_rev": "1cc81699",
+      "fixed_rev": "58553394",
+      "fingerprint_class": "HTTP_500",
+      "fingerprint_strength": "GENERIC_HTTP_STATUS",
+      "captured_events": 1,
+      "event_kinds": [
+        "time"
+      ],
+      "subgroup": "TIME_RANDOM_CONFIG_DEPENDENT",
+      "offline_replay_supported": true
+    },
+    {
+      "id": "express-jsonp",
+      "repository": "expressjs/express",
+      "stack": "express",
+      "buggy_rev": "1b2f3a06",
+      "fixed_rev": "9dd0e7af",
+      "fingerprint_class": "ERR:E_JSONP_UNDEFINED",
+      "fingerprint_strength": "STRUCTURED_SPECIFIC",
+      "captured_events": 0,
+      "event_kinds": [],
+      "subgroup": "LOGIC_ONLY_OR_TRIGGER_DOMINANT",
+      "offline_replay_supported": true
+    },
+    {
+      "id": "fastify-prefix",
+      "repository": "fastify/fastify",
+      "stack": "fastify",
+      "buggy_rev": "8b9c07b6",
+      "fixed_rev": "2f597a92",
+      "fingerprint_class": "ERR:E_PREFIX_JOIN",
+      "fingerprint_strength": "STRUCTURED_SPECIFIC",
+      "captured_events": 0,
+      "event_kinds": [],
+      "subgroup": "LOGIC_ONLY_OR_TRIGGER_DOMINANT",
+      "offline_replay_supported": true
+    },
+    {
+      "id": "hapi-failaction",
+      "repository": "hapijs/hapi",
+      "stack": "hapi",
+      "buggy_rev": "db0cb450",
+      "fixed_rev": "619380ab",
+      "fingerprint_class": "ERR:E_NO_DEFAULT_ERROR",
+      "fingerprint_strength": "STRUCTURED_SPECIFIC",
+      "captured_events": 1,
+      "event_kinds": [
+        "time"
+      ],
+      "subgroup": "TIME_RANDOM_CONFIG_DEPENDENT",
+      "offline_replay_supported": true
+    },
+    {
+      "id": "send-416",
+      "repository": "pillarjs/send",
+      "stack": "node:http+send",
+      "buggy_rev": "53f0ab4",
+      "fixed_rev": "24b4af2",
+      "fingerprint_class": "ERR:E_416_NO_HEADERS",
+      "fingerprint_strength": "STRUCTURED_SPECIFIC",
+      "captured_events": 0,
+      "event_kinds": [],
+      "subgroup": "LOGIC_ONLY_OR_TRIGGER_DOMINANT",
+      "offline_replay_supported": true
+    },
+    {
+      "id": "fastify-port",
+      "repository": "fastify/fastify",
+      "stack": "fastify",
+      "buggy_rev": "5f4871f9",
+      "fixed_rev": "6ac2e953",
+      "fingerprint_class": "ERR:E_PORT_DERIVATION",
+      "fingerprint_strength": "STRUCTURED_SPECIFIC",
+      "captured_events": 0,
+      "event_kinds": [],
+      "subgroup": "LOGIC_ONLY_OR_TRIGGER_DOMINANT",
+      "offline_replay_supported": true
+    },
+    {
+      "id": "finalhandler-headers",
+      "repository": "pillarjs/finalhandler",
+      "stack": "node:http+finalhandler",
+      "buggy_rev": "872134f",
+      "fixed_rev": "7bfa2f7",
+      "fingerprint_class": "HTTP_503",
+      "fingerprint_strength": "GENERIC_HTTP_STATUS",
+      "captured_events": 0,
+      "event_kinds": [],
+      "subgroup": "LOGIC_ONLY_OR_TRIGGER_DOMINANT",
+      "offline_replay_supported": true
+    }
+  ],
+  "repositories": [
+    "koajs/koa",
+    "expressjs/express",
+    "fastify/fastify",
+    "hapijs/hapi",
+    "pillarjs/send",
+    "pillarjs/finalhandler"
+  ],
+  "stack_families": [
+    "koa",
+    "express",
+    "fastify",
+    "hapi",
+    "node:http+send",
+    "node:http+finalhandler"
+  ],
+  "dependency_through_service_cases": [
+    "send-416",
+    "finalhandler-headers"
+  ],
+  "gate": {
+    "required": {
+      "supported": 8,
+      "repositories": 6,
+      "stacks": 3
+    },
+    "observed": {
+      "supported": 8,
+      "repositories": 6,
+      "stacks": 6
+    },
+    "met": true
+  },
+  "all_screened": [
+    {
+      "id": "koa-1961",
+      "classification": "AUTO_CAPTURE_SUPPORTED",
+      "reason": null
+    },
+    {
+      "id": "express-cookie-maxage",
+      "classification": "AUTO_CAPTURE_SUPPORTED",
+      "reason": null
+    },
+    {
+      "id": "express-jsonp",
+      "classification": "AUTO_CAPTURE_SUPPORTED",
+      "reason": null
+    },
+    {
+      "id": "fastify-prefix",
+      "classification": "AUTO_CAPTURE_SUPPORTED",
+      "reason": null
+    },
+    {
+      "id": "hapi-failaction",
+      "classification": "AUTO_CAPTURE_SUPPORTED",
+      "reason": null
+    },
+    {
+      "id": "send-416",
+      "classification": "AUTO_CAPTURE_SUPPORTED",
+      "reason": null
+    },
+    {
+      "id": "fastify-port",
+      "classification": "AUTO_CAPTURE_SUPPORTED",
+      "reason": null
+    },
+    {
+      "id": "finalhandler-headers",
+      "classification": "AUTO_CAPTURE_SUPPORTED",
+      "reason": null
+    }
+  ],
+  "exclusions": [
+    {
+      "candidate": "restify (node-restify), all eras",
+      "reason": "Node 22 incompatibility: 'Cannot set property closed of #<Readable> which has only a getter'. Reproduced at both 2019 (cb2e7177) and 2022 (05f12a68) revisions. Environment incompatibility, NOT a Rapture limitation."
+    },
+    {
+      "candidate": "express 99a369f3 (unanchored RegExp middleware)",
+      "reason": "my model of the defect was wrong: app.use(RegExp) did not match mid-path even on the buggy revision. Dropped rather than reshaped until it failed."
+    },
+    {
+      "candidate": "koa 769fd75c (referer normalization before redirect)",
+      "reason": "redirect('back') had already been removed at that revision, so the scaffolding modelled an API that no longer existed."
+    },
+    {
+      "candidate": "body-parser 2a2f4719 (inflated body exceeds limit)",
+      "reason": "buggy revision correctly returned 413 under the trigger; the fix concerns stream cleanup and may manifest as a hang rather than a distinct bounded status."
+    },
+    {
+      "candidate": "body-parser 744a350d (extended url parsing default)",
+      "reason": "INVERTED: the commit deliberately changed the default, so the parent parsed nested bodies correctly (buggy=200, fixed=500). Not a historical bug in the required direction."
+    },
+    {
+      "candidate": "finalhandler 05d38645 (invalid status normalization)",
+      "reason": "with an out-of-range status the buggy revision crashes the process (no bounded HTTP response, status 0, no artifact); with a near-valid status both revisions normalize identically. No bounded discriminating failure found."
+    }
+  ],
+  "fingerprint_strength_distribution": {
+    "STRUCTURED_SPECIFIC": 6,
+    "GENERIC_HTTP_STATUS": 2
+  },
+  "subgroup_distribution": {
+    "LOGIC_ONLY_OR_TRIGGER_DOMINANT": 6,
+    "TIME_RANDOM_CONFIG_DEPENDENT": 2
+  },
+  "external_validity_note": {
+    "finding": "the fresh corpus is dominated by LOGIC_ONLY_OR_TRIGGER_DOMINANT incidents; most supported cases captured 0 boundary events and none captured pg or outbound-HTTP state",
+    "why_it_matters": "an executable incident's distinctive value is reproducing state an agent cannot otherwise obtain. A corpus of logic/trigger-dominant bugs tests the thesis in the regime where .repro adds least.",
+    "why_it_was_not_corrected": "preferring stateful bugs is NOT a preregistered inclusion criterion; adding it would bias selection toward the treatment arm. Recorded as a limitation instead of fixed by selection."
+  },
+  "weak_fingerprint_note": {
+    "case": "express-cookie-maxage",
+    "finding": "frozen fingerprint is GENERIC_HTTP_STATUS; an unrelated same-route TypeError produced the identical hash 98b904a7184a03e4",
+    "disposition": "retained; fingerprint specificity was never a preregistered inclusion criterion"
+  }
+}

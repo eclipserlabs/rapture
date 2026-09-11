@@ -1,0 +1,55 @@
+{
+  "schema": "v4-pipeline-pilot-1",
+  "at": "2026-09-11T06:57:21.280Z",
+  "purpose": "validate the end-to-end V4 corpus pipeline on one fresh bug before committing to 12, and measure real per-candidate cost",
+  "case": {
+    "id": "koa-1961",
+    "repository": "koajs/koa",
+    "issue": "#1961",
+    "defect": "ctx.request.length used ~~len, truncating Content-Length to a signed 32-bit integer; declared sizes above 2GB wrap",
+    "buggy_rev": "e0ba8ef",
+    "fixed_rev": "3f3ac48",
+    "fresh": "not used in V0-V3.3 (prior koa cases were #1998 and #1999)",
+    "trigger": "raw HTTP GET /upload with Content-Length: 4294967296",
+    "buggy_behaviour": "HTTP 500 E_LENGTH_OVERFLOW, parsed=0",
+    "fixed_behaviour": "HTTP 200, accepted=4294967296",
+    "discrimination": "clean"
+  },
+  "frozen_capture_screening": {
+    "system": "V3.3 implementation 5416f275, unmodified",
+    "classification": "AUTO_CAPTURE_SUPPORTED",
+    "fingerprint_class": "ERR:E_LENGTH_OVERFLOW",
+    "fingerprint_hash_prefix": "72326587ac91617d",
+    "offline_replay_supported": true,
+    "boundary_ops_outside_request": 0,
+    "events": 0,
+    "note": "this service performs no pg/fetch work, so the incident carries no boundary events. Capture and replay are still supported, but such a case exercises less of what an executable incident uniquely provides. Candidate selection should prefer bugs whose reproduction depends on real boundary state."
+  },
+  "measured_cost_per_candidate": {
+    "worktree_creation": "~1s",
+    "prod_dependency_install": "2s, 1.3MB (koa; heavier frameworks will exceed this)",
+    "service_scaffolding": "~35 LOC, V3 pattern",
+    "buggy_fixed_verification": "~10s",
+    "assessment": "the corpus pipeline is cheap per candidate in machine time; the real cost is understanding each bug well enough to write faithful scaffolding"
+  },
+  "repositories_available": {
+    "with_full_history": [
+      "express (5852 commits)",
+      "fastify (4787)",
+      "hapi (5801)",
+      "koa (1309, re-cloned)",
+      "hono (2811)",
+      "restify (1744)"
+    ],
+    "fix_plus_test_commits_found": {
+      "express": 51,
+      "fastify": 86,
+      "hapi": 63,
+      "koa": 68,
+      "hono": 380,
+      "restify": 76,
+      "total": 724
+    },
+    "meets_minimum_distinct_repositories": true
+  }
+}

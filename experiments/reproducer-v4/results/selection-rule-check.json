@@ -1,0 +1,48 @@
+{
+  "schema": "v4-selection-rule-check-1",
+  "recorded_at": "2026-09-11T07:03:48.002Z",
+  "question": "was boundary-state dependence (DB / outbound HTTP / time / random) preregistered as a candidate INCLUSION preference?",
+  "frozen_manifest": {
+    "path": "manifests/V4-MANIFEST.json",
+    "sha256": "9ce3c4388a389e15ed84754bba2bd262af23ece5a3b700edc87bf8f7fc7d4f04",
+    "modified": false
+  },
+  "frozen_eligibility_verbatim": [
+    "public, pre-existing historical Node.js or TypeScript backend bug",
+    "no bug used in V0, V1, V2, V3, V3.1, V3.2 or V3.3",
+    "prefer real service/framework request paths over direct utility-function harnesses",
+    "at most 2 headline cases may be dependency bugs exercised through a real service stack",
+    "exact buggy revision AND independently known fixing revision",
+    "reproduces as a bounded HTTP-facing failure or equivalent request-scoped operation",
+    "candidates are NOT selected based on whether an agent is likely to solve them"
+  ],
+  "finding": "NOT PREREGISTERED. The only occurrence of 'boundary' in phase_1_fresh_corpus is the UNSUPPORTED_BOUNDARY capture classification, which is an outcome label, not a selection criterion. No eligibility rule mentions database, outbound HTTP, time, random, statefulness or captured event count.",
+  "proposal_withdrawn": {
+    "what_was_proposed": "weight candidate selection toward bugs whose reproduction depends on boundary state, on the reasoning that pure-logic bugs under-test the thesis",
+    "why_it_is_invalid": "it would introduce a selection criterion absent from the frozen protocol that systematically favours the TREATMENT arm. Choosing cases where .repro carries more information is a goalpost move in the same family as weakening the control, even though the stated motive was to test the thesis fairly.",
+    "disposition": "withdrawn before any candidate was accepted or rejected on that basis. koa-1961 remains a valid fresh supported case."
+  },
+  "binding_rule_going_forward": [
+    "select and screen using ONLY the frozen eligibility rules",
+    "do not prefer a candidate because its .repro would contain more boundary events",
+    "do not exclude a supported pure-logic bug because .repro is expected to add less value",
+    "do not replace a zero-boundary-event supported case with a stateful one"
+  ],
+  "subgroup_analysis": {
+    "status": "SECONDARY ONLY, frozen before any subject-agent run",
+    "classes": [
+      "LOGIC_ONLY_OR_TRIGGER_DOMINANT",
+      "DATABASE_STATE_DEPENDENT",
+      "OUTBOUND_HTTP_STATE_DEPENDENT",
+      "TIME_RANDOM_CONFIG_DEPENDENT",
+      "MULTI_BOUNDARY_DEPENDENT"
+    ],
+    "rules": [
+      "classification never affects headline inclusion once a bug satisfies the frozen eligibility rules",
+      "classifications are frozen before repair-agent runs",
+      "treatment effect by subgroup is reported AFTER the primary aggregate analysis",
+      "subgroup performance must not redefine the primary product signal"
+    ],
+    "koa_1961_preliminary_class": "LOGIC_ONLY_OR_TRIGGER_DOMINANT (0 captured boundary events)"
+  }
+}

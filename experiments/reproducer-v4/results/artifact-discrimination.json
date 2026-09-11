@@ -1,0 +1,82 @@
+{
+  "schema": "v4-artifact-discrimination-1",
+  "generatedAt": "2026-09-11T07:56:01.616Z",
+  "frozen_requirement": "the historical fixed revision removes the original failure (phase_4_treatment_artifact)",
+  "method": "frozen V3.3 capture from the buggy revision, then frozen V3.3 replay of that artifact against BOTH revisions. The hidden oracle is not used.",
+  "rows": [
+    {
+      "id": "koa-1961",
+      "repository": "koajs/koa",
+      "captured_class": "ERR:E_LENGTH_OVERFLOW",
+      "replay_buggy_pass": false,
+      "replay_fixed_pass": false,
+      "verdict": "INCONCLUSIVE"
+    },
+    {
+      "id": "express-cookie-maxage",
+      "repository": "expressjs/express",
+      "captured_class": "HTTP_500",
+      "replay_buggy_pass": true,
+      "replay_fixed_pass": false,
+      "verdict": "DISCRIMINATING"
+    },
+    {
+      "id": "express-jsonp",
+      "repository": "expressjs/express",
+      "captured_class": "ERR:E_JSONP_UNDEFINED",
+      "replay_buggy_pass": true,
+      "replay_fixed_pass": false,
+      "verdict": "DISCRIMINATING"
+    },
+    {
+      "id": "fastify-prefix",
+      "repository": "fastify/fastify",
+      "captured_class": "ERR:E_PREFIX_JOIN",
+      "replay_buggy_pass": true,
+      "replay_fixed_pass": false,
+      "verdict": "DISCRIMINATING"
+    },
+    {
+      "id": "hapi-failaction",
+      "repository": "hapijs/hapi",
+      "captured_class": "ERR:E_NO_DEFAULT_ERROR",
+      "replay_buggy_pass": true,
+      "replay_fixed_pass": false,
+      "verdict": "DISCRIMINATING"
+    },
+    {
+      "id": "send-416",
+      "repository": "pillarjs/send",
+      "captured_class": "ERR:E_416_NO_HEADERS",
+      "replay_buggy_pass": false,
+      "replay_fixed_pass": false,
+      "verdict": "INCONCLUSIVE"
+    },
+    {
+      "id": "fastify-port",
+      "repository": "fastify/fastify",
+      "captured_class": "ERR:E_PORT_DERIVATION",
+      "replay_buggy_pass": true,
+      "replay_fixed_pass": false,
+      "verdict": "DISCRIMINATING"
+    },
+    {
+      "id": "finalhandler-headers",
+      "repository": "pillarjs/finalhandler",
+      "captured_class": "HTTP_503",
+      "replay_buggy_pass": true,
+      "replay_fixed_pass": true,
+      "verdict": "NON_DISCRIMINATING_ARTIFACT"
+    }
+  ],
+  "discriminating": [
+    "express-cookie-maxage",
+    "express-jsonp",
+    "fastify-prefix",
+    "hapi-failaction",
+    "fastify-port"
+  ],
+  "non_discriminating": [
+    "finalhandler-headers"
+  ]
+}

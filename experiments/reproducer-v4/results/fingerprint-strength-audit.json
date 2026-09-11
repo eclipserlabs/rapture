@@ -1,0 +1,38 @@
+{
+  "schema": "v4-fingerprint-strength-audit-1",
+  "recorded_at": "2026-09-11T07:19:43.281Z",
+  "case": "express-cookie-maxage",
+  "question": "is the generic HTTP_500 fingerprint genuine frozen V3.3 behaviour, and can an unrelated 500 be accepted as the historical incident?",
+  "is_it_genuine_frozen_behaviour": {
+    "answer": "YES — not an experiment-authored weakening",
+    "mechanism": "frozen inferFingerprint() uses the structured appError when one is captured and not an infra error. Otherwise it falls back to an error class parsed from the response body, and failing that to `HTTP_${status}`. Here the buggy revision throws a TypeError inside res.cookie which express renders as its default HTML error page, so no structured appError is captured and the HTML body yields no error class. HTTP_500 is the honest fallback.",
+    "no_rapture_modification": true,
+    "no_invented_error_code": true
+  },
+  "discrimination_test": {
+    "method": "captured the historical cookie defect on the buggy revision, then captured a deliberately UNRELATED TypeError on the same route and revision, using the identical frozen capture configuration",
+    "historical_defect": {
+      "normalized_class": "HTTP_500",
+      "fingerprint_hash": "98b904a7184a03e410220e9a",
+      "error_name_or_code": null,
+      "stable_frame": null
+    },
+    "unrelated_failure": {
+      "normalized_class": "HTTP_500",
+      "fingerprint_hash": "98b904a7184a03e410220e9a",
+      "error_name_or_code": null,
+      "stable_frame": null
+    },
+    "collision": true,
+    "conclusion": "frozen V3.3 CANNOT distinguish the historical incident from an arbitrary different 500 on GET /session for this case. The fingerprint identity reduces to (kind, method, route, status)."
+  },
+  "eligibility_under_frozen_v4_rules": {
+    "decision": "ELIGIBLE — retained",
+    "reasoning": "the frozen phase_1 eligibility criteria are: public historical Node/TS backend bug; unused in V0-V3.3; real service/framework request path; at most 2 dependency-through-service cases; exact buggy and fixed revisions; bounded HTTP-facing failure; not selected on expected agent difficulty. NONE of them requires a specific or non-generic failure fingerprint. Excluding this case now would introduce an unregistered criterion, and would do so in the direction that removes a case where TREATMENT's artifact is weakest — i.e. it would flatter the treatment arm."
+  },
+  "consequence_for_the_experiment": {
+    "treatment_artifact_strength": "WEAK for this case. The .repro can tell an agent that some 500 on GET /session is gone; it cannot tell the agent whether the RIGHT failure was fixed.",
+    "hidden_oracle_must_compensate": "the phase_2 hidden evaluator is required to be stronger than the exposed .repro. For this case it must assert the specific historical behaviour (no Invalid Date in Set-Cookie, status 200) and must enforce the frozen correct_fix clause that the failure was not merely replaced by an unrelated failure.",
+    "honest_reading": "this is genuine evidence about a real limit of executable incidents: when a framework renders an unstructured error, the captured incident identity degrades to the HTTP status and route, and the artifact's discriminating power degrades with it."
+  }
+}

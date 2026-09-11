@@ -1,0 +1,287 @@
+{
+  "experiment": "Rapture Reproducer V4 — Executable Incident Repair-Value Experiment",
+  "frozen_before": "any candidate screening, any evidence-pack construction, any subject-agent run",
+  "question_class": "product value, not mechanism. V0-V3.3 asked whether executable incidents can be produced safely and practically. V4 asks whether the artifact is actually worth anything.",
+  "product_thesis_under_test": "A production bug that can be executed offline is materially easier for a coding agent to repair correctly than the same bug represented only by conventional telemetry and repository context.",
+  "kill_philosophy": "If the executable incident does not materially improve repair outcomes against a STRONG control, kill the Reproducer product thesis even though the underlying systems engineering succeeded.",
+
+  "v3_3_freeze": {
+    "checkpoint_commit": "f420719faca34cbebd1d963f42d13ff9aa33e5e3",
+    "implementation_tree": "5416f2752c885bb8d61abd49888fc29a34e06b814ea278c551d2ebf291417f1d",
+    "manifest": "cda338d1685c14eb354c9328123f48931b2554ae1e7798d4002082286d02f38c",
+    "verified": "20/20 checks; Phase 4 aggregates re-derived from raw artifacts; 0 drift across 14 files",
+    "rule": "capture, oracle, replay, ownership, privacy, selection, quiescence, reduction and unsupported-boundary implementations are FROZEN for all V4 headline cases",
+    "forbidden_changes": [
+      "no changes to capture semantics", "no new boundary adapters", "no new database support",
+      "no new framework-specific hooks", "no new failure-fingerprint logic", "no new reducer logic",
+      "no privacy weakening", "no expanding BOOT_TIME_DEPENDENCY_ACCESS support",
+      "no per-bug replay rescue hooks", "no performance optimization", "no product CLI or hosted service"
+    ],
+    "unsupported_case_rule": "if a fresh historical bug falls outside the frozen V3.3 boundary, record it as unsupported. Do NOT change Rapture to make the case pass."
+  },
+
+  "hypotheses": {
+    "H1": "treatment (conventional evidence + executable .repro) achieves a materially higher correct-fix rate than control (conventional evidence alone)",
+    "H2": "among successful repairs, treatment reduces wall-clock time and repair iteration count",
+    "H3": "treatment reduces false fixes because the agent has a direct executable oracle",
+    "H4": "the advantage persists on fresh bugs never used in V0-V3.3",
+    "H5": "the effect is not specific to one coding-agent runtime",
+    "H0": "strong modern agents with conventional telemetry and repository access already repair these bugs about as well as agents with an executable incident"
+  },
+
+  "phase_1_fresh_corpus": {
+    "target_candidates": 12, "minimum_candidates": 10,
+    "minimum_distinct_repositories": 6, "minimum_stack_families": 3,
+    "eligibility": [
+      "public, pre-existing historical Node.js or TypeScript backend bug",
+      "no bug used in V0, V1, V2, V3, V3.1, V3.2 or V3.3",
+      "prefer real service/framework request paths over direct utility-function harnesses",
+      "at most 2 headline cases may be dependency bugs exercised through a real service stack",
+      "exact buggy revision AND independently known fixing revision",
+      "reproduces as a bounded HTTP-facing failure or equivalent request-scoped operation",
+      "candidates are NOT selected based on whether an agent is likely to solve them"
+    ],
+    "excluded_prior_bugs": [
+      "koa#1998", "koa#1999", "express+jshttp/cookie", "express+ljharb/qs arrayLimit",
+      "express+npm/node-semver", "fastify#32442", "fastify#33806", "hapi#4560", "hapi#4564",
+      "parse-server#10308"
+    ],
+    "screening_integrity": [
+      "freeze candidate-pool.json before any subject-agent repair run",
+      "record every screened candidate and every exclusion with its reason",
+      "do not replace difficult supported cases after repair results are observed",
+      "subject agents never run during eligibility screening",
+      "the historical fixing revision is available ONLY to the evaluator and corpus-validation tooling"
+    ],
+    "capture_classification": ["AUTO_CAPTURE_SUPPORTED", "PRIVACY_BLOCKED", "UNSUPPORTED_BOUNDARY", "CAPTURE_FAILURE"],
+    "headline_denominator": "ALL frozen AUTO_CAPTURE_SUPPORTED cases, never a hand-picked subset",
+    "stage_1_gate": {
+      "minimum_supported_fresh_bugs": 8, "minimum_distinct_repositories": 6, "minimum_stack_families": 3,
+      "on_failure": "stop before calibration and headline execution; report V4_CORPUS_INSUFFICIENT; do not broaden capture or replace difficult cases"
+    },
+    "coverage_reporting": "supported/unsupported yield is reported SEPARATELY from repair value; unsupported candidates are not hidden"
+  },
+
+  "phase_2_hidden_oracle": {
+    "per_bug": [
+      "verify the buggy revision triggers the historical failure",
+      "verify the historical fixing revision removes it",
+      "build a hidden regression oracle distinguishing buggy from fixed behaviour",
+      "include multiple hidden variants exercising the same root cause with DIFFERENT concrete values where possible",
+      "run the repository's relevant regression suite",
+      "validate the oracle on BOTH revisions before any subject-agent run",
+      "freeze and hash all hidden evaluation material before headline runs"
+    ],
+    "correct_fix_definition": [
+      "original failure absent",
+      "hidden generalization cases pass",
+      "relevant repository regression suite passes",
+      "no hidden-evaluator tampering",
+      "the failure is not merely replaced by an unrelated infrastructure/setup failure"
+    ],
+    "rules": [
+      "alternative fixes are valid; similarity to the upstream patch is irrelevant and is NOT the oracle",
+      "the hidden oracle must never exist inside the subject-agent workspace",
+      "the fixing SHA, diff, commit message and future repository history must be inaccessible to subject agents"
+    ]
+  },
+
+  "phase_3_control_evidence_pack": {
+    "goal": "represent competent modern observability, not a strawman",
+    "artifacts": ["incident-evidence.json", "incident-evidence.md"],
+    "include": [
+      "anonymized incident identifier", "HTTP method and route", "HTTP status",
+      "normalized application error type/code/message", "sanitized application stack trace",
+      "sanitized request shape and non-secret metadata", "relevant application logs around the failure",
+      "trace-like span tree or ordered operation summary",
+      "database operation names/query text as normal observability would expose",
+      "database status/duration metadata but NOT captured result rows",
+      "outbound HTTP destination/operation/status/duration as normal observability would expose",
+      "NO captured outbound response body",
+      "release/revision identifier for the supplied buggy snapshot",
+      "runtime/framework/version metadata", "known service/module names"
+    ],
+    "exclude": [
+      "historical issue number", "CVE identifier", "upstream fixing commit", "upstream patch",
+      "upstream regression test added by the fix where it exposes the answer",
+      "captured DB result rows", "captured external HTTP response bodies", "captured time/random streams",
+      "manually supplied root-cause explanation",
+      "manually supplied causal facts unavailable from normal incident telemetry"
+    ],
+    "fairness_rule": "CONTROL and TREATMENT receive BYTE-IDENTICAL conventional evidence packs. The only intended difference is the executable .repro available to TREATMENT."
+  },
+
+  "phase_4_treatment_artifact": {
+    "definition": "the identical conventional evidence pack PLUS the frozen reduced executable incident",
+    "requirements": [
+      "generated before any subject-agent run using the frozen V3.3 system",
+      "reproduces the exact original failure against the buggy revision",
+      "the historical fixed revision removes the original failure",
+      "offline replay verified with live DB/network disabled",
+      "contains no historical fix data, issue identifier or hidden evaluator data",
+      "hashed and frozen"
+    ],
+    "experiment_only_runner": {
+      "purpose": "a stable way for the subject agent to execute the frozen artifact against its current worktree, without productizing a CLI",
+      "interface": [
+        "one command to execute the incident against current code",
+        "output distinguishes ORIGINAL_FAILURE_REPRODUCED from ORIGINAL_FAILURE_ABSENT",
+        "exposes NO hidden generalization oracle",
+        "uses frozen V3.3 replay semantics"
+      ]
+    }
+  },
+
+  "phase_5_workspace_isolation": {
+    "requirements": [
+      "fresh independent workspace per run, from the exact buggy source snapshot",
+      "upstream git remote removed",
+      "no future git history: a NEW single-commit repository containing only the buggy snapshot, so git log/show cannot reveal the fix",
+      "dependencies pre-provisioned before the run",
+      "no V4 evaluator files exposed",
+      "no other run's transcripts, patches or results exposed",
+      "fresh agent session per run",
+      "clean temporary HOME/config so agents inherit no unrelated global instructions or prior-run memory",
+      "repository-native AGENTS.md/CLAUDE.md kept only if genuinely present at the buggy revision; both arms receive them identically"
+    ],
+    "network_policy": [
+      "model-provider communication permitted",
+      "web-search/browser tools disabled",
+      "no arbitrary web research about the historical bug",
+      "curl/wget/browser/package-search blocked or denied where the runtime permits",
+      "repository remotes removed",
+      "subject-agent traces scanned for attempted external lookup",
+      "any run obtaining the historical fix from the internet is INVALID_LEAKAGE and does not count"
+    ]
+  },
+
+  "phase_6_subject_agents": {
+    "primary_runtime": {
+      "selection_rule": "before headline runs, select the strongest installed and authenticated coding-agent runtime invocable in isolated fresh sessions; prefer a runtime different from the orchestrating research agent where practical",
+      "frozen_fields": ["runtime name", "CLI version", "model identifier", "reasoning/effort setting", "tool permissions", "system instructions", "repair prompt", "time/token budget"],
+      "rule": "model and effort level are IDENTICAL between CONTROL and TREATMENT"
+    },
+    "secondary_runtime": {
+      "purpose": "cross-runtime replication of a positive primary result",
+      "conditional": "run ONLY if the primary satisfies STRONG_PRODUCT_SIGNAL; if the primary is KILL, do not spend runs attempting rescue",
+      "if_unavailable": "record NOT_AVAILABLE rather than substituting another configuration of the same runtime after seeing results"
+    },
+    "installed_candidates_observed": ["claude 2.1.233", "codex-cli 0.153.4", "opencode 1.18.30", "cursor-agent"]
+  },
+
+  "phase_7_prompt": {
+    "control_core": [
+      "You are repairing a production backend bug.",
+      "The supplied repository is the buggy production revision.",
+      "Use the supplied incident evidence and repository to identify and fix the bug.",
+      "You may inspect and modify application code and run available local tests.",
+      "Do not use the internet or search for the historical issue/fix.",
+      "Do not modify files outside the supplied repository.",
+      "Do not disable tests merely to obtain green output.",
+      "When you believe the bug is fixed, stop and provide a concise final report containing root cause, files changed, validation performed and remaining uncertainty."
+    ],
+    "treatment_addition_only": [
+      "An executable incident artifact is available in the workspace.",
+      "You may run it using the supplied experiment-only repro command against the current working tree.",
+      "It reproduces the original production failure when that failure is present."
+    ],
+    "fairness": [
+      "no other wording difference between arms",
+      "treatment is NOT told Rapture is being evaluated",
+      "control is NOT told another arm has an executable artifact",
+      "hidden evaluation criteria are not revealed beyond normal instruction to fix without regressions"
+    ]
+  },
+
+  "phase_8_calibration": {
+    "purpose": "validate the harness, NOT estimate treatment effect",
+    "cases": 2,
+    "rules": [
+      "use historical bugs PERMANENTLY excluded from the headline corpus",
+      "exercise both CONTROL and TREATMENT (4 runs total)",
+      "validate timeout behaviour, workspace sanitation, trace capture, evaluator isolation, artifact execution and final-result parsing",
+      "choose and freeze the per-run wall-clock budget BEFORE headline runs",
+      "do not tune prompts based on headline bugs",
+      "calibration outcomes are NEVER used in product-value estimates"
+    ],
+    "initial_budget": "20 minutes per repair run unless calibration demonstrates a clear infrastructure need for a different fixed budget, chosen before headline freeze"
+  },
+
+  "phase_9_headline": {
+    "design": "paired randomized CONTROL vs TREATMENT",
+    "cases": "ALL frozen AUTO_CAPTURE_SUPPORTED fresh bugs, minimum 8",
+    "repetitions_per_bug_per_arm": 3,
+    "run_concurrency": 1,
+    "concurrency_reason": "wall-clock time is a measured outcome; concurrent runs would confound it with host/provider contention",
+    "randomization": [
+      "generate and freeze a random seed before the first headline run",
+      "randomize arm order per bug and replicate",
+      "interleave arms rather than running all controls then all treatments",
+      "record the complete schedule before execution"
+    ],
+    "fixed_budget": ["same wall-clock limit both arms", "same model/token/tool budget both arms", "timeout is a legitimate outcome, not a reason to extend one arm"],
+    "no_feedback": [
+      "the hidden evaluator is never run interactively for the subject agent",
+      "the agent is never told why a hidden evaluation failed",
+      "no retries after evaluator feedback",
+      "each replicate is one independent attempt"
+    ]
+  },
+
+  "phase_11_hidden_evaluation": {
+    "procedure": ["freeze the submitted patch/worktree", "run the hidden evaluator only after the agent terminates", "check original incident behaviour", "check hidden generalization cases", "run preregistered repository tests", "record unrelated regressions", "classify without feeding anything back"],
+    "classifications": ["CORRECT_FIX", "FALSE_FIX_ORIGINAL_FAILURE_REMAINS", "FALSE_FIX_OVERFIT_TO_EXPOSED_INCIDENT", "REGRESSION_INTRODUCED", "TIMEOUT_NO_FIX", "AGENT_ABORTED", "INVALID_LEAKAGE", "INVALID_HARNESS"],
+    "false_fix_definition": "the agent claims completion/success but hidden evaluation does not classify the patch CORRECT_FIX",
+    "primary_outcome": "correct_fix_rate; agent self-report is NEVER sufficient"
+  },
+
+  "strong_product_signal": {
+    "normal_baseline_case": {
+      "condition": "CONTROL correct-fix rate < 85%",
+      "requirements": [
+        "TREATMENT correct-fix rate improves by >= 15 absolute percentage points",
+        "treatment has a higher per-bug success rate on >= 60% of headline bugs",
+        "treatment has a lower per-bug success rate on <= 20% of headline bugs",
+        "treatment false-fix rate not worse by more than 5 percentage points",
+        "treatment regression rate not worse than control"
+      ]
+    },
+    "ceiling_baseline_case": {
+      "condition": "CONTROL correct-fix rate >= 85%",
+      "requirements": [
+        "treatment correct-fix rate not worse by more than 5 percentage points",
+        "median successful-run wall-clock time improves by >= 25% OR median repair-iteration count improves by >= 30%",
+        "at least one second efficiency metric improves by >= 20%",
+        "treatment false-fix and regression rates not worse"
+      ]
+    }
+  },
+
+  "decision_rules": {
+    "CONTINUE": "primary runtime meets STRONG_PRODUCT_SIGNAL, no safety/integrity gate fails, and any available independent secondary runtime replicates directionally and non-harmfully. Proceed to minimal product/dogfood design. Do NOT reopen capture research.",
+    "KILL": "treatment correct-fix improvement < 10 percentage points when control is below ceiling AND no >=20% meaningful efficiency improvement; OR treatment meaningfully worsens correctness, false fixes or regressions; OR agents rarely use the artifact and metrics show no material benefit; OR the advantage disappears against the strong conventional pack. Kill the product thesis rather than inventing V5 mechanism work.",
+    "MODIFY": "ONLY for a narrow external-validity problem: severe control ceiling, insufficient supported fresh corpus, or subject-runtime infrastructure failure preventing an answer. NOT for a merely mediocre effect.",
+    "INVALID_EXPERIMENT": "historical fix leaks; hidden evaluator becomes visible; arms receive materially different conventional evidence; frozen V3.3 capture modified for headline cases; prompts/budgets/model settings change after outcomes observed; headline bugs replaced based on repair difficulty; subject agents share outputs across replicates"
+  },
+
+  "anti_goalpost_rules": [
+    "do not weaken the CONTROL to make .repro look useful",
+    "do not provide only a stack trace as the control",
+    "do not increase treatment time/token budget",
+    "do not give treatment extra root-cause prose",
+    "do not exclude bugs because CONTROL solves them too easily",
+    "do not exclude bugs because TREATMENT fails",
+    "do not tune .repro after a repair agent struggles",
+    "do not inspect the upstream fix while manually helping a subject run",
+    "do not give agents web access to search historical bug identifiers",
+    "do not add an agent-specific hint based on earlier replicates",
+    "do not convert a weak treatment effect into a new infrastructure experiment",
+    "do not propose V3.4",
+    "do not introduce agent-procedure-conformance work into V4"
+  ],
+
+  "stage_1_stop_point": {
+    "rule": "after corpus construction and the 4 calibration runs, STOP. No headline run begins without explicit approval.",
+    "final_line": "RAPTURE_REPRODUCER_V4_STAGE1_STATUS=<READY_FOR_HEADLINE|INSUFFICIENT_CORPUS|HARNESS_BLOCKED|INVALID>"
+  }
+}

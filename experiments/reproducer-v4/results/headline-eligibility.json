@@ -1,0 +1,211 @@
+{
+  "schema": "v4-headline-eligibility-1",
+  "recorded_at": "2026-09-11T07:57:13.508Z",
+  "frozen_requirement_applied": [
+    "reproduces the exact original failure against the buggy revision",
+    "the historical fixed revision removes the original failure"
+  ],
+  "method": "frozen V3.3 capture + frozen V3.3 replay only. The hidden oracle was NOT used and cannot substitute for artifact discrimination.",
+  "process_correction": {
+    "what_I_missed": "initial screening verified CAPTURE SUPPORT only. Artifact discrimination is a SEPARATE frozen requirement in phase_4_treatment_artifact and was not checked before I declared the 8/6 gate met.",
+    "effect": "AUTO_CAPTURE_SUPPORTED=8 but HEADLINE_ELIGIBLE=5. The earlier statement that the gate was closed was wrong and is retracted."
+  },
+  "cases": [
+    {
+      "id": "koa-1961",
+      "repository": "koajs/koa",
+      "stack": "koa",
+      "buggy_rev": "e0ba8ef",
+      "fixed_rev": "3f3ac48",
+      "fingerprint_class": "ERR:E_LENGTH_OVERFLOW",
+      "fingerprint_strength": "STRUCTURED_SPECIFIC",
+      "captured_events": 0,
+      "event_kinds": [],
+      "subgroup": "LOGIC_ONLY_OR_TRIGGER_DOMINANT",
+      "offline_replay_supported": true,
+      "replay_buggy_pass": false,
+      "replay_fixed_pass": false,
+      "artifact_verdict": "INCONCLUSIVE",
+      "headline_eligible": false,
+      "ineligibility_reason": "frozen .repro does not reproduce the original failure against the BUGGY revision, violating 'reproduces the exact original failure against the buggy revision'"
+    },
+    {
+      "id": "express-cookie-maxage",
+      "repository": "expressjs/express",
+      "stack": "express",
+      "buggy_rev": "1cc81699",
+      "fixed_rev": "58553394",
+      "fingerprint_class": "HTTP_500",
+      "fingerprint_strength": "GENERIC_HTTP_STATUS",
+      "captured_events": 1,
+      "event_kinds": [
+        "time"
+      ],
+      "subgroup": "TIME_RANDOM_CONFIG_DEPENDENT",
+      "offline_replay_supported": true,
+      "replay_buggy_pass": true,
+      "replay_fixed_pass": false,
+      "artifact_verdict": "DISCRIMINATING",
+      "headline_eligible": true,
+      "ineligibility_reason": null
+    },
+    {
+      "id": "express-jsonp",
+      "repository": "expressjs/express",
+      "stack": "express",
+      "buggy_rev": "1b2f3a06",
+      "fixed_rev": "9dd0e7af",
+      "fingerprint_class": "ERR:E_JSONP_UNDEFINED",
+      "fingerprint_strength": "STRUCTURED_SPECIFIC",
+      "captured_events": 0,
+      "event_kinds": [],
+      "subgroup": "LOGIC_ONLY_OR_TRIGGER_DOMINANT",
+      "offline_replay_supported": true,
+      "replay_buggy_pass": true,
+      "replay_fixed_pass": false,
+      "artifact_verdict": "DISCRIMINATING",
+      "headline_eligible": true,
+      "ineligibility_reason": null
+    },
+    {
+      "id": "fastify-prefix",
+      "repository": "fastify/fastify",
+      "stack": "fastify",
+      "buggy_rev": "8b9c07b6",
+      "fixed_rev": "2f597a92",
+      "fingerprint_class": "ERR:E_PREFIX_JOIN",
+      "fingerprint_strength": "STRUCTURED_SPECIFIC",
+      "captured_events": 0,
+      "event_kinds": [],
+      "subgroup": "LOGIC_ONLY_OR_TRIGGER_DOMINANT",
+      "offline_replay_supported": true,
+      "replay_buggy_pass": true,
+      "replay_fixed_pass": false,
+      "artifact_verdict": "DISCRIMINATING",
+      "headline_eligible": true,
+      "ineligibility_reason": null
+    },
+    {
+      "id": "hapi-failaction",
+      "repository": "hapijs/hapi",
+      "stack": "hapi",
+      "buggy_rev": "db0cb450",
+      "fixed_rev": "619380ab",
+      "fingerprint_class": "ERR:E_NO_DEFAULT_ERROR",
+      "fingerprint_strength": "STRUCTURED_SPECIFIC",
+      "captured_events": 1,
+      "event_kinds": [
+        "time"
+      ],
+      "subgroup": "TIME_RANDOM_CONFIG_DEPENDENT",
+      "offline_replay_supported": true,
+      "replay_buggy_pass": true,
+      "replay_fixed_pass": false,
+      "artifact_verdict": "DISCRIMINATING",
+      "headline_eligible": true,
+      "ineligibility_reason": null
+    },
+    {
+      "id": "send-416",
+      "repository": "pillarjs/send",
+      "stack": "node:http+send",
+      "buggy_rev": "53f0ab4",
+      "fixed_rev": "24b4af2",
+      "fingerprint_class": "ERR:E_416_NO_HEADERS",
+      "fingerprint_strength": "STRUCTURED_SPECIFIC",
+      "captured_events": 0,
+      "event_kinds": [],
+      "subgroup": "LOGIC_ONLY_OR_TRIGGER_DOMINANT",
+      "offline_replay_supported": true,
+      "replay_buggy_pass": false,
+      "replay_fixed_pass": false,
+      "artifact_verdict": "INCONCLUSIVE",
+      "headline_eligible": false,
+      "ineligibility_reason": "frozen .repro does not reproduce the original failure against the BUGGY revision, violating 'reproduces the exact original failure against the buggy revision'"
+    },
+    {
+      "id": "fastify-port",
+      "repository": "fastify/fastify",
+      "stack": "fastify",
+      "buggy_rev": "5f4871f9",
+      "fixed_rev": "6ac2e953",
+      "fingerprint_class": "ERR:E_PORT_DERIVATION",
+      "fingerprint_strength": "STRUCTURED_SPECIFIC",
+      "captured_events": 0,
+      "event_kinds": [],
+      "subgroup": "LOGIC_ONLY_OR_TRIGGER_DOMINANT",
+      "offline_replay_supported": true,
+      "replay_buggy_pass": true,
+      "replay_fixed_pass": false,
+      "artifact_verdict": "DISCRIMINATING",
+      "headline_eligible": true,
+      "ineligibility_reason": null
+    },
+    {
+      "id": "finalhandler-headers",
+      "repository": "pillarjs/finalhandler",
+      "stack": "node:http+finalhandler",
+      "buggy_rev": "872134f",
+      "fixed_rev": "7bfa2f7",
+      "fingerprint_class": "HTTP_503",
+      "fingerprint_strength": "GENERIC_HTTP_STATUS",
+      "captured_events": 0,
+      "event_kinds": [],
+      "subgroup": "LOGIC_ONLY_OR_TRIGGER_DOMINANT",
+      "offline_replay_supported": true,
+      "replay_buggy_pass": true,
+      "replay_fixed_pass": true,
+      "artifact_verdict": "NON_DISCRIMINATING_ARTIFACT",
+      "headline_eligible": false,
+      "ineligibility_reason": "frozen .repro reports the original failure REPRODUCED against the historical FIXED revision, violating 'the historical fixed revision removes the original failure'"
+    }
+  ],
+  "headline_eligible": [
+    "express-cookie-maxage",
+    "express-jsonp",
+    "fastify-prefix",
+    "hapi-failaction",
+    "fastify-port"
+  ],
+  "ineligible": [
+    {
+      "id": "koa-1961",
+      "verdict": "INCONCLUSIVE",
+      "reason": "frozen .repro does not reproduce the original failure against the BUGGY revision, violating 'reproduces the exact original failure against the buggy revision'"
+    },
+    {
+      "id": "send-416",
+      "verdict": "INCONCLUSIVE",
+      "reason": "frozen .repro does not reproduce the original failure against the BUGGY revision, violating 'reproduces the exact original failure against the buggy revision'"
+    },
+    {
+      "id": "finalhandler-headers",
+      "verdict": "NON_DISCRIMINATING_ARTIFACT",
+      "reason": "frozen .repro reports the original failure REPRODUCED against the historical FIXED revision, violating 'the historical fixed revision removes the original failure'"
+    }
+  ],
+  "gate": {
+    "required": {
+      "cases": 8,
+      "repositories": 6
+    },
+    "observed": {
+      "cases": 5,
+      "repositories": 3
+    },
+    "met": false
+  },
+  "repositories_eligible": [
+    "expressjs/express",
+    "fastify/fastify",
+    "hapijs/hapi"
+  ],
+  "substantive_finding": {
+    "statement": "capture support materially overstates how many incidents yield a USABLE executable artifact. 3 of 8 AUTO_CAPTURE_SUPPORTED fresh cases (37.5%) failed the frozen treatment-artifact requirement.",
+    "failure_modes": {
+      "NON_DISCRIMINATING": "finalhandler-headers — the defect manifests as malformed response headers, which the frozen fingerprint does not model, so buggy and fixed are indistinguishable (both HTTP_503)",
+      "NOT_REPRODUCIBLE_ON_BUGGY": "koa-1961 and send-416 — the frozen replay re-issues the captured request through a normal HTTP client, which cannot reconstruct a trigger that depends on a Content-Length inconsistent with the body (koa-1961 replayed as HTTP 200 instead of the captured 500)"
+    },
+    "why_it_matters_for_the_product": "this is a real yield limit of executable incidents, independent of repair value: an incident can be captured, replayed offline, and still be unable to tell an engineer or agent whether the bug is present."
+  }
+}
