@@ -16,6 +16,11 @@ docker network inspect "$SUBJECT_NET" >/dev/null 2>&1 || \
 docker network inspect "$EGRESS_NET" >/dev/null 2>&1 || \
   docker network create "$EGRESS_NET"
 
+# Idempotent: a healthy proxy is reused so its access log -- the network-attempt
+# audit trail -- survives across runs instead of being reset by every preflight.
+if [ "$(docker inspect -f '{{.State.Running}}' "$PROXY" 2>/dev/null)" = "true" ]; then
+  echo "proxy already running; reusing (access log preserved)"
+else
 docker rm -f "$PROXY" >/dev/null 2>&1 || true
 docker run -d --name "$PROXY" \
   --network "$SUBJECT_NET" --ip "$PROXY_IP" \
@@ -24,6 +29,7 @@ docker run -d --name "$PROXY" \
 
 # Second leg. The proxy is the ONLY container with an interface on both sides.
 docker network connect "$EGRESS_NET" "$PROXY"
+fi
 
 # Hardening found necessary by the audit: the VM's own sshd listens on the
 # bridge IP and was reachable from the subject container (a pivot to a host with

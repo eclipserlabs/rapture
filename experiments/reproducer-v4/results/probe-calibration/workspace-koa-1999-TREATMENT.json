@@ -1,0 +1,10 @@
+{
+  "case": "koa-1999",
+  "arm": "TREATMENT",
+  "built_at": "2026-09-11T15:09:30.280Z",
+  "buggy_snapshot": "koa-1061776",
+  "evidence_json_sha256": "e5302a6c65dca7c68ad0fb34f6bd103bc32127878720682b448c901f922dda69",
+  "evidence_md_sha256": "32e7fb9116665aa6b4b941a5949ba5b24b55733dbe6420589a9d085ebe6c182e",
+  "repro_present": true,
+  "repro_artifact_sha256": "4fb8815bfb7f9ee6cef725e9720dadf3255d2eecf9bd57e2710d775239acd91f"
+}

@@ -1,0 +1,10 @@
+{
+  "case": "koa-1998",
+  "arm": "CONTROL",
+  "built_at": "2026-09-11T14:57:43.632Z",
+  "buggy_snapshot": "koa-4a191b1",
+  "evidence_json_sha256": "400a7f7c51bce3ddb5be377efd910400e3457830e87cda4265a71cace70c3711",
+  "evidence_md_sha256": "1f98067dfe92c4fe4921d3a55ad5f3d8f240b76e2cc6c147fd3d89d8c3fc9fb7",
+  "repro_present": false,
+  "repro_artifact_sha256": null
+}

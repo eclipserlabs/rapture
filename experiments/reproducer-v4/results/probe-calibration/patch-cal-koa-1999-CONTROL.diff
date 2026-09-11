@@ -1,0 +1,20 @@
+diff --git a/lib/request.js b/lib/request.js
+index 2304501..0c28186 100644
+--- a/lib/request.js
++++ b/lib/request.js
+@@ -298,7 +298,14 @@ module.exports = {
+     if (!this.memoizedURL) {
+       const originalUrl = this.originalUrl || '' // avoid undefined in template string
+       try {
+-        this.memoizedURL = new URL(`${this.protocol}://${this.host}${originalUrl}`)
++        // support: `GET http://example.com/foo` (absolute-form request target)
++        // In that case originalUrl is already an absolute URL and must not
++        // be prefixed with protocol/host (which come from Host header/socket).
++        if (/^https?:\/\//i.test(originalUrl)) {
++          this.memoizedURL = new URL(originalUrl)
++        } else {
++          this.memoizedURL = new URL(`${this.protocol}://${this.host}${originalUrl}`)
++        }
+       } catch (err) {
+         this.memoizedURL = Object.create(null)
+       }

@@ -1,0 +1,400 @@
+{
+  "schema": "v4-probe-calibration-1",
+  "recorded_at": "2026-09-11T15:16:37.447665Z",
+  "stage": "manifest freeze + calibration only. No probe case invoked.",
+  "isolation_checkpoint_sha": "b9a9a930",
+  "probe_manifest": {
+    "path": "experiments/reproducer-v4/probe/V4-PROBE-MANIFEST.json",
+    "sha256": "4a5aaad3b724e7ca0e05eeb4e1f86ca6d36348d93fc3f7ece0314fb387679701",
+    "frozen_before": "the first calibration subject run"
+  },
+  "oracle_validation": {
+    "requirement": "the buggy revision must FAIL the original incident AND the hidden variants; the historical fixed revision must PASS both",
+    "koa-1998": {
+      "oracle_valid": true,
+      "buggy": "original 500 E_ASSERT_REGRESSION present; hidden 403/402 variants both returned 500 E_ASSERT_NOT_HTTPERROR; koa regression suite green",
+      "fixed": "original absent (401); hidden variants returned 403 and 402 as required; regression suite green"
+    },
+    "koa-1999": {
+      "oracle_valid": true,
+      "buggy": "original 500 E_URL_MISMATCH present; hidden absolute-form variants both returned 500 E_URL_NOT_GENERALIZED; regression suite green",
+      "fixed": "original absent (200); hidden variants returned 200 with the correct parsed authority; regression suite green"
+    },
+    "validated_before_any_subject_run": true
+  },
+  "calibration_cases": {
+    "selected": [
+      "koa-1998",
+      "koa-1999"
+    ],
+    "eligibility": "both are on the frozen V4 excluded_prior_bugs list and are permanently ineligible for the five-case probe",
+    "never_product_evidence": true
+  },
+  "runs": [
+    {
+      "label": "cal-koa-1998-CONTROL",
+      "case": "koa-1998",
+      "arm": "CONTROL",
+      "classification": "CORRECT_FIX",
+      "wall_clock_seconds": 182.19,
+      "timed_out": false,
+      "budget_seconds": 1200,
+      "preflight_pass": true,
+      "workspace_audit_pass": true,
+      "patch_stat": "lib/context.js | 52 ++++++++++++++++++++++++++++++++++++++++++++++++++-- ;  1 file changed, 50 insertions(+), 2 deletions(-)",
+      "repro_invocations": 0,
+      "repro_outcomes_seen": [],
+      "test_invocations": 2,
+      "agent_initiated_web_or_search_attempts": 0,
+      "hidden_variants": [
+        {
+          "variant": "assert-403-different-message",
+          "status": 403,
+          "pass": true
+        },
+        {
+          "variant": "assert-402-different-message",
+          "status": 402,
+          "pass": true
+        }
+      ],
+      "original_failure_present_after_patch": false,
+      "repository_regression_suite_pass": true,
+      "proxy_timeline": [
+        {
+          "t_plus_s": 50.6,
+          "result": "TCP_DENIED/403",
+          "host": "models.opencode.ai:443"
+        },
+        {
+          "t_plus_s": 52.9,
+          "result": "TCP_DENIED/403",
+          "host": "registry.npmjs.org:443"
+        },
+        {
+          "t_plus_s": 86.0,
+          "result": "TCP_DENIED/403",
+          "host": "github.com:443"
+        },
+        {
+          "t_plus_s": 184.6,
+          "result": "TCP_DENIED/403",
+          "host": "registry.npmjs.org:443"
+        },
+        {
+          "t_plus_s": 230.5,
+          "result": "TCP_TUNNEL/200",
+          "host": "opencode.ai:443"
+        }
+      ]
+    },
+    {
+      "label": "cal-koa-1998-TREATMENT",
+      "case": "koa-1998",
+      "arm": "TREATMENT",
+      "classification": "CORRECT_FIX",
+      "wall_clock_seconds": 178.89,
+      "timed_out": false,
+      "budget_seconds": 1200,
+      "preflight_pass": true,
+      "workspace_audit_pass": true,
+      "patch_stat": "lib/context.js | 60 +++++++++++++++++++++++++++++++++++++++++++++++++++++++--- ;  1 file changed, 57 insertions(+), 3 deletions(-)",
+      "repro_invocations": 4,
+      "repro_outcomes_seen": [
+        "ORIGINAL_FAILURE_REPRODUCED",
+        "ORIGINAL_FAILURE_ABSENT",
+        "ORIGINAL_FAILURE_REPRODUCED",
+        "ORIGINAL_FAILURE_ABSENT"
+      ],
+      "test_invocations": 3,
+      "agent_initiated_web_or_search_attempts": 0,
+      "hidden_variants": [
+        {
+          "variant": "assert-403-different-message",
+          "status": 403,
+          "pass": true
+        },
+        {
+          "variant": "assert-402-different-message",
+          "status": 402,
+          "pass": true
+        }
+      ],
+      "original_failure_present_after_patch": false,
+      "repository_regression_suite_pass": true,
+      "proxy_timeline": [
+        {
+          "t_plus_s": 56.4,
+          "result": "TCP_DENIED/403",
+          "host": "models.opencode.ai:443"
+        },
+        {
+          "t_plus_s": 58.4,
+          "result": "TCP_DENIED/403",
+          "host": "registry.npmjs.org:443"
+        },
+        {
+          "t_plus_s": 81.7,
+          "result": "TCP_DENIED/403",
+          "host": "github.com:443"
+        },
+        {
+          "t_plus_s": 194.5,
+          "result": "TCP_DENIED/403",
+          "host": "registry.npmjs.org:443"
+        },
+        {
+          "t_plus_s": 233.5,
+          "result": "TCP_TUNNEL/200",
+          "host": "opencode.ai:443"
+        }
+      ]
+    },
+    {
+      "label": "cal-koa-1999-CONTROL",
+      "case": "koa-1999",
+      "arm": "CONTROL",
+      "classification": "CORRECT_FIX",
+      "wall_clock_seconds": 141.91,
+      "timed_out": false,
+      "budget_seconds": 1200,
+      "preflight_pass": true,
+      "workspace_audit_pass": true,
+      "patch_stat": "lib/request.js | 9 ++++++++- ;  1 file changed, 8 insertions(+), 1 deletion(-)",
+      "repro_invocations": 0,
+      "repro_outcomes_seen": [],
+      "test_invocations": 6,
+      "agent_initiated_web_or_search_attempts": 0,
+      "hidden_variants": [
+        {
+          "variant": "absolute-form-different-authority",
+          "status": 200,
+          "pass": true
+        },
+        {
+          "variant": "absolute-form-https-scheme",
+          "status": 200,
+          "pass": true
+        }
+      ],
+      "original_failure_present_after_patch": false,
+      "repository_regression_suite_pass": true,
+      "proxy_timeline": [
+        {
+          "t_plus_s": 53.9,
+          "result": "TCP_DENIED/403",
+          "host": "models.opencode.ai:443"
+        },
+        {
+          "t_plus_s": 55.9,
+          "result": "TCP_DENIED/403",
+          "host": "registry.npmjs.org:443"
+        },
+        {
+          "t_plus_s": 77.7,
+          "result": "TCP_DENIED/403",
+          "host": "github.com:443"
+        },
+        {
+          "t_plus_s": 159.0,
+          "result": "TCP_DENIED/403",
+          "host": "registry.npmjs.org:443"
+        },
+        {
+          "t_plus_s": 194.1,
+          "result": "TCP_TUNNEL/200",
+          "host": "opencode.ai:443"
+        }
+      ]
+    },
+    {
+      "label": "cal-koa-1999-TREATMENT",
+      "case": "koa-1999",
+      "arm": "TREATMENT",
+      "classification": "CORRECT_FIX",
+      "wall_clock_seconds": 124.1,
+      "timed_out": false,
+      "budget_seconds": 1200,
+      "preflight_pass": true,
+      "workspace_audit_pass": true,
+      "patch_stat": "lib/request.js | 7 ++++++- ;  1 file changed, 6 insertions(+), 1 deletion(-)",
+      "repro_invocations": 3,
+      "repro_outcomes_seen": [
+        "ORIGINAL_FAILURE_REPRODUCED",
+        "ORIGINAL_FAILURE_ABSENT",
+        "ORIGINAL_FAILURE_REPRODUCED",
+        "ORIGINAL_FAILURE_ABSENT"
+      ],
+      "test_invocations": 4,
+      "agent_initiated_web_or_search_attempts": 0,
+      "hidden_variants": [
+        {
+          "variant": "absolute-form-different-authority",
+          "status": 200,
+          "pass": true
+        },
+        {
+          "variant": "absolute-form-https-scheme",
+          "status": 200,
+          "pass": true
+        }
+      ],
+      "original_failure_present_after_patch": false,
+      "repository_regression_suite_pass": true,
+      "proxy_timeline": [
+        {
+          "t_plus_s": 50.4,
+          "result": "TCP_DENIED/403",
+          "host": "models.opencode.ai:443"
+        },
+        {
+          "t_plus_s": 52.3,
+          "result": "TCP_DENIED/403",
+          "host": "registry.npmjs.org:443"
+        },
+        {
+          "t_plus_s": 74.9,
+          "result": "TCP_DENIED/403",
+          "host": "github.com:443"
+        },
+        {
+          "t_plus_s": 172.6,
+          "result": "TCP_TUNNEL/200",
+          "host": "opencode.ai:443"
+        }
+      ]
+    }
+  ],
+  "valid_calibration_runs": 4,
+  "all_runs_classified_correct_fix": true,
+  "wall_clock": {
+    "per_run_seconds": [
+      182.19,
+      178.89,
+      141.91,
+      124.1
+    ],
+    "min": 124.1,
+    "max": 182.19,
+    "budget_seconds": 1200,
+    "budget_headroom": "the slowest run used 182 s of a 1200 s budget (15%); no run approached the timeout",
+    "note": "these durations include container start and opencode boot (~50 s before the first model call), not agent reasoning alone"
+  },
+  "network_observations": {
+    "provider_hostnames_attempted": [
+      "opencode.ai",
+      "api.opencode.ai (isolation audit only)",
+      "models.opencode.ai"
+    ],
+    "allowed": {
+      "opencode.ai:443": "1 CONNECT tunnel per run, logged at close; inference succeeded in all 4 runs"
+    },
+    "denied": {
+      "models.opencode.ai:443": "1 per run, every run; inference succeeded regardless",
+      "registry.npmjs.org:443": "1-2 per run",
+      "github.com:443": "1 per run"
+    },
+    "models_opencode_ai_required": false,
+    "models_opencode_ai_decision": "NOT added. The frozen rule permits adding a hostname only if inference cannot complete without it. Inference completed in 4/4 calibration runs and 4/4 isolation-audit runs with this host denied.",
+    "attribution_of_denied_attempts": {
+      "finding": "none of the denied attempts is attributable to agent-initiated research",
+      "evidence": [
+        "every shell command executed by all four agents was enumerated from the traces: not one performs a network operation (no curl, wget, git fetch/ls-remote, npm view, no web tool)",
+        "the deny pattern is identical across all four runs regardless of arm or case, at t+~52 s (models.opencode.ai), t+~54 s (registry.npmjs.org) and t+~78 s (github.com), varying by under 6 s",
+        "a bare trivial inference with no repository and no test run reproduces models.opencode.ai + registry.npmjs.org denies",
+        "`npm test` alone in the workspace with no agent reproduces one registry.npmjs.org deny (npm's update-notifier)"
+      ],
+      "conclusion": "these are runtime background checks by opencode and npm, denied structurally. github.com remains the least directly attributed of the three: it appears only in longer sessions and in no trace command."
+    },
+    "web_retrieval_during_genuine_repair": "0 attempts. The agents never invoked WebFetch or search during a real repair task, so the critical provider-web-bypass path was exercised by the isolation audit but NOT by calibration.",
+    "leakage": "no run obtained any historical fix information from the network. No INVALID_LEAKAGE."
+  },
+  "hidden_evaluator_status": {
+    "location": "host only; never inside the container, never inside a workspace",
+    "timing": "invoked only after the agent process terminated, in all 4 runs",
+    "feedback_to_agent": "none",
+    "workspace_audit_check": "no_hidden_evaluator_material and no_hidden_variant_identifiers passed on all 4 workspaces"
+  },
+  "workspace_leakage_audit": {
+    "checks": [
+      "git_single_commit",
+      "git_no_remote",
+      "git_no_future_history",
+      "no_fixing_revision_or_issue_id_in_workspace",
+      "no_hidden_evaluator_material",
+      "no_hidden_variant_identifiers",
+      "arm_repro_presence_matches",
+      "dependencies_preprovisioned"
+    ],
+    "result": "8/8 passed on all 4 workspaces",
+    "independent_confirmation": "three of the four agents ran `git log` themselves; each saw exactly one commit, 'Initial import of the deployed revision'"
+  },
+  "harness_amendments_made_before_any_headline_data": [
+    {
+      "amendment": "research annotations stripped from the deployed application files",
+      "why": "the V3 service sources carry the issue number, BOTH revision shas and a plain-language root-cause explanation in their header comments. Copied verbatim they would have handed the subject the answer.",
+      "how": "comment lines mentioning the historical bug are removed when the app is copied into a workspace; no executable line is altered",
+      "found_by": "the workspace leakage audit, on its first run"
+    },
+    {
+      "amendment": "the deployed service file is renamed to server.mjs in the workspace",
+      "why": "the V3 filename encodes the issue number (koa-1998.mjs) and reached the subject through the evidence pack's stack trace",
+      "found_by": "the workspace leakage audit"
+    },
+    {
+      "amendment": "net-up.sh made idempotent for a running proxy",
+      "why": "the preflight re-ran net-up before every run, which recreated the Squid container and destroyed the access log -- the network-attempt audit trail",
+      "found_by": "first preflight execution"
+    },
+    {
+      "amendment": "the pg dependency closure is vendored and mounted read-only at /reproducer-v2/node_modules",
+      "why": "the deployed service resolves its Postgres driver through that path; the container has no network so it cannot be installed at run time",
+      "fairness": "identical in both arms"
+    },
+    {
+      "amendment": "workspace retention defaults to OFF after evaluation",
+      "why": "measured disk growth; see resource_findings",
+      "note": "not yet applied to the calibration workspaces, which are retained"
+    }
+  ],
+  "resource_findings": {
+    "reclaimed_before_calibration": "~890 MB (602 MB Homebrew download cache, ~285 MB build-only Go toolchain)",
+    "free_before_calibration_gb": 2.8,
+    "free_after_calibration_gb": 1.6,
+    "workspace_size_mb": {
+      "CONTROL": 58,
+      "TREATMENT": 60
+    },
+    "four_calibration_workspaces_mb": 236,
+    "colima_vm_growth_mb": 300,
+    "colima_note": "the Lima VM disk file only grows; freeing space inside the VM does not return it to the host",
+    "calibration_gate": "SATISFIED \u2014 all four runs and all four hidden evaluations completed with no disk-pressure failure",
+    "headline_projection": "20 runs at 60 MB each would need ~1.2 GB of simultaneous workspace space against 1.6 GB free, before VM growth. Workspace retention is therefore OFF by default: only one workspace exists at a time and the patch, trace, proxy log and evaluation are kept instead. This is a decision point to confirm before the headline runs."
+  },
+  "calibration_validated": [
+    "sanitized workspace construction (8/8 audit checks, 4/4 workspaces)",
+    "future git history and upstream fixes inaccessible (single commit, no remote, verified by the agents themselves)",
+    "CONTROL and TREATMENT prompts differ only by the .repro addition; evidence packs byte-identical per case",
+    "model invocation works inside the isolated container (4/4)",
+    "timeout behaviour: budget enforced by `timeout`; no run approached it",
+    "hidden evaluator runs only after the subject terminates (4/4)",
+    "no hidden-evaluator information enters the subject workspace (4/4)",
+    "the treatment artifact is genuinely usable by a real agent: 3-4 invocations per treatment run, and both ORIGINAL_FAILURE_REPRODUCED and ORIGINAL_FAILURE_ABSENT were observed",
+    "no network-policy bypass appeared under real agent tool usage"
+  ],
+  "not_validated_by_calibration": [
+    "provider web-retrieval bypass under a genuine repair task: the agents never attempted a web tool, so only the isolation audit exercised that path",
+    "timeout handling on a run that actually exhausts the budget: no calibration run came close",
+    "behaviour on a case the agent cannot solve: all four calibration runs succeeded"
+  ],
+  "explicitly_not_done": [
+    "no probe case invoked",
+    "no headline run",
+    "V3.3 unmodified at 5416f275",
+    "corpus unmodified",
+    "subject model unchanged",
+    "allowlist unchanged"
+  ],
+  "verdict": "RAPTURE_REPRODUCER_VALUE_PROBE_CALIBRATION=READY_FOR_HEADLINE",
+  "verdict_caveat": "READY_FOR_HEADLINE refers to the harness only. Calibration outcomes are never product-value evidence, and all four cases solving in both arms says nothing about the five probe cases."
+}

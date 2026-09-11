@@ -1,0 +1,103 @@
+##### RUN koa-1998 CONTROL  22:56:57 #####
+{
+  "label": "cal-koa-1998-CONTROL",
+  "arm": "CONTROL",
+  "classification": "CORRECT_FIX",
+  "agent_seconds": 182.19,
+  "timed_out": false,
+  "patch_empty": false,
+  "observations": {
+    "repro_invocations": 0,
+    "repro_outcome_lines": [],
+    "test_invocations": 2,
+    "network_attempt_markers": 0,
+    "webfetch_or_search_attempts": 0
+  },
+  "proxy_attempts": {
+    "DENIED models.opencode.ai:443": 1,
+    "DENIED registry.npmjs.org:443": 2,
+    "DENIED github.com:443": 1,
+    "ALLOWED opencode.ai:443": 1
+  }
+}
+
+##### RUN koa-1998 TREATMENT  23:01:03 #####
+{
+  "label": "cal-koa-1998-TREATMENT",
+  "arm": "TREATMENT",
+  "classification": "CORRECT_FIX",
+  "agent_seconds": 178.89,
+  "timed_out": false,
+  "patch_empty": false,
+  "observations": {
+    "repro_invocations": 4,
+    "repro_outcome_lines": [
+      "ORIGINAL_FAILURE_REPRODUCED",
+      "ORIGINAL_FAILURE_ABSENT",
+      "ORIGINAL_FAILURE_REPRODUCED",
+      "ORIGINAL_FAILURE_ABSENT"
+    ],
+    "test_invocations": 3,
+    "network_attempt_markers": 0,
+    "webfetch_or_search_attempts": 0
+  },
+  "proxy_attempts": {
+    "DENIED models.opencode.ai:443": 1,
+    "DENIED registry.npmjs.org:443": 2,
+    "DENIED github.com:443": 1,
+    "ALLOWED opencode.ai:443": 1
+  }
+}
+
+##### RUN koa-1999 CONTROL  23:05:14 #####
+{
+  "label": "cal-koa-1999-CONTROL",
+  "arm": "CONTROL",
+  "classification": "CORRECT_FIX",
+  "agent_seconds": 141.91,
+  "timed_out": false,
+  "patch_empty": false,
+  "observations": {
+    "repro_invocations": 0,
+    "repro_outcome_lines": [],
+    "test_invocations": 6,
+    "network_attempt_markers": 0,
+    "webfetch_or_search_attempts": 0
+  },
+  "proxy_attempts": {
+    "DENIED models.opencode.ai:443": 1,
+    "DENIED registry.npmjs.org:443": 2,
+    "DENIED github.com:443": 1,
+    "ALLOWED opencode.ai:443": 1
+  }
+}
+
+##### RUN koa-1999 TREATMENT  23:08:43 #####
+{
+  "label": "cal-koa-1999-TREATMENT",
+  "arm": "TREATMENT",
+  "classification": "CORRECT_FIX",
+  "agent_seconds": 124.1,
+  "timed_out": false,
+  "patch_empty": false,
+  "observations": {
+    "repro_invocations": 3,
+    "repro_outcome_lines": [
+      "ORIGINAL_FAILURE_REPRODUCED",
+      "ORIGINAL_FAILURE_ABSENT",
+      "ORIGINAL_FAILURE_REPRODUCED",
+      "ORIGINAL_FAILURE_ABSENT"
+    ],
+    "test_invocations": 4,
+    "network_attempt_markers": 0,
+    "webfetch_or_search_attempts": 0
+  },
+  "proxy_attempts": {
+    "DENIED models.opencode.ai:443": 1,
+    "DENIED registry.npmjs.org:443": 1,
+    "DENIED github.com:443": 1,
+    "ALLOWED opencode.ai:443": 1
+  }
+}
+
+ALL_CALIBRATION_RUNS_COMPLETE

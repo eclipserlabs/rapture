@@ -1,0 +1,167 @@
+{
+  "schema": "v4-probe-run-1",
+  "label": "cal-koa-1998-CONTROL",
+  "case": "koa-1998",
+  "arm": "CONTROL",
+  "model": "opencode/muse-spark-1.3-contributor-free",
+  "budget_seconds": 1200,
+  "started_at": "2026-09-11T14:56:57.121Z",
+  "preflight": {
+    "schema": "v4-probe-preflight-1",
+    "at": "2026-09-11T14:57:34.320Z",
+    "checks": [
+      {
+        "check": "net_up_reasserted",
+        "pass": true,
+        "detail": "waiting for squid to accept connections... | v4-proxy\tUp 9 minutes\tubuntu/squid:5.2-22.04_beta"
+      },
+      {
+        "check": "subject_no_default_route",
+        "pass": true,
+        "detail": "route=\"\""
+      },
+      {
+        "check": "vm_ssh_filtered",
+        "pass": true,
+        "detail": "FILTERED"
+      },
+      {
+        "check": "proxy_reachable",
+        "pass": true,
+        "detail": "OPEN"
+      },
+      {
+        "check": "single_internal_network_attachment",
+        "pass": true,
+        "detail": "v4-subject-net"
+      },
+      {
+        "check": "no_direct_egress",
+        "pass": true,
+        "detail": "ENETUNREACH"
+      },
+      {
+        "check": "minimal_provider_auth_only",
+        "pass": true,
+        "detail": "[\"opencode\"]"
+      },
+      {
+        "check": "no_global_config_or_repo_mounted",
+        "pass": true,
+        "detail": "-v /Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/probe-runs/cal-koa-1998-CONTROL:/work -v /Users/wira/Documents/rapture/rapture/experiments/reproducer-v4/isolation/subject-auth:/isolated/data/opencode -v /Users/wira/Documents/rapture/rapture/experiments/reproducer-v4/probe/vendor/repr"
+      }
+    ],
+    "preflight_pass": true
+  },
+  "build_workspace": {
+    "exit": 0,
+    "ok": true
+  },
+  "workspace_audit": {
+    "schema": "v4-probe-workspace-audit-1",
+    "case": "koa-1998",
+    "arm": "CONTROL",
+    "ws": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/probe-runs/cal-koa-1998-CONTROL",
+    "checks": [
+      {
+        "check": "git_single_commit",
+        "pass": true,
+        "detail": "commits=1"
+      },
+      {
+        "check": "git_no_remote",
+        "pass": true,
+        "detail": "remotes=\"\""
+      },
+      {
+        "check": "git_no_future_history",
+        "pass": true,
+        "detail": "refs=1"
+      },
+      {
+        "check": "no_fixing_revision_or_issue_id_in_workspace",
+        "pass": true,
+        "detail": []
+      },
+      {
+        "check": "no_hidden_evaluator_material",
+        "pass": true,
+        "detail": []
+      },
+      {
+        "check": "no_hidden_variant_identifiers",
+        "pass": true,
+        "detail": []
+      },
+      {
+        "check": "arm_repro_presence_matches",
+        "pass": true,
+        "detail": "arm=CONTROL repro_present=false"
+      },
+      {
+        "check": "dependencies_preprovisioned",
+        "pass": true,
+        "detail": "repo/node_modules present"
+      }
+    ],
+    "workspace_audit_pass": true
+  },
+  "container_start": {
+    "exit": 0,
+    "ok": true
+  },
+  "agent_seconds": 182.19,
+  "agent_exit": 0,
+  "agent_timed_out": false,
+  "trace_file": "results/probe-calibration/trace-cal-koa-1998-CONTROL.log",
+  "trace_bytes": 28870,
+  "observations": {
+    "repro_invocations": 0,
+    "repro_outcome_lines": [],
+    "test_invocations": 2,
+    "network_attempt_markers": 0,
+    "webfetch_or_search_attempts": 0
+  },
+  "patch_stat": "lib/context.js | 52 ++++++++++++++++++++++++++++++++++++++++++++++++++--\n 1 file changed, 50 insertions(+), 2 deletions(-)",
+  "patch_empty": false,
+  "proxy_attempts": {
+    "DENIED models.opencode.ai:443": 1,
+    "DENIED registry.npmjs.org:443": 2,
+    "DENIED github.com:443": 1,
+    "ALLOWED opencode.ai:443": 1
+  },
+  "proxy_denied_non_provider": true,
+  "evaluation": {
+    "schema": "v4-probe-evaluation-1",
+    "case": "koa-1998",
+    "classification": "CORRECT_FIX",
+    "repo": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/probe-runs/cal-koa-1998-CONTROL/repo",
+    "original": {
+      "status": 401,
+      "body": "{\"error\":\"unauthenticated\",\"code\":\"E_UNAUTH\"}"
+    },
+    "original_failure_present": false,
+    "hidden": [
+      {
+        "variant": "assert-403-different-message",
+        "status": 403,
+        "pass": true,
+        "body": "{\"ok\":true,\"variant\":\"httperror\",\"message\":\"forbidden-variant-a\"}"
+      },
+      {
+        "variant": "assert-402-different-message",
+        "status": 402,
+        "pass": true,
+        "body": "{\"ok\":true,\"variant\":\"httperror\",\"message\":\"payment-required-variant-b\"}"
+      }
+    ],
+    "hidden_all_pass": true,
+    "regression": {
+      "exit": 0,
+      "pass": true,
+      "tail": "  duration_ms: 124.954402\n  type: 'suite'\n  ...\n1..90\n# tests 440\n# suites 286\n# pass 440\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 8467.076397"
+    }
+  },
+  "classification": "CORRECT_FIX",
+  "finished_at": "2026-09-11T15:01:03.317Z"
+}

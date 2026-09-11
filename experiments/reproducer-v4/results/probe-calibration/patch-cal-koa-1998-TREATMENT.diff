@@ -1,0 +1,91 @@
+diff --git a/lib/context.js b/lib/context.js
+index 68ffe34..931a995 100644
+--- a/lib/context.js
++++ b/lib/context.js
+@@ -6,13 +6,67 @@
+ 
+ const util = require('util')
+ const createError = require('http-errors')
+-const httpAssert = require('http-assert')
+ const delegate = require('delegates')
+ const statuses = require('statuses')
+ const Cookies = require('cookies')
+ 
+ const COOKIES = Symbol('context#cookies')
+ 
++/**
++ * Local assertion helper that creates errors with the same `http-errors`
++ * instance used by `ctx.throw` and exposed as `Application.HttpError`.
++ * This replaces the `http-assert` dependency, which bundles its own
++ * `http-errors@1` copy whose errors fail `instanceof HttpError` checks
++ * against `http-errors@2` (breaking `err instanceof Koa.HttpError` guards).
++ */
++
++function ctxAssert (value, status, msg, opts) {
++  if (value) return
++  // http-errors@2 rejects explicit `undefined` arguments, while the old
++  // http-assert path forwarded them. Strip `undefined` to preserve arity.
++  const args = [status, msg, opts].filter(arg => arg !== undefined)
++  throw createError(...args)
++}
++
++let deepEql = null
++try {
++  deepEql = require('deep-equal')
++} catch {
++  deepEql = util.isDeepStrictEqual
++}
++
++ctxAssert.fail = function (status, msg, opts) {
++  ctxAssert(false, status, msg, opts)
++}
++
++ctxAssert.equal = function (a, b, status, msg, opts) {
++  ctxAssert(a == b, status, msg, opts) // eslint-disable-line eqeqeq
++}
++
++ctxAssert.notEqual = function (a, b, status, msg, opts) {
++  ctxAssert(a != b, status, msg, opts) // eslint-disable-line eqeqeq
++}
++
++ctxAssert.ok = function (value, status, msg, opts) {
++  ctxAssert(value, status, msg, opts)
++}
++
++ctxAssert.strictEqual = function (a, b, status, msg, opts) {
++  ctxAssert(a === b, status, msg, opts)
++}
++
++ctxAssert.notStrictEqual = function (a, b, status, msg, opts) {
++  ctxAssert(a !== b, status, msg, opts)
++}
++
++ctxAssert.deepEqual = function (a, b, status, msg, opts) {
++  ctxAssert(deepEql(a, b), status, msg, opts)
++}
++
++ctxAssert.notDeepEqual = function (a, b, status, msg, opts) {
++  ctxAssert(!deepEql(a, b), status, msg, opts)
++}
++
+ /**
+  * Context prototype.
+  */
+@@ -61,7 +115,7 @@ const proto = module.exports = {
+    *
+    *    this.assert(this.user, 401, 'Please login!');
+    *
+-   * See: https://github.com/jshttp/http-assert
++   * See: https://github.com/jshttp/http-errors
+    *
+    * @param {Mixed} test
+    * @param {Number} status
+@@ -69,7 +123,7 @@ const proto = module.exports = {
+    * @api public
+    */
+ 
+-  assert: httpAssert,
++  assert: ctxAssert,
+ 
+   /**
+    * Throw an error with `status` (default 500) and

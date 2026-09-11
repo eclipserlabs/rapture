@@ -1,0 +1,76 @@
+diff --git a/lib/context.js b/lib/context.js
+index 68ffe34..05030eb 100644
+--- a/lib/context.js
++++ b/lib/context.js
+@@ -6,13 +6,61 @@
+ 
+ const util = require('util')
+ const createError = require('http-errors')
+-const httpAssert = require('http-assert')
++const eql = require('deep-equal')
+ const delegate = require('delegates')
+ const statuses = require('statuses')
+ const Cookies = require('cookies')
+ 
+ const COOKIES = Symbol('context#cookies')
+ 
++/**
++ * Assert helper using the same `http-errors` instance as `ctx.throw`
++ * (and `Application.HttpError`), so `err instanceof app.HttpError`
++ * holds. Mirrors the `http-assert` API previously used here.
++ */
++
++function assert (value, status, msg, opts) {
++  if (value) return
++  // http-errors@2 throws on explicit `undefined` args, unlike the
++  // http-errors@1 copy bundled inside http-assert@1. Drop undefined
++  // args so `ctx.assert(x, 404)`, `ctx.assert(x, 404, 'msg')`, etc.
++  // keep their historical behaviour.
++  const args = [status, msg, opts].filter(arg => arg !== undefined)
++  throw createError(...args)
++}
++
++assert.fail = function (status, msg, opts) {
++  assert(false, status, msg, opts)
++}
++
++assert.equal = function (a, b, status, msg, opts) {
++  assert(a == b, status, msg, opts) // eslint-disable-line eqeqeq
++}
++
++assert.notEqual = function (a, b, status, msg, opts) {
++  assert(a != b, status, msg, opts) // eslint-disable-line eqeqeq
++}
++
++assert.ok = function (value, status, msg, opts) {
++  assert(value, status, msg, opts)
++}
++
++assert.strictEqual = function (a, b, status, msg, opts) {
++  assert(a === b, status, msg, opts)
++}
++
++assert.notStrictEqual = function (a, b, status, msg, opts) {
++  assert(a !== b, status, msg, opts)
++}
++
++assert.deepEqual = function (a, b, status, msg, opts) {
++  assert(eql(a, b), status, msg, opts)
++}
++
++assert.notDeepEqual = function (a, b, status, msg, opts) {
++  assert(!eql(a, b), status, msg, opts)
++}
++
+ /**
+  * Context prototype.
+  */
+@@ -69,7 +117,7 @@ const proto = module.exports = {
+    * @api public
+    */
+ 
+-  assert: httpAssert,
++  assert,
+ 
+   /**
+    * Throw an error with `status` (default 500) and

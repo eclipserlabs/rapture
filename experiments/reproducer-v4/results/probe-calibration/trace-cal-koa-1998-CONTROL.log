@@ -1,0 +1,784 @@
+Repairing the production bug — isolating root cause from the incident evidence.
+The app's 401 handler is missing its target — checking whether the framework's assertion errors still carry the right shape.
+Confirmed the mismatch — the context assertions use a stale error hierarchy. Now crafting a fix to unify them.
+I've mapped the fix — replacing the outdated assertion path while keeping full compatibility.
+Initial fix drafted — now verifying the errors are recognized correctly.
+Core validation passed — final sweep to confirm nothing else is affected.
+Root cause: `lib/context.js` `ctx.assert` was `require('http-assert')@1.5.0`, which creates errors via its nested `http-errors@1.8.1` copy. `lib/application.js` `Koa.HttpError`/`ctx.throw` use top-level `http-errors@2.0.1` (bumped in 3.0.0-alpha.2). The two `HttpError` hierarchies are distinct, so `ctx.assert(false,401)` error has correct `status=401,expose=true` and `Koa.isHttpError(e)==true` but `e instanceof Koa.HttpError==false` (verified). `svc-koa-api` error middleware maps only `instanceof Koa.HttpError` to 401 `E_UNAUTH`; the assert error fell through to the `status===401&&expose` branch returning 500 `E_ASSERT_REGRESSION`.
+
+Files changed:
+- `lib/context.js`: dropped `http-assert` import, implemented local `assert` (+`fail/equal/notEqual/ok/strictEqual/notStrictEqual/deepEqual/notDeepEqual` mirroring `http-assert`) on top of the same `require('http-errors')` instance as `ctx.throw`. Filters `undefined` args because `http-errors@2` throws `TypeError` on explicit `undefined` unlike v1.
+
+Validation:
+- Before: `ctx.assert(false,401)` -> `instanceof Koa.HttpError false`, `ctx.throw(401)` -> true.
+- After: all `assert` variants -> `instanceof true`, `isHttpError true`, correct `status/expose/message`; truthy no-throw preserved.
+- Simulated `/admin` middleware from `server.mjs`: before would hit 500 branch, after returns `401 {"error":"unauthenticated","code":"E_UNAUTH"}`.
+- `npm test` in `/work/repo`: 440 pass, 0 fail.
+
+Remaining uncertainty:
+- Incident JSON `status:null` not reproduced (likely artifact serializer reading own-props; v1/v2 put `status` on prototype) – inferred, not load-bearing.
+- `package.json` still lists unused `http-assert`; `deep-equal` is only transitively hoisted via it. Existing `node_modules` resolves, but clean fresh install without lock would need explicit `deep-equal` dep. Did not run full `/work/app` DB+fetch harness.
+
+----- stderr -----
+[0m
+> build · muse-spark-1.3-contributor-free
+[0m
+[0m→ [0mRead app
+[0m→ [0mRead repo
+[0m→ [0mRead incident-evidence.md
+[0m→ [0mRead incident-evidence.json
+[0m→ [0mRead app/shared.mjs
+[0m→ [0mRead app/server.mjs
+[0m→ [0mRead repo/package.json
+[0m→ [0mRead repo/lib
+[0m→ [0mRead repo/lib/context.js
+[0m→ [0mRead repo/lib/application.js
+[0m→ [0mRead repo/node_modules/http-assert/index.js
+[0m→ [0mRead repo/node_modules/http-assert/package.json
+[0m→ [0mRead repo/node_modules/http-errors/index.js
+[0m
+[0m$ [0mls -R /work/repo/node_modules/http-assert/node_modules 2>&1; echo "---"; ls /work/repo/node_modules/http-assert/; echo "---"; cat /work/repo/node_modules/http-assert/node_modules/http-errors/index.js 2>&1 | head -n 120
+/work/repo/node_modules/http-assert/node_modules:
+depd
+http-errors
+statuses
+
+/work/repo/node_modules/http-assert/node_modules/depd:
+History.md
+LICENSE
+Readme.md
+index.js
+lib
+package.json
+
+/work/repo/node_modules/http-assert/node_modules/depd/lib:
+browser
+compat
+
+/work/repo/node_modules/http-assert/node_modules/depd/lib/browser:
+index.js
+
+/work/repo/node_modules/http-assert/node_modules/depd/lib/compat:
+callsite-tostring.js
+event-listener-count.js
+index.js
+
+/work/repo/node_modules/http-assert/node_modules/http-errors:
+HISTORY.md
+LICENSE
+README.md
+index.js
+package.json
+
+/work/repo/node_modules/http-assert/node_modules/statuses:
+HISTORY.md
+LICENSE
+README.md
+codes.json
+index.js
+package.json
+---
+HISTORY.md
+LICENSE
+README.md
+index.js
+node_modules
+package.json
+---
+/*!
+ * http-errors
+ * Copyright(c) 2014 Jonathan Ong
+ * Copyright(c) 2016 Douglas Christopher Wilson
+ * MIT Licensed
+ */
+
+'use strict'
+
+/**
+ * Module dependencies.
+ * @private
+ */
+
+var deprecate = require('depd')('http-errors')
+var setPrototypeOf = require('setprototypeof')
+var statuses = require('statuses')
+var inherits = require('inherits')
+var toIdentifier = require('toidentifier')
+
+/**
+ * Module exports.
+ * @public
+ */
+
+module.exports = createError
+module.exports.HttpError = createHttpErrorConstructor()
+module.exports.isHttpError = createIsHttpErrorFunction(module.exports.HttpError)
+
+// Populate exports for all constructors
+populateConstructorExports(module.exports, statuses.codes, module.exports.HttpError)
+
+/**
+ * Get the code class of a status code.
+ * @private
+ */
+
+function codeClass (status) {
+  return Number(String(status).charAt(0) + '00')
+}
+
+/**
+ * Create a new HTTP Error.
+ *
+ * @returns {Error}
+ * @public
+ */
+
+function createError () {
+  // so much arity going on ~_~
+  var err
+  var msg
+  var status = 500
+  var props = {}
+  for (var i = 0; i < arguments.length; i++) {
+    var arg = arguments[i]
+    if (arg instanceof Error) {
+      err = arg
+      status = err.status || err.statusCode || status
+      continue
+    }
+    switch (typeof arg) {
+      case 'string':
+        msg = arg
+        break
+      case 'number':
+        status = arg
+        if (i !== 0) {
+          deprecate('non-first-argument status code; replace with createError(' + arg + ', ...)')
+        }
+        break
+      case 'object':
+        props = arg
+        break
+    }
+  }
+
+  if (typeof status === 'number' && (status < 400 || status >= 600)) {
+    deprecate('non-error status code; use only 4xx or 5xx status codes')
+  }
+
+  if (typeof status !== 'number' ||
+    (!statuses[status] && (status < 400 || status >= 600))) {
+    status = 500
+  }
+
+  // constructor
+  var HttpError = createError[status] || createError[codeClass(status)]
+
+  if (!err) {
+    // create error
+    err = HttpError
+      ? new HttpError(msg)
+      : new Error(msg || statuses[status])
+    Error.captureStackTrace(err, createError)
+  }
+
+  if (!HttpError || !(err instanceof HttpError) || err.status !== status) {
+    // add properties to generic error
+    err.expose = status < 500
+    err.status = err.statusCode = status
+  }
+
+  for (var key in props) {
+    if (key !== 'status' && key !== 'statusCode') {
+      err[key] = props[key]
+    }
+  }
+
+  return err
+}
+
+/**
+ * Create HTTP error abstract base class.
+ * @private
+ */
+
+function createHttpErrorConstructor () {
+  function HttpError () {
+    throw new TypeError('cannot construct abstract class')
+[0m
+[0m$ [0mcat /work/repo/node_modules/http-errors/package.json | grep -E '"version"|"name"'; echo "---"; cat /work/repo/node_modules/http-assert/node_modules/http-errors/package.json | grep -E '"version"|"name"'; echo "---"; node -e "const a=require('/work/repo/node_modules/http-errors'); console.log('top HttpError', typeof a.HttpError); const b=require('/work/repo/node_modules/http-assert/node_modules/http-errors'); console.log('nested HttpError', typeof b.HttpError); const ha=require('/work/repo/node_modules/http-assert'); const e=(()=>{try{ha(false,401,'unauthenticated')}catch(e){return e}})(); console.log('assert err:', e.name, e.constructor.name, 'status='+e.status, 'statusCode='+e.statusCode, 'expose='+e.expose, 'msg='+e.message); console.log('instanceof top?', e instanceof a.HttpError); console.log('isHttpError top?', a.isHttpError(e)); console.log('proto chain', Object.getPrototypeOf(e).constructor.name); console.log('stack', e.stack.split('\n').slice(0,3).join(' | '))"
+"name": "http-errors",
+  "version": "2.0.1",
+    "version": "node scripts/version-history.js && git add HISTORY.md"
+---
+  "name": "http-errors",
+  "version": "1.8.1",
+---
+top HttpError function
+nested HttpError function
+assert err: UnauthorizedError UnauthorizedError status=401 statusCode=401 expose=true msg=unauthenticated
+instanceof top? false
+isHttpError top? true
+proto chain UnauthorizedError
+stack UnauthorizedError: unauthenticated |     at assert (/work/repo/node_modules/http-assert/index.js:8:9) |     at [eval]:1:316
+[0m
+[0m$ [0mgit log --oneline -20 -- workdir=/work/repo 2>&1; echo "==="; git -C /work/repo log --oneline -20 2>&1 | head -n 30
+===
+eb09164 Initial import of the deployed revision
+[0m
+[0m✗ [0mGlob "__tests__/*" failed
+[91m[1mError: [0mripgrep execution failed
+[0m→ [0mRead repo/History.md
+[0m
+[0m$ [0mls -1 /work/repo/__tests__ 2>&1; echo "---"; ls -1 /work/repo/test-helpers 2>&1
+application
+context
+lib
+load-with-esm.test.js
+request
+response
+---
+context.js
+stream.js
+[0m
+[0m$ [0mls -1 /work/repo/__tests__/context /work/repo/__tests__/application; echo "---"; grep -rn "assert" /work/repo/__tests__ --include="*.js" -l
+/work/repo/__tests__/application:
+compose.test.js
+context.test.js
+currentContext.test.js
+index.test.js
+inspect.test.js
+onerror.test.js
+request.test.js
+respond.test.js
+response.test.js
+toJSON.test.js
+use.test.js
+
+/work/repo/__tests__/context:
+assert.test.js
+cookies.test.js
+inspect.test.js
+onerror.test.js
+state.test.js
+throw.test.js
+toJSON.test.js
+---
+/work/repo/__tests__/context/state.test.js
+/work/repo/__tests__/context/onerror.test.js
+/work/repo/__tests__/context/toJSON.test.js
+/work/repo/__tests__/context/cookies.test.js
+/work/repo/__tests__/context/assert.test.js
+/work/repo/__tests__/context/inspect.test.js
+/work/repo/__tests__/context/throw.test.js
+/work/repo/__tests__/response/attachment.test.js
+/work/repo/__tests__/response/last-modified.test.js
+/work/repo/__tests__/response/type.test.js
+/work/repo/__tests__/response/set.test.js
+/work/repo/__tests__/response/socket.test.js
+/work/repo/__tests__/response/is.test.js
+/work/repo/__tests__/response/append.test.js
+/work/repo/__tests__/response/get.test.js
+/work/repo/__tests__/response/writable.test.js
+/work/repo/__tests__/response/remove.test.js
+/work/repo/__tests__/response/has.test.js
+/work/repo/__tests__/response/body.test.js
+/work/repo/__tests__/response/message.test.js
+/work/repo/__tests__/response/inspect.test.js
+/work/repo/__tests__/response/etag.test.js
+/work/repo/__tests__/response/header.test.js
+/work/repo/__tests__/response/vary.test.js
+/work/repo/__tests__/response/headers.test.js
+/work/repo/__tests__/response/back.test.js
+/work/repo/__tests__/response/redirect.test.js
+/work/repo/__tests__/response/status.test.js
+/work/repo/__tests__/response/flushHeaders.test.js
+/work/repo/__tests__/response/length.test.js
+/work/repo/__tests__/lib/search-params.test.js
+/work/repo/__tests__/request/ip.test.js
+/work/repo/__tests__/request/querystring.test.js
+/work/repo/__tests__/request/ips.test.js
+/work/repo/__tests__/request/href.test.js
+/work/repo/__tests__/request/type.test.js
+/work/repo/__tests__/request/search.test.js
+/work/repo/__tests__/request/secure.test.js
+/work/repo/__tests__/request/acceptsCharsets.test.js
+/work/repo/__tests__/request/is.test.js
+/work/repo/__tests__/request/stale.test.js
+/work/repo/__tests__/request/get.test.js
+/work/repo/__tests__/request/accepts.test.js
+/work/repo/__tests__/request/path.test.js
+/work/repo/__tests__/request/accept.test.js
+/work/repo/__tests__/request/acceptsLanguages.test.js
+/work/repo/__tests__/request/protocol.test.js
+/work/repo/__tests__/request/fresh.test.js
+/work/repo/__tests__/request/whatwg-url.test.js
+/work/repo/__tests__/request/query.test.js
+/work/repo/__tests__/request/subdomains.test.js
+/work/repo/__tests__/request/idempotent.test.js
+/work/repo/__tests__/request/origin.test.js
+/work/repo/__tests__/request/inspect.test.js
+/work/repo/__tests__/request/acceptsEncodings.test.js
+/work/repo/__tests__/request/header.test.js
+/work/repo/__tests__/request/charset.test.js
+/work/repo/__tests__/request/headers.test.js
+/work/repo/__tests__/request/host.test.js
+/work/repo/__tests__/request/hostname.test.js
+/work/repo/__tests__/request/length.test.js
+/work/repo/__tests__/load-with-esm.test.js
+/work/repo/__tests__/application/respond.test.js
+/work/repo/__tests__/application/onerror.test.js
+/work/repo/__tests__/application/toJSON.test.js
+/work/repo/__tests__/application/context.test.js
+/work/repo/__tests__/application/use.test.js
+/work/repo/__tests__/application/compose.test.js
+/work/repo/__tests__/application/index.test.js
+/work/repo/__tests__/application/currentContext.test.js
+/work/repo/__tests__/application/inspect.test.js
+/work/repo/__tests__/application/response.test.js
+/work/repo/__tests__/application/request.test.js
+[0m
+[0m→ [0mRead repo/test-helpers/context.js
+[0m→ [0mRead repo/__tests__/context/assert.test.js
+[0m→ [0mRead repo/__tests__/context/throw.test.js
+[0m
+[0m$ [0mnode -e "
+const Koa = require('/work/repo/lib/application');
+const ctxHelper = require('/work/repo/test-helpers/context');
+const ctx = ctxHelper();
+console.log('assert fn:', ctx.assert.name || 'anon');
+try { ctx.assert(false, 401, 'unauthenticated'); } catch(e){
+  console.log('name', e.name, 'ctor', e.constructor.name);
+  console.log('status', e.status, 'expose', e.expose);
+  console.log('instanceof Koa.HttpError?', e instanceof Koa.HttpError);
+  console.log('isHttpError?', Koa.isHttpError(e));
+  console.log('instanceof Error?', e instanceof Error);
+  // check which http-errors created it
+  const top = require('/work/repo/node_modules/http-errors');
+  const nested = require('/work/repo/node_modules/http-assert/node_modules/http-errors');
+  console.log('instanceof top?', e instanceof top.HttpError, 'instanceof nested?', e instanceof nested.HttpError);
+}
+try { ctx.throw(401, 'unauthenticated'); } catch(e){
+  console.log('--- throw ---');
+  console.log('instanceof Koa.HttpError?', e instanceof Koa.HttpError);
+  console.log('isHttpError?', Koa.isHttpError(e));
+}
+"
+assert fn: assert
+name UnauthorizedError ctor UnauthorizedError
+status 401 expose true
+instanceof Koa.HttpError? false
+isHttpError? true
+instanceof Error? true
+instanceof top? false instanceof nested? true
+--- throw ---
+instanceof Koa.HttpError? true
+isHttpError? true
+[0m
+[0m$ [0mls /work/repo/node_modules/deep-equal 2>&1 | head; echo "---"; ls /work/repo/node_modules/http-assert/node_modules/ 2>&1; echo "---"; node -e "console.log(require.resolve('deep-equal', {paths:['/work/repo/lib']}))" 2>&1; echo "---"; cat /work/repo/node_modules/deep-equal/package.json 2>&1 | grep version
+LICENSE
+example
+index.js
+lib
+package.json
+readme.markdown
+test
+---
+depd
+http-errors
+statuses
+---
+/work/repo/node_modules/deep-equal/index.js
+---
+  "version": "1.0.1",
+[0m
+[0m$ [0mgrep -rn "http-assert\|httpAssert\|http_assert" /work/repo --include="*.js" --include="*.json" --exclude-dir=node_modules --exclude-dir=.git 2>&1
+/work/repo/package-lock.json:21:        "http-assert": "^1.5.0",
+/work/repo/package-lock.json:2433:    "node_modules/http-assert": {
+/work/repo/package-lock.json:2435:      "resolved": "https://registry.npmjs.org/http-assert/-/http-assert-1.5.0.tgz",
+/work/repo/package-lock.json:2446:    "node_modules/http-assert/node_modules/depd": {
+/work/repo/package-lock.json:2455:    "node_modules/http-assert/node_modules/http-errors": {
+/work/repo/package-lock.json:2471:    "node_modules/http-assert/node_modules/statuses": {
+/work/repo/package.json:48:    "http-assert": "^1.5.0",
+/work/repo/lib/context.js:9:const httpAssert = require('http-assert')
+/work/repo/lib/context.js:64:   * See: https://github.com/jshttp/http-assert
+/work/repo/lib/context.js:72:  assert: httpAssert,
+[0m
+[0m$ [0mnode -e "
+const ce = require('/work/repo/node_modules/http-errors');
+try { const e = ce(401, 'unauthenticated', undefined); console.log('3-arg undefined ok', e.status, e.message); } catch(err){ console.log('3-arg undefined FAIL', err.message); }
+try { const e = ce(401, 'unauthenticated'); console.log('2-arg ok', e.status, e.message); } catch(err){ console.log('2-arg FAIL', err.message); }
+try { const e = ce(404, 'custom message', undefined); console.log('404 undefined ok', e.status); } catch(err){ console.log('404 FAIL', err.message); }
+"
+3-arg undefined FAIL argument #3 unsupported type undefined
+2-arg ok 401 unauthenticated
+404 FAIL argument #3 unsupported type undefined
+[0m
+[0m$ [0mgrep -n "http-assert\|httpAssert\|createError\|deep-equal" /work/repo/lib/context.js /work/repo/dist/koa.mjs 2>&1 | head -n 40; echo "---"; ls /work/repo/dist/
+/work/repo/lib/context.js:8:const createError = require('http-errors')
+/work/repo/lib/context.js:9:const httpAssert = require('http-assert')
+/work/repo/lib/context.js:64:   * See: https://github.com/jshttp/http-assert
+/work/repo/lib/context.js:72:  assert: httpAssert,
+/work/repo/lib/context.js:96:    throw createError(...args)
+---
+koa.mjs
+[0m
+[0m$ [0mhead -n 50 /work/repo/dist/koa.mjs; echo "..."; grep -c "assert" /work/repo/dist/koa.mjs
+import mod from "../lib/application.js";
+
+export default mod;
+export const HttpError = mod.HttpError;
+export const createHttpError = mod.createHttpError;
+export const isHttpError = mod.isHttpError;
+...
+0
+[0m
+[0m→ [0mRead repo/lib/context.js[90m [offset=1, limit=100][0m
+[0m
+[0m$ [0mnode -e "console.log(require.resolve('deep-equal'))"; grep -n '"deep-equal"' /work/repo/package-lock.json | head
+node:internal/modules/cjs/loader:1433
+  throw err;
+  ^
+
+Error: Cannot find module 'deep-equal'
+Require stack:
+- /work/[eval]
+    at Function._resolveFilename (node:internal/modules/cjs/loader:1430:15)
+    at Function.resolve (node:internal/modules/helpers:157:19)
+    at [eval]:1:21
+    at runScriptInThisContext (node:internal/vm:209:10)
+    at node:internal/process/execution:446:12
+    at [eval]-wrapper:6:24
+    at runScriptInContext (node:internal/process/execution:444:60)
+    at evalFunction (node:internal/process/execution:279:30)
+    at evalTypeScript (node:internal/process/execution:291:3)
+    at node:internal/main/eval_string:74:3 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [ '/work/[eval]' ]
+}
+
+Node.js v22.23.2
+2439:        "deep-equal": "~1.0.1",
+[0m
+[0m$ [0mnode -e "console.log(require.resolve('deep-equal', {paths:['/work/repo/lib']}))"; ls /work/repo/node_modules | grep -i deep; NODE_PATH=/work/repo/node_modules node -e "console.log(require('/work/repo/node_modules/http-assert/node_modules/deep-equal' 2>&1))" 2>&1 | head
+/work/repo/node_modules/deep-equal/index.js
+deep-equal
+deep-is
+fast-deep-equal
+[eval]:1
+console.log(require('/work/repo/node_modules/http-assert/node_modules/deep-equal' 2>&1))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Expected ',', got 'numeric literal'
+
+SyntaxError: missing ) after argument list
+    at makeContextifyScript (node:internal/vm:185:14)
+    at compileScript (node:internal/process/execution:383:10)
+    at evalTypeScript (node:internal/process/execution:256:22)
+    at node:internal/main/eval_string:74:3
+[0m
+[0m← [0mEdit repo/lib/context.js
+Index: /work/repo/lib/context.js
+===================================================================
+--- /work/repo/lib/context.js
++++ /work/repo/lib/context.js
+@@ -5,9 +5,9 @@
+  */
+ 
+ const util = require('util')
+ const createError = require('http-errors')
+-const httpAssert = require('http-assert')
++const eql = require('deep-equal')
+ const delegate = require('delegates')
+ const statuses = require('statuses')
+ const Cookies = require('cookies')
+ 
+
+[0m
+[0m← [0mEdit repo/lib/context.js
+Index: /work/repo/lib/context.js
+===================================================================
+--- /work/repo/lib/context.js
++++ /work/repo/lib/context.js
+@@ -68,9 +68,9 @@
+  * @param {String} message
+  * @api public
+  */
+ 
+-assert: httpAssert,
++assert,
+ 
+ /**
+  * Throw an error with `status` (default 500) and
+  * `msg`. Note that these are user-level
+
+[0m
+[0m→ [0mRead repo/lib/context.js[90m [limit=30, offset=1][0m
+[0m
+[0m← [0mEdit repo/lib/context.js
+Index: /work/repo/lib/context.js
+===================================================================
+--- /work/repo/lib/context.js
++++ /work/repo/lib/context.js
+@@ -13,8 +13,56 @@
+ 
+ const COOKIES = Symbol('context#cookies')
+ 
+ /**
++ * Assert helper using the same `http-errors` instance as `ctx.throw`
++ * (and `Application.HttpError`), so `err instanceof app.HttpError`
++ * holds. Mirrors the `http-assert` API previously used here.
++ */
++
++function assert (value, status, msg, opts) {
++  if (value) return
++  // http-errors@2 throws on explicit `undefined` args, unlike the
++  // http-errors@1 copy bundled inside http-assert@1. Drop undefined
++  // args so `ctx.assert(x, 404)`, `ctx.assert(x, 404, 'msg')`, etc.
++  // keep their historical behaviour.
++  const args = [status, msg, opts].filter(arg => arg !== undefined)
++  throw createError(...args)
++}
++
++assert.fail = function (status, msg, opts) {
++  assert(false, status, msg, opts)
++}
++
++assert.equal = function (a, b, status, msg, opts) {
++  assert(a == b, status, msg, opts) // eslint-disable-line eqeqeq
++}
++
++assert.notEqual = function (a, b, status, msg, opts) {
++  assert(a != b, status, msg, opts) // eslint-disable-line eqeqeq
++}
++
++assert.ok = function (value, status, msg, opts) {
++  assert(value, status, msg, opts)
++}
++
++assert.strictEqual = function (a, b, status, msg, opts) {
++  assert(a === b, status, msg, opts)
++}
++
++assert.notStrictEqual = function (a, b, status, msg, opts) {
++  assert(a !== b, status, msg, opts)
++}
++
++assert.deepEqual = function (a, b, status, msg, opts) {
++  assert(eql(a, b), status, msg, opts)
++}
++
++assert.notDeepEqual = function (a, b, status, msg, opts) {
++  assert(!eql(a, b), status, msg, opts)
++}
++
++/**
+  * Context prototype.
+  */
+ 
+ const proto = module.exports = {
+
+[0m
+[0m→ [0mRead repo/lib/context.js[90m [limit=120, offset=1][0m
+[0m
+[0m$ [0mnode -e "
+const Koa = require('/work/repo/lib/application');
+const ctxHelper = require('/work/repo/test-helpers/context');
+const ctx = ctxHelper();
+function check(fn, label){
+  try{ fn(); console.log(label+': no throw'); }catch(e){
+    console.log(label+': status='+e.status+' expose='+e.expose+' instanceof='+ (e instanceof Koa.HttpError) +' isHttpError='+Koa.isHttpError(e)+' msg='+e.message);
+  }
+}
+check(()=>ctx.assert(false,401,'unauthenticated'),'assert 401');
+check(()=>ctx.assert(false,404,'custom message'),'assert 404');
+check(()=>ctx.assert(false,404),'assert 404 no msg');
+check(()=>ctx.assert(true,404,'x'),'assert truthy');
+check(()=>ctx.assert.fail(401,'f'),'fail');
+check(()=>ctx.assert.equal(1,2,400,'ne'),'equal fail');
+try{ctx.assert.equal(1,1,400,'x'); console.log('equal pass: no throw');}catch(e){console.log('equal pass FAIL');}
+check(()=>ctx.assert.deepEqual({a:1},{a:2},400,'deep'),'deepEqual');
+try{ctx.assert.deepEqual({a:1},{a:1},400,'x'); console.log('deepEqual pass: no throw');}catch(e){console.log('deepEqual pass FAIL');}
+check(()=>ctx.throw(401,'unauthenticated'),'throw 401');
+"
+assert 401: status=401 expose=true instanceof=true isHttpError=true msg=unauthenticated
+assert 404: status=404 expose=true instanceof=true isHttpError=true msg=custom message
+assert 404 no msg: status=404 expose=true instanceof=true isHttpError=true msg=Not Found
+assert truthy: no throw
+fail: status=401 expose=true instanceof=true isHttpError=true msg=f
+equal fail: status=400 expose=true instanceof=true isHttpError=true msg=ne
+equal pass: no throw
+deepEqual: status=400 expose=true instanceof=true isHttpError=true msg=deep
+deepEqual pass: no throw
+throw 401: status=401 expose=true instanceof=true isHttpError=true msg=unauthenticated
+[0m
+[0m$ [0mnode -e "
+const Koa = require('/work/repo/lib/application');
+const app = new Koa();
+app.use(async (ctx,next)=>{ try{ await next(); }catch(err){ if(err instanceof Koa.HttpError){ ctx.status=err.status; ctx.body={error:err.message,code:'E_UNAUTH'}; } else if(err!=null&&typeof err==='object'&&err.status===401&&err.expose===true){ ctx.status=500; ctx.body={error:'assert regression',code:'E_ASSERT_REGRESSION'}; } else{ throw err; } }});
+app.use(async (ctx)=>{ if(ctx.path==='/admin'){ ctx.state.session=null; ctx.assert(ctx.state.session!=null,401,'unauthenticated'); ctx.body={ok:true}; return; } ctx.status=404; ctx.body={error:'not found'}; });
+const server = app.listen(0, async ()=>{
+  const port = server.address().port;
+  const r = await fetch('http://localhost:'+port+'/admin');
+  console.log('status', r.status);
+  console.log('body', await r.text());
+  server.close();
+});
+"
+status 401
+body {"error":"unauthenticated","code":"E_UNAUTH"}
+[0m
+[0m$ [0mnpm test 2>&1 | tail -n 50
+duration_ms: 28.072251
+          type: 'test'
+          ...
+        1..1
+    ok 1 - when continuous requests in one persistent connection
+      ---
+      duration_ms: 29.223924
+      type: 'suite'
+      ...
+    # Subtest: when socket closed before response sent
+        # Subtest: should not be writable
+        ok 1 - should not be writable
+          ---
+          duration_ms: 10.013282
+          type: 'test'
+          ...
+        1..1
+    ok 2 - when socket closed before response sent
+      ---
+      duration_ms: 10.550176
+      type: 'suite'
+      ...
+    # Subtest: when response finished
+        # Subtest: should not be writable
+        ok 1 - should not be writable
+          ---
+          duration_ms: 11.862455
+          type: 'test'
+          ...
+        1..1
+    ok 3 - when response finished
+      ---
+      duration_ms: 12.310982
+      type: 'suite'
+      ...
+    1..3
+ok 90 - res.writable
+  ---
+  duration_ms: 53.002782
+  type: 'suite'
+  ...
+1..90
+# tests 440
+# suites 286
+# pass 440
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 21168.215637
+[0m
+[0m$ [0mnpx standard lib/context.js 2>&1 | head -n 20; echo "exit:$?"
+/work/repo/node_modules/version-guard/index.js:40
+    throw new Error(
+    ^
+
+Error: Could not find a package.json at expected path "/work/repo/node_modules/.bin/package.json", hence failing. Got error: Cannot find module '/work/repo/node_modules/.bin/package.json'
+Require stack:
+- /work/repo/node_modules/version-guard/index.js
+- /work/repo/node_modules/.bin/standard
+    at versionGuard (/work/repo/node_modules/version-guard/index.js:40:11)
+    at Object.<anonymous> (/work/repo/node_modules/.bin/standard:3:25)
+    at Module._compile (node:internal/modules/cjs/loader:1781:14)
+    at Object..js (node:internal/modules/cjs/loader:1913:10)
+    at Module.load (node:internal/modules/cjs/loader:1505:32)
+    at Function._load (node:internal/modules/cjs/loader:1309:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+    at node:internal/main/run_main_module:36:49
+
+Node.js v22.23.2
+exit:0
+[0m
+[0m$ [0mgit -C /work/repo diff --stat; echo "---"; git -C /work/repo diff lib/context.js | head -n 120
+lib/context.js | 52 ++++++++++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 50 insertions(+), 2 deletions(-)
+---
+diff --git a/lib/context.js b/lib/context.js
+index 68ffe34..05030eb 100644
+--- a/lib/context.js
++++ b/lib/context.js
+@@ -6,13 +6,61 @@
+ 
+ const util = require('util')
+ const createError = require('http-errors')
+-const httpAssert = require('http-assert')
++const eql = require('deep-equal')
+ const delegate = require('delegates')
+ const statuses = require('statuses')
+ const Cookies = require('cookies')
+ 
+ const COOKIES = Symbol('context#cookies')
+ 
++/**
++ * Assert helper using the same `http-errors` instance as `ctx.throw`
++ * (and `Application.HttpError`), so `err instanceof app.HttpError`
++ * holds. Mirrors the `http-assert` API previously used here.
++ */
++
++function assert (value, status, msg, opts) {
++  if (value) return
++  // http-errors@2 throws on explicit `undefined` args, unlike the
++  // http-errors@1 copy bundled inside http-assert@1. Drop undefined
++  // args so `ctx.assert(x, 404)`, `ctx.assert(x, 404, 'msg')`, etc.
++  // keep their historical behaviour.
++  const args = [status, msg, opts].filter(arg => arg !== undefined)
++  throw createError(...args)
++}
++
++assert.fail = function (status, msg, opts) {
++  assert(false, status, msg, opts)
++}
++
++assert.equal = function (a, b, status, msg, opts) {
++  assert(a == b, status, msg, opts) // eslint-disable-line eqeqeq
++}
++
++assert.notEqual = function (a, b, status, msg, opts) {
++  assert(a != b, status, msg, opts) // eslint-disable-line eqeqeq
++}
++
++assert.ok = function (value, status, msg, opts) {
++  assert(value, status, msg, opts)
++}
++
++assert.strictEqual = function (a, b, status, msg, opts) {
++  assert(a === b, status, msg, opts)
++}
++
++assert.notStrictEqual = function (a, b, status, msg, opts) {
++  assert(a !== b, status, msg, opts)
++}
++
++assert.deepEqual = function (a, b, status, msg, opts) {
++  assert(eql(a, b), status, msg, opts)
++}
++
++assert.notDeepEqual = function (a, b, status, msg, opts) {
++  assert(!eql(a, b), status, msg, opts)
++}
++
+ /**
+  * Context prototype.
+  */
+@@ -69,7 +117,7 @@ const proto = module.exports = {
+    * @api public
+    */
+ 
+-  assert: httpAssert,
++  assert,
+ 
+   /**
+    * Throw an error with `status` (default 500) and
+[0m

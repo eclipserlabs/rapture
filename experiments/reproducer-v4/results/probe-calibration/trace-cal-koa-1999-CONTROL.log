@@ -1,0 +1,571 @@
+Repairing your backend bug — digging into the evidence to track down the failure.
+Found the mismatch — absolute request targets are confusing the URL handling. Now mapping the exact breakdown.
+I've confirmed the core bug — now verifying the remaining request handling for the fix.
+Fix applied — now confirming the mismatch is resolved.
+Core fix verified and all tests pass — doing a final consistency check.
+Root cause: `request.URL` (`lib/request.js:296`) always built `new URL(protocol://host + originalUrl)`. For absolute-form targets (`GET http://example.com/u`), `originalUrl`/`req.url` is already `http://example.com/u`, so it built e.g. `http://127.0.0.1:PORThttp://example.com/u` → `Invalid URL` → empty object (`URL.href === undefined`), while `request.href` short-circuits absolute URLs and returns `http://example.com/u`. Hence `ctx.URL.href !== ctx.href` → probe's 500 `E_URL_MISMATCH`. `ctx.path` was still `/u` (parseurl handles absolute), so routing succeeded.
+
+Files changed: `lib/request.js` — `get URL` now mirrors `get href`: if `originalUrl` matches `/^https?:\/\//i`, `new URL(originalUrl)` directly; else prefix with `protocol://host` as before. `dist/koa.mjs` is just a re-export of `lib`, no change needed.
+
+Validation:
+- Reproduced with raw TCP `GET http://example.com/u` + `Host: 127.0.0.1:PORT`: before fix `href="http://example.com/u"`, `URL.href=undefined` → 500; after fix both `"http://example.com/u"` → 200. Also verified origin-form, absolute with query/different `Host`, and `https` absolute all return 200 with matching hrefs.
+- Full suite `npm test`: 452 pass, 0 fail.
+
+Remaining uncertainty: `new URL()` normalizes (e.g. `http://example.com` → `http://example.com/`), so strict `URL.href === href` could still mismatch for normalization edge cases (bare host, default ports, case); incident path `/u` is exact-match safe.
+
+----- stderr -----
+[0m
+> build · muse-spark-1.3-contributor-free
+[0m
+[0m→ [0mRead repo
+[0m→ [0mRead app
+[0m→ [0mRead incident-evidence.md
+[0m→ [0mRead incident-evidence.json
+[0m→ [0mRead app/server.mjs
+[0m→ [0mRead repo/package.json
+[0m→ [0mRead app/shared.mjs
+[0m→ [0mRead repo/lib
+[0m→ [0mRead repo/lib/context.js
+[0m→ [0mRead repo/lib/request.js
+[0m→ [0mRead repo/lib/application.js
+[0m✗ [0mGrep "absolute|originalUrl|href.*http|URL" failed
+[91m[1mError: [0mripgrep execution failed
+[0m✗ [0mGlob "__tests__/*.js" failed
+[91m[1mError: [0mripgrep execution failed
+[0m
+[0m$ [0mls -R __tests__ 2>&1 | head -n 100; echo "---"; ls lib/; echo "---"; ls test-helpers/
+__tests__:
+application
+context
+lib
+load-with-esm.test.js
+request
+response
+
+__tests__/application:
+compose.test.js
+context.test.js
+currentContext.test.js
+index.test.js
+inspect.test.js
+onerror.test.js
+request.test.js
+respond.test.js
+response.test.js
+toJSON.test.js
+use.test.js
+
+__tests__/context:
+assert.test.js
+cookies.test.js
+inspect.test.js
+onerror.test.js
+state.test.js
+throw.test.js
+toJSON.test.js
+
+__tests__/lib:
+search-params.test.js
+
+__tests__/request:
+accept.test.js
+accepts.test.js
+acceptsCharsets.test.js
+acceptsEncodings.test.js
+acceptsLanguages.test.js
+charset.test.js
+fresh.test.js
+get.test.js
+header.test.js
+headers.test.js
+host.test.js
+hostname.test.js
+href.test.js
+idempotent.test.js
+inspect.test.js
+ip.test.js
+ips.test.js
+is.test.js
+length.test.js
+origin.test.js
+path.test.js
+protocol.test.js
+query.test.js
+querystring.test.js
+search.test.js
+secure.test.js
+stale.test.js
+subdomains.test.js
+type.test.js
+whatwg-url.test.js
+
+__tests__/response:
+append.test.js
+attachment.test.js
+back.test.js
+body.test.js
+etag.test.js
+flushHeaders.test.js
+get.test.js
+has.test.js
+header.test.js
+headers.test.js
+inspect.test.js
+is.test.js
+last-modified.test.js
+length.test.js
+message.test.js
+redirect.test.js
+remove.test.js
+set.test.js
+socket.test.js
+status.test.js
+type.test.js
+vary.test.js
+writable.test.js
+---
+application.js
+context.js
+is-stream.js
+only.js
+request.js
+response.js
+search-params.js
+---
+context.js
+stream.js
+[0m
+[0m$ [0mnode -e 'console.log(process.version)' && git log --oneline -15
+v22.23.2
+7a10440 Initial import of the deployed revision
+[0m
+[0m→ [0mRead repo/__tests__/request/path.test.js
+[0m→ [0mRead repo/__tests__/request/whatwg-url.test.js
+[0m→ [0mRead repo/__tests__/request/href.test.js
+[0m→ [0mRead repo/test-helpers/context.js
+[0m
+[0m$ [0mnode --test __tests__/request/href.test.js __tests__/request/whatwg-url.test.js 2>&1 | tail -n 20
+echo "==="
+rg -n "originalUrl" lib/ test-helpers/ __tests__/ 2>&1 | head -n 50
+ok 3 - should return empty object when invalid
+      ---
+      duration_ms: 0.876733
+      type: 'test'
+      ...
+    1..3
+ok 2 - req.URL
+  ---
+  duration_ms: 3.918578
+  type: 'suite'
+  ...
+1..2
+# tests 5
+# suites 2
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 748.917404
+===
+/usr/bin/bash: line 3: rg: command not found
+[0m
+[0m$ [0mgrep -rn "originalUrl" lib/ test-helpers/ __tests__/ 2>&1 | head -n 50
+lib/request.js:111:    if (/^https?:\/\//i.test(this.originalUrl)) return this.originalUrl
+lib/request.js:112:    return this.protocol + '://' + this.host + this.originalUrl
+lib/request.js:299:      const originalUrl = this.originalUrl || '' // avoid undefined in template string
+lib/request.js:301:        this.memoizedURL = new URL(`${this.protocol}://${this.host}${originalUrl}`)
+lib/context.js:52:      originalUrl: this.originalUrl,
+lib/application.js:47: *  originalUrl: string
+lib/application.js:241:    context.originalUrl = request.originalUrl = req.url
+__tests__/request/querystring.test.js:40:  it('should change .url but not .originalUrl', () => {
+__tests__/request/querystring.test.js:44:    assert.strictEqual(ctx.originalUrl, '/store/shoes')
+__tests__/request/querystring.test.js:45:    assert.strictEqual(ctx.request.originalUrl, '/store/shoes')
+__tests__/request/search.test.js:24:  it('should change .url but not .originalUrl', () => {
+__tests__/request/search.test.js:28:    assert.strictEqual(ctx.originalUrl, '/store/shoes')
+__tests__/request/search.test.js:29:    assert.strictEqual(ctx.request.originalUrl, '/store/shoes')
+__tests__/request/path.test.js:26:  it('should change .url but not .originalUrl', () => {
+__tests__/request/path.test.js:30:    assert.strictEqual(ctx.originalUrl, '/login')
+__tests__/request/path.test.js:31:    assert.strictEqual(ctx.request.originalUrl, '/login')
+__tests__/request/query.test.js:36:  it('should change .url but not .originalUrl', () => {
+__tests__/request/query.test.js:40:    assert.strictEqual(ctx.originalUrl, '/store/shoes')
+__tests__/request/query.test.js:41:    assert.strictEqual(ctx.request.originalUrl, '/store/shoes')
+[0m
+[0m$ [0mnode -e '
+const URL = require("url").URL;
+for (const s of ["http://127.0.0.1:1234http://example.com/u", "http://localhosthttp://example.com/u", "http://example.comhttp://example.com/u"]) {
+  try { const u=new URL(s); console.log(JSON.stringify(s), "=>", u.href, "host:", u.host, "pathname:", u.pathname); } catch(e){ console.log(JSON.stringify(s), "ERR", e.message); }
+}
+console.log("--- absolute direct ---");
+try { const u=new URL("http://example.com/u"); console.log(u.href); } catch(e){ console.log(e.message); }
+'
+"http://127.0.0.1:1234http://example.com/u" ERR Invalid URL
+"http://localhosthttp://example.com/u" => http://localhosthttp//example.com/u host: localhosthttp pathname: //example.com/u
+"http://example.comhttp://example.com/u" => http://example.comhttp//example.com/u host: example.comhttp pathname: //example.com/u
+--- absolute direct ---
+http://example.com/u
+[0m
+[0m$ [0mnode -e '
+const parse = require("parseurl");
+function fakeReq(url, host) {
+  return { url, headers: {host}, socket:{} };
+}
+for (const url of ["/u", "http://example.com/u", "http://example.com/u?x=1", "https://example.com/u"]) {
+  const r = fakeReq(url, "myhost");
+  const p = parse(r);
+  console.log(JSON.stringify(url), "=>", JSON.stringify(p));
+}
+'
+node -e 'console.log(require("url").parse("http://example.com/u"))'
+node -e 'console.log(require("url").format({pathname:"/u", query:null}))'
+"/u" => {"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":null,"pathname":"/u","path":"/u","href":"/u","_raw":"/u"}
+"http://example.com/u" => {"protocol":"http:","slashes":true,"auth":null,"host":"example.com","port":null,"hostname":"example.com","hash":null,"search":null,"query":null,"pathname":"/u","path":"/u","href":"http://example.com/u","_raw":"http://example.com/u"}
+"http://example.com/u?x=1" => {"protocol":"http:","slashes":true,"auth":null,"host":"example.com","port":null,"hostname":"example.com","hash":null,"search":"?x=1","query":"x=1","pathname":"/u","path":"/u?x=1","href":"http://example.com/u?x=1","_raw":"http://example.com/u?x=1"}
+"https://example.com/u" => {"protocol":"https:","slashes":true,"auth":null,"host":"example.com","port":null,"hostname":"example.com","hash":null,"search":null,"query":null,"pathname":"/u","path":"/u","href":"https://example.com/u","_raw":"https://example.com/u"}
+Url {
+  protocol: 'http:',
+  slashes: true,
+  auth: null,
+  host: 'example.com',
+  port: null,
+  hostname: 'example.com',
+  hash: null,
+  search: null,
+  query: null,
+  pathname: '/u',
+  path: '/u',
+  href: 'http://example.com/u'
+}
+/u
+[0m
+[0m$ [0mnode --input-type=module -e '
+import http from "node:http";
+import net from "node:net";
+const root = "/work/repo";
+const KoaMod = await import(`${root}/lib/application.js`);
+const Koa = KoaMod.default ?? KoaMod;
+const app = new Koa();
+app.use(async (ctx) => {
+  if (ctx.path === "/health") { ctx.body = {ok:true}; return; }
+  if (ctx.path === "/u") {
+    console.log("originalUrl:", JSON.stringify(ctx.originalUrl));
+    console.log("req.url:", JSON.stringify(ctx.req.url));
+    console.log("host:", JSON.stringify(ctx.host));
+    console.log("protocol:", JSON.stringify(ctx.protocol));
+    console.log("href:", JSON.stringify(ctx.href));
+    try {
+      const u = ctx.URL;
+      console.log("URL.href:", JSON.stringify(u.href), "host:", u.host, "pathname:", u.pathname);
+    } catch(e){ console.log("URL err", e.message); }
+    console.log("path:", JSON.stringify(ctx.path));
+    if (ctx.URL.href !== ctx.href) {
+      ctx.status = 500; ctx.body = {error:"URL mismatch", code:"E_URL_MISMATCH"}; return;
+    }
+    ctx.body = {ok:true, href: ctx.href}; return;
+  }
+  ctx.status=404; ctx.body={error:"not found"};
+});
+const server = app.listen(0, async () => {
+  const port = server.address().port;
+  console.log("listening", port);
+  // send absolute-form via raw socket
+  const sock = net.connect(port, "127.0.0.1", () => {
+    sock.write("GET http://example.com/u HTTP/1.1\r\nHost: 127.0.0.1:"+port+"\r\nConnection: close\r\nAccept: */*\r\n\r\n");
+  });
+  let data="";
+  sock.on("data", c=>data+=c);
+  sock.on("close", ()=>{ console.log("RAW RESPONSE:\n"+data); server.close(); });
+  sock.on("error", e=>{ console.error(e); server.close(); });
+});
+'
+listening 40827
+originalUrl: "http://example.com/u"
+req.url: "http://example.com/u"
+host: "127.0.0.1:40827"
+protocol: "http"
+href: "http://example.com/u"
+URL.href: undefined host: undefined pathname: undefined
+path: "/u"
+RAW RESPONSE:
+HTTP/1.1 500 Internal Server Error
+Content-Type: application/json; charset=utf-8
+Content-Length: 48
+Date: Fri, 11 Sep 2026 15:07:14 GMT
+Connection: close
+
+{"error":"URL mismatch","code":"E_URL_MISMATCH"}
+[0m
+[0m→ [0mRead repo/lib/request.js[90m [offset=289, limit=25][0m
+[0m
+[0m← [0mEdit repo/lib/request.js
+Index: /work/repo/lib/request.js
+===================================================================
+--- /work/repo/lib/request.js
++++ /work/repo/lib/request.js
+@@ -297,9 +297,16 @@
+ /* istanbul ignore else */
+ if (!this.memoizedURL) {
+   const originalUrl = this.originalUrl || '' // avoid undefined in template string
+   try {
+-    this.memoizedURL = new URL(`${this.protocol}://${this.host}${originalUrl}`)
++    // support: `GET http://example.com/foo` (absolute-form request target)
++    // In that case originalUrl is already an absolute URL and must not
++    // be prefixed with protocol/host (which come from Host header/socket).
++    if (/^https?:\/\//i.test(originalUrl)) {
++      this.memoizedURL = new URL(originalUrl)
++    } else {
++      this.memoizedURL = new URL(`${this.protocol}://${this.host}${originalUrl}`)
++    }
+   } catch (err) {
+     this.memoizedURL = Object.create(null)
+   }
+ }
+
+[0m
+[0m$ [0mnode --input-type=module -e '
+import http from "node:http";
+import net from "node:net";
+const root = "/work/repo";
+const KoaMod = await import(`${root}/lib/application.js`);
+const Koa = KoaMod.default ?? KoaMod;
+const app = new Koa();
+app.use(async (ctx) => {
+  if (ctx.path === "/u") {
+    console.log("href:", JSON.stringify(ctx.href));
+    console.log("URL.href:", JSON.stringify(ctx.URL.href));
+    if (ctx.URL.href !== ctx.href) {
+      ctx.status = 500; ctx.body = {error:"URL mismatch", code:"E_URL_MISMATCH"}; return;
+    }
+    ctx.body = {ok:true, href: ctx.href}; return;
+  }
+  ctx.status=404; ctx.body={error:"not found"};
+});
+const server = app.listen(0, async () => {
+  const port = server.address().port;
+  console.log("listening", port);
+  async function rawReq(target, host) {
+    return new Promise((resolve, reject) => {
+      const sock = net.connect(port, "127.0.0.1", () => {
+        sock.write(`GET ${target} HTTP/1.1\r\nHost: ${host}\r\nConnection: close\r\nAccept: */*\r\n\r\n`);
+      });
+      let data=""; sock.on("data", c=>data+=c); sock.on("close", ()=>resolve(data)); sock.on("error", reject);
+    });
+  }
+  let r1 = await rawReq("http://example.com/u", "127.0.0.1:"+port);
+  console.log("=== absolute-form ===\n"+r1);
+  let r2 = await rawReq("/u", "127.0.0.1:"+port);
+  console.log("=== origin-form ===\n"+r2);
+  let r3 = await rawReq("http://example.com/u?x=1&y=2", "otherhost");
+  console.log("=== absolute with query/diff host ===\n"+r3);
+  let r4 = await rawReq("https://example.com/u", "127.0.0.1:"+port);
+  console.log("=== https absolute ===\n"+r4);
+  server.close();
+});
+'
+listening 41393
+href: "http://example.com/u"
+URL.href: "http://example.com/u"
+=== absolute-form ===
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Content-Length: 41
+Date: Fri, 11 Sep 2026 15:07:43 GMT
+Connection: close
+
+{"ok":true,"href":"http://example.com/u"}
+href: "http://127.0.0.1:41393/u"
+URL.href: "http://127.0.0.1:41393/u"
+=== origin-form ===
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Content-Length: 45
+Date: Fri, 11 Sep 2026 15:07:43 GMT
+Connection: close
+
+{"ok":true,"href":"http://127.0.0.1:41393/u"}
+href: "http://example.com/u?x=1&y=2"
+URL.href: "http://example.com/u?x=1&y=2"
+=== absolute with query/diff host ===
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Content-Length: 49
+Date: Fri, 11 Sep 2026 15:07:43 GMT
+Connection: close
+
+{"ok":true,"href":"http://example.com/u?x=1&y=2"}
+href: "https://example.com/u"
+URL.href: "https://example.com/u"
+=== https absolute ===
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Content-Length: 42
+Date: Fri, 11 Sep 2026 15:07:43 GMT
+Connection: close
+
+{"ok":true,"href":"https://example.com/u"}
+[0m
+[0m$ [0mnode --test __tests__/request/ __tests__/application/ 2>&1 | tail -n 30
+#     at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1045:22)
+#     at Function._load (node:internal/modules/cjs/loader:1216:25)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+#     at node:internal/main/run_main_module:36:49 {
+#   code: 'MODULE_NOT_FOUND',
+#   requireStack: []
+# }
+# Node.js v22.23.2
+# Subtest: __tests__/request
+not ok 2 - __tests__/request
+  ---
+  duration_ms: 47.29487
+  type: 'test'
+  location: '/work/repo/__tests__/request:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 0
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 118.647109
+[0m
+[0m$ [0mnode --test __tests__/request/href.test.js 2>&1 | tail -n 20; echo "==="; node --test --test-reporter=spec __tests__/request/host.test.js 2>&1 | head -n 40
+ok 2 - should work with `GET http://example.com/foo`
+      ---
+      duration_ms: 36.927342
+      type: 'test'
+      ...
+    1..2
+ok 1 - ctx.href
+  ---
+  duration_ms: 40.434527
+  type: 'suite'
+  ...
+1..1
+# tests 2
+# suites 1
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1439.251571
+===
+▶ req.host
+  ✔ should return host with port (1.67845ms)
+  ▶ with no host present
+    ✔ should return "" (0.363998ms)
+  ✔ with no host present (0.602392ms)
+  ▶ when less then HTTP/2
+    ✔ should not use :authority header (0.49094ms)
+  ✔ when less then HTTP/2 (0.736232ms)
+  ▶ when HTTP/2
+    ✔ should use :authority header (0.630803ms)
+    ✔ should use host header as fallback (0.527172ms)
+  ✔ when HTTP/2 (1.523824ms)
+  ▶ when X-Forwarded-Host is present
+    ▶ and proxy is not trusted
+      ✔ should be ignored on HTTP/1 (0.446246ms)
+      ✔ should be ignored on HTTP/2 (0.497024ms)
+    ✔ and proxy is not trusted (1.735637ms)
+    ▶ and proxy is trusted
+      ✔ should be used on HTTP/1 (0.571265ms)
+      ✔ should be used on HTTP/2 (0.68131ms)
+    ✔ and proxy is trusted (1.628975ms)
+  ✔ when X-Forwarded-Host is present (3.757619ms)
+  ▶ with Host header containing @
+    ✔ should correctly parse host from userinfo@host format (0.522315ms)
+    ✔ should correctly parse host from user@host format (0.238238ms)
+    ✔ should correctly parse host with port from userinfo@host:port format (0.30753ms)
+    ✔ should correctly parse @ in X-Forwarded-Host when proxy is trusted (0.337955ms)
+    ✔ should correctly parse @ in :authority on HTTP/2 (0.248035ms)
+    ✔ should return empty string for invalid host with @ (0.320313ms)
+  ✔ with Host header containing @ (2.285425ms)
+✔ req.host (12.041403ms)
+ℹ tests 15
+ℹ suites 8
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 412.744715
+[0m
+[0m$ [0mnpm test 2>&1 | tail -n 30
+type: 'suite'
+      ...
+    # Subtest: when response finished
+        # Subtest: should not be writable
+        ok 1 - should not be writable
+          ---
+          duration_ms: 9.466239
+          type: 'test'
+          ...
+        1..1
+    ok 3 - when response finished
+      ---
+      duration_ms: 9.740741
+      type: 'suite'
+      ...
+    1..3
+ok 91 - res.writable
+  ---
+  duration_ms: 64.092759
+  type: 'suite'
+  ...
+1..91
+# tests 452
+# suites 287
+# pass 452
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 22807.764703
+[0m
+[0m$ [0mgrep -n "memoizedURL\|originalUrl" dist/koa.mjs | head -n 20
+(no output)
+[0m
+[0m→ [0mRead repo/__tests__/load-with-esm.test.js
+[0m
+[0m$ [0mls dist/; head -n 20 dist/koa.mjs
+koa.mjs
+import mod from "../lib/application.js";
+
+export default mod;
+export const HttpError = mod.HttpError;
+export const createHttpError = mod.createHttpError;
+export const isHttpError = mod.isHttpError;
+[0m
+[0m$ [0mgit diff --stat; echo "==="; git diff
+lib/request.js | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+===
+diff --git a/lib/request.js b/lib/request.js
+index 2304501..0c28186 100644
+--- a/lib/request.js
++++ b/lib/request.js
+@@ -298,7 +298,14 @@ module.exports = {
+     if (!this.memoizedURL) {
+       const originalUrl = this.originalUrl || '' // avoid undefined in template string
+       try {
+-        this.memoizedURL = new URL(`${this.protocol}://${this.host}${originalUrl}`)
++        // support: `GET http://example.com/foo` (absolute-form request target)
++        // In that case originalUrl is already an absolute URL and must not
++        // be prefixed with protocol/host (which come from Host header/socket).
++        if (/^https?:\/\//i.test(originalUrl)) {
++          this.memoizedURL = new URL(originalUrl)
++        } else {
++          this.memoizedURL = new URL(`${this.protocol}://${this.host}${originalUrl}`)
++        }
+       } catch (err) {
+         this.memoizedURL = Object.create(null)
+       }
+[0m

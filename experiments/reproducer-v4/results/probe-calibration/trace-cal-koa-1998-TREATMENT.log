@@ -1,0 +1,1590 @@
+Repairing the backend — isolating the production fault.
+Found the failure path — the 401 guard is slipping to 500. Now examining the error identity.
+Reproduction confirmed — the assert path is broken. Now crafting the fix.
+The root cause is clear — mismatched error prototypes. Now implementing the correction.
+Core fix drafted — now verifying the behavior.
+Manual checks pass — now running the incident replay and full suite.
+All validations green — final review of the changes.
+Root cause: `lib/context.js` set `ctx.assert = require('http-assert')`. `http-assert@1.5.0` depends on nested `http-errors@1.8.1`, while Koa `ctx.throw` and `Application.HttpError` use top-level `http-errors@2.0.1`. Errors from `ctx.assert(...,401,...)` were `UnauthorizedError` from the v1 copy, so `err instanceof Koa.HttpError` (v2 class) was `false`. App error middleware fell through to 500 `E_ASSERT_REGRESSION` instead of 401.
+
+Files changed:
+- `lib/context.js`: removed `http-assert` import, added local `ctxAssert(value,status,msg,opts)` using top-level `createError` (same instance as `ctx.throw`/`HttpError`), with `fail/equal/notEqual/ok/strictEqual/notStrictEqual/deepEqual/notDeepEqual` helpers mirroring `http-assert`. Strips `undefined` args (v2 throws on explicit `undefined`) and uses `deep-equal` with `util.isDeepStrictEqual` fallback.
+
+Validation:
+- Before: `bash /work/repro` → `ORIGINAL_FAILURE_REPRODUCED observed_http_status=500`.
+- After: `bash /work/repro` → `ORIGINAL_FAILURE_ABSENT observed_http_status=401`.
+- Manual check: `ctx.assert(false,401)` now `instanceof Koa.HttpError=true`, `isHttpError=true`; helpers also `instanceof=true`.
+- `npm test` → 440 pass, 0 fail.
+
+Remaining uncertainty: `deepEqual` uses hoisted `deep-equal@1.0.1` (loose) when present, else Node `isDeepStrictEqual` (strict) — loose edge cases (e.g. `1` vs `'1'`) could diverge on fresh installs. `http-assert` left in `package.json` unused; lockfile not updated.
+
+----- stderr -----
+[0m
+> build · muse-spark-1.3-contributor-free
+[0m
+[0m→ [0mRead .
+[0m→ [0mRead repo
+[0m→ [0mRead app
+[0m→ [0mRead incident-evidence.json
+[0m→ [0mRead incident-evidence.md
+[0m→ [0mRead .repro
+[0m→ [0mRead app/shared.mjs
+[0m→ [0mRead repo/package.json
+[0m→ [0mRead app/server.mjs
+[0m→ [0mRead repo/lib
+[0m→ [0mRead repro
+[0m→ [0mRead .repro/incident.repro.json
+[0m→ [0mRead repo/lib/context.js
+[0m→ [0mRead repo/lib/application.js
+[0m
+[0m$ [0mls node_modules/http-assert/ 2>&1; cat node_modules/http-assert/package.json 2>&1 | head -n 50; echo "---"; cat node_modules/http-assert/index.js 2>&1; echo "==="; cat node_modules/http-errors/package.json 2>&1 | head -n 20
+HISTORY.md
+LICENSE
+README.md
+index.js
+node_modules
+package.json
+{
+  "name": "http-assert",
+  "description": "assert with status codes",
+  "version": "1.5.0",
+  "license": "MIT",
+  "keywords": [
+    "assert",
+    "http"
+  ],
+  "repository": "jshttp/http-assert",
+  "dependencies": {
+    "deep-equal": "~1.0.1",
+    "http-errors": "~1.8.0"
+  },
+  "devDependencies": {
+    "eslint": "7.32.0",
+    "eslint-config-standard": "14.1.1",
+    "eslint-plugin-import": "2.24.2",
+    "eslint-plugin-markdown": "2.2.0",
+    "eslint-plugin-node": "11.1.0",
+    "eslint-plugin-promise": "4.3.1",
+    "eslint-plugin-standard": "4.1.0",
+    "istanbul": "0.4.5",
+    "mocha": "9.1.0"
+  },
+  "files": [
+    "HISTORY.md",
+    "LICENSE",
+    "README.md",
+    "index.js"
+  ],
+  "engines": {
+    "node": ">= 0.8"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "test": "mocha --reporter spec --bail --check-leaks test/",
+    "test-ci": "istanbul cover node_modules/mocha/bin/_mocha --report lcovonly -- --reporter spec --check-leaks test/",
+    "test-cov": "istanbul cover node_modules/mocha/bin/_mocha -- --reporter dot --check-leaks test/"
+  }
+}
+---
+var createError = require('http-errors')
+var eql = require('deep-equal')
+
+module.exports = assert
+
+function assert (value, status, msg, opts) {
+  if (value) return
+  throw createError(status, msg, opts)
+}
+
+assert.fail = function (status, msg, opts) {
+  assert(false, status, msg, opts)
+}
+
+assert.equal = function (a, b, status, msg, opts) {
+  assert(a == b, status, msg, opts) // eslint-disable-line eqeqeq
+}
+
+assert.notEqual = function (a, b, status, msg, opts) {
+  assert(a != b, status, msg, opts) // eslint-disable-line eqeqeq
+}
+
+assert.ok = function (value, status, msg, opts) {
+  assert(value, status, msg, opts)
+}
+
+assert.strictEqual = function (a, b, status, msg, opts) {
+  assert(a === b, status, msg, opts)
+}
+
+assert.notStrictEqual = function (a, b, status, msg, opts) {
+  assert(a !== b, status, msg, opts)
+}
+
+assert.deepEqual = function (a, b, status, msg, opts) {
+  assert(eql(a, b), status, msg, opts)
+}
+
+assert.notDeepEqual = function (a, b, status, msg, opts) {
+  assert(!eql(a, b), status, msg, opts)
+}
+===
+{
+  "name": "http-errors",
+  "description": "Create HTTP error objects",
+  "version": "2.0.1",
+  "author": "Jonathan Ong <me@jongleberry.com> (http://jongleberry.com)",
+  "contributors": [
+    "Alan Plum <me@pluma.io>",
+    "Douglas Christopher Wilson <doug@somethingdoug.com>"
+  ],
+  "license": "MIT",
+  "repository": "jshttp/http-errors",
+  "funding": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/express"
+  },
+  "dependencies": {
+    "depd": "~2.0.0",
+    "inherits": "~2.0.4",
+    "setprototypeof": "~1.2.0",
+    "statuses": "~2.0.2",
+[0m
+[0m$ [0mcat node_modules/http-assert/node_modules/http-errors/package.json | head -n 20; echo "---"; ls node_modules/http-assert/node_modules/http-errors/; echo "---"; cat lib/context.js | head -n 15
+{
+  "name": "http-errors",
+  "description": "Create HTTP error objects",
+  "version": "1.8.1",
+  "author": "Jonathan Ong <me@jongleberry.com> (http://jongleberry.com)",
+  "contributors": [
+    "Alan Plum <me@pluma.io>",
+    "Douglas Christopher Wilson <doug@somethingdoug.com>"
+  ],
+  "license": "MIT",
+  "repository": "jshttp/http-errors",
+  "dependencies": {
+    "depd": "~1.1.2",
+    "inherits": "2.0.4",
+    "setprototypeof": "1.2.0",
+    "statuses": ">= 1.5.0 < 2",
+    "toidentifier": "1.0.1"
+  },
+  "devDependencies": {
+    "eslint": "7.32.0",
+---
+HISTORY.md
+LICENSE
+README.md
+index.js
+package.json
+---
+'use strict'
+
+/**
+ * Module dependencies.
+ */
+
+const util = require('util')
+const createError = require('http-errors')
+const httpAssert = require('http-assert')
+const delegate = require('delegates')
+const statuses = require('statuses')
+const Cookies = require('cookies')
+
+const COOKIES = Symbol('context#cookies')
+[0m
+[0m✗ [0mGlob "test/**/*.js" failed
+[91m[1mError: [0mripgrep execution failed
+[0m✗ [0mGlob "__tests__/*" failed
+[91m[1mError: [0mripgrep execution failed
+[0m
+[0m$ [0mls __tests__ 2>&1; ls test-helpers 2>&1; git log --oneline -20 2>&1 | head -n 30
+application
+context
+lib
+load-with-esm.test.js
+request
+response
+context.js
+stream.js
+e19c144 Initial import of the deployed revision
+[0m
+[0m$ [0mls -R __tests__ 2>&1; echo "---"; ls test/*.js 2>&1 || ls test/**/*.js 2>&1; echo "---"; git show --stat HEAD 2>&1 | head -n 50
+__tests__:
+application
+context
+lib
+load-with-esm.test.js
+request
+response
+
+__tests__/application:
+compose.test.js
+context.test.js
+currentContext.test.js
+index.test.js
+inspect.test.js
+onerror.test.js
+request.test.js
+respond.test.js
+response.test.js
+toJSON.test.js
+use.test.js
+
+__tests__/context:
+assert.test.js
+cookies.test.js
+inspect.test.js
+onerror.test.js
+state.test.js
+throw.test.js
+toJSON.test.js
+
+__tests__/lib:
+search-params.test.js
+
+__tests__/request:
+accept.test.js
+accepts.test.js
+acceptsCharsets.test.js
+acceptsEncodings.test.js
+acceptsLanguages.test.js
+charset.test.js
+fresh.test.js
+get.test.js
+header.test.js
+headers.test.js
+host.test.js
+hostname.test.js
+href.test.js
+idempotent.test.js
+inspect.test.js
+ip.test.js
+ips.test.js
+is.test.js
+length.test.js
+origin.test.js
+path.test.js
+protocol.test.js
+query.test.js
+querystring.test.js
+search.test.js
+secure.test.js
+stale.test.js
+subdomains.test.js
+type.test.js
+whatwg-url.test.js
+
+__tests__/response:
+append.test.js
+attachment.test.js
+back.test.js
+body.test.js
+etag.test.js
+flushHeaders.test.js
+get.test.js
+has.test.js
+header.test.js
+headers.test.js
+inspect.test.js
+is.test.js
+last-modified.test.js
+length.test.js
+message.test.js
+redirect.test.js
+remove.test.js
+set.test.js
+socket.test.js
+status.test.js
+type.test.js
+vary.test.js
+writable.test.js
+---
+ls: cannot access 'test/*.js': No such file or directory
+ls: cannot access 'test/**/*.js': No such file or directory
+---
+commit e19c1449105b63d08b20a25b7ef46f678d9e9de5
+Author: Service Build <service@example.invalid>
+Date:   Fri Sep 11 23:01:53 2026 +0800
+
+    Initial import of the deployed revision
+
+ .codecov.yml                                 |    4 +
+ .editorconfig                                |   16 +
+ .github/FUNDING.yml                          |    1 +
+ .github/dependabot.yml                       |   12 +
+ .github/workflows/node.js.yml                |   30 +
+ .github/workflows/npm-publish.yml            |   50 +
+ .gitignore                                   |    7 +
+ .mailmap                                     |    1 +
+ AUTHORS                                      |  177 +
+ CODE_OF_CONDUCT.md                           |   74 +
+ History.md                                   |  713 ++++
+ LICENSE                                      |   22 +
+ Readme.md                                    |  279 ++
+ __tests__/.eslintrc.yml                      |   12 +
+ __tests__/application/compose.test.js        |   67 +
+ __tests__/application/context.test.js        |   34 +
+ __tests__/application/currentContext.test.js |  198 +
+ __tests__/application/index.test.js          |   83 +
+ __tests__/application/inspect.test.js        |   23 +
+ __tests__/application/onerror.test.js        |   63 +
+ __tests__/application/request.test.js        |   34 +
+ __tests__/application/respond.test.js        | 1172 ++++++
+ __tests__/application/response.test.js       |  114 +
+ __tests__/application/toJSON.test.js         |   18 +
+ __tests__/application/use.test.js            |   88 +
+ __tests__/context/assert.test.js             |   23 +
+ __tests__/context/cookies.test.js            |  111 +
+ __tests__/context/inspect.test.js            |   23 +
+ __tests__/context/onerror.test.js            |  258 ++
+ __tests__/context/state.test.js              |   20 +
+ __tests__/context/throw.test.js              |  169 +
+ __tests__/context/toJSON.test.js             |   38 +
+ __tests__/lib/search-params.test.js          |   41 +
+ __tests__/load-with-esm.test.js              |   37 +
+ __tests__/request/accept.test.js             |   27 +
+ __tests__/request/accepts.test.js            |   94 +
+ __tests__/request/acceptsCharsets.test.js    |   52 +
+ __tests__/request/acceptsEncodings.test.js   |   43 +
+ __tests__/request/acceptsLanguages.test.js   |   52 +
+ __tests__/request/charset.test.js            |   36 +
+ __tests__/request/fresh.test.js              |   50 +
+ __tests__/request/get.test.js                |   18 +
+ __tests__/request/header.test.js             |   18 +
+ __tests__/request/headers.test.js            |   18 +
+[0m
+[0m→ [0mRead repo/__tests__/context/throw.test.js
+[0m→ [0mRead repo/__tests__/context/assert.test.js
+[0m
+[0m$ [0mnode -e "
+const createError2 = require('http-errors');
+const httpAssert = require('http-assert');
+console.log('top http-errors version:', require('http-errors/package.json').version);
+console.log('nested:', require('http-assert/node_modules/http-errors/package.json').version);
+console.log('HttpError exported?', typeof createError2.HttpError);
+console.log('isHttpError?', typeof createError2.isHttpError);
+try { httpAssert(false, 401, 'unauthenticated'); } catch(e){
+  console.log('assert err ctor:', e.constructor.name, 'status', e.status, 'expose', e.expose);
+  console.log('instanceof HttpError?', e instanceof createError2.HttpError);
+  console.log('isHttpError?', createError2.isHttpError(e));
+  console.log('proto chain:', Object.getPrototypeOf(e).constructor.name);
+  console.log('stack first line:', e.stack.split('\n')[0]);
+}
+try { throw createError2(401, 'unauthenticated'); } catch(e){
+  console.log('direct err ctor:', e.constructor.name, 'instanceof?', e instanceof createError2.HttpError, 'isHttpError?', createError2.isHttpError(e));
+}
+"
+top http-errors version: 2.0.1
+nested: 1.8.1
+HttpError exported? function
+isHttpError? function
+assert err ctor: UnauthorizedError status 401 expose true
+instanceof HttpError? false
+isHttpError? true
+proto chain: UnauthorizedError
+stack first line: UnauthorizedError: unauthenticated
+direct err ctor: UnauthorizedError instanceof? true isHttpError? true
+[0m
+[0m$ [0mls /work/.repro/rt/experiments/reproducer-v3/headline/ 2>&1; cat /work/.repro/rt/experiments/reproducer-v3/headline/replay-raw.mjs 2>&1 | head -n 200
+replay-raw.mjs
+// Generic raw-socket replay for headline captures (experiment harness, not
+// part of the frozen capture tree). Delivers the RECORDED (redacted)
+// request bytes over TCP so transports that fetch cannot express
+// (absolute-form targets, missing Host, bracketed IPv6 Host) replay exactly.
+// Request line: `<METHOD> <path><query>` + HTTP/1.0 iff the recorded headers
+// carry no host (Host-less capture), else HTTP/1.1. Headers: recorded set
+// (minus connection/content-length, plus explicit content-length/close).
+// Outcome classification uses the FROZEN oracle (imported, unmodified).
+// Usage: node replay-raw.mjs --app <entry> --capture <file> [--keep <ids>] [--port <n>] [--env JSON]
+// Prints one JSON line: {pass, fingerprint, expected_hash, status, error, ms}.
+import { spawn } from "node:child_process";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import net from "node:net";
+import { tmpdir } from "node:os";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { classifyReplayOutcome } from "../src/oracle/fingerprint.mjs";
+
+const here = dirname(fileURLToPath(import.meta.url));
+const REGISTER = join(here, "..", "src", "capture", "register.mjs");
+
+function arg(name, def = null) {
+  const i = process.argv.indexOf(name);
+  return i === -1 ? def : process.argv[i + 1];
+}
+
+function subsetCapture(doc, keep) {
+  if (!keep) return doc;
+  const keepSet = new Set(keep.split(",").filter(Boolean));
+  const events = (doc.events ?? []).filter((e) => keepSet.has(`evt:${e.seq}`));
+  const config = {};
+  for (const [k, v] of Object.entries(doc.config ?? {})) {
+    if (keepSet.has(`cfg:${k}`)) config[k] = v;
+  }
+  return { ...doc, events, config };
+}
+
+function waitBoot(port, host, timeoutMs) {
+  const start = Date.now();
+  return new Promise((resolve) => {
+    const tick = () => {
+      const sock = net.connect(port, host);
+      sock.on("connect", () => {
+        sock.destroy();
+        resolve(true);
+      });
+      sock.on("error", () => {
+        if (Date.now() - start > timeoutMs) return resolve(false);
+        setTimeout(tick, 150);
+      });
+      setTimeout(() => {
+        try {
+          sock.destroy();
+        } catch {
+          // ignore
+        }
+      }, 500);
+    };
+    tick();
+  });
+}
+
+function rawRequest(port, host, doc) {
+  return new Promise((resolve, reject) => {
+    const req = doc.request;
+    const headers = { ...(req.headers ?? {}) };
+    const hasHost = Object.keys(headers).some((k) => k.toLowerCase() === "host");
+    const version = hasHost ? "HTTP/1.1" : "HTTP/1.0";
+    const body = req.body ?? "";
+    const lines = [`${req.method} ${req.path}${req.query ?? ""} ${version}`];
+    for (const [k, v] of Object.entries(headers)) {
+      const lk = k.toLowerCase();
+      if (lk === "connection" || lk === "content-length" || lk === "host") continue;
+      lines.push(`${k}: ${v}`);
+    }
+    if (hasHost) {
+      const hk = Object.keys(headers).find((k) => k.toLowerCase() === "host");
+      lines.push(`Host: ${headers[hk]}`);
+    }
+    if (body) lines.push(`Content-Length: ${Buffer.byteLength(body)}`);
+    lines.push("Connection: close", "", body);
+    const payload = lines.join("\r\n");
+    const sock = net.connect({ host, port }, () => sock.write(payload));
+    let data = "";
+    const killer = setTimeout(() => {
+      try {
+        sock.end();
+      } catch {
+        // ignore
+      }
+    }, 5000);
+    const timeout = setTimeout(() => reject(new Error("raw replay timeout")), 15000);
+    sock.on("data", (c) => {
+      data += c;
+    });
+    sock.on("end", () => {
+      clearTimeout(killer);
+      clearTimeout(timeout);
+      resolve(data);
+    });
+    sock.on("error", (e) => {
+      clearTimeout(killer);
+      clearTimeout(timeout);
+      reject(e);
+    });
+  });
+}
+
+function parseResponse(data) {
+  const headEnd = data.indexOf("\r\n\r\n");
+  const head = headEnd === -1 ? data : data.slice(0, headEnd);
+  const body = headEnd === -1 ? "" : data.slice(headEnd + 4);
+  const m = /^HTTP\/\S+ (\d+)/.exec(head);
+  return { status: m ? Number(m[1]) : 0, body };
+}
+
+async function main() {
+  const started = Date.now();
+  const app = resolve(arg("--app"));
+  const captureFile = resolve(arg("--capture") ?? "");
+  const keep = arg("--keep", null);
+  const port = Number(arg("--port", "0")) || 48000 + Math.floor(Math.random() * 1000);
+  const extraEnv = JSON.parse(arg("--env", "{}"));
+  const host = extraEnv.REPLAY_HOST ?? "127.0.0.1";
+  if (!app || !captureFile) {
+    console.log(JSON.stringify({ error: "missing --app or --capture" }));
+    process.exitCode = 2;
+    return;
+  }
+  const doc = JSON.parse(readFileSync(captureFile, "utf8"));
+  const sub = subsetCapture(doc, keep);
+  const dir = mkdtempSync(join(tmpdir(), "reprov3-replay-"));
+  const subFile = join(dir, "subset.json");
+  writeFileSync(subFile, JSON.stringify(sub));
+  const finish = (result) => {
+    try {
+      child.kill("SIGKILL");
+    } catch {
+      // already gone
+    }
+    console.log(JSON.stringify({ ...result, ms: Date.now() - started }));
+  };
+  const env = {
+    ...process.env,
+    ...extraEnv,
+    RAPTURE_V2_MODE: "replay",
+    RAPTURE_V2_CAPTURE_FILE: subFile,
+    PORT: String(port),
+    PGPORT: "54399",
+    CAPTURE_CONFIG: Object.keys(doc.config ?? {}).join(","),
+  };
+  delete env.REPLAY_HOST;
+  const child = spawn(process.execPath, ["--import", REGISTER, app], {
+    env,
+    stdio: ["ignore", "pipe", "pipe"],
+    cwd: dir,
+  });
+  let stderr = "";
+  child.stderr.on("data", (d) => {
+    stderr += String(d);
+  });
+  const timer = setTimeout(() => {
+    finish({
+      pass: false,
+      fingerprint: null,
+      expected_hash: doc.fingerprint?.fingerprint_hash ?? null,
+      error: `replay timeout; stderr: ${stderr.slice(0, 300)}`,
+    });
+  }, 45000);
+  const up = await waitBoot(port, host, 25000);
+  if (!up) {
+    clearTimeout(timer);
+    finish({
+      pass: false,
+      fingerprint: null,
+      expected_hash: doc.fingerprint?.fingerprint_hash ?? null,
+      error: `app did not boot; stderr: ${stderr.slice(0, 500)}`,
+    });
+    return;
+  }
+  let outcome;
+  try {
+    const raw = await rawRequest(port, host, sub);
+    const { status, body } = parseResponse(raw);
+    outcome = {
+      request: { method: sub.request.method, path: sub.request.path },
+      response: { status, body },
+      appError: null,
+    };
+  } catch (err) {
+    outcome = {
+      request: { method: sub.request.method, path: sub.request.path },
+      response: null,
+      appError: { name: err?.name ?? "Error", code: err?.code ?? null, message: String(err?.message ?? err), stack: err?.stack ?? null },
+    };
+  }
+  clearTimeout(timer);
+  const classified = classifyReplayOutcome(outcome, doc.fingerprint?.fingerprint_hash);
+  finish({
+    pass: classified.pass,
+[0m
+[0m$ [0mcat /work/.repro/rt/experiments/reproducer-v3/headline/../src/oracle/fingerprint.mjs 2>&1 | head -n 200
+// Automatic failure oracle: FailureFingerprintV2 inferred from the incident.
+// No hand-authored assertions. Infra-coded errors (missing mock, live attempt,
+// replay mismatch, syntax/timeout crashes outside app identity) map to an
+// infra fingerprint that can never equal an incident fingerprint.
+import { createHash } from "node:crypto";
+import { isInfraError } from "../capture/events.mjs";
+import { normalizeStackLineOffsets, normalizeVolatile, stableAppFrame } from "./normalize.mjs";
+
+export const KIND_APP = "app";
+export const KIND_INFRA = "infra";
+
+function fingerprintHash(fields) {
+  return createHash("sha256").update(JSON.stringify(fields)).digest("hex");
+}
+
+function errorClassFromBody(body) {
+  if (body == null) return null;
+  let parsed = body;
+  if (typeof body === "string") {
+    const t = body.trim();
+    if (!(t.startsWith("{") || t.startsWith("["))) return null;
+    try {
+      parsed = JSON.parse(t);
+    } catch {
+      return null;
+    }
+  }
+  if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+    const code = parsed.code ?? parsed.errorCode;
+    if (code != null) return `ERR:${normalizeVolatile(String(code))}`;
+    const name = parsed.error ?? parsed.name;
+    if (name != null) return `ERR:${normalizeVolatile(String(name))}`;
+  }
+  return null;
+}
+
+/**
+ * Infer the incident fingerprint from a finished request record.
+ * rec: {request{method,path}, response{status,body}|null, appError{name,code,message,stack}|null}
+ */
+export function inferFingerprint(rec) {
+  const method = rec.request.method;
+  const route = rec.request.path;
+  const status = rec.response?.status ?? 0;
+  if (rec.appError && !isInfraError(rec.appError)) {
+    const ae = rec.appError;
+    const fields = {
+      kind: KIND_APP,
+      request_method: method,
+      route_or_operation: route,
+      http_status: status,
+      error_name_or_code: String(ae.code ?? ae.name ?? "UnknownError"),
+      normalized_class: `ERR:${normalizeVolatile(String(ae.code ?? ae.name ?? "UnknownError"))}`,
+      stable_frame: stableAppFrame(ae.stack),
+    };
+    return { ...fields, fingerprint_hash: fingerprintHash(fields) };
+  }
+  const bodyClass = errorClassFromBody(rec.response?.body);
+  const fields = {
+    kind: KIND_APP,
+    request_method: method,
+    route_or_operation: route,
+    http_status: status,
+    error_name_or_code: bodyClass ?? null,
+    normalized_class: bodyClass ?? `HTTP_${status}`,
+    stable_frame: null,
+  };
+  return { ...fields, fingerprint_hash: fingerprintHash(fields) };
+}
+
+/** Fingerprint for a replay outcome that is NOT the incident (fail-closed). */
+export function infraFingerprint(reason, detail) {
+  const fields = {
+    kind: KIND_INFRA,
+    request_method: null,
+    route_or_operation: null,
+    http_status: 0,
+    error_name_or_code: String(reason),
+    normalized_class: `INFRA:${normalizeVolatile(String(reason))}`,
+    stable_frame: null,
+    detail: normalizeVolatile(String(detail ?? "")).slice(0, 200),
+  };
+  return { ...fields, fingerprint_hash: fingerprintHash(fields) };
+}
+
+/**
+ * Classify a replay run outcome for reducer pass/fail.
+ * outcome: {response{status,body}|null, appError|null}
+ */
+export function classifyReplayOutcome(outcome, expectedHash) {
+  if (outcome.appError && isInfraError(outcome.appError)) {
+    return { pass: false, fingerprint: infraFingerprint(outcome.appError.code ?? "INFRA", outcome.appError.message) };
+  }
+  if (!outcome.response && !outcome.appError) {
+    return { pass: false, fingerprint: infraFingerprint("NO_OUTCOME", "replay produced neither response nor error") };
+  }
+  const fp = inferFingerprint({
+    request: outcome.request,
+    response: outcome.response ?? null,
+    appError: outcome.appError ?? null,
+  });
+  // A non-5xx response or a different failure can never satisfy the incident.
+  return { pass: fp.fingerprint_hash === expectedHash, fingerprint: fp };
+}
+[0m
+[0m$ [0mbash /work/repro 2>&1
+ORIGINAL_FAILURE_REPRODUCED
+observed_http_status=500
+[0m
+[0m$ [0mls node_modules/deep-equal 2>&1 | head; ls node_modules/http-assert/node_modules/ 2>&1; cat node_modules/http-errors/index.js | head -n 100
+LICENSE
+example
+index.js
+lib
+package.json
+readme.markdown
+test
+depd
+http-errors
+statuses
+/*!
+ * http-errors
+ * Copyright(c) 2014 Jonathan Ong
+ * Copyright(c) 2016 Douglas Christopher Wilson
+ * MIT Licensed
+ */
+
+'use strict'
+
+/**
+ * Module dependencies.
+ * @private
+ */
+
+var deprecate = require('depd')('http-errors')
+var setPrototypeOf = require('setprototypeof')
+var statuses = require('statuses')
+var inherits = require('inherits')
+var toIdentifier = require('toidentifier')
+
+/**
+ * Module exports.
+ * @public
+ */
+
+module.exports = createError
+module.exports.HttpError = createHttpErrorConstructor()
+module.exports.isHttpError = createIsHttpErrorFunction(module.exports.HttpError)
+
+// Populate exports for all constructors
+populateConstructorExports(module.exports, statuses.codes, module.exports.HttpError)
+
+/**
+ * Get the code class of a status code.
+ * @private
+ */
+
+function codeClass (status) {
+  return Number(String(status).charAt(0) + '00')
+}
+
+/**
+ * Create a new HTTP Error.
+ *
+ * @returns {Error}
+ * @public
+ */
+
+function createError () {
+  // so much arity going on ~_~
+  var err
+  var msg
+  var status = 500
+  var props = {}
+  for (var i = 0; i < arguments.length; i++) {
+    var arg = arguments[i]
+    var type = typeof arg
+    if (type === 'object' && arg instanceof Error) {
+      err = arg
+      status = err.status || err.statusCode || status
+    } else if (type === 'number' && i === 0) {
+      status = arg
+    } else if (type === 'string') {
+      msg = arg
+    } else if (type === 'object') {
+      props = arg
+    } else {
+      throw new TypeError('argument #' + (i + 1) + ' unsupported type ' + type)
+    }
+  }
+
+  if (typeof status === 'number' && (status < 400 || status >= 600)) {
+    deprecate('non-error status code; use only 4xx or 5xx status codes')
+  }
+
+  if (typeof status !== 'number' ||
+    (!statuses.message[status] && (status < 400 || status >= 600))) {
+    status = 500
+  }
+
+  // constructor
+  var HttpError = createError[status] || createError[codeClass(status)]
+
+  if (!err) {
+    // create error
+    err = HttpError
+      ? new HttpError(msg)
+      : new Error(msg || statuses.message[status])
+    Error.captureStackTrace(err, createError)
+  }
+
+  if (!HttpError || !(err instanceof HttpError) || err.status !== status) {
+    // add properties to generic error
+    err.expose = status < 500
+    err.status = err.statusCode = status
+  }
+
+  for (var key in props) {
+    if (key !== 'status' && key !== 'statusCode') {
+      err[key] = props[key]
+[0m
+[0m$ [0mnode -e "console.log(Object.keys(require('http-errors')))" 
+cat node_modules/http-assert/node_modules/http-errors/index.js | head -n 80
+[
+  '400',
+  '401',
+  '402',
+  '403',
+  '404',
+  '405',
+  '406',
+  '407',
+  '408',
+  '409',
+  '410',
+  '411',
+  '412',
+  '413',
+  '414',
+  '415',
+  '416',
+  '417',
+  '418',
+  '421',
+  '422',
+  '423',
+  '424',
+  '425',
+  '426',
+  '428',
+  '429',
+  '431',
+  '451',
+  '500',
+  '501',
+  '502',
+  '503',
+  '504',
+  '505',
+  '506',
+  '507',
+  '508',
+  '509',
+  '510',
+  '511',
+  'HttpError',
+  'isHttpError',
+  'BadRequest',
+  'Unauthorized',
+  'PaymentRequired',
+  'Forbidden',
+  'NotFound',
+  'MethodNotAllowed',
+  'NotAcceptable',
+  'ProxyAuthenticationRequired',
+  'RequestTimeout',
+  'Conflict',
+  'Gone',
+  'LengthRequired',
+  'PreconditionFailed',
+  'PayloadTooLarge',
+  'URITooLong',
+  'UnsupportedMediaType',
+  'RangeNotSatisfiable',
+  'ExpectationFailed',
+  'ImATeapot',
+  'MisdirectedRequest',
+  'UnprocessableEntity',
+  'Locked',
+  'FailedDependency',
+  'TooEarly',
+  'UpgradeRequired',
+  'PreconditionRequired',
+  'TooManyRequests',
+  'RequestHeaderFieldsTooLarge',
+  'UnavailableForLegalReasons',
+  'InternalServerError',
+  'NotImplemented',
+  'BadGateway',
+  'ServiceUnavailable',
+  'GatewayTimeout',
+  'HTTPVersionNotSupported',
+  'VariantAlsoNegotiates',
+  'InsufficientStorage',
+  'LoopDetected',
+  'BandwidthLimitExceeded',
+  'NotExtended',
+  'NetworkAuthenticationRequired'
+]
+/*!
+ * http-errors
+ * Copyright(c) 2014 Jonathan Ong
+ * Copyright(c) 2016 Douglas Christopher Wilson
+ * MIT Licensed
+ */
+
+'use strict'
+
+/**
+ * Module dependencies.
+ * @private
+ */
+
+var deprecate = require('depd')('http-errors')
+var setPrototypeOf = require('setprototypeof')
+var statuses = require('statuses')
+var inherits = require('inherits')
+var toIdentifier = require('toidentifier')
+
+/**
+ * Module exports.
+ * @public
+ */
+
+module.exports = createError
+module.exports.HttpError = createHttpErrorConstructor()
+module.exports.isHttpError = createIsHttpErrorFunction(module.exports.HttpError)
+
+// Populate exports for all constructors
+populateConstructorExports(module.exports, statuses.codes, module.exports.HttpError)
+
+/**
+ * Get the code class of a status code.
+ * @private
+ */
+
+function codeClass (status) {
+  return Number(String(status).charAt(0) + '00')
+}
+
+/**
+ * Create a new HTTP Error.
+ *
+ * @returns {Error}
+ * @public
+ */
+
+function createError () {
+  // so much arity going on ~_~
+  var err
+  var msg
+  var status = 500
+  var props = {}
+  for (var i = 0; i < arguments.length; i++) {
+    var arg = arguments[i]
+    if (arg instanceof Error) {
+      err = arg
+      status = err.status || err.statusCode || status
+      continue
+    }
+    switch (typeof arg) {
+      case 'string':
+        msg = arg
+        break
+      case 'number':
+        status = arg
+        if (i !== 0) {
+          deprecate('non-first-argument status code; replace with createError(' + arg + ', ...)')
+        }
+        break
+      case 'object':
+        props = arg
+        break
+    }
+  }
+
+  if (typeof status === 'number' && (status < 400 || status >= 600)) {
+    deprecate('non-error status code; use only 4xx or 5xx status codes')
+  }
+[0m
+[0m$ [0mdiff node_modules/http-errors/index.js node_modules/http-assert/node_modules/http-errors/index.js | head -n 100; echo "EXIT:$?"
+57,58c57
+<     var type = typeof arg
+<     if (type === 'object' && arg instanceof Error) {
+---
+>     if (arg instanceof Error) {
+61,68c60,74
+<     } else if (type === 'number' && i === 0) {
+<       status = arg
+<     } else if (type === 'string') {
+<       msg = arg
+<     } else if (type === 'object') {
+<       props = arg
+<     } else {
+<       throw new TypeError('argument #' + (i + 1) + ' unsupported type ' + type)
+---
+>       continue
+>     }
+>     switch (typeof arg) {
+>       case 'string':
+>         msg = arg
+>         break
+>       case 'number':
+>         status = arg
+>         if (i !== 0) {
+>           deprecate('non-first-argument status code; replace with createError(' + arg + ', ...)')
+>         }
+>         break
+>       case 'object':
+>         props = arg
+>         break
+77c83
+<     (!statuses.message[status] && (status < 400 || status >= 600))) {
+---
+>     (!statuses[status] && (status < 400 || status >= 600))) {
+88c94
+<       : new Error(msg || statuses.message[status])
+---
+>       : new Error(msg || statuses[status])
+132c138
+<     var msg = message != null ? message : statuses.message[code]
+---
+>     var msg = message != null ? message : statuses[code]
+201c207
+<     var msg = message != null ? message : statuses.message[code]
+---
+>     var msg = message != null ? message : statuses[code]
+261c267
+<     var name = toIdentifier(statuses.message[code])
+---
+>     var name = toIdentifier(statuses[code])
+277a284,287
+> 
+>   // backwards-compatibility
+>   exports["I'mateapot"] = deprecate.function(exports.ImATeapot,
+>     '"I\'mateapot"; use "ImATeapot" instead')
+282,284d291
+<  *
+<  * @param {string} name
+<  * @returns {string}
+289c296,298
+<   return name.slice(-5) === 'Error' ? name : name + 'Error'
+---
+>   return name.substr(-5) !== 'Error'
+>     ? name + 'Error'
+>     : name
+EXIT:0
+[0m
+[0m$ [0mnode -e "const m=require('./lib/context.js'); console.log(typeof m.assert)" 2>&1
+grep -r "http-assert" --include="*.js" --include="*.json" . 2>&1 | grep -v node_modules | head -n 20
+function
+./package-lock.json:        "http-assert": "^1.5.0",
+./package-lock.json:      "resolved": "https://registry.npmjs.org/http-assert/-/http-assert-1.5.0.tgz",
+./package.json:    "http-assert": "^1.5.0",
+./lib/context.js:const httpAssert = require('http-assert')
+./lib/context.js:   * See: https://github.com/jshttp/http-assert
+[0m
+[0m$ [0mcat node_modules/deep-equal/package.json | grep '"version"'; cat node_modules/http-assert/package.json | grep -A2 dependencies; ls node_modules/ | grep -i deep
+"version": "1.0.1",
+  "dependencies": {
+    "deep-equal": "~1.0.1",
+    "http-errors": "~1.8.0"
+deep-equal
+deep-is
+fast-deep-equal
+[0m
+[0m$ [0mcat test-helpers/context.js 2>&1; echo "---"; head -n 50 dist/koa.mjs 2>&1
+'use strict'
+
+const Stream = require('stream')
+const Koa = require('../lib/application')
+
+module.exports = (req, res, app) => {
+  const socket = new Stream.Duplex()
+  req = Object.assign({ headers: {}, socket }, Stream.Readable.prototype, req)
+  res = Object.assign({ _headers: {}, socket }, Stream.Writable.prototype, res)
+  req.socket.remoteAddress = req.socket.remoteAddress || '127.0.0.1'
+  app = app || new Koa()
+  res.getHeader = k => res._headers[k.toLowerCase()]
+  res.setHeader = (k, v) => { res._headers[k.toLowerCase()] = v }
+  res.removeHeader = (k, v) => delete res._headers[k.toLowerCase()]
+  return app.createContext(req, res)
+}
+
+module.exports.request = (req, res, app) => module.exports(req, res, app).request
+
+module.exports.response = (req, res, app) => module.exports(req, res, app).response
+---
+import mod from "../lib/application.js";
+
+export default mod;
+export const HttpError = mod.HttpError;
+export const createHttpError = mod.createHttpError;
+export const isHttpError = mod.isHttpError;
+[0m
+[0m$ [0mgrep -n "assert\|http-errors\|http-assert" History.md | head -n 30
+grep -n "assert" Readme.md | head -n 20
+grep -n "assert" docs/*.md 2>&1 | head -n 30; ls docs/ 2>&1
+17:- Update `http-errors` to `v2.0.0` [#1486](https://github.com/koajs/koa/pull/1486)
+18:  - `ctx.throw` now requires a format of `ctx.throw(status, error, properties)`. See: https://www.npmjs.com/package/http-errors
+55:  Koa no longer asserts if generators are used.
+81:  * [[`d51f983`](http://github.com/koajs/koa/commit/d51f98328c3b84493cc6bda0732aabb69e20e3a1)] -  docs: fix assert example for response (#1489) (Imed Jaberi <<imed_jebari@hotmail.fr>>)
+148:  * [[`2d1c598`](http://github.com/koajs/koa/commit/2d1c5981869e0fe6f5bc71b5c5582accfd125cc6)] - feat: export HttpError from http-errors library (Micheal Hill <<micheal.hill@trunkplatform.com>>)
+203:  * [[`b7bfa71`](http://github.com/koajs/koa/commit/b7bfa7113b8d1af49a57ab767f24a599ed92044f)] - feat: change set status assert, allowing valid custom statuses (#1308) (Martin Iwanowski <<martin@iwanowski.se>>)
+281:  * fix tests: remove unnecessary assert doesNotThrow and api calls (#1170)
+541: * add this.assert()
+547: * fix app.use() assertion #337
+595: * assert when non-error is passed to app.onerror #287
+613: * add: assert object type in ctx.onerror
+694: * add GeneratorFunction assertion for app.use(). Closes #120
+706: * assert middleware is GeneratorFunction
+107:  ctx.assert(ctx.request.accepts('xml'), 406);
+api
+error-handling.md
+faq.md
+guide.md
+koa-vs-express.md
+logo.png
+middleware.gif
+migration-v1-to-v2.md
+migration-v2-to-v3.md
+troubleshooting.md
+[0m
+[0m$ [0mgrep -n "assert" docs/api/*.md 2>&1 | head -n 40; ls docs/api/ 2>&1
+docs/api/context.md:130:### ctx.assert(value, [status], [msg], [properties])
+docs/api/context.md:133:  when `!value`. Similar to Node's [assert()](http://nodejs.org/api/assert.html)
+docs/api/context.md:137:ctx.assert(ctx.state.user, 401, 'User not found. Please login!');
+docs/api/context.md:140:Koa uses [http-assert](https://github.com/jshttp/http-assert) for assertions.
+docs/api/response.md:146:Koa doesn't guard against everything that could be put as a response body -- a function doesn't serialise meaningfully, returning a boolean may make sense based on your application, and while an error works, it may not work as intended as some properties of an error are not enumerable.  We recommend adding middleware in your app that asserts body types per app.  A sample middleware might be:
+docs/api/response.md:152:  ctx.assert.equal('object', typeof ctx.body, 500, 'some dev did something wrong')
+context.md
+index.md
+request.md
+response.md
+[0m
+[0m$ [0msed -n '125,160p' docs/api/context.md 2>&1; echo "---"; sed -n '145,165p' docs/api/response.md 2>&1
+ctx.throw(401, 'access_denied', { user: user });
+```
+
+Koa uses [http-errors](https://github.com/jshttp/http-errors) to create errors. `status` should only be passed as the first parameter.
+
+### ctx.assert(value, [status], [msg], [properties])
+
+  Helper method to throw an error similar to `.throw()`
+  when `!value`. Similar to Node's [assert()](http://nodejs.org/api/assert.html)
+  method.
+
+```js
+ctx.assert(ctx.state.user, 401, 'User not found. Please login!');
+```
+
+Koa uses [http-assert](https://github.com/jshttp/http-assert) for assertions.
+
+### ctx.respond
+
+  To bypass Koa's built-in response handling, you may explicitly set `ctx.respond = false;`. Use this if you want to write to the raw `res` object instead of letting Koa handle the response for you.
+
+  Note that using this is __not__ supported by Koa. This may break intended functionality of Koa middleware and Koa itself. Using this property is considered a hack and is only a convenience to those wishing to use traditional `fn(req, res)` functions and middleware within Koa.
+
+## Request aliases
+
+  The following accessors and alias [Request](request.md) equivalents:
+
+  - `ctx.header`
+  - `ctx.headers`
+  - `ctx.method`
+  - `ctx.method=`
+  - `ctx.url`
+  - `ctx.url=`
+  - `ctx.originalUrl`
+  - `ctx.origin`
+  - `ctx.href`
+---
+
+Koa doesn't guard against everything that could be put as a response body -- a function doesn't serialise meaningfully, returning a boolean may make sense based on your application, and while an error works, it may not work as intended as some properties of an error are not enumerable.  We recommend adding middleware in your app that asserts body types per app.  A sample middleware might be:
+
+```js
+app.use(async (ctx, next) => {
+  await next()
+
+  ctx.assert.equal('object', typeof ctx.body, 500, 'some dev did something wrong')
+})
+```
+
+#### String
+
+  The Content-Type is defaulted to text/html or text/plain, both with
+  a default charset of utf-8. The Content-Length field is also set.
+
+#### Buffer
+
+  The Content-Type is defaulted to application/octet-stream, and Content-Length
+  is also set.
+[0m
+[0m$ [0mnode -e "
+const eql = require('deep-equal');
+const {isDeepStrictEqual} = require('node:util');
+console.log('eql 1 vs \"1\":', eql(1,'1'));
+console.log('strict 1 vs \"1\":', isDeepStrictEqual(1,'1'));
+console.log('eql {a:1} vs {a:1}:', eql({a:1},{a:1}));
+console.log('strict {a:1} vs {a:1}:', isDeepStrictEqual({a:1},{a:1}));
+"
+eql 1 vs "1": true
+strict 1 vs "1": false
+eql {a:1} vs {a:1}: true
+strict {a:1} vs {a:1}: true
+[0m
+[0m→ [0mRead repo/lib/context.js[90m [limit=80, offset=1][0m
+[0m
+[0m← [0mEdit repo/lib/context.js
+Index: /work/repo/lib/context.js
+===================================================================
+--- /work/repo/lib/context.js
++++ /work/repo/lib/context.js
+@@ -5,16 +5,67 @@
+  */
+ 
+ const util = require('util')
+ const createError = require('http-errors')
+-const httpAssert = require('http-assert')
+ const delegate = require('delegates')
+ const statuses = require('statuses')
+ const Cookies = require('cookies')
+ 
+ const COOKIES = Symbol('context#cookies')
+ 
+ /**
++ * Local assertion helper that creates errors with the same `http-errors`
++ * instance used by `ctx.throw` and exposed as `Application.HttpError`.
++ * This replaces the `http-assert` dependency, which bundles its own
++ * `http-errors@1` copy whose errors fail `instanceof HttpError` checks
++ * against `http-errors@2` (breaking `err instanceof Koa.HttpError` guards).
++ */
++
++function ctxAssert (value, status, msg, opts) {
++  if (value) return
++  throw createError(status, msg, opts)
++}
++
++let deepEql = null
++try {
++  deepEql = require('deep-equal')
++} catch {
++  deepEql = util.isDeepStrictEqual
++}
++
++ctxAssert.fail = function (status, msg, opts) {
++  ctxAssert(false, status, msg, opts)
++}
++
++ctxAssert.equal = function (a, b, status, msg, opts) {
++  ctxAssert(a == b, status, msg, opts) // eslint-disable-line eqeqeq
++}
++
++ctxAssert.notEqual = function (a, b, status, msg, opts) {
++  ctxAssert(a != b, status, msg, opts) // eslint-disable-line eqeqeq
++}
++
++ctxAssert.ok = function (value, status, msg, opts) {
++  ctxAssert(value, status, msg, opts)
++}
++
++ctxAssert.strictEqual = function (a, b, status, msg, opts) {
++  ctxAssert(a === b, status, msg, opts)
++}
++
++ctxAssert.notStrictEqual = function (a, b, status, msg, opts) {
++  ctxAssert(a !== b, status, msg, opts)
++}
++
++ctxAssert.deepEqual = function (a, b, status, msg, opts) {
++  ctxAssert(deepEql(a, b), status, msg, opts)
++}
++
++ctxAssert.notDeepEqual = function (a, b, status, msg, opts) {
++  ctxAssert(!deepEql(a, b), status, msg, opts)
++}
++
++/**
+  * Context prototype.
+  */
+ 
+ const proto = module.exports = {
+
+[0m
+[0m← [0mEdit repo/lib/context.js
+Index: /work/repo/lib/context.js
+===================================================================
+--- /work/repo/lib/context.js
++++ /work/repo/lib/context.js
+@@ -111,17 +111,17 @@
+  * Similar to .throw(), adds assertion.
+  *
+  *    this.assert(this.user, 401, 'Please login!');
+  *
+- * See: https://github.com/jshttp/http-assert
++ * See: https://github.com/jshttp/http-errors
+  *
+  * @param {Mixed} test
+  * @param {Number} status
+  * @param {String} message
+  * @api public
+  */
+ 
+-assert: httpAssert,
++assert: ctxAssert,
+ 
+ /**
+  * Throw an error with `status` (default 500) and
+  * `msg`. Note that these are user-level
+
+[0m
+[0m$ [0mnode -e "
+const ctxHelper = require('./test-helpers/context');
+const Koa = require('./lib/application');
+const ctx = ctxHelper();
+try { ctx.assert(false, 401, 'unauthenticated'); } catch(e){
+  console.log('status', e.status, 'expose', e.expose, 'msg', e.message);
+  console.log('instanceof HttpError?', e instanceof Koa.HttpError);
+  console.log('isHttpError?', Koa.isHttpError(e));
+  console.log('ctor', e.constructor.name);
+}
+// helpers
+try { ctx.assert.equal('a','b', 400, 'not equal'); } catch(e){ console.log('equal helper:', e.status, e instanceof Koa.HttpError); }
+try { ctx.assert.deepEqual({a:1},{a:2}, 400, 'deep'); } catch(e){ console.log('deepEqual helper:', e.status, e instanceof Koa.HttpError); }
+try { ctx.assert.ok(true, 500); console.log('ok true passes'); } catch(e){ console.log('fail'); }
+try { ctx.assert.fail(418, 'teapot'); } catch(e){ console.log('fail helper:', e.status, e instanceof Koa.HttpError); }
+"
+status undefined expose undefined msg argument #3 unsupported type undefined
+instanceof HttpError? false
+isHttpError? false
+ctor TypeError
+equal helper: undefined false
+deepEqual helper: undefined false
+ok true passes
+fail helper: undefined false
+[0m
+[0m→ [0mRead repo/lib/context.js[90m [limit=70, offset=1][0m
+[0m
+[0m← [0mEdit repo/lib/context.js
+Index: /work/repo/lib/context.js
+===================================================================
+--- /work/repo/lib/context.js
++++ /work/repo/lib/context.js
+@@ -21,9 +21,12 @@
+  */
+ 
+ function ctxAssert (value, status, msg, opts) {
+   if (value) return
+-  throw createError(status, msg, opts)
++  // http-errors@2 rejects explicit `undefined` arguments, while the old
++  // http-assert path forwarded them. Strip `undefined` to preserve arity.
++  const args = [status, msg, opts].filter(arg => arg !== undefined)
++  throw createError(...args)
+ }
+ 
+ let deepEql = null
+ try {
+
+[0m
+[0m$ [0mnode -e "
+const ctxHelper = require('./test-helpers/context');
+const Koa = require('./lib/application');
+const ctx = ctxHelper();
+try { ctx.assert(false, 401, 'unauthenticated'); } catch(e){
+  console.log('status', e.status, 'expose', e.expose, 'msg', e.message);
+  console.log('instanceof HttpError?', e instanceof Koa.HttpError);
+  console.log('isHttpError?', Koa.isHttpError(e));
+  console.log('ctor', e.constructor.name);
+}
+try { ctx.assert.equal('a','b', 400, 'not equal'); } catch(e){ console.log('equal helper:', e.status, e instanceof Koa.HttpError); }
+try { ctx.assert.deepEqual({a:1},{a:2}, 400, 'deep'); } catch(e){ console.log('deepEqual helper:', e.status, e instanceof Koa.HttpError); }
+try { ctx.assert.ok(true, 500); console.log('ok true passes'); } catch(e){ console.log('fail'); }
+try { ctx.assert.fail(418, 'teapot'); } catch(e){ console.log('fail helper:', e.status, e instanceof Koa.HttpError); }
+try { ctx.assert(false, 401); } catch(e){ console.log('no msg:', e.status, e.message, e instanceof Koa.HttpError); }
+try { ctx.assert(false); } catch(e){ console.log('no args:', e.status, e instanceof Koa.HttpError); }
+try { ctx.assert(true, 401); console.log('true passes'); } catch(e){ console.log('should not throw'); }
+"
+status 401 expose true msg unauthenticated
+instanceof HttpError? true
+isHttpError? true
+ctor UnauthorizedError
+equal helper: 400 true
+deepEqual helper: 400 true
+ok true passes
+fail helper: 418 true
+no msg: 401 Unauthorized true
+no args: 500 true
+true passes
+[0m
+[0m→ [0mRead repo/package.json
+[0m
+[0m$ [0mbash /work/repro 2>&1
+ORIGINAL_FAILURE_ABSENT
+observed_http_status=401
+[0m
+[0m$ [0mnpm test 2>&1 | tail -n 50
+duration_ms: 25.264259
+          type: 'test'
+          ...
+        1..1
+    ok 1 - when continuous requests in one persistent connection
+      ---
+      duration_ms: 26.223315
+      type: 'suite'
+      ...
+    # Subtest: when socket closed before response sent
+        # Subtest: should not be writable
+        ok 1 - should not be writable
+          ---
+          duration_ms: 10.321486
+          type: 'test'
+          ...
+        1..1
+    ok 2 - when socket closed before response sent
+      ---
+      duration_ms: 10.63367
+      type: 'suite'
+      ...
+    # Subtest: when response finished
+        # Subtest: should not be writable
+        ok 1 - should not be writable
+          ---
+          duration_ms: 24.87159
+          type: 'test'
+          ...
+        1..1
+    ok 3 - when response finished
+      ---
+      duration_ms: 26.053477
+      type: 'suite'
+      ...
+    1..3
+ok 90 - res.writable
+  ---
+  duration_ms: 64.057816
+  type: 'suite'
+  ...
+1..90
+# tests 440
+# suites 286
+# pass 440
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 21628.933395
+[0m
+[0m$ [0mnpx standard lib/context.js 2>&1 | head -n 30
+/work/repo/node_modules/version-guard/index.js:40
+    throw new Error(
+    ^
+
+Error: Could not find a package.json at expected path "/work/repo/node_modules/.bin/package.json", hence failing. Got error: Cannot find module '/work/repo/node_modules/.bin/package.json'
+Require stack:
+- /work/repo/node_modules/version-guard/index.js
+- /work/repo/node_modules/.bin/standard
+    at versionGuard (/work/repo/node_modules/version-guard/index.js:40:11)
+    at Object.<anonymous> (/work/repo/node_modules/.bin/standard:3:25)
+    at Module._compile (node:internal/modules/cjs/loader:1781:14)
+    at Object..js (node:internal/modules/cjs/loader:1913:10)
+    at Module.load (node:internal/modules/cjs/loader:1505:32)
+    at Function._load (node:internal/modules/cjs/loader:1309:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+    at node:internal/main/run_main_module:36:49
+
+Node.js v22.23.2
+[0m
+[0m→ [0mRead repo/lib/context.js[90m [limit=70, offset=1][0m
+[0m
+[0m$ [0mnode --test __tests__/context/assert.test.js __tests__/context/throw.test.js __tests__/context/onerror.test.js 2>&1 | tail -n 20
+ok 1 - should mixin props
+      ---
+      duration_ms: 0.321204
+      type: 'test'
+      ...
+    1..1
+ok 11 - ctx.throw(err, props)
+  ---
+  duration_ms: 0.487861
+  type: 'suite'
+  ...
+1..11
+# tests 24
+# suites 20
+# pass 24
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1287.522163
+[0m
+[0m$ [0mgit diff --stat 2>&1; echo "---"; git diff 2>&1 | head -n 120
+lib/context.js | 60 +++++++++++++++++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 57 insertions(+), 3 deletions(-)
+---
+diff --git a/lib/context.js b/lib/context.js
+index 68ffe34..931a995 100644
+--- a/lib/context.js
++++ b/lib/context.js
+@@ -6,13 +6,67 @@
+ 
+ const util = require('util')
+ const createError = require('http-errors')
+-const httpAssert = require('http-assert')
+ const delegate = require('delegates')
+ const statuses = require('statuses')
+ const Cookies = require('cookies')
+ 
+ const COOKIES = Symbol('context#cookies')
+ 
++/**
++ * Local assertion helper that creates errors with the same `http-errors`
++ * instance used by `ctx.throw` and exposed as `Application.HttpError`.
++ * This replaces the `http-assert` dependency, which bundles its own
++ * `http-errors@1` copy whose errors fail `instanceof HttpError` checks
++ * against `http-errors@2` (breaking `err instanceof Koa.HttpError` guards).
++ */
++
++function ctxAssert (value, status, msg, opts) {
++  if (value) return
++  // http-errors@2 rejects explicit `undefined` arguments, while the old
++  // http-assert path forwarded them. Strip `undefined` to preserve arity.
++  const args = [status, msg, opts].filter(arg => arg !== undefined)
++  throw createError(...args)
++}
++
++let deepEql = null
++try {
++  deepEql = require('deep-equal')
++} catch {
++  deepEql = util.isDeepStrictEqual
++}
++
++ctxAssert.fail = function (status, msg, opts) {
++  ctxAssert(false, status, msg, opts)
++}
++
++ctxAssert.equal = function (a, b, status, msg, opts) {
++  ctxAssert(a == b, status, msg, opts) // eslint-disable-line eqeqeq
++}
++
++ctxAssert.notEqual = function (a, b, status, msg, opts) {
++  ctxAssert(a != b, status, msg, opts) // eslint-disable-line eqeqeq
++}
++
++ctxAssert.ok = function (value, status, msg, opts) {
++  ctxAssert(value, status, msg, opts)
++}
++
++ctxAssert.strictEqual = function (a, b, status, msg, opts) {
++  ctxAssert(a === b, status, msg, opts)
++}
++
++ctxAssert.notStrictEqual = function (a, b, status, msg, opts) {
++  ctxAssert(a !== b, status, msg, opts)
++}
++
++ctxAssert.deepEqual = function (a, b, status, msg, opts) {
++  ctxAssert(deepEql(a, b), status, msg, opts)
++}
++
++ctxAssert.notDeepEqual = function (a, b, status, msg, opts) {
++  ctxAssert(!deepEql(a, b), status, msg, opts)
++}
++
+ /**
+  * Context prototype.
+  */
+@@ -61,7 +115,7 @@ const proto = module.exports = {
+    *
+    *    this.assert(this.user, 401, 'Please login!');
+    *
+-   * See: https://github.com/jshttp/http-assert
++   * See: https://github.com/jshttp/http-errors
+    *
+    * @param {Mixed} test
+    * @param {Number} status
+@@ -69,7 +123,7 @@ const proto = module.exports = {
+    * @api public
+    */
+ 
+-  assert: httpAssert,
++  assert: ctxAssert,
+ 
+   /**
+    * Throw an error with `status` (default 500) and
+[0m

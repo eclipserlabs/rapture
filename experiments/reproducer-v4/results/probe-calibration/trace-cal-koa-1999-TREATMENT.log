@@ -1,0 +1,329 @@
+Repairing the production fault — tracing the failure to its root cause.
+I've pinpointed the mismatch error to absolute-form request handling — now examining the URL logic.
+The captured request uses an absolute URI — now verifying how the framework parses it.
+Local verification shows the invariant now holds — confirming against the full incident replay.
+Root cause: for absolute-form request targets (`GET http://example.com/u?q=1`), `req.url`/`originalUrl` is a full URL. `request.href` already handled this (returns `originalUrl` directly), but `request.URL` unconditionally built `new URL(protocol://host + originalUrl)`, producing garbage (`http://127.0.0.1:47901http://example.com/...`), throwing, and falling back to `Object.create(null)`. The probe `ctx.URL.href !== ctx.href` then mismatched (`undefined` vs URL string) → HTTP 500 `E_URL_MISMATCH`. `parseurl`-based `path`/`query` already parsed absolute URLs correctly, so only `URL` was broken.
+
+Files changed:
+- `lib/request.js` (`get URL`): if `originalUrl` matches `/^https?:\/\//i`, parse it directly with `new URL(originalUrl)`; otherwise keep existing `protocol://host+originalUrl` construction. Mirrors the existing `href` absolute-URL handling.
+
+Validation:
+- Local check: `originalUrl=http://example.com/u?q=1` now gives `href == URL.href == http://example.com/u?q=1`, `path==/u`.
+- `/work/repro`: before `ORIGINAL_FAILURE_REPRODUCED / 500`; after `ORIGINAL_FAILURE_ABSENT / 200`.
+- `node --test` (full repo suite): 452 pass, 0 fail.
+
+Remaining uncertainty: none for this incident shape; WHATWG normalization edge cases (e.g. explicit default ports, case) could still make `URL.href !== href` string-wise, but do not occur here.
+
+----- stderr -----
+[0m
+> build · muse-spark-1.3-contributor-free
+[0m
+[0m→ [0mRead .
+[0m→ [0mRead repo
+[0m→ [0mRead app
+[0m→ [0mRead incident-evidence.json
+[0m→ [0mRead incident-evidence.md
+[0m→ [0mRead app/shared.mjs
+[0m→ [0mRead app/server.mjs
+[0m→ [0mRead repo/package.json
+[0m→ [0mRead repo/lib
+[0m→ [0mRead repro
+[0m→ [0mRead repo/lib/context.js
+[0m→ [0mRead repo/lib/request.js
+[0m
+[0m$ [0mgit log --oneline -20; echo ---; git status; echo ---; git diff --stat HEAD 2>&1 | head -n 50
+21fe7da Initial import of the deployed revision
+---
+On branch main
+nothing to commit, working tree clean
+---
+[0m
+[0m→ [0mRead repo/lib/application.js
+[0m
+[0m$ [0m./repro 2>&1 | head -n 20; echo EXIT:$?
+ORIGINAL_FAILURE_REPRODUCED
+observed_http_status=500
+EXIT:0
+[0m
+[0m✗ [0mGrep "originalUrl" failed
+[91m[1mError: [0mripgrep execution failed
+[0m
+[0m$ [0mrg -n "originalUrl" lib/ __tests__/ test-helpers/ 2>&1 | head -n 100
+/usr/bin/bash: line 1: rg: command not found
+[0m
+[0m$ [0mgrep -rn "originalUrl" lib/ __tests__/ test-helpers/ 2>&1 | head -n 100
+lib/request.js:111:    if (/^https?:\/\//i.test(this.originalUrl)) return this.originalUrl
+lib/request.js:112:    return this.protocol + '://' + this.host + this.originalUrl
+lib/request.js:299:      const originalUrl = this.originalUrl || '' // avoid undefined in template string
+lib/request.js:301:        this.memoizedURL = new URL(`${this.protocol}://${this.host}${originalUrl}`)
+lib/context.js:52:      originalUrl: this.originalUrl,
+lib/application.js:47: *  originalUrl: string
+lib/application.js:241:    context.originalUrl = request.originalUrl = req.url
+__tests__/request/querystring.test.js:40:  it('should change .url but not .originalUrl', () => {
+__tests__/request/querystring.test.js:44:    assert.strictEqual(ctx.originalUrl, '/store/shoes')
+__tests__/request/querystring.test.js:45:    assert.strictEqual(ctx.request.originalUrl, '/store/shoes')
+__tests__/request/search.test.js:24:  it('should change .url but not .originalUrl', () => {
+__tests__/request/search.test.js:28:    assert.strictEqual(ctx.originalUrl, '/store/shoes')
+__tests__/request/search.test.js:29:    assert.strictEqual(ctx.request.originalUrl, '/store/shoes')
+__tests__/request/path.test.js:26:  it('should change .url but not .originalUrl', () => {
+__tests__/request/path.test.js:30:    assert.strictEqual(ctx.originalUrl, '/login')
+__tests__/request/path.test.js:31:    assert.strictEqual(ctx.request.originalUrl, '/login')
+__tests__/request/query.test.js:36:  it('should change .url but not .originalUrl', () => {
+__tests__/request/query.test.js:40:    assert.strictEqual(ctx.originalUrl, '/store/shoes')
+__tests__/request/query.test.js:41:    assert.strictEqual(ctx.request.originalUrl, '/store/shoes')
+[0m
+[0m$ [0mgrep -rn "href\|\.URL" __tests__/ lib/ 2>&1 | head -n 100
+__tests__/request/href.test.js:10:describe('ctx.href', () => {
+__tests__/request/href.test.js:22:    assert.strictEqual(ctx.href, 'http://localhost/users/1?next=/dashboard')
+__tests__/request/href.test.js:25:    assert.strictEqual(ctx.href, 'http://localhost/users/1?next=/dashboard')
+__tests__/request/href.test.js:31:      ctx.body = ctx.href
+__tests__/request/whatwg-url.test.js:7:describe('req.URL', () => {
+__tests__/request/whatwg-url.test.js:10:    request().URL // eslint-disable-line no-unused-expressions
+__tests__/request/whatwg-url.test.js:17:    req.URL // eslint-disable-line no-unused-expressions
+__tests__/request/whatwg-url.test.js:23:    assert.deepStrictEqual(req.URL, Object.create(null))
+lib/response.js:342:      const url = new URL(referrer, this.ctx.href)
+lib/request.js:7:const URL = require('url').URL
+lib/request.js:109:  get href () {
+lib/request.js:284:    if (host[0] === '[') return this.URL.hostname || '' // IPv6
+lib/search-params.js:1:const URLSearchParams = require('url').URLSearchParams
+lib/context.js:236:  .getter('href')
+[0m
+[0m→ [0mRead repo/__tests__/request/whatwg-url.test.js
+[0m→ [0mRead repo/__tests__/request/href.test.js
+[0m→ [0mRead repo/test-helpers/context.js
+[0m→ [0mRead .repro
+[0m→ [0mRead .repro/incident.repro.json
+[0m
+[0m$ [0mls -R /work/.repro/rt 2>&1 | head -n 50
+/work/.repro/rt:
+experiments
+packages
+
+/work/.repro/rt/experiments:
+reproducer-v3
+
+/work/.repro/rt/experiments/reproducer-v3:
+headline
+src
+
+/work/.repro/rt/experiments/reproducer-v3/headline:
+replay-raw.mjs
+
+/work/.repro/rt/experiments/reproducer-v3/src:
+capture
+detector
+oracle
+replay
+
+/work/.repro/rt/experiments/reproducer-v3/src/capture:
+context.mjs
+events.mjs
+patch-fetch.mjs
+patch-http.mjs
+patch-pg.mjs
+patch-time.mjs
+persist.mjs
+redact.mjs
+register.mjs
+state.mjs
+
+/work/.repro/rt/experiments/reproducer-v3/src/detector:
+select.mjs
+
+/work/.repro/rt/experiments/reproducer-v3/src/oracle:
+fingerprint.mjs
+normalize.mjs
+
+/work/.repro/rt/experiments/reproducer-v3/src/replay:
+replay-one.mjs
+
+/work/.repro/rt/packages:
+kernel
+
+/work/.repro/rt/packages/kernel:
+dist
+node_modules
+
+/work/.repro/rt/packages/kernel/dist:
+[0m
+[0m→ [0mRead .repro/rt/experiments/reproducer-v3/headline/replay-raw.mjs
+[0m
+[0m$ [0mnode -e "
+const parse = require('parseurl');
+const stringify = require('url').format;
+function fakeReq(url){ return {url, headers:{host:'127.0.0.1:47901'}}; }
+let req = fakeReq('http://example.com/u?q=1');
+console.log('parse:', JSON.stringify(parse(req)));
+let req2 = fakeReq('/u?q=1');
+console.log('parse2:', JSON.stringify(parse(req2)));
+"
+parse: {"protocol":"http:","slashes":true,"auth":null,"host":"example.com","port":null,"hostname":"example.com","hash":null,"search":"?q=1","query":"q=1","pathname":"/u","path":"/u?q=1","href":"http://example.com/u?q=1","_raw":"http://example.com/u?q=1"}
+parse2: {"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":"?q=1","query":"q=1","pathname":"/u","path":"/u?q=1","href":"/u?q=1","_raw":"/u?q=1"}
+[0m
+[0m→ [0mRead repo/lib/request.js[90m [offset=289, limit=25][0m
+[0m
+[0m← [0mEdit repo/lib/request.js
+Index: /work/repo/lib/request.js
+===================================================================
+--- /work/repo/lib/request.js
++++ /work/repo/lib/request.js
+@@ -297,9 +297,14 @@
+ /* istanbul ignore else */
+ if (!this.memoizedURL) {
+   const originalUrl = this.originalUrl || '' // avoid undefined in template string
+   try {
+-    this.memoizedURL = new URL(`${this.protocol}://${this.host}${originalUrl}`)
++    // support: `GET http://example.com/foo`
++    if (/^https?:\/\//i.test(originalUrl)) {
++      this.memoizedURL = new URL(originalUrl)
++    } else {
++      this.memoizedURL = new URL(`${this.protocol}://${this.host}${originalUrl}`)
++    }
+   } catch (err) {
+     this.memoizedURL = Object.create(null)
+   }
+ }
+
+[0m
+[0m$ [0mnode -e "
+const ctx = require('/work/repo/test-helpers/context.js')({url:'http://example.com/u?q=1', headers:{host:'127.0.0.1:47901'}, socket:{encrypted:false}});
+console.log('href:', ctx.href);
+console.log('URL.href:', ctx.URL.href);
+console.log('match:', ctx.URL.href === ctx.href);
+console.log('path:', ctx.path);
+"
+href: http://example.com/u?q=1
+URL.href: http://example.com/u?q=1
+match: true
+path: /u
+[0m
+[0m$ [0m./repro 2>&1 | head -n 20; echo EXIT:$?
+ORIGINAL_FAILURE_ABSENT
+observed_http_status=200
+EXIT:0
+[0m
+[0m$ [0mnode --test __tests__/request/ 2>&1 | tail -n 30
+#     at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1045:22)
+#     at Function._load (node:internal/modules/cjs/loader:1216:25)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+#     at node:internal/main/run_main_module:36:49 {
+#   code: 'MODULE_NOT_FOUND',
+#   requireStack: []
+# }
+# Node.js v22.23.2
+# Subtest: __tests__/request
+not ok 1 - __tests__/request
+  ---
+  duration_ms: 56.409743
+  type: 'test'
+  location: '/work/repo/__tests__/request:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 70.151272
+[0m
+[0m$ [0mnode --test __tests__/request/ 2>&1 | head -n 40
+TAP version 13
+# node:internal/modules/cjs/loader:1433
+#   throw err;
+#   ^
+# Error: Cannot find module '/work/repo/__tests__/request'
+#     at Function._resolveFilename (node:internal/modules/cjs/loader:1430:15)
+#     at defaultResolveImpl (node:internal/modules/cjs/loader:1040:19)
+#     at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1045:22)
+#     at Function._load (node:internal/modules/cjs/loader:1216:25)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+#     at node:internal/main/run_main_module:36:49 {
+#   code: 'MODULE_NOT_FOUND',
+#   requireStack: []
+# }
+# Node.js v22.23.2
+# Subtest: __tests__/request
+not ok 1 - __tests__/request
+  ---
+  duration_ms: 57.114811
+  type: 'test'
+  location: '/work/repo/__tests__/request:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 70.38742
+[0m
+[0m$ [0mnode --test 2>&1 | tail -n 30
+type: 'suite'
+      ...
+    # Subtest: when response finished
+        # Subtest: should not be writable
+        ok 1 - should not be writable
+          ---
+          duration_ms: 10.621353
+          type: 'test'
+          ...
+        1..1
+    ok 3 - when response finished
+      ---
+      duration_ms: 11.118453
+      type: 'suite'
+      ...
+    1..3
+ok 91 - res.writable
+  ---
+  duration_ms: 61.942469
+  type: 'suite'
+  ...
+1..91
+# tests 452
+# suites 287
+# pass 452
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 42326.18659
+[0m
+[0m$ [0mgit diff; echo ---; git status --short
+diff --git a/lib/request.js b/lib/request.js
+index 2304501..bf21415 100644
+--- a/lib/request.js
++++ b/lib/request.js
+@@ -298,7 +298,12 @@ module.exports = {
+     if (!this.memoizedURL) {
+       const originalUrl = this.originalUrl || '' // avoid undefined in template string
+       try {
+-        this.memoizedURL = new URL(`${this.protocol}://${this.host}${originalUrl}`)
++        // support: `GET http://example.com/foo`
++        if (/^https?:\/\//i.test(originalUrl)) {
++          this.memoizedURL = new URL(originalUrl)
++        } else {
++          this.memoizedURL = new URL(`${this.protocol}://${this.host}${originalUrl}`)
++        }
+       } catch (err) {
+         this.memoizedURL = Object.create(null)
+       }
+---
+ M lib/request.js
+[0m

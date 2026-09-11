@@ -1,0 +1,480 @@
+{
+  "experiment": "Rapture Reproducer \u2014 V4 Value Probe",
+  "label": "post-Stage-1 bounded product-value probe. NOT the frozen V4 headline experiment; can never produce RAPTURE_REPRODUCER_V4_STATUS.",
+  "schema": "v4-probe-manifest-1",
+  "frozen_at": "2026-09-11T14:33:04.053884Z",
+  "frozen_before": "any calibration subject run and any of the twenty probe runs",
+  "authorizations": {
+    "probe": "V4 Value Probe, APPROVED (5 cases, 2 replicates/arm, 20 runs)",
+    "isolation": "AUTHORIZE_ISOLATION_IMPLEMENTATION -> accepted ISOLATION=VALID",
+    "this_stage": "ACCEPT_ISOLATION_AND_PROCEED_TO_CALIBRATION (manifest freeze + calibration only)"
+  },
+  "frozen_checkpoints": {
+    "v3_3_implementation_tree": "5416f2752c885bb8d61abd49888fc29a34e06b814ea278c551d2ebf291417f1d",
+    "v3_3_checkpoint_commit": "f420719faca34cbebd1d963f42d13ff9aa33e5e3",
+    "v4_stage1_checkpoint": "c72a0ae9",
+    "thesis_review_checkpoint": "49b1534e",
+    "isolation_design_checkpoint": "e462d1b3",
+    "isolation_audit_checkpoint": "b9a9a930",
+    "v4_stage1_manifest": "manifests/V4-MANIFEST.json (NOT modified by this probe)"
+  },
+  "isolation_topology": {
+    "status_accepted": "RAPTURE_REPRODUCER_VALUE_PROBE_ISOLATION=VALID",
+    "audit_evidence": "results/probe-isolation-audit.json (sha256 00e370e1eb5657597b6aaa9c320d8bb544cc7f9457df799858c65cd1da529442)",
+    "runtime": "Colima 0.10.3 \u2014 Lima VM, Ubuntu 24.04, dockerd 29.5.2, docker CLI 29.8.0",
+    "design_deviation_recorded": {
+      "original_design": "OrbStack, fallback Docker Desktop (design checkpoint e462d1b3)",
+      "reason": "host is macOS 13.7.8 on Intel; both casks require macOS >= 14, so neither named runtime is installable",
+      "property_preserved": "the enforcement property is the Linux bridge --internal network inside the VM, not the desktop app. Same dockerd, same bridge semantics.",
+      "empirically_validated": "yes \u2014 the complete 10-point adversarial audit was executed against the Colima topology, not inherited from the design"
+    },
+    "subject_network": "v4-subject-net, --internal, 10.83.0.0/24, no default route",
+    "egress_component": "v4-proxy \u2014 dual-homed Squid, the subject's only neighbour",
+    "acl": "CONNECT-only, dstdomain api.opencode.ai opencode.ai, http_access deny all",
+    "vm_host_protection": "iptables -I INPUT -i br-<subject-net> -j DROP (closes the Colima sshd pivot found by the audit)",
+    "subject_image": "v4-subject-image (node:22-bookworm-slim + curl/wget/git/npm/python3/dig/nc + opencode 1.18.30)"
+  },
+  "preflight_network_isolation_checks": {
+    "rule": "ALL must pass immediately before every subject run, calibration and probe alike. A failure aborts the run and the run does not count.",
+    "checks": [
+      "subject network has no default route (`ip route show default` empty)",
+      "Colima bridge INPUT rule asserted via isolation/net-up.sh (idempotent)",
+      "Colima VM SSH path filtered from the subject network (10.83.0.1:22 not connectable)",
+      "Squid proxy reachable from the subject (tcp/3128)",
+      "subject has exactly one network attachment, and it is v4-subject-net",
+      "only the minimal opencode provider auth is mounted (auth store contains exactly ['opencode'])",
+      "no global opencode config, MCP server, plugin, host git credential, SSH material or Rapture repository is exposed"
+    ],
+    "implementation": "probe/preflight.mjs \u2014 machine-checked, emits PREFLIGHT_OK or PREFLIGHT_FAIL with the failing check"
+  },
+  "subject_agent": {
+    "runtime": "opencode",
+    "cli_version": "1.18.30",
+    "model": "opencode/muse-spark-1.3-contributor-free",
+    "invocation": "opencode run --auto --dir <workspace> -m <model> <prompt>",
+    "session": "fresh session per run; fresh HOME, XDG_CONFIG_HOME, XDG_DATA_HOME inside a fresh container per run",
+    "reasoning_effort": "provider default for this model; not overridden in either arm",
+    "identical_between_arms": [
+      "runtime",
+      "cli version",
+      "model",
+      "effort",
+      "tool permissions",
+      "budget",
+      "system instructions"
+    ],
+    "run_concurrency": 1,
+    "concurrency_reason": "wall-clock time is a measured secondary outcome; concurrent runs would confound it with host contention"
+  },
+  "tool_permissions": {
+    "granted": [
+      "read",
+      "write/edit files inside the workspace",
+      "bash inside the container",
+      "run repository tests",
+      "TREATMENT only: the experiment-only repro command"
+    ],
+    "denied_structurally": [
+      "web fetch",
+      "web search (opencode's built-in Exa tool)",
+      "package registry access",
+      "git remote access",
+      "any outbound network other than the model provider"
+    ],
+    "denial_mechanism": "absence of route on an --internal network plus a CONNECT hostname ACL \u2014 not tool configuration, not a PATH shim",
+    "auto_approval": "--auto (tools execute without interactive approval); identical in both arms"
+  },
+  "network_policy": {
+    "allowlist": [
+      "api.opencode.ai",
+      "opencode.ai"
+    ],
+    "denied_and_not_preapproved": [
+      "models.opencode.ai",
+      "mcp.exa.ai"
+    ],
+    "amendment_rule": "add an exact provider hostname ONLY if calibration demonstrates model inference cannot complete without it; then rerun the complete isolation audit and supersede+re-hash this manifest before any headline run",
+    "hard_rule": "mcp.exa.ai and any general web-retrieval endpoint remain denied permanently",
+    "after_first_headline_run": "no allowlist, model, prompt, timeout, evidence-pack or harness change is permitted",
+    "leakage_rule": "any run that obtains the historical fix from the network is INVALID_LEAKAGE and does not count"
+  },
+  "probe_corpus": {
+    "cases": [
+      "express-cookie-maxage",
+      "express-jsonp",
+      "fastify-prefix",
+      "fastify-port",
+      "hapi-failaction"
+    ],
+    "size": 5,
+    "repositories": 3,
+    "rule": "use all five; do not exclude a case on expected difficulty, fingerprint strength, agent behaviour or early results",
+    "provenance": "the five V4 Stage 1 cases with artifact_verdict=DISCRIMINATING (results/headline-eligibility.json)"
+  },
+  "control_evidence_pack": {
+    "artifacts": [
+      "incident-evidence.json",
+      "incident-evidence.md"
+    ],
+    "include": [
+      "anonymized incident id",
+      "HTTP method and route",
+      "HTTP status",
+      "normalized application error type/code/message",
+      "sanitized application stack trace",
+      "sanitized request shape and non-secret metadata",
+      "relevant application logs around the failure",
+      "ordered operation/span summary",
+      "DB operation names/query text as ordinary observability exposes",
+      "DB status/duration metadata",
+      "outbound HTTP destination/operation/status/duration",
+      "release/revision identifier of the supplied buggy snapshot",
+      "runtime/framework/version metadata"
+    ],
+    "exclude": [
+      "historical issue number",
+      "CVE identifier",
+      "upstream fixing commit or diff",
+      "upstream regression test that reveals the fix",
+      ".repro artifact",
+      "captured DB result rows",
+      "captured outbound response bodies",
+      "captured time/random streams",
+      "hand-written root-cause explanation",
+      "causal facts unavailable from ordinary telemetry",
+      "the hidden evaluator"
+    ],
+    "fairness_rule": "CONTROL and TREATMENT receive BYTE-IDENTICAL evidence packs, verified by sha256 per run"
+  },
+  "treatment_only_difference": {
+    "definition": "byte-identical CONTROL evidence pack PLUS exactly one additional capability: the frozen executable .repro and an experiment-only command to run it",
+    "runner_interface": [
+      "one command executes the incident against the current worktree",
+      "output distinguishes ORIGINAL_FAILURE_REPRODUCED from ORIGINAL_FAILURE_ABSENT",
+      "exposes NO hidden generalization oracle",
+      "uses frozen V3.3 replay semantics"
+    ],
+    "prohibited": [
+      "extra root-cause prose",
+      "hints",
+      "additional test cases",
+      "debugging guidance",
+      "any evidence beyond the frozen artifact"
+    ]
+  },
+  "repair_prompt": {
+    "control": [
+      "You are repairing a production backend bug.",
+      "The supplied repository is the buggy production revision.",
+      "Use the supplied incident evidence and repository to identify and fix the bug.",
+      "You may inspect and modify application code and run available local tests.",
+      "Do not use the internet or search for the historical issue/fix.",
+      "Do not modify files outside the supplied repository.",
+      "Do not disable tests merely to obtain green output.",
+      "When you believe the bug is fixed, stop and provide a concise final report containing root cause, files changed, validation performed and remaining uncertainty."
+    ],
+    "treatment": [
+      "You are repairing a production backend bug.",
+      "The supplied repository is the buggy production revision.",
+      "Use the supplied incident evidence and repository to identify and fix the bug.",
+      "You may inspect and modify application code and run available local tests.",
+      "Do not use the internet or search for the historical issue/fix.",
+      "Do not modify files outside the supplied repository.",
+      "Do not disable tests merely to obtain green output.",
+      "When you believe the bug is fixed, stop and provide a concise final report containing root cause, files changed, validation performed and remaining uncertainty.",
+      "An executable incident artifact is available in the workspace.",
+      "You may run it using the supplied experiment-only repro command against the current working tree.",
+      "It reproduces the original production failure when that failure is present."
+    ],
+    "fairness": [
+      "no wording difference between arms other than the treatment addition",
+      "treatment is NOT told Rapture is being evaluated",
+      "control is NOT told another arm has an executable artifact",
+      "hidden evaluation criteria are never revealed"
+    ]
+  },
+  "workspace_construction": {
+    "requirements": [
+      "fresh independent workspace per run",
+      "built from only the historical buggy snapshot",
+      "upstream git remote removed",
+      "no future git history \u2014 a NEW single-commit repository containing only the buggy snapshot",
+      "dependencies pre-provisioned on the host before the run (the container has no network)",
+      "no V4 evaluator files present",
+      "no other run's transcripts, patches or results present",
+      "fresh agent session and fresh container per run",
+      "repository-native AGENTS.md/CLAUDE.md kept only if genuinely present at the buggy revision, identically in both arms"
+    ],
+    "leakage_audit_per_run": [
+      "assert .git has exactly one commit",
+      "assert no git remote",
+      "assert no fixing sha, upstream diff or issue identifier appears anywhere in the workspace",
+      "assert no oracle/evaluator file is present"
+    ]
+  },
+  "hidden_evaluator": {
+    "location": "runs on the HOST, never inside the subject container, never inside the workspace",
+    "timing": "executed only after the subject agent process has terminated",
+    "validation_before_probe": "for each case, confirm the buggy revision fails and the historical fixed revision passes, on both the original incident and every hidden variant",
+    "checks": [
+      "original historical failure absent",
+      "hidden generalization variants pass (different concrete values, same root cause)",
+      "relevant repository regression suite green",
+      "no evaluator tampering",
+      "failure not merely replaced by an unrelated infrastructure/setup failure"
+    ],
+    "classifications": [
+      "CORRECT_FIX",
+      "FALSE_FIX_ORIGINAL_FAILURE_REMAINS",
+      "FALSE_FIX_OVERFIT",
+      "REGRESSION_INTRODUCED",
+      "TIMEOUT_NO_FIX",
+      "AGENT_ABORTED",
+      "INVALID_LEAKAGE",
+      "INVALID_HARNESS"
+    ],
+    "rules": [
+      "agent self-report NEVER determines correctness",
+      "alternative fixes are valid; similarity to the upstream patch is irrelevant and is not the oracle",
+      "no evaluator feedback is ever returned to the agent",
+      "no retries after evaluation"
+    ]
+  },
+  "budget": {
+    "wall_clock_per_run_seconds": 1200,
+    "wall_clock_note": "20 minutes, identical in both arms. May be revised ONCE before the first headline run if calibration demonstrates an infrastructure need; any such change supersedes and re-hashes this manifest.",
+    "token_budget": "provider default for the frozen model; not overridden in either arm",
+    "timeout_rule": "a timeout is a legitimate outcome (TIMEOUT_NO_FIX), never grounds for extending one arm"
+  },
+  "randomization": {
+    "seed": 539363601,
+    "seed_frozen_before_first_subject_run": true,
+    "procedure": [
+      "arm order randomized within each case/replicate",
+      "case/replicate slots shuffled so arms interleave",
+      "CONTROL is never run as a complete block before TREATMENT",
+      "the full schedule is frozen here, before execution"
+    ],
+    "schedule": [
+      {
+        "run_index": 1,
+        "case": "express-cookie-maxage",
+        "replicate": 1,
+        "arm": "CONTROL"
+      },
+      {
+        "run_index": 2,
+        "case": "express-cookie-maxage",
+        "replicate": 1,
+        "arm": "TREATMENT"
+      },
+      {
+        "run_index": 3,
+        "case": "express-cookie-maxage",
+        "replicate": 2,
+        "arm": "CONTROL"
+      },
+      {
+        "run_index": 4,
+        "case": "express-cookie-maxage",
+        "replicate": 2,
+        "arm": "TREATMENT"
+      },
+      {
+        "run_index": 5,
+        "case": "express-jsonp",
+        "replicate": 2,
+        "arm": "TREATMENT"
+      },
+      {
+        "run_index": 6,
+        "case": "express-jsonp",
+        "replicate": 2,
+        "arm": "CONTROL"
+      },
+      {
+        "run_index": 7,
+        "case": "fastify-port",
+        "replicate": 1,
+        "arm": "CONTROL"
+      },
+      {
+        "run_index": 8,
+        "case": "fastify-port",
+        "replicate": 1,
+        "arm": "TREATMENT"
+      },
+      {
+        "run_index": 9,
+        "case": "express-jsonp",
+        "replicate": 1,
+        "arm": "TREATMENT"
+      },
+      {
+        "run_index": 10,
+        "case": "express-jsonp",
+        "replicate": 1,
+        "arm": "CONTROL"
+      },
+      {
+        "run_index": 11,
+        "case": "fastify-prefix",
+        "replicate": 1,
+        "arm": "TREATMENT"
+      },
+      {
+        "run_index": 12,
+        "case": "fastify-prefix",
+        "replicate": 1,
+        "arm": "CONTROL"
+      },
+      {
+        "run_index": 13,
+        "case": "hapi-failaction",
+        "replicate": 1,
+        "arm": "TREATMENT"
+      },
+      {
+        "run_index": 14,
+        "case": "hapi-failaction",
+        "replicate": 1,
+        "arm": "CONTROL"
+      },
+      {
+        "run_index": 15,
+        "case": "hapi-failaction",
+        "replicate": 2,
+        "arm": "CONTROL"
+      },
+      {
+        "run_index": 16,
+        "case": "hapi-failaction",
+        "replicate": 2,
+        "arm": "TREATMENT"
+      },
+      {
+        "run_index": 17,
+        "case": "fastify-port",
+        "replicate": 2,
+        "arm": "CONTROL"
+      },
+      {
+        "run_index": 18,
+        "case": "fastify-port",
+        "replicate": 2,
+        "arm": "TREATMENT"
+      },
+      {
+        "run_index": 19,
+        "case": "fastify-prefix",
+        "replicate": 2,
+        "arm": "TREATMENT"
+      },
+      {
+        "run_index": 20,
+        "case": "fastify-prefix",
+        "replicate": 2,
+        "arm": "CONTROL"
+      }
+    ]
+  },
+  "measurements": {
+    "primary": [
+      "correct-fix rate per arm",
+      "per-case CONTROL vs TREATMENT wins/ties/losses"
+    ],
+    "secondary": [
+      "time to submitted patch",
+      "false-fix rate",
+      "regression rate",
+      "repair iterations",
+      "tool calls",
+      "test invocations",
+      ".repro invocations",
+      "time to first .repro invocation",
+      "tokens/cost where reliable"
+    ],
+    "reporting_rule": "report all 20 raw outcomes; do not hide case-level heterogeneity behind aggregate percentages"
+  },
+  "probe_decision_rules": {
+    "STRONG_POSITIVE_SIGNAL": {
+      "normal_baseline": [
+        "treatment improves correct-fix rate by >= 20 absolute percentage points",
+        "treatment wins on >= 3 of 5 cases",
+        "treatment loses on <= 1 of 5 cases",
+        "false fixes and regressions not materially worse"
+      ],
+      "control_ceiling": [
+        "if CONTROL correct-fix rate >= 80%, treatment not worse by more than 10 percentage points",
+        "AND treatment improves median successful repair time by >= 25% OR repair iterations by >= 30%",
+        "false fixes and regressions not worse"
+      ],
+      "meaning": "worth further product-value validation. Does NOT prove product-market viability or repair-value generality."
+    },
+    "NEGATIVE_SIGNAL": {
+      "conditions": [
+        "treatment correct-fix advantage < 10 percentage points and no >= 20% efficiency advantage",
+        "OR treatment materially increases false fixes or regressions",
+        "OR agents use .repro but achieve essentially the same outcomes as CONTROL"
+      ],
+      "meaning": "recommend killing self-verifying Reproducer A and executable-context Reproducer B. Do not improve capture coverage."
+    },
+    "INCONCLUSIVE": {
+      "conditions": [
+        "mixed at the case level, neither threshold met",
+        "harness/runtime instability prevents interpretation",
+        "extreme ceiling effects prevent both correctness and efficiency comparison"
+      ],
+      "meaning": "return for product-level review. Do not automatically authorize a larger study."
+    }
+  },
+  "calibration": {
+    "purpose": "validate repair-run infrastructure only",
+    "maximum_subject_runs": 4,
+    "case_rule": "old/excluded historical bugs that can never enter the five-case probe",
+    "cases_selected": [
+      "koa-1998",
+      "koa-1999"
+    ],
+    "case_justification": "both are V3 headline bugs on the manifest's excluded_prior_bugs list, permanently ineligible for the probe. Both have FIX_CONFIRMED frozen artifacts in the V3.3 regression suite, so TREATMENT is exercisable. Both repair the koa repository itself rather than a vendored dependency, and their corpus checkouts are the smallest available (57 MB), which matters under the measured disk constraint.",
+    "arms": "both CONTROL and TREATMENT per case (4 runs total)",
+    "never_product_evidence": true,
+    "validates": [
+      "sanitized workspace construction",
+      "future git history and upstream fixes inaccessible",
+      "CONTROL and TREATMENT prompts differ only by .repro availability",
+      "model invocation and timeout behaviour",
+      "hidden evaluator runs only after the subject terminates",
+      "no hidden-evaluator information enters the subject workspace",
+      "realistic wall-clock duration and disk growth",
+      "provider deny logs under realistic longer inference",
+      "built-in web retrieval remains unavailable during a genuine repair task"
+    ]
+  },
+  "anti_goalpost_rules": [
+    "do not change any case after seeing a repair result",
+    "do not tune prompts between cases",
+    "do not improve .repro",
+    "do not give treatment additional evidence beyond the frozen artifact",
+    "do not weaken CONTROL",
+    "do not extend treatment timeouts",
+    "do not use hidden-evaluator feedback for retries",
+    "do not convert a null result into a new infrastructure task",
+    "do not label a positive probe as V4 success",
+    "do not propose V3.4"
+  ],
+  "invalidation_conditions": [
+    "the historical fix leaks into a subject workspace or over the network",
+    "the hidden evaluator becomes visible to a subject",
+    "the arms receive materially different conventional evidence",
+    "frozen V3.3 capture is modified for any probe case",
+    "prompt, budget, model or allowlist changes after outcomes are observed",
+    "cases are replaced based on repair difficulty",
+    "subject runs share workspaces, transcripts or outputs"
+  ],
+  "mandatory_stop": "after at most 4 calibration runs, STOP. No probe case may be invoked without explicit authorization.",
+  "final_lines": [
+    "RAPTURE_REPRODUCER_VALUE_PROBE_CALIBRATION=<READY_FOR_HEADLINE|HARNESS_INVALID|RESOURCE_BLOCKED>",
+    "RAPTURE_REPRODUCER_VALUE_PROBE=<STRONG_POSITIVE_SIGNAL|NEGATIVE_SIGNAL|INCONCLUSIVE>  (headline only, NOT this stage)"
+  ]
+}
