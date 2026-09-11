@@ -1,0 +1,96 @@
+{
+  "schema": "v4-subject-network-isolation-audit-1",
+  "recorded_at": "2026-09-11T11:04:37.352Z",
+  "performed_before": "any probe manifest freeze and any subject repair run",
+  "subject_configuration_under_test": {
+    "runtime": "opencode 1.18.30",
+    "model": "opencode/muse-spark-1.3-contributor-free",
+    "invocation": "opencode run --auto --dir <workspace> -m <model>",
+    "attempted_enforcement": "PATH shim over curl/wget/lynx/links/w3m"
+  },
+  "adversarial_checks": [
+    {
+      "check": "node global fetch to https://api.github.com",
+      "result": "NODEFETCH_OK 200",
+      "blocked": false
+    },
+    {
+      "check": "node https.request to https://api.github.com",
+      "result": "HTTPS_OK 403 (server reached, TLS completed)",
+      "blocked": false
+    },
+    {
+      "check": "npm view express version",
+      "result": "5.2.1",
+      "blocked": false
+    },
+    {
+      "check": "git ls-remote https://github.com/expressjs/express HEAD",
+      "result": "bed501c695a61886399ee622875f3be933c716d8",
+      "blocked": false
+    }
+  ],
+  "verdict": "SUBJECT ENVIRONMENT HAS GENERAL INTERNET ACCESS. The PATH shim blocks only the specific binaries it names and is trivially bypassed by any runtime with its own HTTP client.",
+  "can_these_channels_expose_historical_fixes": {
+    "answer": "YES, directly and easily",
+    "reasoning": "the probe corpus is express, fastify and hapi bugs in public repositories, each identified by an exact fixing commit SHA. `git ls-remote` already returned a live GitHub SHA from inside the subject environment; `git fetch` of the upstream repository would hand the subject the exact historical fix, and `npm view`/`fetch` expose published release notes and diffs."
+  },
+  "isolation_mechanisms_attempted": [
+    {
+      "mechanism": "PATH shim over network binaries",
+      "outcome": "INSUFFICIENT",
+      "evidence": "node fetch returned 200 while curl was blocked"
+    },
+    {
+      "mechanism": "shell shim wrapping bash/sh/zsh in sandbox-exec with network denied",
+      "outcome": "NOT INVOKED",
+      "evidence": "0 shell invocations captured during a full agent run; opencode is Bun-based and does not spawn an external shell"
+    },
+    {
+      "mechanism": "docker container with restricted egress",
+      "outcome": "UNAVAILABLE",
+      "evidence": "docker absent on this host"
+    },
+    {
+      "mechanism": "sandbox-exec over the whole opencode process with network denied",
+      "outcome": "INCOMPATIBLE",
+      "evidence": "verified to block network correctly, but opencode requires outbound access for model inference, so the agent cannot run at all"
+    },
+    {
+      "mechanism": "sandbox-exec with an IP allowlist for the model provider only",
+      "outcome": "UNSOUND",
+      "evidence": "opencode.ai resolves to Cloudflare edges (172.65.90.20-23, 104.20.32.17, 172.66.173.149). npm and much GitHub-adjacent content are fronted by the same CDN ranges, so allowing the provider would allow a large part of the internet. IP-based allowlisting cannot separate the model transport from arbitrary retrieval here."
+    }
+  ],
+  "additional_findings": {
+    "builtin_web_tool": "the opencode config schema accepts a 'webfetch' permission key, implying a built-in web-fetch tool that operates independently of shell commands and would need denial as well",
+    "inherited_mcp": "the user's global config declares an MCP server ('jean', enabled=false) carrying a live token; subject runs must not inherit the global config regardless of isolation outcome",
+    "permission_config_denial": "explicitly denying a permission in opencode config causes the run to hang under --auto with no TTY, so config-level denial is not a usable enforcement path in this harness"
+  },
+  "harness_classification": "INVALID_FOR_PRODUCT_VALUE_PROBE",
+  "consequence": "no probe manifest was frozen, no calibration run was performed, and no subject repair run was executed. Any result produced under this configuration would be uninterpretable, because a subject agent could retrieve the historical fix and the protocol classifies such a run INVALID_LEAKAGE.",
+  "what_would_fix_it": [
+    "a container runtime with egress control (docker/podman/OrbStack) running the subject agent with a deny-all egress policy plus an explicit allow for the model endpoint only",
+    "a subject runtime whose tool execution can be sandboxed independently of its model transport",
+    "a model provider reachable at a dedicated address that does not share CDN edges with general web content",
+    "an offline/local model for the subject agent, removing the need for any outbound access"
+  ],
+  "not_done": "no attempt was made to proceed with partial isolation and rely on trace scanning alone; the leakage channel here is too direct for after-the-fact detection to be adequate.",
+  "status": "RAPTURE_REPRODUCER_VALUE_PROBE_HARNESS=BLOCKED_NETWORK_ISOLATION",
+  "frozen": true,
+  "frozen_at": "2026-09-11T11:34:36.712Z",
+  "interpretation": {
+    "product_result": "NONE",
+    "reproducer_result": "UNCHANGED",
+    "harness_result": "INVALID_NETWORK_ISOLATION"
+  },
+  "next_unblock_validation_required": [
+    "OpenCode model inference succeeds",
+    "node fetch to GitHub fails",
+    "node https.request to GitHub fails",
+    "npm registry access fails",
+    "git network access fails",
+    "OpenCode built-in web-fetch/search access fails",
+    "no inherited MCP or external connector remains available"
+  ]
+}
