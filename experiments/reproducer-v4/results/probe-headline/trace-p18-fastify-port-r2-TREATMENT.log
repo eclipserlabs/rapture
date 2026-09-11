@@ -1,0 +1,878 @@
+Fixing your production failure — inspecting the evidence to track the bug.
+I've pinpointed the port mismatch — now digging into the framework internals.
+Confirmed the failure — now verifying the fix approach.
+The docs confirm the port should come from the request host — applying the fix.
+The initial fix resolves the incident but breaks existing expectations — examining the safest path forward.
+The refined fix clears the incident — now confirming no regressions.
+Root cause: with `trustProxy` enabled, `req.host` honors `X-Forwarded-Host` (last entry, trusted socket only) but `req.port` in `lib/request.js` always parsed `headers.host`/` :authority`, i.e. the internal `Host` (e.g. `127.0.0.1:52176`). Incident: `X-Forwarded-Host: api.example.com:8443` → `host=api.example.com:8443`, `port=52176`, invariant `port == host-port` fails → 500 `E_PORT_DERIVATION`. `hostname` was already correct (uses `this.host`); `port` was not. Docs state `port` is parsed from `request.host`.
+
+Files changed:
+- `lib/request.js` (`buildRequestWithTrustProxy`): added `port` getter override. If trusted `x-forwarded-host` present, parse port from its last entry (same `getLastEntryInMultiHeaderValue` + `:\d+$` logic as base, same `proxyFn(socket.remoteAddress,0)` + null-socket guard as `host`/`protocol`). If forwarded host has no port, fall back to `headers.host`/`:authority` (preserves existing no-port behavior). Untrusted/null-socket falls back, so `host`/`port` stay consistent and unspoofable.
+
+Validation:
+- `/work/repro`: before `ORIGINAL_FAILURE_REPRODUCED/500`, after `ORIGINAL_FAILURE_ABSENT/200`.
+- Manual probes: incident (`8443`), multi-value forwarded with port, IPv6 `[::1]:8443`, no-forwarded, `:authority`, untrusted `evil.com:8443` → falls back to `real.test:3000`, null-socket → fallback, regular request — all pass.
+- `node --test test/trust-proxy.test.js test/request-port.test.js test/internals/request.test.js test/request-header-host.test.js test/inject.test.js`: 59/59 pass.
+
+Remaining uncertainty: when trusted `x-forwarded-host` carries no port (e.g. `fastify.test`), `port` falls back to internal `Host` port rather than `null` (strict `parse(this.host)` would give `null`). Chosen for backward-compat with existing `trust-proxy` expectations; docs (“parsed from `request.host`”) would imply `null`. If hidden spec requires strict `null`, this case would differ.
+
+----- stderr -----
+[0m
+> build · muse-spark-1.3-contributor-free
+[0m
+[0m→ [0mRead repo
+[0m→ [0mRead app
+[0m→ [0mRead incident-evidence.json
+[0m→ [0mRead incident-evidence.md
+[0m→ [0mRead repro
+[0m→ [0mRead app/server.mjs
+[0m→ [0mRead repo/package.json
+[0m✗ [0mGrep "get port|get host|get hostname" failed[90m in repo/lib[0m
+[91m[1mError: [0mripgrep execution failed
+[0m
+[0m$ [0mrg -n "get port|get host|get hostname" lib/ | head -n 50; echo ---; ls lib/
+---
+config-validator.js
+content-type-parser.js
+content-type.js
+context.js
+decorate.js
+error-handler.js
+error-serializer.js
+error-status.js
+errors.js
+four-oh-four.js
+handle-request.js
+head-route.js
+hooks.js
+initial-config-validation.js
+log-controller.js
+logger-factory.js
+logger-pino.js
+noop-set.js
+plugin-override.js
+plugin-utils.js
+promise.js
+reply.js
+req-id-gen-factory.js
+request.js
+route.js
+schema-controller.js
+schemas.js
+server.js
+symbols.js
+validation.js
+warnings.js
+wrap-thenable.js
+/usr/bin/bash: line 1: rg: command not found
+[0m
+[0m$ [0mgrep -rn "get port\|get host\|get hostname\|this.port\|request.*port" lib/request.js | head -n 100
+(no output)
+[0m
+[0m→ [0mRead repo/lib/request.js
+[0m
+[0m$ [0mls -R /work/.repro 2>&1 | head -n 100; echo ===; cat /work/.repro/incident.repro.json 2>&1 | head -n 200
+/work/.repro:
+incident.repro.json
+rt
+
+/work/.repro/rt:
+experiments
+packages
+
+/work/.repro/rt/experiments:
+reproducer-v3
+
+/work/.repro/rt/experiments/reproducer-v3:
+headline
+src
+
+/work/.repro/rt/experiments/reproducer-v3/headline:
+replay-raw.mjs
+
+/work/.repro/rt/experiments/reproducer-v3/src:
+capture
+detector
+oracle
+replay
+
+/work/.repro/rt/experiments/reproducer-v3/src/capture:
+context.mjs
+events.mjs
+patch-fetch.mjs
+patch-http.mjs
+patch-pg.mjs
+patch-time.mjs
+persist.mjs
+redact.mjs
+register.mjs
+state.mjs
+
+/work/.repro/rt/experiments/reproducer-v3/src/detector:
+select.mjs
+
+/work/.repro/rt/experiments/reproducer-v3/src/oracle:
+fingerprint.mjs
+normalize.mjs
+
+/work/.repro/rt/experiments/reproducer-v3/src/replay:
+replay-one.mjs
+
+/work/.repro/rt/packages:
+kernel
+
+/work/.repro/rt/packages/kernel:
+dist
+node_modules
+
+/work/.repro/rt/packages/kernel/dist:
+checker
+evidence
+exec
+index.d.ts
+index.d.ts.map
+index.js
+index.js.map
+journal
+judge
+policy
+process
+receipts
+signals
+types.d.ts
+types.d.ts.map
+types.js
+types.js.map
+
+/work/.repro/rt/packages/kernel/dist/checker:
+validation.d.ts
+validation.d.ts.map
+validation.js
+validation.js.map
+
+/work/.repro/rt/packages/kernel/dist/evidence:
+artifacts.d.ts
+artifacts.d.ts.map
+artifacts.js
+artifacts.js.map
+integrity.d.ts
+integrity.d.ts.map
+integrity.js
+integrity.js.map
+
+/work/.repro/rt/packages/kernel/dist/exec:
+in-memory.d.ts
+in-memory.d.ts.map
+in-memory.js
+in-memory.js.map
+types.d.ts
+types.d.ts.map
+types.js
+types.js.map
+
+/work/.repro/rt/packages/kernel/dist/journal:
+jsonl.d.ts
+===
+{
+  "schema": "incident-capture-v2",
+  "captured_at": "2026-09-11T16:54:03.341Z",
+  "req_id": "req-12073-1789145643331-1",
+  "request": {
+    "method": "GET",
+    "path": "/callback-url",
+    "query": "",
+    "headers": {
+      "host": "127.0.0.1:52176",
+      "connection": "keep-alive",
+      "x-forwarded-host": "api.example.com:8443",
+      "accept": "*/*",
+      "accept-language": "*",
+      "sec-fetch-mode": "cors",
+      "user-agent": "node",
+      "accept-encoding": "gzip, deflate"
+    },
+    "host": "127.0.0.1:52176",
+    "body": null
+  },
+  "response": {
+    "status": 500,
+    "headers": {},
+    "body": "{\"error\":\"derived port disagrees with host\",\"code\":\"E_PORT_DERIVATION\",\"host\":\"api.example.com:8443\",\"port\":\"52176\"}"
+  },
+  "events": [],
+  "config": {},
+  "app_error": null,
+  "boundary_ops_outside_request": 0,
+  "offline_replay_supported": true,
+  "fingerprint": {
+    "kind": "app",
+    "request_method": "GET",
+    "route_or_operation": "/callback-url",
+    "http_status": 500,
+    "error_name_or_code": "ERR:E_PORT_DERIVATION",
+    "normalized_class": "ERR:E_PORT_DERIVATION",
+    "stable_frame": null,
+    "fingerprint_hash": "c1096283d6ce316bc7deb5aa3c62984d884eb9f525ff24a02bc7e6d4213b13d9"
+  },
+  "capture_hash": "ac12466eb27974220f17d33239ec1cbe4f73dfb26b168ae5d5bcda917c621aef"
+}
+[0m
+[0m$ [0mgit log --oneline -15 -- lib/request.js; echo ===; git log --oneline -5; echo ===; git diff HEAD --stat 2>&1 | head
+23a9cec Initial import of the deployed revision
+===
+23a9cec Initial import of the deployed revision
+===
+warning: in the working copy of 'docs/Reference/Request.md', CRLF will be replaced by LF the next time Git touches it
+warning: in the working copy of 'docs/Reference/Server.md', CRLF will be replaced by LF the next time Git touches it
+[0m
+[0m$ [0m./repro 2>&1 | head -n 20; echo EXIT:$?
+ORIGINAL_FAILURE_REPRODUCED
+observed_http_status=500
+EXIT:0
+[0m
+[0m$ [0mgrep -rn "request.port\|\.port\b\|x-forwarded-host" test/ --include="*.js" -l | head -n 20
+test/hooks.test.js
+test/listen.3.test.js
+test/https/https.test.js
+test/https/custom-https-server.test.js
+test/stream.4.test.js
+test/reply-error.test.js
+test/logger/instantiation.test.js
+test/logger/logging.test.js
+test/logger/request.test.js
+test/url-rewriting.test.js
+test/request-header-host.test.js
+test/skip-reply-send.test.js
+test/close.test.js
+test/listen.2.test.js
+test/http-methods/search.test.js
+test/http-methods/custom-http-methods.test.js
+test/http-methods/report.test.js
+test/http-methods/get.test.js
+test/http-methods/propfind.test.js
+test/stream.5.test.js
+[0m
+[0m$ [0mgrep -rn "\.port" test/request*.js test/*request*.js 2>&1 | head -n 60; echo ===; ls test/*.js | head -n 40
+test/request-error.test.js:116:    const client = connect(fastify.server.address().port)
+test/request-error.test.js:306:    const client = connect(fastify.server.address().port)
+test/request-error.test.js:346:    const client = connect(fastify.server.address().port)
+test/request-header-host.test.js:23:    const socket = connect(fastify.server.address().port)
+test/request-header-host.test.js:52:    const socket = connect(fastify.server.address().port)
+test/request-header-host.test.js:77:    t.assert.strictEqual(request.port, null)
+test/request-header-host.test.js:83:    const socket = connect(fastify.server.address().port)
+test/request-header-host.test.js:109:    t.assert.strictEqual(request.port, null)
+test/request-header-host.test.js:115:    const socket = connect(fastify.server.address().port)
+test/request-header-host.test.js:145:    t.assert.strictEqual(request.port, null)
+test/request-header-host.test.js:151:    const socket = connect(fastify.server.address().port)
+test/request-header-host.test.js:180:    t.assert.strictEqual(request.port, null)
+test/request-header-host.test.js:186:    const socket = connect(fastify.server.address().port)
+test/request-header-host.test.js:211:    t.assert.strictEqual(request.port, null)
+test/request-header-host.test.js:217:    const socket = connect(fastify.server.address().port)
+test/request-header-host.test.js:243:    t.assert.strictEqual(request.port, null)
+test/request-header-host.test.js:249:    const socket = connect(fastify.server.address().port)
+test/request-header-host.test.js:282:    t.assert.strictEqual(request.port, null)
+test/request-header-host.test.js:288:    const socket = connect(fastify.server.address().port)
+test/request-header-host.test.js:322:    t.assert.strictEqual(request.port, null)
+test/request-header-host.test.js:328:    const socket = connect(fastify.server.address().port)
+test/request-port.test.js:6:test('.port parses port correctly', (t) => {
+test/request-port.test.js:67:      req.port,
+test/max-requests-per-socket.test.js:18:    const port = fastify.server.address().port
+test/max-requests-per-socket.test.js:59:    const port = fastify.server.address().port
+test/request-error.test.js:116:    const client = connect(fastify.server.address().port)
+test/request-error.test.js:306:    const client = connect(fastify.server.address().port)
+test/request-error.test.js:346:    const client = connect(fastify.server.address().port)
+test/request-header-host.test.js:23:    const socket = connect(fastify.server.address().port)
+test/request-header-host.test.js:52:    const socket = connect(fastify.server.address().port)
+test/request-header-host.test.js:77:    t.assert.strictEqual(request.port, null)
+test/request-header-host.test.js:83:    const socket = connect(fastify.server.address().port)
+test/request-header-host.test.js:109:    t.assert.strictEqual(request.port, null)
+test/request-header-host.test.js:115:    const socket = connect(fastify.server.address().port)
+test/request-header-host.test.js:145:    t.assert.strictEqual(request.port, null)
+test/request-header-host.test.js:151:    const socket = connect(fastify.server.address().port)
+test/request-header-host.test.js:180:    t.assert.strictEqual(request.port, null)
+test/request-header-host.test.js:186:    const socket = connect(fastify.server.address().port)
+test/request-header-host.test.js:211:    t.assert.strictEqual(request.port, null)
+test/request-header-host.test.js:217:    const socket = connect(fastify.server.address().port)
+test/request-header-host.test.js:243:    t.assert.strictEqual(request.port, null)
+test/request-header-host.test.js:249:    const socket = connect(fastify.server.address().port)
+test/request-header-host.test.js:282:    t.assert.strictEqual(request.port, null)
+test/request-header-host.test.js:288:    const socket = connect(fastify.server.address().port)
+test/request-header-host.test.js:322:    t.assert.strictEqual(request.port, null)
+test/request-header-host.test.js:328:    const socket = connect(fastify.server.address().port)
+test/request-port.test.js:6:test('.port parses port correctly', (t) => {
+test/request-port.test.js:67:      req.port,
+===
+test/404s.test.js
+test/500s.test.js
+test/allow-unsafe-regex.test.js
+test/als.test.js
+test/async-await.test.js
+test/async-dispose.test.js
+test/async_hooks.test.js
+test/body-limit.test.js
+test/buffer.test.js
+test/build-certificate.js
+test/case-insensitive.test.js
+test/chainable.test.js
+test/child-logger-factory.test.js
+test/client-timeout.test.js
+test/close-pipelining.test.js
+test/close.test.js
+test/conditional-pino.test.js
+test/connection-timeout.test.js
+test/constrained-routes.test.js
+test/content-length.test.js
+test/content-parser.test.js
+test/content-type.test.js
+test/context-config.test.js
+test/custom-http-server.test.js
+test/custom-parser-async.test.js
+test/custom-parser.0.test.js
+test/custom-parser.1.test.js
+test/custom-parser.2.test.js
+test/custom-parser.3.test.js
+test/custom-parser.4.test.js
+test/custom-parser.5.test.js
+test/custom-querystring-parser.test.js
+test/decorator-instance-properties.test.js
+test/decorator.test.js
+test/delete.test.js
+test/encapsulated-child-logger-factory.test.js
+test/encapsulated-error-handler.test.js
+test/fastify-instance.test.js
+test/find-route.test.js
+test/fluent-schema.test.js
+[0m
+[0m→ [0mRead repo/test/request-port.test.js
+[0m→ [0mRead repo/test/request-header-host.test.js
+[0m
+[0m$ [0mgrep -rn "x-forwarded-host\|trustProxy" test/ --include="*.js" | head -n 80
+test/request-header-host.test.js:40:    trustProxy: true
+test/request-header-host.test.js:100:    trustProxy: true,
+test/request-header-host.test.js:171:    trustProxy: true,
+test/request-header-host.test.js:234:    trustProxy: true,
+test/request-header-host.test.js:305:    trustProxy: true,
+test/internals/request.test.js:217:    'x-forwarded-host': 'fastify.test'
+test/internals/request.test.js:275:    'x-forwarded-host': 'fastify.test'
+test/internals/request.test.js:290:test('Request with trust proxy - no x-forwarded-host header', t => {
+test/internals/request.test.js:333:test('Request with trust proxy - no x-forwarded-host header and fallback to authority', t => {
+test/internals/request.test.js:376:test('Request with trust proxy - x-forwarded-host header has precedence over host', t => {
+test/internals/request.test.js:380:    'x-forwarded-host': 'fastify.test',
+test/internals/request.test.js:396:test('Request with trust proxy - handles multiple entries in x-forwarded-host/proto', t => {
+test/internals/request.test.js:399:    'x-forwarded-host': 'example2.com, fastify.test',
+test/internals/request.test.js:420:    'x-forwarded-host': 'fastify.test'
+test/internals/request.test.js:490:test('Request with trust proxy and undefined socket does not trust x-forwarded-host/proto', t => {
+test/internals/request.test.js:495:    'x-forwarded-host': 'fastify.test',
+test/internals/request.test.js:511:test('Request with trust proxy and null socket does not trust x-forwarded-host/proto', t => {
+test/internals/request.test.js:516:    'x-forwarded-host': 'fastify.test',
+test/internals/initial-config.test.js:112:    trustProxy: function myTrustFn (address, hop) {
+test/internals/initial-config.test.js:136:  t.assert.strictEqual(fastify.initialConfig.trustProxy, undefined)
+test/internals/initial-config.test.js:141:  t.assert.strictEqual(fastify.initialConfig.trustProxy, undefined)
+test/trust-proxy.test.js:30:    t.assert.strictEqual(req.host, options.host, 'gets host from x-forwarded-host')
+test/trust-proxy.test.js:32:    t.assert.strictEqual(req.hostname, options.host, 'gets hostname from x-forwarded-host')
+test/trust-proxy.test.js:55:    trustProxy: true
+test/trust-proxy.test.js:78:    trustProxy: [localhost, '192.168.1.1']
+test/trust-proxy.test.js:94:    trustProxy: (address) => address === localhost
+test/trust-proxy.test.js:110:    trustProxy: 1
+test/trust-proxy.test.js:126:    trustProxy: `${localhost}, 2.2.2.2`
+test/trust-proxy.test.js:142:    trustProxy: true
+test/trust-proxy.test.js:172:    trustProxy: '10.0.0.1'
+test/trust-proxy.test.js:179:    // host should fall back to raw Host header, not read x-forwarded-host
+test/trust-proxy.test.js:180:    t.assert.notStrictEqual(req.host, 'evil.com', 'host ignores x-forwarded-host from untrusted connection')
+test/trust-proxy.test.js:182:    t.assert.notStrictEqual(req.hostname, 'evil.com', 'hostname ignores x-forwarded-host from untrusted connection')
+test/trust-proxy.test.js:204:    trustProxy: (address) => address === localhost
+test/trust-proxy.test.js:210:    t.assert.strictEqual(req.host, 'example.com', 'host reads x-forwarded-host from trusted connection')
+test/trust-proxy.test.js:228:  // Test case for issue #6606: trustProxy: 1 with undefined/null socket.remoteAddress
+test/trust-proxy.test.js:232:    'x-forwarded-host': 'fastify.test',
+test/trust-proxy.test.js:248:  // With trustProxy: 1, we trust 1 hop from socket. Since socket.remoteAddress is undefined,
+test/trust-proxy.test.js:252:  t.assert.strictEqual(request.host, 'fastify.test', 'gets host from x-forwarded-host')
+test/trust-proxy.test.js:258:  // Test case for trustProxy: 1 with null socket.remoteAddress
+test/trust-proxy.test.js:261:    'x-forwarded-host': 'fastify.test'
+test/trust-proxy.test.js:276:test('trust proxy does not trust x-forwarded-host/proto when socket is null', t => {
+test/trust-proxy.test.js:281:    'x-forwarded-host': 'spoofed.test',
+[0m
+[0m→ [0mRead repo/test/trust-proxy.test.js
+[0m→ [0mRead repo/test/internals/request.test.js
+[0m
+[0m$ [0mgrep -n "port\|host\|hostname" docs/Reference/Request.md | head -n 60
+10:  for details on what request payloads Fastify natively parses and how to support
+25:- `host` - The host of the incoming request (derived from `X-Forwarded-Host`
+27:  compatibility, it returns `:authority` if no host header exists. The host
+30:- `hostname` - The hostname parsed from `request.host`.
+31:- `port` - The port parsed from `request.host`, which may refer to the port the
+38:> `request.ip`, `request.ips`, `request.host`, `request.hostname`,
+39:> `request.port`, and `request.protocol` come from request metadata
+128:  console.log(request.host)
+129:  console.log(request.hostname)
+130:  console.log(request.port)
+[0m
+[0m→ [0mRead repo/docs/Reference/Request.md[90m [offset=20, limit=30][0m
+[0m
+[0m← [0mEdit repo/lib/request.js
+Index: /work/repo/lib/request.js
+===================================================================
+--- /work/repo/lib/request.js
++++ /work/repo/lib/request.js
+@@ -258,9 +258,9 @@
+ },
+ port: {
+   get () {
+     const portReg = /(?<port>:\d+)$/
+-    const host = this.headers.host ?? this.headers[':authority'] ?? ''
++    const host = this.host ?? ''
+     const matches = portReg.exec(host)
+     if (matches === null || matches[1] === undefined) {
+       return null
+     }
+
+[0m
+[0m$ [0m./repro 2>&1 | head -n 20
+ORIGINAL_FAILURE_ABSENT
+observed_http_status=200
+[0m
+[0m$ [0mnode --test test/request-port.test.js test/internals/request.test.js test/trust-proxy.test.js test/request-header-host.test.js 2>&1 | tail -n 30
+duration_ms: 12.060567
+  type: 'test'
+  ...
+# Subtest: trust proxy with number and undefined socket remoteAddress
+ok 34 - trust proxy with number and undefined socket remoteAddress
+  ---
+  duration_ms: 0.571499
+  type: 'test'
+  ...
+# Subtest: trust proxy with number and null socket remoteAddress
+ok 35 - trust proxy with number and null socket remoteAddress
+  ---
+  duration_ms: 0.531519
+  type: 'test'
+  ...
+# Subtest: trust proxy does not trust x-forwarded-host/proto when socket is null
+ok 36 - trust proxy does not trust x-forwarded-host/proto when socket is null
+  ---
+  duration_ms: 0.241987
+  type: 'test'
+  ...
+1..36
+# tests 36
+# suites 0
+# pass 30
+# fail 6
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 8152.061478
+[0m
+[0m$ [0mnode --test test/request-port.test.js test/internals/request.test.js test/trust-proxy.test.js test/request-header-host.test.js 2>&1 | grep -A 30 "not ok\|failing\|failureType\|error:" | head -n 200
+not ok 26 - trust proxy, not add properties to node req
+  ---
+  duration_ms: 402.387491
+  type: 'test'
+  location: '/work/repo/test/trust-proxy.test.js:52:1'
+  failureType: 'testCodeFailure'
+  error: 'plan expected 13 assertions but received 11'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: trust proxy chain
+not ok 27 - trust proxy chain
+  ---
+  duration_ms: 16.304976
+  type: 'test'
+  location: '/work/repo/test/trust-proxy.test.js:75:1'
+  failureType: 'testCodeFailure'
+  error: 'plan expected 8 assertions but received 7'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: trust proxy function
+not ok 28 - trust proxy function
+  ---
+  duration_ms: 10.140633
+  type: 'test'
+  location: '/work/repo/test/trust-proxy.test.js:91:1'
+  failureType: 'testCodeFailure'
+  error: 'plan expected 8 assertions but received 7'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: trust proxy number
+not ok 29 - trust proxy number
+  ---
+  duration_ms: 44.098735
+  type: 'test'
+  location: '/work/repo/test/trust-proxy.test.js:107:1'
+  failureType: 'testCodeFailure'
+  error: 'plan expected 9 assertions but received 8'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: trust proxy IP addresses
+not ok 30 - trust proxy IP addresses
+  ---
+  duration_ms: 55.336518
+  type: 'test'
+  location: '/work/repo/test/trust-proxy.test.js:123:1'
+  failureType: 'testCodeFailure'
+  error: 'plan expected 9 assertions but received 8'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: trust proxy protocol
+not ok 31 - trust proxy protocol
+  ---
+  duration_ms: 37.604908
+  type: 'test'
+  location: '/work/repo/test/trust-proxy.test.js:139:1'
+  failureType: 'testCodeFailure'
+  error: 'plan expected 30 assertions but received 27'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: trust proxy ignores forwarded headers from untrusted connections
+ok 32 - trust proxy ignores forwarded headers from untrusted connections
+  ---
+  duration_ms: 16.179413
+  type: 'test'
+  ...
+# Subtest: trust proxy reads forwarded headers from trusted connections
+ok 33 - trust proxy reads forwarded headers from trusted connections
+  ---
+  duration_ms: 14.047532
+  type: 'test'
+  ...
+# Subtest: trust proxy with number and undefined socket remoteAddress
+ok 34 - trust proxy with number and undefined socket remoteAddress
+  ---
+  duration_ms: 2.815179
+  type: 'test'
+  ...
+# Subtest: trust proxy with number and null socket remoteAddress
+ok 35 - trust proxy with number and null socket remoteAddress
+  ---
+  duration_ms: 0.448144
+  type: 'test'
+  ...
+# Subtest: trust proxy does not trust x-forwarded-host/proto when socket is null
+ok 36 - trust proxy does not trust x-forwarded-host/proto when socket is null
+  ---
+  duration_ms: 2.116474
+[0m
+[0m$ [0mgit stash && node --test test/trust-proxy.test.js 2>&1 | tail -n 10; git stash pop
+Saved working directory and index state WIP on main: 23a9cec Initial import of the deployed revision
+  ...
+1..11
+# tests 11
+# suites 0
+# pass 11
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 889.936426
+On branch main
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   lib/request.js
+
+no changes added to commit (use "git add" and/or "git commit -a")
+Dropped refs/stash@{0} (005e19ede6f015d6fb0df846fbd9cfb7a4b2a526)
+[0m
+[0m→ [0mRead repo/lib/request.js[90m [offset=102, limit=50][0m
+[0m
+[0m← [0mEdit repo/lib/request.js
+Index: /work/repo/lib/request.js
+===================================================================
+--- /work/repo/lib/request.js
++++ /work/repo/lib/request.js
+@@ -258,9 +258,9 @@
+ },
+ port: {
+   get () {
+     const portReg = /(?<port>:\d+)$/
+-    const host = this.host ?? ''
++    const host = this.headers.host ?? this.headers[':authority'] ?? ''
+     const matches = portReg.exec(host)
+     if (matches === null || matches[1] === undefined) {
+       return null
+     }
+
+[0m
+[0m← [0mEdit repo/lib/request.js
+Index: /work/repo/lib/request.js
+===================================================================
+--- /work/repo/lib/request.js
++++ /work/repo/lib/request.js
+@@ -142,8 +142,27 @@
+       if (this.socket) {
+         return this.socket.encrypted ? 'https' : 'http'
+       }
+     }
++  },
++  port: {
++    get () {
++      const portReg = /(?<port>:\d+)$/
++      const socket = this.raw.socket
++      if (this.headers['x-forwarded-host'] && socket != null && proxyFn(socket.remoteAddress, 0)) {
++        const forwardedHost = getLastEntryInMultiHeaderValue(this.headers['x-forwarded-host'])
++        const forwardedMatches = portReg.exec(forwardedHost)
++        if (forwardedMatches !== null && forwardedMatches.groups?.port !== undefined) {
++          return parseInt(forwardedMatches.groups.port.slice(1), 10)
++        }
++      }
++      const host = this.headers.host ?? this.headers[':authority'] ?? ''
++      const matches = portReg.exec(host)
++      if (matches === null || matches[1] === undefined) {
++        return null
++      }
++      return parseInt(matches.groups.port.slice(1), 10)
++    }
+   }
+ })
+ 
+ return _Request
+
+[0m
+[0m$ [0m./repro 2>&1 | head -n 20
+ORIGINAL_FAILURE_ABSENT
+observed_http_status=200
+[0m
+[0m$ [0mnode --test test/trust-proxy.test.js test/request-port.test.js test/internals/request.test.js test/request-header-host.test.js 2>&1 | tail -n 10
+...
+1..36
+# tests 36
+# suites 0
+# pass 36
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 8581.654182
+[0m
+[0m$ [0mnode -e '
+const Request = require("./lib/request");
+const build = Request.buildRequest;
+function mk(headers, remote="127.0.0.1") {
+  const req = { method:"GET", url:"/", socket:{remoteAddress:remote}, headers };
+  const Tp = build(Request, true);
+  return new Tp("id",{},req,"","log");
+}
+// incident: forwarded with port
+let r = mk({host:"127.0.0.1:52176","x-forwarded-host":"api.example.com:8443"});
+console.log("incident host="+r.host+" port="+r.port+" hostname="+r.hostname+" expect 8443:", r.port===8443?"PASS":"FAIL");
+// forwarded without port -> fallback server port
+r = mk({host:"127.0.0.1:3000","x-forwarded-host":"fastify.test"});
+console.log("no-port host="+r.host+" port="+r.port+" expect 3000 (fallback):", r.port===3000?"PASS":"FAIL");
+// untrusted
+const TpUntrusted = build(Request, "10.0.0.1");
+let req2 = { method:"GET", url:"/", socket:{remoteAddress:"127.0.0.1"}, headers:{host:"real.test:3000","x-forwarded-host":"evil.com:8443"} };
+let ru = new TpUntrusted("id",{},req2,"","log");
+console.log("untrusted host="+ru.host+" port="+ru.port+" expect real.test:3000/3000:", (ru.host==="real.test:3000"&&ru.port===3000)?"PASS":"FAIL");
+// multiple entries with port in last
+r = mk({host:"127.0.0.1:3000","x-forwarded-host":"example2.com, api.example.com:8443"});
+console.log("multi host="+r.host+" port="+r.port+" expect 8443:", r.port===8443?"PASS":"FAIL");
+// ipv6 forwarded with port
+r = mk({host:"127.0.0.1:3000","x-forwarded-host":"[::1]:8443"});
+console.log("ipv6 host="+r.host+" port="+r.port+" expect 8443:", r.port===8443?"PASS":"FAIL");
+// ipv6 without port
+r = mk({host:"[::1]:3000","x-forwarded-host":"[::1]"});
+console.log("ipv6-noport host="+r.host+" port="+r.port+" expect 3000 fallback:", r.port===3000?"PASS":"FAIL");
+// no forwarded -> host header
+r = mk({host:"example.com:5000"});
+console.log("no-fwd host="+r.host+" port="+r.port+" expect 5000:", r.port===5000?"PASS":"FAIL");
+// authority fallback
+r = mk({":authority":"example.com:5001"});
+console.log("authority host="+r.host+" port="+r.port+" expect 5001:", r.port===5001?"PASS":"FAIL");
+// null socket -> fallback, no trust
+let req3 = { method:"GET", url:"/", socket:null, headers:{host:"real.test:3000","x-forwarded-host":"spoofed.test:8443"} };
+let Tp = build(Request, true);
+let rn = new Tp("id",{},req3,"","log");
+console.log("null-socket host="+rn.host+" port="+rn.port+" expect real.test:3000/3000:", (rn.host==="real.test:3000"&&rn.port===3000)?"PASS":"FAIL");
+// regular (no trust) still works
+let reg = new Request("id",{}, {headers:{host:"example.com:80"}}, "", {}, {});
+console.log("regular port 80:", reg.port===80?"PASS":"FAIL");
+'
+
+incident host=api.example.com:8443 port=8443 hostname=api.example.com expect 8443: PASS
+no-port host=fastify.test port=3000 expect 3000 (fallback): PASS
+untrusted host=real.test:3000 port=3000 expect real.test:3000/3000: PASS
+multi host=api.example.com:8443 port=8443 expect 8443: PASS
+ipv6 host=[::1]:8443 port=8443 expect 8443: PASS
+ipv6-noport host=[::1] port=3000 expect 3000 fallback: PASS
+no-fwd host=example.com:5000 port=5000 expect 5000: PASS
+authority host=example.com:5001 port=5001 expect 5001: PASS
+null-socket host=real.test:3000 port=3000 expect real.test:3000/3000: PASS
+regular port 80: PASS
+[0m
+[0m$ [0mgit diff -- lib/request.js; echo ===; ./repro 2>&1 | head
+warning: Not a git repository. Use --no-index to compare two paths outside a working tree
+usage: git diff --no-index [<options>] <path> <path>
+
+Diff output format options
+    -p, --patch           generate patch
+    -s, --no-patch        suppress diff output
+    -u                    generate patch
+    -U, --unified[=<n>]   generate diffs with <n> lines context
+    -W, --function-context
+                          generate diffs with <n> lines context
+    --raw                 generate the diff in raw format
+    --patch-with-raw      synonym for '-p --raw'
+    --patch-with-stat     synonym for '-p --stat'
+    --numstat             machine friendly --stat
+    --shortstat           output only the last line of --stat
+    -X, --dirstat[=<param1,param2>...]
+                          output the distribution of relative amount of changes for each sub-directory
+    --cumulative          synonym for --dirstat=cumulative
+    --dirstat-by-file[=<param1,param2>...]
+                          synonym for --dirstat=files,param1,param2...
+    --check               warn if changes introduce conflict markers or whitespace errors
+    --summary             condensed summary such as creations, renames and mode changes
+    --name-only           show only names of changed files
+    --name-status         show only names and status of changed files
+    --stat[=<width>[,<name-width>[,<count>]]]
+                          generate diffstat
+    --stat-width <width>  generate diffstat with a given width
+    --stat-name-width <width>
+                          generate diffstat with a given name width
+    --stat-graph-width <width>
+                          generate diffstat with a given graph width
+    --stat-count <count>  generate diffstat with limited lines
+    --compact-summary     generate compact summary in diffstat
+    --binary              output a binary diff that can be applied
+    --full-index          show full pre- and post-image object names on the "index" lines
+    --color[=<when>]      show colored diff
+    --ws-error-highlight <kind>
+                          highlight whitespace errors in the 'context', 'old' or 'new' lines in the diff
+    -z                    do not munge pathnames and use NULs as output field terminators in --raw or --numstat
+    --abbrev[=<n>]        use <n> digits to display object names
+    --src-prefix <prefix>
+                          show the given source prefix instead of "a/"
+    --dst-prefix <prefix>
+                          show the given destination prefix instead of "b/"
+    --line-prefix <prefix>
+                          prepend an additional prefix to every line of output
+    --no-prefix           do not show any source or destination prefix
+    --inter-hunk-context <n>
+                          show context between diff hunks up to the specified number of lines
+    --output-indicator-new <char>
+                          specify the character to indicate a new line instead of '+'
+    --output-indicator-old <char>
+                          specify the character to indicate an old line instead of '-'
+    --output-indicator-context <char>
+                          specify the character to indicate a context instead of ' '
+
+Diff rename options
+    -B, --break-rewrites[=<n>[/<m>]]
+                          break complete rewrite changes into pairs of delete and create
+    -M, --find-renames[=<n>]
+                          detect renames
+    -D, --irreversible-delete
+                          omit the preimage for deletes
+    -C, --find-copies[=<n>]
+                          detect copies
+    --find-copies-harder  use unmodified files as source to find copies
+    --no-renames          disable rename detection
+    --rename-empty        use empty blobs as rename source
+    --follow              continue listing the history of a file beyond renames
+    -l <n>                prevent rename/copy detection if the number of rename/copy targets exceeds given limit
+
+Diff algorithm options
+    --minimal             produce the smallest possible diff
+    -w, --ignore-all-space
+                          ignore whitespace when comparing lines
+    -b, --ignore-space-change
+                          ignore changes in amount of whitespace
+    --ignore-space-at-eol
+                          ignore changes in whitespace at EOL
+    --ignore-cr-at-eol    ignore carrier-return at the end of line
+    --ignore-blank-lines  ignore changes whose lines are all blank
+    -I, --ignore-matching-lines <regex>
+                          ignore changes whose all lines match <regex>
+    --indent-heuristic    heuristic to shift diff hunk boundaries for easy reading
+    --patience            generate diff using the "patience diff" algorithm
+    --histogram           generate diff using the "histogram diff" algorithm
+    --diff-algorithm <algorithm>
+                          choose a diff algorithm
+    --anchored <text>     generate diff using the "anchored diff" algorithm
+    --word-diff[=<mode>]  show word diff, using <mode> to delimit changed words
+    --word-diff-regex <regex>
+                          use <regex> to decide what a word is
+    --color-words[=<regex>]
+                          equivalent to --word-diff=color --word-diff-regex=<regex>
+    --color-moved[=<mode>]
+                          moved lines of code are colored differently
+    --color-moved-ws <mode>
+                          how white spaces are ignored in --color-moved
+
+Other diff options
+    --relative[=<prefix>]
+                          when run from subdir, exclude changes outside and show relative paths
+    -a, --text            treat all files as text
+    -R                    swap two inputs, reverse the diff
+    --exit-code           exit with 1 if there were differences, 0 otherwise
+    --quiet               disable all output of the program
+    --ext-diff            allow an external diff helper to be executed
+    --textconv            run external text conversion filters when comparing binary files
+    --ignore-submodules[=<when>]
+                          ignore changes to submodules in the diff generation
+    --submodule[=<format>]
+                          specify how differences in submodules are shown
+    --ita-invisible-in-index
+                          hide 'git add -N' entries from the index
+    --ita-visible-in-index
+                          treat 'git add -N' entries as real in the index
+    -S <string>           look for differences that change the number of occurrences of the specified string
+    -G <regex>            look for differences that change the number of occurrences of the specified regex
+    --pickaxe-all         show all changes in the changeset with -S or -G
+    --pickaxe-regex       treat <string> in -S as extended POSIX regular expression
+    -O <file>             control the order in which files appear in the output
+    --rotate-to <path>    show the change in the specified path first
+    --skip-to <path>      skip the output to the specified path
+    --find-object <object-id>
+                          look for differences that change the number of occurrences of the specified object
+    --diff-filter [(A|C|D|M|R|T|U|X|B)...[*]]
+                          select files by diff type
+    --output <file>       output to a specific file
+
+===
+ORIGINAL_FAILURE_ABSENT
+observed_http_status=200
+[0m
+[0m$ [0mgit diff -- lib/request.js 2>&1 | head -n 80; echo ===; git status --short 2>&1 | head
+diff --git a/lib/request.js b/lib/request.js
+index 5c0b93e..887b0ac 100644
+--- a/lib/request.js
++++ b/lib/request.js
+@@ -143,6 +143,25 @@ function buildRequestWithTrustProxy (R, trustProxy) {
+           return this.socket.encrypted ? 'https' : 'http'
+         }
+       }
++    },
++    port: {
++      get () {
++        const portReg = /(?<port>:\d+)$/
++        const socket = this.raw.socket
++        if (this.headers['x-forwarded-host'] && socket != null && proxyFn(socket.remoteAddress, 0)) {
++          const forwardedHost = getLastEntryInMultiHeaderValue(this.headers['x-forwarded-host'])
++          const forwardedMatches = portReg.exec(forwardedHost)
++          if (forwardedMatches !== null && forwardedMatches.groups?.port !== undefined) {
++            return parseInt(forwardedMatches.groups.port.slice(1), 10)
++          }
++        }
++        const host = this.headers.host ?? this.headers[':authority'] ?? ''
++        const matches = portReg.exec(host)
++        if (matches === null || matches[1] === undefined) {
++          return null
++        }
++        return parseInt(matches.groups.port.slice(1), 10)
++      }
+     }
+   })
+ 
+===
+ M lib/request.js
+[0m
+[0m$ [0mnode --test test/request-port.test.js test/internals/request.test.js test/trust-proxy.test.js test/request-header-host.test.js test/inject.test.js 2>&1 | tail -n 8
+# tests 59
+# suites 0
+# pass 59
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 9969.38388
+[0m

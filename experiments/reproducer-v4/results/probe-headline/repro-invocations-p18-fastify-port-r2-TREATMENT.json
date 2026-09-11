@@ -1,0 +1,22 @@
+[
+  {
+    "line": 228,
+    "command": "$ ./repro 2>&1 | head -n 20; echo EXIT:$?",
+    "outcome": "ORIGINAL_FAILURE_REPRODUCED"
+  },
+  {
+    "line": 429,
+    "command": "$ ./repro 2>&1 | head -n 20",
+    "outcome": "ORIGINAL_FAILURE_ABSENT"
+  },
+  {
+    "line": 630,
+    "command": "$ ./repro 2>&1 | head -n 20",
+    "outcome": "ORIGINAL_FAILURE_ABSENT"
+  },
+  {
+    "line": 701,
+    "command": "$ git diff -- lib/request.js; echo ===; ./repro 2>&1 | head",
+    "outcome": null
+  }
+]

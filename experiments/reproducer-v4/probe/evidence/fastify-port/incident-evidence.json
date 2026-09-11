@@ -1,0 +1,60 @@
+{
+  "schema": "v4-probe-control-evidence-1",
+  "incident_id": "INC-0C8322371253",
+  "service": {
+    "name": "svc-fastify-api",
+    "release": "rel-1242405b8eea",
+    "runtime": "node v22.14.0",
+    "framework": "fastify",
+    "platform": "darwin"
+  },
+  "request": {
+    "method": "GET",
+    "route": "/callback-url",
+    "target_form": "origin-form request target",
+    "headers_shape": {
+      "host": "<service-host>",
+      "connection": "close",
+      "accept": "*/*",
+      "user-agent": "<client>",
+      "x-forwarded-host": "api.example.com:8443"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 500,
+    "headers": {
+      "connection": "keep-alive",
+      "content-length": "116",
+      "content-type": "application/json; charset=utf-8",
+      "date": "Fri, 11 Sep 2026 16:09:17 GMT",
+      "keep-alive": "timeout=72"
+    },
+    "body": "{\"error\":\"derived port disagrees with host\",\"code\":\"E_PORT_DERIVATION\",\"host\":\"api.example.com:8443\",\"port\":\"49700\"}",
+    "duration_ms": 55
+  },
+  "error": {
+    "normalized_code": "E_PORT_DERIVATION",
+    "normalized_message": "derived port disagrees with host",
+    "application_errors_observed": [],
+    "note": "the application handled this error internally; no unhandled stack was exposed to the error tracker"
+  },
+  "operations": [],
+  "logs": [
+    {
+      "level": "info",
+      "message": "READY"
+    }
+  ],
+  "excluded_by_policy": [
+    "historical issue number",
+    "CVE identifier",
+    "upstream fixing commit or diff",
+    "upstream regression test that reveals the fix",
+    "captured database result rows",
+    "captured outbound response bodies",
+    "captured time/random streams",
+    "hand-written root-cause explanation",
+    "the hidden evaluator"
+  ]
+}

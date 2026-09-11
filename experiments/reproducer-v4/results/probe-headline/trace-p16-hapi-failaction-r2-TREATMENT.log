@@ -1,0 +1,3932 @@
+Fixing the production failure — inspecting evidence to isolate the bug.
+I've pinpointed the validation error handoff — now tracing how it reaches your route handler.
+The error contract is now clear — now verifying the exact failure path.
+I've confirmed the bug — now applying the fix to restore the missing error.
+The endpoint now returns the correct error — now running regression tests to confirm nothing broke.
+Root cause: `lib/validation.js` `internals.input` builds two errors — generic `defaultError` (400 "Invalid request {source} input") and `detailedError` (boomified Joi error with `output.payload.validation`). It calls `toolkit.failAction(..., defaultError, { details: detailedError })`, and `lib/toolkit.js:133` invokes custom `failAction(request,h,err)` with `options.details || err`, i.e. only `detailedError`. `defaultError` was therefore unreachable. The service's `failAction` expects `err.data.defaultError`, got `undefined`, and returned 500 `E_NO_DEFAULT_ERROR` instead of 400.
+
+Files changed:
+- `lib/validation.js` (only file): after `Boom.boomify`, attach `defaultError` to `detailedError.data` (`detailedError.data.defaultError = defaultError`, or `detailedError.data = { defaultError }` when data is null/primitive), preserving existing object data. This restores the `err.data.defaultError` contract for custom `failAction` while leaving `output.payload` and the default `'error'` path (which throws `defaultError`) unchanged.
+
+Validation:
+- `/work/repro`: before `ORIGINAL_FAILURE_REPRODUCED observed_http_status=500`; after `ORIGINAL_FAILURE_ABSENT observed_http_status=400`.
+- Manual inject: `POST /orders {"qty":0}` → 400 `{"error":"validation failed","detail":"Invalid request payload input"}`; valid `{"qty":2}` → 200; default route → 400 generic; expose-detailed route → 400 with correct `validation.keys`; `err.data.defaultError` present.
+- `npx lab test/validation.js`: 68/68 pass.
+- `test/toolkit,handler,route`: 1 pre-existing failure in `test/route.js:226` (Node 22 JSON SyntaxError message wording), confirmed present with fix stashed.
+
+Remaining uncertainty: if `validationError.isBoom`, `detailedError` and `defaultError` are the same object, producing a self-reference via `data.defaultError`; harmless for the truthiness check but a slight shape oddity. Primitive pre-existing `data` on a Boom validation error would be overwritten.
+
+----- stderr -----
+[0m
+> build · muse-spark-1.3-contributor-free
+[0m
+[0m→ [0mRead app
+[0m→ [0mRead repo
+[0m→ [0mRead incident-evidence.md
+[0m→ [0mRead incident-evidence.json
+[0m→ [0mRead repo/package.json
+[0m→ [0mRead app/server.mjs
+[0m
+[0m$ [0mls -R /work; echo "---"; cat /work/repro 2>&1 | head -n 200; echo "---repro type---"; file /work/repro; ls -l /work/repro
+...output truncated...
+
+Full output saved to: /isolated/data/opencode/tool-output/tool_091a84d88001UXaP61v9Lyb3QI
+
+/work/repo/node_modules/is-extglob:
+LICENSE
+README.md
+index.js
+package.json
+
+/work/repo/node_modules/is-fullwidth-code-point:
+index.d.ts
+index.js
+license
+package.json
+readme.md
+
+/work/repo/node_modules/is-glob:
+LICENSE
+README.md
+index.js
+package.json
+
+/work/repo/node_modules/is-number:
+LICENSE
+README.md
+index.js
+package.json
+
+/work/repo/node_modules/isarray:
+README.md
+build
+component.json
+index.js
+package.json
+
+/work/repo/node_modules/isarray/build:
+build.js
+
+/work/repo/node_modules/isexe:
+LICENSE
+README.md
+index.js
+mode.js
+package.json
+test
+windows.js
+
+/work/repo/node_modules/isexe/test:
+basic.js
+
+/work/repo/node_modules/joi:
+LICENSE.md
+README.md
+dist
+lib
+package.json
+
+/work/repo/node_modules/joi/dist:
+joi-browser.min.js
+joi-browser.min.js.map
+joi-browser.min.mjs
+joi-browser.min.mjs.map
+
+/work/repo/node_modules/joi/lib:
+annotate.js
+base.js
+cache.js
+common.js
+compile.js
+errors.js
+extend.js
+index.d.ts
+index.js
+manifest.js
+messages.js
+modify.js
+ref.js
+schemas.js
+state.js
+template.js
+trace.js
+types
+validator.js
+values.js
+
+/work/repo/node_modules/joi/lib/types:
+alternatives.js
+any.js
+array.js
+binary.js
+boolean.js
+date.js
+function.js
+keys.js
+link.js
+number.js
+object.js
+string.js
+symbol.js
+
+/work/repo/node_modules/js-tokens:
+CHANGELOG.md
+LICENSE
+README.md
+index.js
+package.json
+
+/work/repo/node_modules/js-yaml:
+LICENSE
+README.md
+bin
+dist
+index.js
+lib
+package.json
+
+/work/repo/node_modules/js-yaml/bin:
+js-yaml.js
+
+/work/repo/node_modules/js-yaml/dist:
+js-yaml.js
+js-yaml.min.js
+
+/work/repo/node_modules/js-yaml/lib:
+js-yaml
+js-yaml.js
+
+/work/repo/node_modules/js-yaml/lib/js-yaml:
+common.js
+dumper.js
+exception.js
+loader.js
+mark.js
+schema
+schema.js
+type
+type.js
+
+/work/repo/node_modules/js-yaml/lib/js-yaml/schema:
+core.js
+default_full.js
+default_safe.js
+failsafe.js
+json.js
+
+/work/repo/node_modules/js-yaml/lib/js-yaml/type:
+binary.js
+bool.js
+float.js
+int.js
+js
+map.js
+merge.js
+null.js
+omap.js
+pairs.js
+seq.js
+set.js
+str.js
+timestamp.js
+
+/work/repo/node_modules/js-yaml/lib/js-yaml/type/js:
+function.js
+regexp.js
+undefined.js
+
+/work/repo/node_modules/jsesc:
+LICENSE-MIT.txt
+README.md
+bin
+jsesc.js
+man
+package.json
+
+/work/repo/node_modules/jsesc/bin:
+jsesc
+
+/work/repo/node_modules/jsesc/man:
+jsesc.1
+
+/work/repo/node_modules/json-buffer:
+LICENSE
+README.md
+index.js
+package.json
+test
+
+/work/repo/node_modules/json-buffer/test:
+index.js
+
+/work/repo/node_modules/json-schema-traverse:
+LICENSE
+README.md
+index.js
+package.json
+spec
+
+/work/repo/node_modules/json-schema-traverse/spec:
+fixtures
+index.spec.js
+
+/work/repo/node_modules/json-schema-traverse/spec/fixtures:
+schema.js
+
+/work/repo/node_modules/json-stable-stringify-without-jsonify:
+LICENSE
+example
+index.js
+package.json
+readme.markdown
+test
+
+/work/repo/node_modules/json-stable-stringify-without-jsonify/example:
+key_cmp.js
+nested.js
+str.js
+value_cmp.js
+
+/work/repo/node_modules/json-stable-stringify-without-jsonify/test:
+cmp.js
+nested.js
+replacer.js
+space.js
+str.js
+to-json.js
+
+/work/repo/node_modules/json5:
+LICENSE.md
+README.md
+dist
+lib
+package.json
+
+/work/repo/node_modules/json5/dist:
+index.js
+index.min.js
+index.min.mjs
+index.mjs
+
+/work/repo/node_modules/json5/lib:
+cli.js
+index.d.ts
+index.js
+parse.d.ts
+parse.js
+register.js
+require.js
+stringify.d.ts
+stringify.js
+unicode.d.ts
+unicode.js
+util.d.ts
+util.js
+
+/work/repo/node_modules/keyv:
+README.md
+package.json
+src
+
+/work/repo/node_modules/keyv/src:
+index.d.ts
+index.js
+
+/work/repo/node_modules/legacy-readable-stream:
+LICENSE
+README.md
+duplex.js
+float.patch
+lib
+package.json
+passthrough.js
+readable.js
+transform.js
+writable.js
+
+/work/repo/node_modules/legacy-readable-stream/lib:
+_stream_duplex.js
+_stream_passthrough.js
+_stream_readable.js
+_stream_transform.js
+_stream_writable.js
+
+/work/repo/node_modules/levn:
+LICENSE
+README.md
+lib
+package.json
+
+/work/repo/node_modules/levn/lib:
+cast.js
+index.js
+parse-string.js
+
+/work/repo/node_modules/locate-path:
+index.js
+license
+package.json
+readme.md
+
+/work/repo/node_modules/lodash.merge:
+LICENSE
+README.md
+index.js
+package.json
+
+/work/repo/node_modules/lodash.truncate:
+LICENSE
+README.md
+index.js
+package.json
+
+/work/repo/node_modules/lru-cache:
+LICENSE
+README.md
+index.js
+package.json
+
+/work/repo/node_modules/merge2:
+LICENSE
+README.md
+index.js
+package.json
+
+/work/repo/node_modules/micromatch:
+LICENSE
+README.md
+index.js
+package.json
+
+/work/repo/node_modules/mime-db:
+HISTORY.md
+LICENSE
+README.md
+db.json
+index.js
+package.json
+
+/work/repo/node_modules/minimatch:
+LICENSE
+README.md
+minimatch.js
+package.json
+
+/work/repo/node_modules/minimist:
+CHANGELOG.md
+LICENSE
+README.md
+example
+index.js
+package.json
+test
+
+/work/repo/node_modules/minimist/example:
+parse.js
+
+/work/repo/node_modules/minimist/test:
+all_bool.js
+bool.js
+dash.js
+default_bool.js
+dotted.js
+kv_short.js
+long.js
+num.js
+parse.js
+parse_modified.js
+proto.js
+short.js
+stop_early.js
+unknown.js
+whitespace.js
+
+/work/repo/node_modules/mo-walk:
+LICENSE
+README.md
+lib
+package.json
+
+/work/repo/node_modules/mo-walk/lib:
+index.js
+
+/work/repo/node_modules/ms:
+index.js
+license.md
+package.json
+readme.md
+
+/work/repo/node_modules/natural-compare:
+README.md
+index.js
+package.json
+
+/work/repo/node_modules/neo-async:
+LICENSE
+README.md
+all.js
+allLimit.js
+allSeries.js
+angelFall.js
+any.js
+anyLimit.js
+anySeries.js
+apply.js
+applyEach.js
+applyEachSeries.js
+async.js
+async.min.js
+asyncify.js
+auto.js
+autoInject.js
+cargo.js
+compose.js
+concat.js
+concatLimit.js
+concatSeries.js
+constant.js
+createLogger.js
+detect.js
+detectLimit.js
+detectSeries.js
+dir.js
+doDuring.js
+doUntil.js
+doWhilst.js
+during.js
+each.js
+eachLimit.js
+eachOf.js
+eachOfLimit.js
+eachOfSeries.js
+eachSeries.js
+ensureAsync.js
+every.js
+everyLimit.js
+everySeries.js
+fast.js
+filter.js
+filterLimit.js
+filterSeries.js
+find.js
+findLimit.js
+findSeries.js
+foldl.js
+foldr.js
+forEach.js
+forEachLimit.js
+forEachOf.js
+forEachOfLimit.js
+forEachOfSeries.js
+forEachSeries.js
+forever.js
+groupBy.js
+groupByLimit.js
+groupBySeries.js
+inject.js
+iterator.js
+log.js
+map.js
+mapLimit.js
+mapSeries.js
+mapValues.js
+mapValuesLimit.js
+mapValuesSeries.js
+memoize.js
+nextTick.js
+omit.js
+omitLimit.js
+omitSeries.js
+package.json
+parallel.js
+parallelLimit.js
+pick.js
+pickLimit.js
+pickSeries.js
+priorityQueue.js
+queue.js
+race.js
+reduce.js
+reduceRight.js
+reflect.js
+reflectAll.js
+reject.js
+rejectLimit.js
+rejectSeries.js
+retry.js
+retryable.js
+safe.js
+select.js
+selectLimit.js
+selectSeries.js
+seq.js
+series.js
+setImmediate.js
+some.js
+someLimit.js
+someSeries.js
+sortBy.js
+sortByLimit.js
+sortBySeries.js
+timeout.js
+times.js
+timesLimit.js
+timesSeries.js
+transform.js
+transformLimit.js
+transformSeries.js
+tryEach.js
+unmemoize.js
+until.js
+waterfall.js
+whilst.js
+wrapSync.js
+
+/work/repo/node_modules/node-releases:
+LICENSE
+README.md
+data
+package.json
+
+/work/repo/node_modules/node-releases/data:
+processed
+release-schedule
+
+/work/repo/node_modules/node-releases/data/processed:
+envs.json
+
+/work/repo/node_modules/node-releases/data/release-schedule:
+release-schedule.json
+
+/work/repo/node_modules/once:
+LICENSE
+README.md
+once.js
+package.json
+
+/work/repo/node_modules/optionator:
+CHANGELOG.md
+LICENSE
+README.md
+lib
+package.json
+
+/work/repo/node_modules/optionator/lib:
+help.js
+index.js
+util.js
+
+/work/repo/node_modules/p-limit:
+index.d.ts
+index.js
+license
+package.json
+readme.md
+
+/work/repo/node_modules/p-locate:
+index.js
+license
+package.json
+readme.md
+
+/work/repo/node_modules/p-try:
+index.d.ts
+index.js
+license
+package.json
+readme.md
+
+/work/repo/node_modules/parent-module:
+index.js
+license
+package.json
+readme.md
+
+/work/repo/node_modules/path-exists:
+index.js
+license
+package.json
+readme.md
+
+/work/repo/node_modules/path-is-absolute:
+index.js
+license
+package.json
+readme.md
+
+/work/repo/node_modules/path-key:
+index.d.ts
+index.js
+license
+package.json
+readme.md
+
+/work/repo/node_modules/path-type:
+index.d.ts
+index.js
+license
+package.json
+readme.md
+
+/work/repo/node_modules/picocolors:
+LICENSE
+README.md
+package.json
+picocolors.browser.js
+picocolors.d.ts
+picocolors.js
+types.d.ts
+
+/work/repo/node_modules/picomatch:
+LICENSE
+README.md
+index.js
+lib
+package.json
+
+/work/repo/node_modules/picomatch/lib:
+constants.js
+parse.js
+picomatch.js
+scan.js
+utils.js
+
+/work/repo/node_modules/pkg-up:
+index.d.ts
+index.js
+license
+package.json
+readme.md
+
+/work/repo/node_modules/prelude-ls:
+CHANGELOG.md
+LICENSE
+README.md
+lib
+package.json
+
+/work/repo/node_modules/prelude-ls/lib:
+Func.js
+List.js
+Num.js
+Obj.js
+Str.js
+index.js
+
+/work/repo/node_modules/progress:
+CHANGELOG.md
+LICENSE
+Makefile
+Readme.md
+index.js
+lib
+package.json
+
+/work/repo/node_modules/progress/lib:
+node-progress.js
+
+/work/repo/node_modules/punycode:
+LICENSE-MIT.txt
+README.md
+package.json
+punycode.es6.js
+punycode.js
+
+/work/repo/node_modules/queue-microtask:
+LICENSE
+README.md
+index.d.ts
+index.js
+package.json
+
+/work/repo/node_modules/regexpp:
+LICENSE
+README.md
+index.d.ts
+index.js
+index.js.map
+index.mjs
+index.mjs.map
+package.json
+
+/work/repo/node_modules/require-from-string:
+index.js
+license
+package.json
+readme.md
+
+/work/repo/node_modules/resolve-from:
+index.js
+license
+package.json
+readme.md
+
+/work/repo/node_modules/reusify:
+LICENSE
+README.md
+SECURITY.md
+benchmarks
+eslint.config.js
+package.json
+reusify.d.ts
+reusify.js
+test.js
+tsconfig.json
+
+/work/repo/node_modules/reusify/benchmarks:
+createNoCodeFunction.js
+fib.js
+reuseNoCodeFunction.js
+
+/work/repo/node_modules/rimraf:
+CHANGELOG.md
+LICENSE
+README.md
+bin.js
+package.json
+rimraf.js
+
+/work/repo/node_modules/run-parallel:
+LICENSE
+README.md
+index.js
+package.json
+
+/work/repo/node_modules/seedrandom:
+Gruntfile.js
+README.md
+bower.json
+component.json
+coverage
+index.js
+lib
+package.json
+seedrandom.js
+seedrandom.min.js
+
+/work/repo/node_modules/seedrandom/coverage:
+coverage.json
+lcov-report
+lcov.info
+
+/work/repo/node_modules/seedrandom/coverage/lcov-report:
+base.css
+block-navigation.js
+index.html
+prettify.css
+prettify.js
+seedrandom
+sort-arrow-sprite.png
+sorter.js
+
+/work/repo/node_modules/seedrandom/coverage/lcov-report/seedrandom:
+index.html
+lib
+seedrandom.js.html
+
+/work/repo/node_modules/seedrandom/coverage/lcov-report/seedrandom/lib:
+alea.js.html
+index.html
+tychei.js.html
+xor128.js.html
+xor4096.js.html
+xorshift7.js.html
+xorwow.js.html
+
+/work/repo/node_modules/seedrandom/lib:
+alea.js
+alea.min.js
+crypto.js
+tychei.js
+tychei.min.js
+xor128.js
+xor128.min.js
+xor4096.js
+xor4096.min.js
+xorshift7.js
+xorshift7.min.js
+xorwow.js
+xorwow.min.js
+
+/work/repo/node_modules/semver:
+LICENSE
+README.md
+bin
+package.json
+range.bnf
+semver.js
+
+/work/repo/node_modules/semver/bin:
+semver.js
+
+/work/repo/node_modules/shebang-command:
+index.js
+license
+package.json
+readme.md
+
+/work/repo/node_modules/shebang-regex:
+index.d.ts
+index.js
+license
+package.json
+readme.md
+
+/work/repo/node_modules/slash:
+index.d.ts
+index.js
+license
+package.json
+readme.md
+
+/work/repo/node_modules/slice-ansi:
+index.js
+license
+package.json
+readme.md
+
+/work/repo/node_modules/source-map:
+LICENSE
+README.md
+lib
+package.json
+source-map.d.ts
+source-map.js
+
+/work/repo/node_modules/source-map/lib:
+array-set.js
+base64-vlq.js
+base64.js
+binary-search.js
+mapping-list.js
+mappings.wasm
+read-wasm-browser.js
+read-wasm.js
+source-map-consumer.js
+source-map-generator.js
+source-node.js
+url.js
+util.js
+wasm.js
+
+/work/repo/node_modules/source-map-support:
+LICENSE.md
+README.md
+browser-source-map-support.js
+node_modules
+package.json
+register-hook-require.js
+register.js
+source-map-support.js
+
+/work/repo/node_modules/source-map-support/node_modules:
+source-map
+
+/work/repo/node_modules/source-map-support/node_modules/source-map:
+CHANGELOG.md
+LICENSE
+README.md
+dist
+lib
+package.json
+source-map.d.ts
+source-map.js
+
+/work/repo/node_modules/source-map-support/node_modules/source-map/dist:
+source-map.debug.js
+source-map.js
+source-map.min.js
+source-map.min.js.map
+
+/work/repo/node_modules/source-map-support/node_modules/source-map/lib:
+array-set.js
+base64-vlq.js
+base64.js
+binary-search.js
+mapping-list.js
+quick-sort.js
+source-map-consumer.js
+source-map-generator.js
+source-node.js
+util.js
+
+/work/repo/node_modules/sprintf-js:
+LICENSE
+README.md
+bower.json
+demo
+dist
+gruntfile.js
+package.json
+src
+test
+
+/work/repo/node_modules/sprintf-js/demo:
+angular.html
+
+/work/repo/node_modules/sprintf-js/dist:
+angular-sprintf.min.js
+angular-sprintf.min.js.map
+angular-sprintf.min.map
+sprintf.min.js
+sprintf.min.js.map
+sprintf.min.map
+
+/work/repo/node_modules/sprintf-js/src:
+angular-sprintf.js
+sprintf.js
+
+/work/repo/node_modules/sprintf-js/test:
+test.js
+
+/work/repo/node_modules/string-width:
+index.d.ts
+index.js
+license
+package.json
+readme.md
+
+/work/repo/node_modules/string_decoder:
+LICENSE
+README.md
+index.js
+package.json
+
+/work/repo/node_modules/strip-ansi:
+index.d.ts
+index.js
+license
+package.json
+readme.md
+
+/work/repo/node_modules/strip-json-comments:
+index.d.ts
+index.js
+license
+package.json
+readme.md
+
+/work/repo/node_modules/supports-color:
+browser.js
+index.js
+license
+package.json
+readme.md
+
+/work/repo/node_modules/table:
+LICENSE
+README.md
+dist
+node_modules
+package.json
+
+/work/repo/node_modules/table/dist:
+src
+
+/work/repo/node_modules/table/dist/src:
+alignSpanningCell.d.ts
+alignSpanningCell.js
+alignSpanningCell.js.map
+alignString.d.ts
+alignString.js
+alignString.js.map
+alignTableData.d.ts
+alignTableData.js
+alignTableData.js.map
+calculateCellHeight.d.ts
+calculateCellHeight.js
+calculateCellHeight.js.map
+calculateMaximumColumnWidths.d.ts
+calculateMaximumColumnWidths.js
+calculateMaximumColumnWidths.js.map
+calculateOutputColumnWidths.d.ts
+calculateOutputColumnWidths.js
+calculateOutputColumnWidths.js.map
+calculateRowHeights.d.ts
+calculateRowHeights.js
+calculateRowHeights.js.map
+calculateSpanningCellWidth.d.ts
+calculateSpanningCellWidth.js
+calculateSpanningCellWidth.js.map
+createStream.d.ts
+createStream.js
+createStream.js.map
+drawBorder.d.ts
+drawBorder.js
+drawBorder.js.map
+drawContent.d.ts
+drawContent.js
+drawContent.js.map
+drawRow.d.ts
+drawRow.js
+drawRow.js.map
+drawTable.d.ts
+drawTable.js
+drawTable.js.map
+generated
+getBorderCharacters.d.ts
+getBorderCharacters.js
+getBorderCharacters.js.map
+index.d.ts
+index.js
+index.js.map
+injectHeaderConfig.d.ts
+injectHeaderConfig.js
+injectHeaderConfig.js.map
+makeRangeConfig.d.ts
+makeRangeConfig.js
+makeRangeConfig.js.map
+makeStreamConfig.d.ts
+makeStreamConfig.js
+makeStreamConfig.js.map
+makeTableConfig.d.ts
+makeTableConfig.js
+makeTableConfig.js.map
+mapDataUsingRowHeights.d.ts
+mapDataUsingRowHeights.js
+mapDataUsingRowHeights.js.map
+padTableData.d.ts
+padTableData.js
+padTableData.js.map
+schemas
+spanningCellManager.d.ts
+spanningCellManager.js
+spanningCellManager.js.map
+stringifyTableData.d.ts
+stringifyTableData.js
+stringifyTableData.js.map
+table.d.ts
+table.js
+table.js.map
+truncateTableData.d.ts
+truncateTableData.js
+truncateTableData.js.map
+types
+utils.d.ts
+utils.js
+utils.js.map
+validateConfig.d.ts
+validateConfig.js
+validateConfig.js.map
+validateSpanningCellConfig.d.ts
+validateSpanningCellConfig.js
+validateSpanningCellConfig.js.map
+validateTableData.d.ts
+validateTableData.js
+validateTableData.js.map
+wrapCell.d.ts
+wrapCell.js
+wrapCell.js.map
+wrapString.d.ts
+wrapString.js
+wrapString.js.map
+wrapWord.d.ts
+wrapWord.js
+wrapWord.js.map
+
+/work/repo/node_modules/table/dist/src/generated:
+validators.d.ts
+validators.js
+validators.js.map
+
+/work/repo/node_modules/table/dist/src/schemas:
+config.json
+shared.json
+streamConfig.json
+
+/work/repo/node_modules/table/dist/src/types:
+api.d.ts
+api.js
+api.js.map
+internal.d.ts
+internal.js
+internal.js.map
+
+/work/repo/node_modules/table/node_modules:
+ajv
+json-schema-traverse
+
+/work/repo/node_modules/table/node_modules/ajv:
+LICENSE
+README.md
+dist
+lib
+package.json
+
+/work/repo/node_modules/table/node_modules/ajv/dist:
+2019.d.ts
+2019.js
+2019.js.map
+2020.d.ts
+2020.js
+2020.js.map
+ajv.d.ts
+ajv.js
+ajv.js.map
+compile
+core.d.ts
+core.js
+core.js.map
+jtd.d.ts
+jtd.js
+jtd.js.map
+refs
+runtime
+standalone
+types
+vocabularies
+
+/work/repo/node_modules/table/node_modules/ajv/dist/compile:
+codegen
+errors.d.ts
+errors.js
+errors.js.map
+index.d.ts
+index.js
+index.js.map
+jtd
+names.d.ts
+names.js
+names.js.map
+ref_error.d.ts
+ref_error.js
+ref_error.js.map
+resolve.d.ts
+resolve.js
+resolve.js.map
+rules.d.ts
+rules.js
+rules.js.map
+util.d.ts
+util.js
+util.js.map
+validate
+
+/work/repo/node_modules/table/node_modules/ajv/dist/compile/codegen:
+code.d.ts
+code.js
+code.js.map
+index.d.ts
+index.js
+index.js.map
+scope.d.ts
+scope.js
+scope.js.map
+
+/work/repo/node_modules/table/node_modules/ajv/dist/compile/jtd:
+parse.d.ts
+parse.js
+parse.js.map
+serialize.d.ts
+serialize.js
+serialize.js.map
+types.d.ts
+types.js
+types.js.map
+
+/work/repo/node_modules/table/node_modules/ajv/dist/compile/validate:
+applicability.d.ts
+applicability.js
+applicability.js.map
+boolSchema.d.ts
+boolSchema.js
+boolSchema.js.map
+dataType.d.ts
+dataType.js
+dataType.js.map
+defaults.d.ts
+defaults.js
+defaults.js.map
+index.d.ts
+index.js
+index.js.map
+keyword.d.ts
+keyword.js
+keyword.js.map
+subschema.d.ts
+subschema.js
+subschema.js.map
+
+/work/repo/node_modules/table/node_modules/ajv/dist/refs:
+data.json
+json-schema-2019-09
+json-schema-2020-12
+json-schema-draft-06.json
+json-schema-draft-07.json
+json-schema-secure.json
+jtd-schema.d.ts
+jtd-schema.js
+jtd-schema.js.map
+
+/work/repo/node_modules/table/node_modules/ajv/dist/refs/json-schema-2019-09:
+index.d.ts
+index.js
+index.js.map
+meta
+schema.json
+
+/work/repo/node_modules/table/node_modules/ajv/dist/refs/json-schema-2019-09/meta:
+applicator.json
+content.json
+core.json
+format.json
+meta-data.json
+validation.json
+
+/work/repo/node_modules/table/node_modules/ajv/dist/refs/json-schema-2020-12:
+index.d.ts
+index.js
+index.js.map
+meta
+schema.json
+
+/work/repo/node_modules/table/node_modules/ajv/dist/refs/json-schema-2020-12/meta:
+applicator.json
+content.json
+core.json
+format-annotation.json
+meta-data.json
+unevaluated.json
+validation.json
+
+/work/repo/node_modules/table/node_modules/ajv/dist/runtime:
+equal.d.ts
+equal.js
+equal.js.map
+parseJson.d.ts
+parseJson.js
+parseJson.js.map
+quote.d.ts
+quote.js
+quote.js.map
+re2.d.ts
+re2.js
+re2.js.map
+timestamp.d.ts
+timestamp.js
+timestamp.js.map
+ucs2length.d.ts
+ucs2length.js
+ucs2length.js.map
+uri.d.ts
+uri.js
+uri.js.map
+validation_error.d.ts
+validation_error.js
+validation_error.js.map
+
+/work/repo/node_modules/table/node_modules/ajv/dist/standalone:
+index.d.ts
+index.js
+index.js.map
+instance.d.ts
+instance.js
+instance.js.map
+
+/work/repo/node_modules/table/node_modules/ajv/dist/types:
+index.d.ts
+index.js
+index.js.map
+json-schema.d.ts
+json-schema.js
+json-schema.js.map
+jtd-schema.d.ts
+jtd-schema.js
+jtd-schema.js.map
+
+/work/repo/node_modules/table/node_modules/ajv/dist/vocabularies:
+applicator
+code.d.ts
+code.js
+code.js.map
+core
+discriminator
+draft2020.d.ts
+draft2020.js
+draft2020.js.map
+draft7.d.ts
+draft7.js
+draft7.js.map
+dynamic
+errors.d.ts
+errors.js
+errors.js.map
+format
+jtd
+metadata.d.ts
+metadata.js
+metadata.js.map
+next.d.ts
+next.js
+next.js.map
+unevaluated
+validation
+
+/work/repo/node_modules/table/node_modules/ajv/dist/vocabularies/applicator:
+additionalItems.d.ts
+additionalItems.js
+additionalItems.js.map
+additionalProperties.d.ts
+additionalProperties.js
+additionalProperties.js.map
+allOf.d.ts
+allOf.js
+allOf.js.map
+anyOf.d.ts
+anyOf.js
+anyOf.js.map
+contains.d.ts
+contains.js
+contains.js.map
+dependencies.d.ts
+dependencies.js
+dependencies.js.map
+dependentSchemas.d.ts
+dependentSchemas.js
+dependentSchemas.js.map
+if.d.ts
+if.js
+if.js.map
+index.d.ts
+index.js
+index.js.map
+items.d.ts
+items.js
+items.js.map
+items2020.d.ts
+items2020.js
+items2020.js.map
+not.d.ts
+not.js
+not.js.map
+oneOf.d.ts
+oneOf.js
+oneOf.js.map
+patternProperties.d.ts
+patternProperties.js
+patternProperties.js.map
+prefixItems.d.ts
+prefixItems.js
+prefixItems.js.map
+properties.d.ts
+properties.js
+properties.js.map
+propertyNames.d.ts
+propertyNames.js
+propertyNames.js.map
+thenElse.d.ts
+thenElse.js
+thenElse.js.map
+
+/work/repo/node_modules/table/node_modules/ajv/dist/vocabularies/core:
+id.d.ts
+id.js
+id.js.map
+index.d.ts
+index.js
+index.js.map
+ref.d.ts
+ref.js
+ref.js.map
+
+/work/repo/node_modules/table/node_modules/ajv/dist/vocabularies/discriminator:
+index.d.ts
+index.js
+index.js.map
+types.d.ts
+types.js
+types.js.map
+
+/work/repo/node_modules/table/node_modules/ajv/dist/vocabularies/dynamic:
+dynamicAnchor.d.ts
+dynamicAnchor.js
+dynamicAnchor.js.map
+dynamicRef.d.ts
+dynamicRef.js
+dynamicRef.js.map
+index.d.ts
+index.js
+index.js.map
+recursiveAnchor.d.ts
+recursiveAnchor.js
+recursiveAnchor.js.map
+recursiveRef.d.ts
+recursiveRef.js
+recursiveRef.js.map
+
+/work/repo/node_modules/table/node_modules/ajv/dist/vocabularies/format:
+format.d.ts
+format.js
+format.js.map
+index.d.ts
+index.js
+index.js.map
+
+/work/repo/node_modules/table/node_modules/ajv/dist/vocabularies/jtd:
+discriminator.d.ts
+discriminator.js
+discriminator.js.map
+elements.d.ts
+elements.js
+elements.js.map
+enum.d.ts
+enum.js
+enum.js.map
+error.d.ts
+error.js
+error.js.map
+index.d.ts
+index.js
+index.js.map
+metadata.d.ts
+metadata.js
+metadata.js.map
+nullable.d.ts
+nullable.js
+nullable.js.map
+optionalProperties.d.ts
+optionalProperties.js
+optionalProperties.js.map
+properties.d.ts
+properties.js
+properties.js.map
+ref.d.ts
+ref.js
+ref.js.map
+type.d.ts
+type.js
+type.js.map
+union.d.ts
+union.js
+union.js.map
+values.d.ts
+values.js
+values.js.map
+
+/work/repo/node_modules/table/node_modules/ajv/dist/vocabularies/unevaluated:
+index.d.ts
+index.js
+index.js.map
+unevaluatedItems.d.ts
+unevaluatedItems.js
+unevaluatedItems.js.map
+unevaluatedProperties.d.ts
+unevaluatedProperties.js
+unevaluatedProperties.js.map
+
+/work/repo/node_modules/table/node_modules/ajv/dist/vocabularies/validation:
+const.d.ts
+const.js
+const.js.map
+dependentRequired.d.ts
+dependentRequired.js
+dependentRequired.js.map
+enum.d.ts
+enum.js
+enum.js.map
+index.d.ts
+index.js
+index.js.map
+limitContains.d.ts
+limitContains.js
+limitContains.js.map
+limitItems.d.ts
+limitItems.js
+limitItems.js.map
+limitLength.d.ts
+limitLength.js
+limitLength.js.map
+limitNumber.d.ts
+limitNumber.js
+limitNumber.js.map
+limitProperties.d.ts
+limitProperties.js
+limitProperties.js.map
+multipleOf.d.ts
+multipleOf.js
+multipleOf.js.map
+pattern.d.ts
+pattern.js
+pattern.js.map
+required.d.ts
+required.js
+required.js.map
+uniqueItems.d.ts
+uniqueItems.js
+uniqueItems.js.map
+
+/work/repo/node_modules/table/node_modules/ajv/lib:
+2019.ts
+2020.ts
+ajv.ts
+compile
+core.ts
+jtd.ts
+refs
+runtime
+standalone
+types
+vocabularies
+
+/work/repo/node_modules/table/node_modules/ajv/lib/compile:
+codegen
+errors.ts
+index.ts
+jtd
+names.ts
+ref_error.ts
+resolve.ts
+rules.ts
+util.ts
+validate
+
+/work/repo/node_modules/table/node_modules/ajv/lib/compile/codegen:
+code.ts
+index.ts
+scope.ts
+
+/work/repo/node_modules/table/node_modules/ajv/lib/compile/jtd:
+parse.ts
+serialize.ts
+types.ts
+
+/work/repo/node_modules/table/node_modules/ajv/lib/compile/validate:
+applicability.ts
+boolSchema.ts
+dataType.ts
+defaults.ts
+index.ts
+keyword.ts
+subschema.ts
+
+/work/repo/node_modules/table/node_modules/ajv/lib/refs:
+data.json
+json-schema-2019-09
+json-schema-2020-12
+json-schema-draft-06.json
+json-schema-draft-07.json
+json-schema-secure.json
+jtd-schema.ts
+
+/work/repo/node_modules/table/node_modules/ajv/lib/refs/json-schema-2019-09:
+index.ts
+meta
+schema.json
+
+/work/repo/node_modules/table/node_modules/ajv/lib/refs/json-schema-2019-09/meta:
+applicator.json
+content.json
+core.json
+format.json
+meta-data.json
+validation.json
+
+/work/repo/node_modules/table/node_modules/ajv/lib/refs/json-schema-2020-12:
+index.ts
+meta
+schema.json
+
+/work/repo/node_modules/table/node_modules/ajv/lib/refs/json-schema-2020-12/meta:
+applicator.json
+content.json
+core.json
+format-annotation.json
+meta-data.json
+unevaluated.json
+validation.json
+
+/work/repo/node_modules/table/node_modules/ajv/lib/runtime:
+equal.ts
+parseJson.ts
+quote.ts
+re2.ts
+timestamp.ts
+ucs2length.ts
+uri.ts
+validation_error.ts
+
+/work/repo/node_modules/table/node_modules/ajv/lib/standalone:
+index.ts
+instance.ts
+
+/work/repo/node_modules/table/node_modules/ajv/lib/types:
+index.ts
+json-schema.ts
+jtd-schema.ts
+
+/work/repo/node_modules/table/node_modules/ajv/lib/vocabularies:
+applicator
+code.ts
+core
+discriminator
+draft2020.ts
+draft7.ts
+dynamic
+errors.ts
+format
+jtd
+metadata.ts
+next.ts
+unevaluated
+validation
+
+/work/repo/node_modules/table/node_modules/ajv/lib/vocabularies/applicator:
+additionalItems.ts
+additionalProperties.ts
+allOf.ts
+anyOf.ts
+contains.ts
+dependencies.ts
+dependentSchemas.ts
+if.ts
+index.ts
+items.ts
+items2020.ts
+not.ts
+oneOf.ts
+patternProperties.ts
+prefixItems.ts
+properties.ts
+propertyNames.ts
+thenElse.ts
+
+/work/repo/node_modules/table/node_modules/ajv/lib/vocabularies/core:
+id.ts
+index.ts
+ref.ts
+
+/work/repo/node_modules/table/node_modules/ajv/lib/vocabularies/discriminator:
+index.ts
+types.ts
+
+/work/repo/node_modules/table/node_modules/ajv/lib/vocabularies/dynamic:
+dynamicAnchor.ts
+dynamicRef.ts
+index.ts
+recursiveAnchor.ts
+recursiveRef.ts
+
+/work/repo/node_modules/table/node_modules/ajv/lib/vocabularies/format:
+format.ts
+index.ts
+
+/work/repo/node_modules/table/node_modules/ajv/lib/vocabularies/jtd:
+discriminator.ts
+elements.ts
+enum.ts
+error.ts
+index.ts
+metadata.ts
+nullable.ts
+optionalProperties.ts
+properties.ts
+ref.ts
+type.ts
+union.ts
+values.ts
+
+/work/repo/node_modules/table/node_modules/ajv/lib/vocabularies/unevaluated:
+index.ts
+unevaluatedItems.ts
+unevaluatedProperties.ts
+
+/work/repo/node_modules/table/node_modules/ajv/lib/vocabularies/validation:
+const.ts
+dependentRequired.ts
+enum.ts
+index.ts
+limitContains.ts
+limitItems.ts
+limitLength.ts
+limitNumber.ts
+limitProperties.ts
+multipleOf.ts
+pattern.ts
+required.ts
+uniqueItems.ts
+
+/work/repo/node_modules/table/node_modules/json-schema-traverse:
+LICENSE
+README.md
+index.d.ts
+index.js
+package.json
+spec
+
+/work/repo/node_modules/table/node_modules/json-schema-traverse/spec:
+fixtures
+index.spec.js
+
+/work/repo/node_modules/table/node_modules/json-schema-traverse/spec/fixtures:
+schema.js
+
+/work/repo/node_modules/text-table:
+LICENSE
+example
+index.js
+package.json
+readme.markdown
+test
+
+/work/repo/node_modules/text-table/example:
+align.js
+center.js
+dotalign.js
+doubledot.js
+table.js
+
+/work/repo/node_modules/text-table/test:
+align.js
+ansi-colors.js
+center.js
+dotalign.js
+doubledot.js
+table.js
+
+/work/repo/node_modules/to-regex-range:
+LICENSE
+README.md
+index.js
+package.json
+
+/work/repo/node_modules/type-check:
+LICENSE
+README.md
+lib
+package.json
+
+/work/repo/node_modules/type-check/lib:
+check.js
+index.js
+parse-type.js
+
+/work/repo/node_modules/type-fest:
+base.d.ts
+index.d.ts
+license
+package.json
+readme.md
+source
+ts41
+
+/work/repo/node_modules/type-fest/source:
+async-return-type.d.ts
+asyncify.d.ts
+basic.d.ts
+conditional-except.d.ts
+conditional-keys.d.ts
+conditional-pick.d.ts
+entries.d.ts
+entry.d.ts
+except.d.ts
+fixed-length-array.d.ts
+iterable-element.d.ts
+literal-union.d.ts
+merge-exclusive.d.ts
+merge.d.ts
+mutable.d.ts
+opaque.d.ts
+package-json.d.ts
+partial-deep.d.ts
+promisable.d.ts
+promise-value.d.ts
+readonly-deep.d.ts
+require-at-least-one.d.ts
+require-exactly-one.d.ts
+set-optional.d.ts
+set-required.d.ts
+set-return-type.d.ts
+stringified.d.ts
+tsconfig-json.d.ts
+union-to-intersection.d.ts
+utilities.d.ts
+value-of.d.ts
+
+/work/repo/node_modules/type-fest/ts41:
+camel-case.d.ts
+delimiter-case.d.ts
+index.d.ts
+kebab-case.d.ts
+pascal-case.d.ts
+snake-case.d.ts
+
+/work/repo/node_modules/uglify-js:
+LICENSE
+README.md
+bin
+lib
+package.json
+tools
+
+/work/repo/node_modules/uglify-js/bin:
+uglifyjs
+
+/work/repo/node_modules/uglify-js/lib:
+ast.js
+compress.js
+minify.js
+mozilla-ast.js
+output.js
+parse.js
+propmangle.js
+scope.js
+sourcemap.js
+transform.js
+utils.js
+
+/work/repo/node_modules/uglify-js/tools:
+domprops.html
+domprops.json
+exports.js
+node.js
+tty.js
+
+/work/repo/node_modules/update-browserslist-db:
+LICENSE
+README.md
+check-npm-version.js
+cli.js
+index.d.ts
+index.js
+package.json
+utils.js
+
+/work/repo/node_modules/uri-js:
+LICENSE
+README.md
+dist
+package.json
+yarn.lock
+
+/work/repo/node_modules/uri-js/dist:
+es5
+esnext
+
+/work/repo/node_modules/uri-js/dist/es5:
+uri.all.d.ts
+uri.all.js
+uri.all.js.map
+uri.all.min.d.ts
+uri.all.min.js
+uri.all.min.js.map
+
+/work/repo/node_modules/uri-js/dist/esnext:
+index.d.ts
+index.js
+index.js.map
+regexps-iri.d.ts
+regexps-iri.js
+regexps-iri.js.map
+regexps-uri.d.ts
+regexps-uri.js
+regexps-uri.js.map
+schemes
+uri.d.ts
+uri.js
+uri.js.map
+util.d.ts
+util.js
+util.js.map
+
+/work/repo/node_modules/uri-js/dist/esnext/schemes:
+http.d.ts
+http.js
+http.js.map
+https.d.ts
+https.js
+https.js.map
+mailto.d.ts
+mailto.js
+mailto.js.map
+urn-uuid.d.ts
+urn-uuid.js
+urn-uuid.js.map
+urn.d.ts
+urn.js
+urn.js.map
+ws.d.ts
+ws.js
+ws.js.map
+wss.d.ts
+wss.js
+wss.js.map
+
+/work/repo/node_modules/v8-compile-cache:
+LICENSE
+README.md
+package.json
+v8-compile-cache.js
+
+/work/repo/node_modules/which:
+CHANGELOG.md
+LICENSE
+README.md
+bin
+package.json
+which.js
+
+/work/repo/node_modules/which/bin:
+node-which
+
+/work/repo/node_modules/will-call:
+LICENSE
+README.md
+lib
+package.json
+
+/work/repo/node_modules/will-call/lib:
+index.js
+
+/work/repo/node_modules/word-wrap:
+LICENSE
+README.md
+index.d.ts
+index.js
+package.json
+
+/work/repo/node_modules/wordwrap:
+LICENSE
+README.markdown
+example
+index.js
+package.json
+test
+
+/work/repo/node_modules/wordwrap/example:
+center.js
+meat.js
+
+/work/repo/node_modules/wordwrap/test:
+break.js
+idleness.txt
+wrap.js
+
+/work/repo/node_modules/wrappy:
+LICENSE
+README.md
+package.json
+wrappy.js
+
+/work/repo/node_modules/yallist:
+LICENSE
+README.md
+iterator.js
+package.json
+yallist.js
+
+/work/repo/test:
+auth.js
+common.js
+core.js
+cors.js
+file
+handler.js
+headers.js
+index.js
+methods.js
+payload.js
+request.js
+response.js
+route.js
+security.js
+server.js
+state.js
+templates
+toolkit.js
+transmit.js
+validation.js
+
+/work/repo/test/file:
+image.jpg
+image.png
+image.png.gz
+note.txt
+
+/work/repo/test/templates:
+invalid.html
+plugin
+test.html
+
+/work/repo/test/templates/plugin:
+test.html
+---
+#!/usr/bin/env bash
+# Experiment-only incident runner.
+# Executes the captured production incident against the CURRENT worktree and
+# reports whether the original failure is still present.
+set -uo pipefail
+OUT=$(node /work/.repro/rt/experiments/reproducer-v3/headline/replay-raw.mjs \
+  --app /work/app/server.mjs \
+  --capture /work/.repro/incident.repro.json \
+  --port 48999 \
+  --env '{"REPO_ROOT":"/work/repo","PGPORT":"54399","REPLAY_HOST":"127.0.0.1"}' 2>&1 | tail -1)
+
+node -e '
+const raw = process.argv[1];
+let d = null; try { d = JSON.parse(raw); } catch {}
+if (!d) { console.log("REPRO_RUNNER_ERROR"); console.log(raw.slice(0, 500)); process.exit(2); }
+console.log(d.pass ? "ORIGINAL_FAILURE_REPRODUCED" : "ORIGINAL_FAILURE_ABSENT");
+console.log("observed_http_status=" + (d.status ?? "none"));
+' "$OUT"
+---repro type---
+-rwxr-xr-x 1 root root 815 Sep 11 18:08 /work/repro
+/usr/bin/bash: line 1: file: command not found
+[0m
+[0m$ [0mcat /work/.repro/incident.repro.json 2>&1; echo "==="; ls -R /work/.repro 2>&1 | head -n 100
+{
+  "schema": "incident-capture-v2",
+  "captured_at": "2026-09-11T16:54:50.609Z",
+  "req_id": "req-12209-1789145690592-1",
+  "request": {
+    "method": "POST",
+    "path": "/orders",
+    "query": "",
+    "headers": {
+      "host": "127.0.0.1:52200",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "accept": "*/*",
+      "accept-language": "*",
+      "sec-fetch-mode": "cors",
+      "user-agent": "node",
+      "accept-encoding": "gzip, deflate",
+      "content-length": "9"
+    },
+    "host": "127.0.0.1:52200",
+    "body": "{\"qty\":0}"
+  },
+  "response": {
+    "status": 500,
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "cache-control": "no-cache",
+      "content-length": 76
+    },
+    "body": "{\"error\":\"default validation error unavailable\",\"code\":\"E_NO_DEFAULT_ERROR\"}"
+  },
+  "events": [
+    {
+      "seq": 1,
+      "kind": "time",
+      "op": "now",
+      "key": "time:0",
+      "request": {},
+      "result": {
+        "value": 1789145690593
+      },
+      "error": null
+    }
+  ],
+  "config": {},
+  "app_error": null,
+  "boundary_ops_outside_request": 0,
+  "offline_replay_supported": true,
+  "fingerprint": {
+    "kind": "app",
+    "request_method": "POST",
+    "route_or_operation": "/orders",
+    "http_status": 500,
+    "error_name_or_code": "ERR:E_NO_DEFAULT_ERROR",
+    "normalized_class": "ERR:E_NO_DEFAULT_ERROR",
+    "stable_frame": null,
+    "fingerprint_hash": "92a1ac3d451f33e354830ba813b2c235527fefaf4e58e77bee04c1335e385ee9"
+  },
+  "capture_hash": "b4c1b0d5816dd80fb9fff19e9888b98f9c6142286282d493e584db4e7fe33408"
+}===
+/work/.repro:
+incident.repro.json
+rt
+
+/work/.repro/rt:
+experiments
+packages
+
+/work/.repro/rt/experiments:
+reproducer-v3
+
+/work/.repro/rt/experiments/reproducer-v3:
+headline
+src
+
+/work/.repro/rt/experiments/reproducer-v3/headline:
+replay-raw.mjs
+
+/work/.repro/rt/experiments/reproducer-v3/src:
+capture
+detector
+oracle
+replay
+
+/work/.repro/rt/experiments/reproducer-v3/src/capture:
+context.mjs
+events.mjs
+patch-fetch.mjs
+patch-http.mjs
+patch-pg.mjs
+patch-time.mjs
+persist.mjs
+redact.mjs
+register.mjs
+state.mjs
+
+/work/.repro/rt/experiments/reproducer-v3/src/detector:
+select.mjs
+
+/work/.repro/rt/experiments/reproducer-v3/src/oracle:
+fingerprint.mjs
+normalize.mjs
+
+/work/.repro/rt/experiments/reproducer-v3/src/replay:
+replay-one.mjs
+
+/work/.repro/rt/packages:
+kernel
+
+/work/.repro/rt/packages/kernel:
+dist
+node_modules
+
+/work/.repro/rt/packages/kernel/dist:
+checker
+evidence
+exec
+index.d.ts
+index.d.ts.map
+index.js
+index.js.map
+journal
+judge
+policy
+process
+receipts
+signals
+types.d.ts
+types.d.ts.map
+types.js
+types.js.map
+
+/work/.repro/rt/packages/kernel/dist/checker:
+validation.d.ts
+validation.d.ts.map
+validation.js
+validation.js.map
+
+/work/.repro/rt/packages/kernel/dist/evidence:
+artifacts.d.ts
+artifacts.d.ts.map
+artifacts.js
+artifacts.js.map
+integrity.d.ts
+integrity.d.ts.map
+integrity.js
+integrity.js.map
+
+/work/.repro/rt/packages/kernel/dist/exec:
+in-memory.d.ts
+in-memory.d.ts.map
+in-memory.js
+in-memory.js.map
+types.d.ts
+types.d.ts.map
+types.js
+types.js.map
+
+/work/.repro/rt/packages/kernel/dist/journal:
+jsonl.d.ts
+[0m
+[0m→ [0mRead repo/lib/validation.js
+[0m✗ [0mGrep "failAction|defaultError" failed[90m in repo/lib[0m
+[91m[1mError: [0mripgrep execution failed
+[0m→ [0mRead repo/lib/toolkit.js
+[0m
+[0m$ [0mgit log --oneline -20 2>&1; echo "==="; git status 2>&1; echo "==="; git diff HEAD --stat 2>&1 | head -n 50
+aa9eee2 Initial import of the deployed revision
+===
+On branch main
+nothing to commit, working tree clean
+===
+[0m
+[0m$ [0mpython3 -c "
+import re
+with open('lib/validation.js') as f: c=f.read()
+print(c[3000:6000])
+"; echo "---TOOLKIT---"; grep -n "failAction\|details\|defaultError\|data" lib/toolkit.js lib/validation.js lib/request.js 2>&1 | head -n 80
+}
+    }
+
+    if (request.route.settings.validate.failAction === 'ignore') {
+        return;
+    }
+
+    // Prepare error
+
+    const defaultError = validationError.isBoom ? validationError : Boom.badRequest(`Invalid request ${source} input`);
+    const detailedError = Boom.boomify(validationError, { statusCode: 400, override: false });
+    detailedError.output.payload.validation = { source, keys: [] };
+    if (validationError.details) {
+        for (const details of validationError.details) {
+            const path = details.path;
+            detailedError.output.payload.validation.keys.push(Hoek.escapeHtml(path.join('.')));
+        }
+    }
+
+    if (request.route.settings.validate.errorFields) {
+        for (const field in request.route.settings.validate.errorFields) {
+            detailedError.output.payload[field] = request.route.settings.validate.errorFields[field];
+        }
+    }
+
+    return request._core.toolkit.failAction(request, request.route.settings.validate.failAction, defaultError, { details: detailedError, tags: ['validation', 'error', source] });
+};
+
+
+exports.response = async function (request) {
+
+    if (request.route.settings.response.sample) {
+        const currentSample = Math.ceil(Math.random() * 100);
+        if (currentSample > request.route.settings.response.sample) {
+            return;
+        }
+    }
+
+    const response = request.response;
+    const statusCode = response.isBoom ? response.output.statusCode : response.statusCode;
+
+    const statusSchema = request.route.settings.response.status[statusCode];
+    if (statusCode >= 400 &&
+        !statusSchema) {
+
+        return;                 // Do not validate errors by default
+    }
+
+    const schema = statusSchema !== undefined ? statusSchema : request.route.settings.response.schema;
+    if (schema === null) {
+        return;                 // No rules
+    }
+
+    if (!response.isBoom &&
+        request.response.variety !== 'plain') {
+
+        throw Boom.badImplementation('Cannot validate non-object response');
+    }
+
+    const localOptions = {
+        context: {
+            headers: request.headers,
+            params: request.params,
+            query: request.query,
+            payload: request.payload,
+            state: request.state,
+            auth: request.auth,
+            app: {
+                route: request.route.settings.app,
+                request: request.app
+            }
+        }
+    };
+
+    const source = response.isBoom ? response.output.payload : response.source;
+    Hoek.merge(localOptions, request.route.settings.response.options);
+
+    try {
+        let value;
+
+        if (typeof schema !== 'function') {
+            value = await internals.validate(source, schema, localOptions);
+        }
+        else {
+            value = await schema(source, localOptions);
+        }
+
+        if (value !== undefined &&
+            request.route.settings.response.modify) {
+
+            if (response.isBoom) {
+                response.output.payload = value;
+ 
+---TOOLKIT---
+lib/toolkit.js:117:    failAction(request, failAction, err, options) {
+lib/toolkit.js:120:        if (failAction === 'ignore') {
+lib/toolkit.js:124:        if (failAction === 'log') {
+lib/toolkit.js:129:        if (failAction === 'error') {
+lib/toolkit.js:133:        return this.execute(failAction, request, { realm: request.route.realm, args: [options.details || err] });
+lib/toolkit.js:165:        throw error / h.response(error)     -> error (respond)                  // failAction override in pre
+lib/toolkit.js:170:        h.unauthenticated(error, data)      -> error (respond) + data
+lib/toolkit.js:171:        h.authenticated(data )              -> (continue) + data
+lib/toolkit.js:225:        authenticated(data) {
+lib/toolkit.js:228:            Hoek.assert(data && data.credentials, 'Authentication data missing credentials information');
+lib/toolkit.js:230:            return new internals.Auth(null, data);
+lib/toolkit.js:233:        unauthenticated(error, data) {
+lib/toolkit.js:236:            Hoek.assert(!data || data.credentials, 'Authentication data missing credentials information');
+lib/toolkit.js:238:            return new internals.Auth(error, data);
+lib/toolkit.js:252:    constructor(error, data) {
+lib/toolkit.js:256:        this.data = data;
+lib/validation.js:142:    if (request.route.settings.validate.failAction === 'ignore') {
+lib/validation.js:148:    const defaultError = validationError.isBoom ? validationError : Boom.badRequest(`Invalid request ${source} input`);
+lib/validation.js:151:    if (validationError.details) {
+lib/validation.js:152:        for (const details of validationError.details) {
+lib/validation.js:153:            const path = details.path;
+lib/validation.js:164:    return request._core.toolkit.failAction(request, request.route.settings.validate.failAction, defaultError, { details: detailedError, tags: ['validation', 'error', source] });
+lib/validation.js:238:        return request._core.toolkit.failAction(request, request.route.settings.response.failAction, err, { tags: ['validation', 'response', 'error'] });
+lib/request.js:575:    log(tags, data) {
+lib/request.js:577:        return this._log(tags, data, 'app');
+lib/request.js:580:    _log(tags, data, channel = 'internal') {
+lib/request.js:593:        const field = data instanceof Error ? 'error' : 'data';
+lib/request.js:595:        let event = [this, { request: this.info.id, timestamp, tags, [field]: data, channel }];
+lib/request.js:596:        if (typeof data === 'function') {
+lib/request.js:597:            event = () => [this, { request: this.info.id, timestamp, tags, data: data(), channel }];
+lib/request.js:601:            if (typeof data === 'function') {
+lib/request.js:730:        request._reply(new Boom.Boom('Request aborted', { statusCode: request.route.settings.response.disconnectStatusCode, data: request.response }));
+[0m
+[0m$ [0mgrep -n "failAction\|defaultError\|\.data" test/validation.js | head -n 120
+411:                        failAction: (request, h, err) => err            // Expose detailed error
+516:                        failAction: 'ignore'
+538:                        failAction: 'log'
+561:                        failAction: function (request, h, err) {
+574:        it('catches error thrown in failAction', async () => {
+587:                        failAction: function (request, h, err) {
+615:                        failAction: (request, h, err) => err            // Expose detailed error
+698:                        failAction: (request, h, err) => err            // Expose detailed error
+766:                        failAction: (request, h, err) => err            // Expose detailed error
+789:                        failAction: (request, h, err) => err            // Expose detailed error
+810:                        failAction: (request, h, err) => err,           // Expose detailed error
+845:                        failAction: (request, h, err) => err            // Expose detailed error
+1632:                        failAction: 'log',
+1661:                        failAction: function (request, h, err) {
+1688:                        failAction: function (request, h, err) {
+1715:                        failAction: function (request, h, err) {
+1761:                        failAction: (request, h, err) => {
+1764:                            throw new Error('failAction error');
+[0m
+[0m$ [0msed -n '400,650p' test/validation.js; echo "====="; sed -n '1650,1800p' test/validation.js
+it('retains the validation error', async () => {
+
+            const server = Hapi.server();
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: () => 'ok',
+                options: {
+                    validate: {
+                        query: false,
+                        failAction: (request, h, err) => err            // Expose detailed error
+                    }
+                }
+            });
+
+            server.ext('onPreResponse', (request) => request.response.details[0].path);
+
+            const res = await server.inject('/?a=123');
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal(['a']);
+        });
+
+        it('validates valid input (Object root)', async () => {
+
+            const server = Hapi.server();
+            server.validator(Joi);
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: () => 'ok',
+                options: {
+                    validate: {
+                        query: Joi.object({
+                            a: Joi.string().min(2)
+                        })
+                    }
+                }
+            });
+
+            const res = await server.inject('/?a=123');
+            expect(res.statusCode).to.equal(200);
+        });
+
+        it('validates non-object payload', async () => {
+
+            const server = Hapi.server();
+            server.validator(Joi);
+            server.route({
+                method: 'POST',
+                path: '/',
+                handler: () => 'ok',
+                options: {
+                    validate: {
+                        payload: Joi.number()
+                    }
+                }
+            });
+
+            const res = await server.inject({ method: 'POST', url: '/', payload: '123', headers: { 'content-type': 'application/json' } });
+            expect(res.statusCode).to.equal(200);
+        });
+
+        it('validates boolean payload', async () => {
+
+            const server = Hapi.server();
+            server.validator(Joi);
+            server.route({
+                method: 'POST',
+                path: '/',
+                handler: () => 'ok',
+                options: {
+                    validate: {
+                        payload: Joi.boolean()
+                    }
+                }
+            });
+
+            const res = await server.inject({ method: 'POST', url: '/', payload: 'false', headers: { 'content-type': 'application/json' } });
+            expect(res.statusCode).to.equal(200);
+        });
+
+        it('fails on invalid input', async () => {
+
+            const server = Hapi.server();
+            server.validator(Joi);
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: () => 'ok',
+                options: {
+                    validate: {
+                        query: {
+                            a: Joi.string().min(2)
+                        }
+                    }
+                }
+            });
+
+            const res = await server.inject('/?a=1');
+            expect(res.statusCode).to.equal(400);
+        });
+
+        it('ignores invalid input', async () => {
+
+            const server = Hapi.server();
+            server.validator(Joi);
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: () => 'ok',
+                options: {
+                    validate: {
+                        query: {
+                            a: Joi.string().min(2)
+                        },
+                        failAction: 'ignore'
+                    }
+                }
+            });
+
+            const res = await server.inject('/?a=1');
+            expect(res.statusCode).to.equal(200);
+        });
+
+        it('logs invalid input', async () => {
+
+            const server = Hapi.server({ routes: { log: { collect: true } } });
+            server.validator(Joi);
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: (request) => request.logs.filter((event) => event.tags[0] === 'validation')[0],
+                options: {
+                    validate: {
+                        query: {
+                            a: Joi.string().min(2)
+                        },
+                        failAction: 'log'
+                    }
+                }
+            });
+
+            const res = await server.inject('/?a=1');
+            expect(res.statusCode).to.equal(200);
+            expect(res.result.error.output.payload.message).to.equal('Invalid request query input');
+        });
+
+        it('replaces error with message on invalid input', async () => {
+
+            const server = Hapi.server();
+            server.validator(Joi);
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: () => 'ok',
+                options: {
+                    validate: {
+                        query: {
+                            a: Joi.string().min(2)
+                        },
+                        failAction: function (request, h, err) {
+
+                            return h.response('Got error in ' + err.output.payload.validation.source + ' where ' + err.output.payload.validation.keys[0] + ' is bad').code(400).takeover();
+                        }
+                    }
+                }
+            });
+
+            const res = await server.inject('/?a=1');
+            expect(res.statusCode).to.equal(400);
+            expect(res.result).to.equal('Got error in query where a is bad');
+        });
+
+        it('catches error thrown in failAction', async () => {
+
+            const server = Hapi.server({ debug: false });
+            server.validator(Joi);
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: () => 'ok',
+                options: {
+                    validate: {
+                        query: {
+                            a: Joi.string().min(2)
+                        },
+                        failAction: function (request, h, err) {
+
+                            throw new Error('my bad');
+                        }
+                    }
+                }
+            });
+
+            const res = await server.inject('/?a=1');
+            expect(res.statusCode).to.equal(500);
+        });
+
+        it('customizes error on invalid input', async () => {
+
+            const server = Hapi.server();
+            server.validator(Joi);
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: () => 'ok',
+                options: {
+                    validate: {
+                        query: {
+                            a: Joi.string().min(2)
+                        },
+                        errorFields: {
+                            walt: 'jr'
+                        },
+                        failAction: (request, h, err) => err            // Expose detailed error
+                    }
+                }
+            });
+
+            const res = await server.inject('/?a=1');
+            expect(res.statusCode).to.equal(400);
+            expect(res.result).to.equal({
+                statusCode: 400,
+                error: 'Bad Request',
+                message: '"a" length must be at least 2 characters long',
+                validation: {
+                    source: 'query',
+                    keys: ['a']
+                },
+                walt: 'jr'
+            });
+        });
+
+        it('overrides connection level settings', async () => {
+
+            const server = Hapi.server({
+                routes: {
+                    validate: {
+                        query: Joi.object({
+                            a: Joi.string().required()
+                        }),
+                        options: {
+                            abortEarly: false
+                        }
+                    }
+                }
+            });
+
+            server.validator(Joi);
+
+=====
+
+        it('replaces error with message on invalid response', async () => {
+
+            const server = Hapi.server();
+            server.validator(Joi);
+            server.route({
+                method: 'GET',
+                path: '/',
+                options: {
+                    handler: () => ({ a: '1' }),
+                    response: {
+                        failAction: function (request, h, err) {
+
+                            return h.response('Validation Error Occurred').code(400);
+                        },
+                        schema: {
+                            b: Joi.string()
+                        }
+                    }
+                }
+            });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(400);
+            expect(res.payload).to.equal('Validation Error Occurred');
+        });
+
+        it('combines onPreResponse with response validation override', async () => {
+
+            const server = Hapi.server();
+            server.validator(Joi);
+            server.ext('onPreResponse', () => 'else');
+            server.route({
+                method: 'GET',
+                path: '/',
+                options: {
+                    handler: () => ({ a: '1' }),
+                    response: {
+                        failAction: function (request, h, err) {
+
+                            return h.response('something');
+                        },
+                        schema: {
+                            b: Joi.string()
+                        }
+                    }
+                }
+            });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload).to.equal('else');
+        });
+
+        it('combines onPreResponse with response validation override takeover', async () => {
+
+            const server = Hapi.server();
+            server.validator(Joi);
+            server.ext('onPreResponse', () => 'else');
+            server.route({
+                method: 'GET',
+                path: '/',
+                options: {
+                    handler: () => ({ a: '1' }),
+                    response: {
+                        failAction: function (request, h, err) {
+
+                            return h.response('something').takeover();
+                        },
+                        schema: {
+                            b: Joi.string()
+                        }
+                    }
+                }
+            });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload).to.equal('else');
+        });
+
+        it('combines onPreResponse with response validation error', async () => {
+
+            const server = Hapi.server();
+
+            const responses = [];
+
+            server.ext('onPreResponse', (request, h) => {
+
+                responses.push(request.response);
+                return h.continue;
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                options: {
+                    handler: () => {
+
+                        const err = Boom.internal('handler error');
+                        err.output.payload.x = 1;
+                        throw err;
+                    },
+                    response: {
+                        status: {
+                            500: (value, options) => {
+
+                                responses.push(value);
+                                throw new Error('500 validation error');
+                            }
+                        },
+                        failAction: (request, h, err) => {
+
+                            responses.push(err);
+                            throw new Error('failAction error');
+                        }
+                    }
+                }
+            });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
+
+            expect(responses).to.have.length(3);
+            expect(responses[0].x).to.equal(1);
+            expect(responses[1]).to.be.an.error('500 validation error');
+        });
+
+        it('validates string response', async () => {
+
+            let value = 'abcd';
+
+            const server = Hapi.server({ debug: false });
+            server.validator(Joi);
+            server.route({
+                method: 'GET',
+                path: '/',
+                options: {
+                    response: {
+                        schema: Joi.string().min(5)
+                    }
+                },
+                handler: () => value
+            });
+
+            const res1 = await server.inject('/');
+            expect(res1.statusCode).to.equal(500);
+            value += 'e';
+
+            const res2 = await server.inject('/');
+            expect(res2.statusCode).to.equal(200);
+[0m
+[0m$ [0mgrep -n "failAction\|defaultError\|details" API.md | head -n 100
+563:- `state` `error` - the request included an invalid cookie or cookies. Includes the cookies and error details.
+570:- `validation` `error` `{input}` - input (i.e. payload, query, params, headers) validation failed. Includes the error. Only emitted when `failAction` is set to `'log'`.
+571:- `validation` `response` `error` - response validation failed. Includes the error message. Only emitted when `failAction` is set to `'log'`.
+2602:[`state.failAction`](#route.options.state.failAction) setting. When [`state.failAction`](#route.options.state.failAction)
+3029:#### <a name="route.options.payload.failAction" /> `route.options.payload.failAction`
+3033:A [`failAction` value](#lifecycle-failAction) which determines how to handle payload parsing
+3171:    - `failAction` - A [`failAction` value](#lifecycle-failAction) which determine what to do when
+3172:      a pre-handler method throws an error. If `assign` is specified and the `failAction` setting
+3244:#### <a name="route.options.response.failAction" /> `route.options.response.failAction`
+3248:A [`failAction` value](#lifecycle-failAction) which defines what to do when a response fails
+3298:      error is processed according to [`failAction`](#route.options.response.failAction).
+3383:Default value: `{ parse: true, failAction: 'error' }`.
+3392:- `failAction` - A [`failAction` value](#lifecycle-failAction) which determines how to handle
+3426:Default value: `{ headers: true, params: true, query: true, payload: true, state: true, failAction: 'error' }`.
+3436:#### <a name="route.options.validate.failAction" /> `route.options.validate.failAction`
+3440:A [`failAction` value](#lifecycle-failAction) which determines how to handle failed validations.
+3461:      according to [`failAction`](#route.options.validate.failAction).
+3507:      to [`failAction`](#route.options.validate.failAction).
+3535:      [`failAction`](#route.options.validate.failAction).
+3563:      [`failAction`](#route.options.validate.failAction).
+3587:      [`failAction`](#route.options.validate.failAction).
+3618:    - error handling based on [`failAction`](#route.options.state.failAction).
+3628:    - error handling based on [`failAction`](#route.options.payload.failAction).
+3644:    - error handling based on [`failAction`](#route.options.validate.failAction).
+3648:    - error handling based on [`failAction`](#route.options.validate.failAction).
+3652:    - error handling based on [`failAction`](#route.options.validate.failAction).
+3656:    - error handling based on [`failAction`](#route.options.validate.failAction).
+3660:    - error handling based on [`failAction`](#route.options.validate.failAction).
+3666:    - error handling based on each pre-handler method's `failAction` setting.
+3677:    - error handling based on [`failAction`](#route.options.response.failAction).
+3703:[`failAction` function values](#lifecycle-failAction) are lifecyle methods provided by the
+3711:  [`failAction` value](#lifecycle-failAction).
+3815:#### <a name="lifecycle-failAction" /> `failAction` configuration
+3819:configured to perform another action. When supported the `failAction` option supports the following
+[0m
+[0m$ [0msed -n '3815,3900p' API.md
+#### <a name="lifecycle-failAction" /> `failAction` configuration
+
+Various configuration options allows defining how errors are handled. For example, when invalid
+payload is received or malformed cookie, instead of returning an error, the framework can be
+configured to perform another action. When supported the `failAction` option supports the following
+values:
+
+- `'error'` - return the error object as the response.
+- `'log'` - report the error but continue processing the request.
+- `'ignore'` - take no action and continue processing the request.
+
+- a [lifecycle method](#lifecycle-methods) with the signature `async function(request, h, err)`
+  where:
+    - `request` - the [request object](#request).
+    - `h` - the [response toolkit](#response-toolkit).
+    - `err` - the error object.
+
+#### Errors
+
+**hapi** uses the [**boom**](https://hapi.dev/family/boom/api) error library for all its internal
+error generation. **boom** provides an expressive interface to return HTTP errors. Any error
+thrown by a [lifecycle method](#lifecycle-methods) is converted into a **boom** object and defaults to status
+code `500` if the error is not already a **boom** object.
+
+When the error is sent back to the client, the response contains a JSON object with the
+`statusCode`, `error`, and `message` keys.
+
+```js
+const Hapi = require('@hapi/hapi');
+const Boom = require('@hapi/boom');
+
+const server = Hapi.server();
+
+server.route({
+    method: 'GET',
+    path: '/badRequest',
+    handler: function (request, h) {
+
+        throw Boom.badRequest('Unsupported parameter');     // 400
+    }
+});
+
+server.route({
+    method: 'GET',
+    path: '/internal',
+    handler: function (request, h) {
+
+        throw new Error('unexpect error');                  // 500
+    }
+});
+```
+
+##### Error transformation
+
+Errors can be customized by changing their `output` content. The **boom** error object includes the
+following properties:
+
+- `isBoom` - if `true`, indicates this is a `Boom` object instance.
+
+- `message` - the error message.
+
+- `output` - the formatted response. Can be directly manipulated after object construction to
+  return a custom error response. Allowed root keys:
+
+    - `statusCode` - the HTTP status code (typically 4xx or 5xx).
+
+    - `headers` - an object containing any HTTP headers where each key is a header name and value
+      is the header content.
+
+    - `payload` - the formatted object used as the response payload. Can be directly
+      manipulated but any changes will be lost
+      if `reformat()` is called. Any content allowed and by default includes the following content:
+
+        - `statusCode` - the HTTP status code, derived from `error.output.statusCode`.
+
+        - `error` - the HTTP status message (e.g. 'Bad Request', 'Internal Server Error') derived
+          from `statusCode`.
+
+        - `message` - the error message derived from `error.message`.
+
+- inherited `Error` properties.
+
+It also supports the following method:
+
+- `reformat()` - rebuilds `error.output` using the other object properties.
+[0m
+[0m$ [0mls node_modules/@hapi/boom/lib/ 2>&1; grep -n "data\|boomify\|defaultError" node_modules/@hapi/boom/lib/index.js | head -n 80
+cat node_modules/@hapi/validate/package.json | grep -E "version|name"
+index.d.ts
+index.js
+74:            return exports.boomify(Hoek.clone(message), options);
+77:        const { statusCode = 500, data = null, ctor = exports.Boom } = options;
+80:        error.data = data;
+111:exports.boomify = function (err, options) {
+117:    if (options.data !== undefined) {
+118:        err.data = options.data;
+141:exports.badRequest = function (message, data) {
+143:    return new exports.Boom(message, { statusCode: 400, data, ctor: exports.badRequest });
+213:exports.paymentRequired = function (message, data) {
+215:    return new exports.Boom(message, { statusCode: 402, data, ctor: exports.paymentRequired });
+219:exports.forbidden = function (message, data) {
+221:    return new exports.Boom(message, { statusCode: 403, data, ctor: exports.forbidden });
+225:exports.notFound = function (message, data) {
+227:    return new exports.Boom(message, { statusCode: 404, data, ctor: exports.notFound });
+231:exports.methodNotAllowed = function (message, data, allow) {
+233:    const err = new exports.Boom(message, { statusCode: 405, data, ctor: exports.methodNotAllowed });
+247:exports.notAcceptable = function (message, data) {
+249:    return new exports.Boom(message, { statusCode: 406, data, ctor: exports.notAcceptable });
+253:exports.proxyAuthRequired = function (message, data) {
+255:    return new exports.Boom(message, { statusCode: 407, data, ctor: exports.proxyAuthRequired });
+259:exports.clientTimeout = function (message, data) {
+261:    return new exports.Boom(message, { statusCode: 408, data, ctor: exports.clientTimeout });
+265:exports.conflict = function (message, data) {
+267:    return new exports.Boom(message, { statusCode: 409, data, ctor: exports.conflict });
+271:exports.resourceGone = function (message, data) {
+273:    return new exports.Boom(message, { statusCode: 410, data, ctor: exports.resourceGone });
+277:exports.lengthRequired = function (message, data) {
+279:    return new exports.Boom(message, { statusCode: 411, data, ctor: exports.lengthRequired });
+283:exports.preconditionFailed = function (message, data) {
+285:    return new exports.Boom(message, { statusCode: 412, data, ctor: exports.preconditionFailed });
+289:exports.entityTooLarge = function (message, data) {
+291:    return new exports.Boom(message, { statusCode: 413, data, ctor: exports.entityTooLarge });
+295:exports.uriTooLong = function (message, data) {
+297:    return new exports.Boom(message, { statusCode: 414, data, ctor: exports.uriTooLong });
+301:exports.unsupportedMediaType = function (message, data) {
+303:    return new exports.Boom(message, { statusCode: 415, data, ctor: exports.unsupportedMediaType });
+307:exports.rangeNotSatisfiable = function (message, data) {
+309:    return new exports.Boom(message, { statusCode: 416, data, ctor: exports.rangeNotSatisfiable });
+313:exports.expectationFailed = function (message, data) {
+315:    return new exports.Boom(message, { statusCode: 417, data, ctor: exports.expectationFailed });
+319:exports.teapot = function (message, data) {
+321:    return new exports.Boom(message, { statusCode: 418, data, ctor: exports.teapot });
+325:exports.badData = function (message, data) {
+327:    return new exports.Boom(message, { statusCode: 422, data, ctor: exports.badData });
+331:exports.locked = function (message, data) {
+333:    return new exports.Boom(message, { statusCode: 423, data, ctor: exports.locked });
+337:exports.failedDependency = function (message, data) {
+339:    return new exports.Boom(message, { statusCode: 424, data, ctor: exports.failedDependency });
+342:exports.tooEarly = function (message, data) {
+344:    return new exports.Boom(message, { statusCode: 425, data, ctor: exports.tooEarly });
+348:exports.preconditionRequired = function (message, data) {
+350:    return new exports.Boom(message, { statusCode: 428, data, ctor: exports.preconditionRequired });
+354:exports.tooManyRequests = function (message, data) {
+356:    return new exports.Boom(message, { statusCode: 429, data, ctor: exports.tooManyRequests });
+360:exports.illegal = function (message, data) {
+362:    return new exports.Boom(message, { statusCode: 451, data, ctor: exports.illegal });
+368:exports.internal = function (message, data, statusCode = 500) {
+370:    return internals.serverError(message, data, statusCode, exports.internal);
+374:exports.notImplemented = function (message, data) {
+376:    return internals.serverError(message, data, 501, exports.notImplemented);
+380:exports.badGateway = function (message, data) {
+382:    return internals.serverError(message, data, 502, exports.badGateway);
+386:exports.serverUnavailable = function (message, data) {
+388:    return internals.serverError(message, data, 503, exports.serverUnavailable);
+392:exports.gatewayTimeout = function (message, data) {
+394:    return internals.serverError(message, data, 504, exports.gatewayTimeout);
+398:exports.badImplementation = function (message, data) {
+400:    const err = internals.serverError(message, data, 500, exports.badImplementation);
+414:    if (!err.hasOwnProperty('data')) {
+415:        err.data = null;
+460:internals.serverError = function (message, data, statusCode, ctor) {
+462:    if (data instanceof Error &&
+463:        !data.isBoom) {
+465:        return exports.boomify(data, { statusCode, message });
+468:    return new exports.Boom(message, { statusCode, data, ctor });
+  "name": "@hapi/validate",
+  "version": "1.1.3",
+[0m
+[0m$ [0msed -n '1,160p' node_modules/@hapi/boom/lib/index.js
+'use strict';
+
+const Hoek = require('@hapi/hoek');
+
+
+const internals = {
+    codes: new Map([
+        [100, 'Continue'],
+        [101, 'Switching Protocols'],
+        [102, 'Processing'],
+        [200, 'OK'],
+        [201, 'Created'],
+        [202, 'Accepted'],
+        [203, 'Non-Authoritative Information'],
+        [204, 'No Content'],
+        [205, 'Reset Content'],
+        [206, 'Partial Content'],
+        [207, 'Multi-Status'],
+        [300, 'Multiple Choices'],
+        [301, 'Moved Permanently'],
+        [302, 'Moved Temporarily'],
+        [303, 'See Other'],
+        [304, 'Not Modified'],
+        [305, 'Use Proxy'],
+        [307, 'Temporary Redirect'],
+        [400, 'Bad Request'],
+        [401, 'Unauthorized'],
+        [402, 'Payment Required'],
+        [403, 'Forbidden'],
+        [404, 'Not Found'],
+        [405, 'Method Not Allowed'],
+        [406, 'Not Acceptable'],
+        [407, 'Proxy Authentication Required'],
+        [408, 'Request Time-out'],
+        [409, 'Conflict'],
+        [410, 'Gone'],
+        [411, 'Length Required'],
+        [412, 'Precondition Failed'],
+        [413, 'Request Entity Too Large'],
+        [414, 'Request-URI Too Large'],
+        [415, 'Unsupported Media Type'],
+        [416, 'Requested Range Not Satisfiable'],
+        [417, 'Expectation Failed'],
+        [418, 'I\'m a teapot'],
+        [422, 'Unprocessable Entity'],
+        [423, 'Locked'],
+        [424, 'Failed Dependency'],
+        [425, 'Too Early'],
+        [426, 'Upgrade Required'],
+        [428, 'Precondition Required'],
+        [429, 'Too Many Requests'],
+        [431, 'Request Header Fields Too Large'],
+        [451, 'Unavailable For Legal Reasons'],
+        [500, 'Internal Server Error'],
+        [501, 'Not Implemented'],
+        [502, 'Bad Gateway'],
+        [503, 'Service Unavailable'],
+        [504, 'Gateway Time-out'],
+        [505, 'HTTP Version Not Supported'],
+        [506, 'Variant Also Negotiates'],
+        [507, 'Insufficient Storage'],
+        [509, 'Bandwidth Limit Exceeded'],
+        [510, 'Not Extended'],
+        [511, 'Network Authentication Required']
+    ])
+};
+
+
+exports.Boom = class extends Error {
+
+    constructor(message, options = {}) {
+
+        if (message instanceof Error) {
+            return exports.boomify(Hoek.clone(message), options);
+        }
+
+        const { statusCode = 500, data = null, ctor = exports.Boom } = options;
+        const error = new Error(message ? message : undefined);         // Avoids settings null message
+        Error.captureStackTrace(error, ctor);                           // Filter the stack to our external API
+        error.data = data;
+        const boom = internals.initialize(error, statusCode);
+
+        Object.defineProperty(boom, 'typeof', { value: ctor });
+
+        if (options.decorate) {
+            Object.assign(boom, options.decorate);
+        }
+
+        return boom;
+    }
+
+    static [Symbol.hasInstance](instance) {
+
+        if (this === exports.Boom) {
+            return exports.isBoom(instance);
+        }
+
+        // Cannot use 'instanceof' as it creates infinite recursion
+
+        return this.prototype.isPrototypeOf(instance);
+    }
+};
+
+
+exports.isBoom = function (err, statusCode) {
+
+    return err instanceof Error && !!err.isBoom && (!statusCode || err.output.statusCode === statusCode);
+};
+
+
+exports.boomify = function (err, options) {
+
+    Hoek.assert(err instanceof Error, 'Cannot wrap non-Error object');
+
+    options = options || {};
+
+    if (options.data !== undefined) {
+        err.data = options.data;
+    }
+
+    if (options.decorate) {
+        Object.assign(err, options.decorate);
+    }
+
+    if (!err.isBoom) {
+        return internals.initialize(err, options.statusCode || 500, options.message);
+    }
+
+    if (options.override === false ||                           // Defaults to true
+        !options.statusCode && !options.message) {
+
+        return err;
+    }
+
+    return internals.initialize(err, options.statusCode || err.output.statusCode, options.message);
+};
+
+
+// 4xx Client Errors
+
+exports.badRequest = function (message, data) {
+
+    return new exports.Boom(message, { statusCode: 400, data, ctor: exports.badRequest });
+};
+
+
+exports.unauthorized = function (message, scheme, attributes) {          // Or (message, wwwAuthenticate[])
+
+    const err = new exports.Boom(message, { statusCode: 401, ctor: exports.unauthorized });
+
+    // function (message)
+
+    if (!scheme) {
+        return err;
+    }
+
+    // function (message, wwwAuthenticate[])
+
+    if (typeof scheme !== 'string') {
+        err.output.headers['WWW-Authenticate'] = scheme.join(', ');
+[0m
+[0m$ [0mgrep -rn "defaultError\|data.*default\|details" lib/ --include="*.js" | head -n 100
+echo "---NPM validate errors---"
+sed -n '1,200p' node_modules/@hapi/validate/lib/errors.js | head -n 200
+lib/toolkit.js:133:        return this.execute(failAction, request, { realm: request.route.realm, args: [options.details || err] });
+lib/config.js:143:        output: Validate.valid('data', 'stream', 'file').default('data'),
+lib/validation.js:148:    const defaultError = validationError.isBoom ? validationError : Boom.badRequest(`Invalid request ${source} input`);
+lib/validation.js:151:    if (validationError.details) {
+lib/validation.js:152:        for (const details of validationError.details) {
+lib/validation.js:153:            const path = details.path;
+lib/validation.js:164:    return request._core.toolkit.failAction(request, request.route.settings.validate.failAction, defaultError, { details: detailedError, tags: ['validation', 'error', source] });
+---NPM validate errors---
+'use strict';
+
+const Annotate = require('./annotate');
+const Common = require('./common');
+const Template = require('./template');
+
+
+const internals = {};
+
+
+exports.Report = class {
+
+    constructor(code, value, local, flags, messages, state, prefs) {
+
+        this.code = code;
+        this.flags = flags;
+        this.messages = messages;
+        this.path = state.path;
+        this.prefs = prefs;
+        this.state = state;
+        this.value = value;
+
+        this.message = null;
+
+        this.local = local || {};
+        this.local.label = exports.label(this.flags, this.state, this.prefs, this.messages);
+
+        if (this.value !== undefined &&
+            !this.local.hasOwnProperty('value')) {
+
+            this.local.value = this.value;
+        }
+
+        if (this.path.length) {
+            const key = this.path[this.path.length - 1];
+            if (typeof key !== 'object') {
+                this.local.key = key;
+            }
+        }
+    }
+
+    toString() {
+
+        if (this.message) {
+            return this.message;
+        }
+
+        const code = this.code;
+
+        if (!this.prefs.errors.render) {
+            return this.code;
+        }
+
+        const template = this._template(this.prefs.messages) ||
+            this._template(this.messages);
+
+        if (template === undefined) {
+            return `Error code "${code}" is not defined, your custom type is missing the correct messages definition`;
+        }
+
+        // Render and cache result
+
+        this.message = template.render(this.value, this.state, this.prefs, this.local, { errors: this.prefs.errors, messages: [this.prefs.messages, this.messages] });
+        if (!this.prefs.errors.label) {
+            this.message = this.message.replace(/^"" /, '').trim();
+        }
+
+        return this.message;
+    }
+
+    _template(messages) {
+
+        return exports.template(this.value, messages, this.code, this.state, this.prefs);
+    }
+};
+
+
+exports.path = function (path) {
+
+    let label = '';
+    for (const segment of path) {
+        if (typeof segment === 'object') {          // Exclude array single path segment
+            continue;
+        }
+
+        if (typeof segment === 'string') {
+            if (label) {
+                label += '.';
+            }
+
+            label += segment;
+        }
+        else {
+            label += `[${segment}]`;
+        }
+    }
+
+    return label;
+};
+
+
+exports.template = function (value, messages, code, state, prefs) {
+
+    if (Template.isTemplate(messages)) {
+        return code !== 'root' ? messages : null;
+    }
+
+    let lang = prefs.errors.language;
+    if (Common.isResolvable(lang)) {
+        lang = lang.resolve(value, state, prefs);
+    }
+
+    if (lang &&
+        messages[lang] &&
+        messages[lang][code] !== undefined) {
+
+        return messages[lang][code];
+    }
+
+    return messages[code];
+};
+
+
+exports.label = function (flags, state, prefs, messages) {
+
+    if (!prefs.errors.label) {
+        return '';
+    }
+
+    let path = state.path;
+    if (prefs.errors.label === 'key' &&
+        state.path.length > 1) {
+
+        path = state.path.slice(-1);
+    }
+
+    const normalized = exports.path(path);
+    if (normalized) {
+        return normalized;
+    }
+
+    return exports.template(null, prefs.messages, 'root', state, prefs) ||
+        exports.template(null, messages, 'root', state, prefs) ||
+        'value';
+};
+
+
+exports.process = function (errors, original, prefs) {
+
+    if (!errors) {
+        return null;
+    }
+
+    const { override, message, details } = exports.details(errors);
+    if (override) {
+        return override;
+    }
+
+    if (prefs.errors.stack) {
+        return new exports.ValidationError(message, details, original);
+    }
+
+    const limit = Error.stackTraceLimit;
+    Error.stackTraceLimit = 0;
+    const validationError = new exports.ValidationError(message, details, original);
+    Error.stackTraceLimit = limit;
+    return validationError;
+};
+
+
+exports.details = function (errors, options = {}) {
+
+    let messages = [];
+    const details = [];
+
+    for (const item of errors) {
+
+        // Override
+
+        if (item instanceof Error) {
+            if (options.override !== false) {
+                return { override: item };
+            }
+
+            const message = item.toString();
+            messages.push(message);
+
+            details.push({
+                message,
+                type: 'override',
+                context: { error: item }
+            });
+
+            continue;
+        }
+
+        // Report
+
+        const message = item.toString();
+        messages.push(message);
+[0m
+[0m$ [0msed -n '400,475p' node_modules/@hapi/boom/lib/index.js
+echo "---validate ValidationError---"
+grep -n "class ValidationError\|isBoom\|data" node_modules/@hapi/validate/lib/errors.js | head -n 30
+sed -n '150,220p' node_modules/@hapi/validate/lib/errors.js
+const err = internals.serverError(message, data, 500, exports.badImplementation);
+    err.isDeveloperError = true;
+    return err;
+};
+
+
+internals.initialize = function (err, statusCode, message) {
+
+    const numberCode = parseInt(statusCode, 10);
+    Hoek.assert(!isNaN(numberCode) && numberCode >= 400, 'First argument must be a number (400+):', statusCode);
+
+    err.isBoom = true;
+    err.isServer = numberCode >= 500;
+
+    if (!err.hasOwnProperty('data')) {
+        err.data = null;
+    }
+
+    err.output = {
+        statusCode: numberCode,
+        payload: {},
+        headers: {}
+    };
+
+    Object.defineProperty(err, 'reformat', { value: internals.reformat, configurable: true });
+
+    if (!message &&
+        !err.message) {
+
+        err.reformat();
+        message = err.output.payload.error;
+    }
+
+    if (message) {
+        const props = Object.getOwnPropertyDescriptor(err, 'message') || Object.getOwnPropertyDescriptor(Object.getPrototypeOf(err), 'message');
+        Hoek.assert(!props || props.configurable && !props.get, 'The error is not compatible with boom');
+
+        err.message = message + (err.message ? ': ' + err.message : '');
+        err.output.payload.message = err.message;
+    }
+
+    err.reformat();
+    return err;
+};
+
+
+internals.reformat = function (debug = false) {
+
+    this.output.payload.statusCode = this.output.statusCode;
+    this.output.payload.error = internals.codes.get(this.output.statusCode) || 'Unknown';
+
+    if (this.output.statusCode === 500 && debug !== true) {
+        this.output.payload.message = 'An internal server error occurred';              // Hide actual error from user
+    }
+    else if (this.message) {
+        this.output.payload.message = this.message;
+    }
+};
+
+
+internals.serverError = function (message, data, statusCode, ctor) {
+
+    if (data instanceof Error &&
+        !data.isBoom) {
+
+        return exports.boomify(data, { statusCode, message });
+    }
+
+    return new exports.Boom(message, { statusCode, data, ctor });
+};
+---validate ValidationError---
+    if (!errors) {
+        return null;
+    }
+
+    const { override, message, details } = exports.details(errors);
+    if (override) {
+        return override;
+    }
+
+    if (prefs.errors.stack) {
+        return new exports.ValidationError(message, details, original);
+    }
+
+    const limit = Error.stackTraceLimit;
+    Error.stackTraceLimit = 0;
+    const validationError = new exports.ValidationError(message, details, original);
+    Error.stackTraceLimit = limit;
+    return validationError;
+};
+
+
+exports.details = function (errors, options = {}) {
+
+    let messages = [];
+    const details = [];
+
+    for (const item of errors) {
+
+        // Override
+
+        if (item instanceof Error) {
+            if (options.override !== false) {
+                return { override: item };
+            }
+
+            const message = item.toString();
+            messages.push(message);
+
+            details.push({
+                message,
+                type: 'override',
+                context: { error: item }
+            });
+
+            continue;
+        }
+
+        // Report
+
+        const message = item.toString();
+        messages.push(message);
+
+        details.push({
+            message,
+            path: item.path.filter((v) => typeof v !== 'object'),
+            type: item.code,
+            context: item.local
+        });
+    }
+
+    if (messages.length > 1) {
+        messages = [...new Set(messages)];
+    }
+
+    return { message: messages.join('. '), details };
+};
+
+
+exports.ValidationError = class extends Error {
+
+    constructor(message, details, original) {
+[0m
+[0m$ [0msed -n '220,260p' node_modules/@hapi/validate/lib/errors.js
+echo "---test toolkit---"
+grep -rn "failAction" lib/*.js | head -n 40
+echo "---request failAction usages---"
+grep -n "toolkit.failAction\|\.failAction" lib/*.js | head -n 40
+constructor(message, details, original) {
+
+        super(message);
+        this._original = original;
+        this.details = details;
+    }
+
+    static isError(err) {
+
+        return err instanceof exports.ValidationError;
+    }
+};
+
+
+exports.ValidationError.prototype.isJoi = true;
+
+exports.ValidationError.prototype.name = 'ValidationError';
+
+exports.ValidationError.prototype.annotate = Annotate.error;
+---test toolkit---
+lib/config.js:82:internals.failAction = Validate.alternatives([
+lib/config.js:155:        failAction: internals.failAction,
+lib/config.js:167:        failAction: internals.failAction,
+lib/config.js:212:        failAction: internals.failAction
+lib/config.js:226:        failAction: internals.failAction,
+lib/config.js:326:        failAction: internals.failAction
+lib/handler.js:63:        response = await request._core.toolkit.failAction(request, pre.failAction, response, { tags: ['pre', 'error'], retain: true });
+lib/handler.js:155:                failAction: pre.failAction || 'error'
+lib/route.js:399:    return request._core.toolkit.failAction(request, request.route.settings.state.failAction, parseError, { tags: ['state', 'error'] });
+lib/route.js:436:        return request._core.toolkit.failAction(request, request.route.settings.payload.failAction, err, { tags: ['payload', 'error'] });
+lib/toolkit.js:117:    failAction(request, failAction, err, options) {
+lib/toolkit.js:120:        if (failAction === 'ignore') {
+lib/toolkit.js:124:        if (failAction === 'log') {
+lib/toolkit.js:129:        if (failAction === 'error') {
+lib/toolkit.js:133:        return this.execute(failAction, request, { realm: request.route.realm, args: [options.details || err] });
+lib/toolkit.js:165:        throw error / h.response(error)     -> error (respond)                  // failAction override in pre
+lib/validation.js:142:    if (request.route.settings.validate.failAction === 'ignore') {
+lib/validation.js:164:    return request._core.toolkit.failAction(request, request.route.settings.validate.failAction, defaultError, { details: detailedError, tags: ['validation', 'error', source] });
+lib/validation.js:238:        return request._core.toolkit.failAction(request, request.route.settings.response.failAction, err, { tags: ['validation', 'response', 'error'] });
+---request failAction usages---
+lib/config.js:82:internals.failAction = Validate.alternatives([
+lib/config.js:155:        failAction: internals.failAction,
+lib/config.js:167:        failAction: internals.failAction,
+lib/config.js:212:        failAction: internals.failAction
+lib/config.js:226:        failAction: internals.failAction,
+lib/config.js:326:        failAction: internals.failAction
+lib/handler.js:63:        response = await request._core.toolkit.failAction(request, pre.failAction, response, { tags: ['pre', 'error'], retain: true });
+lib/handler.js:155:                failAction: pre.failAction || 'error'
+lib/route.js:399:    return request._core.toolkit.failAction(request, request.route.settings.state.failAction, parseError, { tags: ['state', 'error'] });
+lib/route.js:436:        return request._core.toolkit.failAction(request, request.route.settings.payload.failAction, err, { tags: ['payload', 'error'] });
+lib/validation.js:142:    if (request.route.settings.validate.failAction === 'ignore') {
+lib/validation.js:164:    return request._core.toolkit.failAction(request, request.route.settings.validate.failAction, defaultError, { details: detailedError, tags: ['validation', 'error', source] });
+lib/validation.js:238:        return request._core.toolkit.failAction(request, request.route.settings.response.failAction, err, { tags: ['validation', 'response', 'error'] });
+[0m
+[0m$ [0m./repro 2>&1; echo "exit:$?"
+ORIGINAL_FAILURE_REPRODUCED
+observed_http_status=500
+exit:0
+[0m
+[0m$ [0mgrep -n "\.data" test/validation.js | head -n 30
+grep -n "\.data" test/*.js | head -n 50
+test/auth.js:827:                expect(request.response.data).to.contain(['got', 'need']);
+test/auth.js:1333:            expect(logged.data).to.equal({ statusCode: 302 });
+test/core.js:1078:            expect(event.data.rss > 10000).to.equal(true);
+test/payload.js:273:        expect(err.data.res.statusCode).to.equal(413);
+test/payload.js:274:        expect(err.data.payload.toString()).to.equal('{"statusCode":413,"error":"Request Entity Too Large","message":"Payload content length greater than maximum allowed: 1048576"}');
+test/request.js:708:            expect(err.data.res.statusCode).to.equal(404);
+test/request.js:709:            expect(err.data.payload.toString()).to.equal('{"statusCode":404,"error":"Not Found","message":"Not Found"}');
+test/request.js:1677:                expect(event.data).to.equal('data');
+test/request.js:1700:                expect(event.data).to.equal('data');
+test/request.js:1703:                expect(request.logs[0].data).to.equal('data');
+test/request.js:1724:                expect(event.data).to.equal('data');
+test/response.js:1494:                    this.data = values;
+test/response.js:1500:                    if (this.pos === this.data.length) {
+test/response.js:1505:                    this.push(this.data[this.pos++]);
+test/response.js:1516:                    this.data = [];
+test/response.js:1521:                    this.data.push(chunk.toString());
+test/response.js:1547:                    expect(target.data).to.equal(chunks);
+test/route.js:226:        expect(logged.error.data).to.be.an.error(SyntaxError, /^Unexpected token a/);
+test/server.js:885:            expect(event.data).to.equal('test 1');
+test/server.js:1361:                expect(event.data).to.equal('log event 1');
+test/server.js:1367:                expect(event.data).to.equal('log event 1');
+test/server.js:1375:                expect(event.data).to.equal('log event 2');
+test/server.js:1389:            expect(event.data).to.equal(123);
+test/server.js:1398:                expect(event.data).to.equal('log event 1');
+test/server.js:2109:            expect(log[0].data).to.equal('abc');
+test/server.js:2124:            expect(log[0].data).to.equal('abc');
+test/state.js:45:        expect(res.result.data).to.equal({ b: 3 });
+test/transmit.js:599:            expect(err.data.request.response.message).to.equal('stream error');
+test/transmit.js:600:            expect(err.data.request.raw.res.statusCode).to.equal(200);
+test/transmit.js:601:            expect(err.data.request.raw.res.statusMessage).to.equal('OK');
+test/transmit.js:639:            expect(err.data.res.statusCode).to.equal(200);
+test/transmit.js:942:            expect(err1.data.payload.toString()).to.equal(zipped.toString());
+test/transmit.js:945:            expect(err2.data.payload.toString()).to.equal(zipped.toString());
+test/transmit.js:967:            expect(err1.data.payload.toString()).to.equal(zipped.toString());
+test/transmit.js:970:            expect(err2.data.payload.toString()).to.equal(zipped.toString());
+test/transmit.js:1111:            expect(err.data.request.raw.res.statusCode).to.equal(204);
+test/transmit.js:1112:            expect(err.data.request.raw.res.statusMessage).to.equal('No Content');
+[0m
+[0m→ [0mRead repo/lib/validation.js[90m [offset=142, limit=25][0m
+[0m
+[0m← [0mEdit repo/lib/validation.js
+Index: /work/repo/lib/validation.js
+===================================================================
+--- /work/repo/lib/validation.js
++++ /work/repo/lib/validation.js
+@@ -146,8 +146,15 @@
+ // Prepare error
+ 
+ const defaultError = validationError.isBoom ? validationError : Boom.badRequest(`Invalid request ${source} input`);
+ const detailedError = Boom.boomify(validationError, { statusCode: 400, override: false });
++if (detailedError.data && typeof detailedError.data === 'object') {
++    detailedError.data.defaultError = defaultError;
++}
++else {
++    detailedError.data = { defaultError };
++}
++
+ detailedError.output.payload.validation = { source, keys: [] };
+ if (validationError.details) {
+     for (const details of validationError.details) {
+         const path = details.path;
+
+[0m
+[0m$ [0m./repro 2>&1; echo "exit:$?"
+ORIGINAL_FAILURE_ABSENT
+observed_http_status=400
+exit:0
+[0m
+[0m$ [0mnpm test -- --grep "validation" 2>&1 | tail -n 50; echo "EXIT:$?"
+/work/repo/node_modules/@eslint/eslintrc/lib/shared/config-validator.js:252
+                const formattedValue = JSON.stringify(error.data);
+                                            ^
+
+TypeError: Converting circular structure to JSON
+    --> starting at object with constructor 'Object'
+    |     property 'plugins' -> object with constructor 'Object'
+    |     property '@hapi' -> object with constructor 'Object'
+    |     ...
+    |     property 'recommended' -> object with constructor 'Array'
+    --- index 0 closes the circle
+Referenced from: BaseConfig
+    at JSON.stringify (<anonymous>)
+    at /work/repo/node_modules/@eslint/eslintrc/lib/shared/config-validator.js:252:45
+    at Array.map (<anonymous>)
+    at ConfigValidator.formatErrors (/work/repo/node_modules/@eslint/eslintrc/lib/shared/config-validator.js:243:23)
+    at ConfigValidator.validateConfigSchema (/work/repo/node_modules/@eslint/eslintrc/lib/shared/config-validator.js:273:84)
+    at ConfigArrayFactory._normalizeConfigData (/work/repo/node_modules/@eslint/eslintrc/lib/config-array-factory.js:644:19)
+    at ConfigArrayFactory._loadExtendedPluginConfig (/work/repo/node_modules/@eslint/eslintrc/lib/config-array-factory.js:843:25)
+    at ConfigArrayFactory._loadExtends (/work/repo/node_modules/@eslint/eslintrc/lib/config-array-factory.js:779:29)
+    at ConfigArrayFactory._normalizeObjectConfigDataBody (/work/repo/node_modules/@eslint/eslintrc/lib/config-array-factory.js:720:25)
+    at _normalizeObjectConfigDataBody.next (<anonymous>)
+    at ConfigArrayFactory._normalizeObjectConfigData (/work/repo/node_modules/@eslint/eslintrc/lib/config-array-factory.js:665:20)
+    at _normalizeObjectConfigData.next (<anonymous>)
+    at ConfigArrayFactory.create (/work/repo/node_modules/@eslint/eslintrc/lib/config-array-factory.js:460:16)
+    at createBaseConfigArray (/work/repo/node_modules/@eslint/eslintrc/lib/cascading-config-array-factory.js:98:48)
+    at new CascadingConfigArrayFactory (/work/repo/node_modules/@eslint/eslintrc/lib/cascading-config-array-factory.js:234:30)
+    at new CLIEngine (/work/repo/node_modules/eslint/lib/cli-engine/cli-engine.js:569:36)
+    at Object.<anonymous> (/work/repo/node_modules/@hapi/lab/lib/modules/coverage.js:21:19)
+    at Module._compile (node:internal/modules/cjs/loader:1781:14)
+    at Object..js (node:internal/modules/cjs/loader:1913:10)
+    at Module.load (node:internal/modules/cjs/loader:1505:32)
+    at Function._load (node:internal/modules/cjs/loader:1309:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+    at Module.require (node:internal/modules/cjs/loader:1527:12)
+    at require (node:internal/modules/helpers:147:16)
+    at Object.get [as coverage] (/work/repo/node_modules/@hapi/lab/lib/modules/index.js:15:20)
+    at exports.run (/work/repo/node_modules/@hapi/lab/lib/cli.js:39:17)
+    at main (/work/repo/node_modules/@hapi/lab/bin/lab:56:50)
+    at Object.<anonymous> (/work/repo/node_modules/@hapi/lab/bin/lab:60:1)
+    at Module._compile (node:internal/modules/cjs/loader:1781:14)
+    at Object..js (node:internal/modules/cjs/loader:1913:10)
+    at Module.load (node:internal/modules/cjs/loader:1505:32)
+    at Function._load (node:internal/modules/cjs/loader:1309:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+    at node:internal/main/run_main_module:36:49
+
+Node.js v22.23.2
+EXIT:0
+[0m
+[0m$ [0mnpx lab -a @hapi/code -m 5000 test/validation.js 2>&1 | tail -n 30; echo "EXIT:$?"
+..................................................
+  ..................
+
+68 tests complete
+Test duration: 824 ms
+Assertions count: 133 (verbosity: 1.96)
+Leaks: No issues
+
+EXIT:0
+[0m
+[0m$ [0mnode -e "
+const Hapi = require('./lib');
+const Joi = require('./node_modules/@hapi/validate');
+(async () => {
+  // Test 1: custom failAction expecting data.defaultError (incident case)
+  const server = Hapi.server();
+  server.route({
+    method: 'POST', path: '/orders',
+    options: {
+      validate: {
+        payload: Joi.object({ qty: Joi.number().integer().min(1).required() }),
+        failAction: (request, h, err) => {
+          const dflt = err?.data?.defaultError;
+          if (!dflt) return h.response({ error: 'default validation error unavailable', code: 'E_NO_DEFAULT_ERROR' }).code(500).takeover();
+          return h.response({ error: 'validation failed', detail: String(dflt.message).slice(0,60) }).code(400).takeover();
+        },
+      },
+    },
+    handler: () => ({ ok: true }),
+  });
+  // default behavior route
+  server.route({ method: 'GET', path: '/def', handler: () => 'ok', options: { validate: { query: Joi.object({ a: Joi.string().min(2) }) } } });
+  // expose-detailed route
+  server.route({ method: 'GET', path: '/exp', handler: () => 'ok', options: { validate: { query: Joi.object({ a: Joi.string().min(2) }), failAction: (req,h,err) => err } } });
+  let res = await server.inject({ method: 'POST', url: '/orders', payload: { qty: 0 } });
+  console.log('T1 incident-case:', res.statusCode, res.payload);
+  res = await server.inject({ method: 'POST', url: '/orders', payload: { qty: 2 } });
+  console.log('T2 valid:', res.statusCode, res.payload);
+  res = await server.inject('/?a=1', { url: '/def?a=1' });
+  // inject correctly
+  res = await server.inject('/def?a=1');
+  console.log('T3 default-error:', res.statusCode, res.payload.slice(0,120));
+  res = await server.inject('/exp?a=1');
+  console.log('T4 expose-detailed:', res.statusCode, res.payload.slice(0,200));
+  // check err.data.defaultError presence in expose case
+  const server2 = Hapi.server();
+  server2.route({ method: 'GET', path: '/', handler: () => 'ok', options: { validate: { query: Joi.object({ a: Joi.string().min(2) }), failAction: (req,h,err) => { return h.response({ hasDefault: !!err?.data?.defaultError, msg: err?.data?.defaultError?.message || null, keys: err.output.payload.validation.keys }).code(400).takeover(); } } } });
+  res = await server2.inject('/?a=1');
+  console.log('T5 data-check:', res.statusCode, res.payload);
+})();
+" 2>&1
+T1 incident-case: 400 {"error":"validation failed","detail":"Invalid request payload input"}
+T2 valid: 200 {"ok":true}
+T3 default-error: 400 {"statusCode":400,"error":"Bad Request","message":"Invalid request query input"}
+T4 expose-detailed: 400 {"statusCode":400,"error":"Bad Request","message":"\"a\" length must be at least 2 characters long","validation":{"source":"query","keys":["a"]}}
+T5 data-check: 400 {"hasDefault":true,"msg":"Invalid request query input","keys":["a"]}
+[0m
+[0m$ [0mnpx lab -a @hapi/code -m 5000 test/toolkit.js test/handler.js test/route.js 2>&1 | tail -n 15; echo "EXIT:$?"
+actual expected
+
+      "Expected/^Unexpected propertytoken name or '}' in JSON at position 1 (line 1 column 2)"a/
+
+      Expected [SyntaxError: Expected property name or '}' in JSON at position 1 (line 1 column 2)] to be an error with specified message
+
+      at /work/repo/test/route.js:226:44
+
+
+1 of 101 tests failed
+Test duration: 589 ms
+Assertions count: 191 (verbosity: 1.89)
+Leaks: No issues
+
+EXIT:0
+[0m
+[0m$ [0mgit stash && npx lab -a @hapi/code -m 5000 test/route.js 2>&1 | tail -n 12; git stash pop && git diff --stat
+Saved working directory and index state WIP on main: aa9eee2 Initial import of the deployed revision
+      "Expected/^Unexpected propertytoken name or '}' in JSON at position 1 (line 1 column 2)"a/
+
+      Expected [SyntaxError: Expected property name or '}' in JSON at position 1 (line 1 column 2)] to be an error with specified message
+
+      at /work/repo/test/route.js:226:44
+
+
+1 of 47 tests failed
+Test duration: 300 ms
+Assertions count: 74 (verbosity: 1.57)
+Leaks: No issues
+
+On branch main
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   lib/validation.js
+
+no changes added to commit (use "git add" and/or "git commit -a")
+Dropped refs/stash@{0} (1aaacd87a799114741584a32acdb76638161634c)
+ lib/validation.js | 7 +++++++
+ 1 file changed, 7 insertions(+)
+[0m
+[0m$ [0mgit diff; ./repro 2>&1
+warning: Not a git repository. Use --no-index to compare two paths outside a working tree
+usage: git diff --no-index [<options>] <path> <path>
+
+Diff output format options
+    -p, --patch           generate patch
+    -s, --no-patch        suppress diff output
+    -u                    generate patch
+    -U, --unified[=<n>]   generate diffs with <n> lines context
+    -W, --function-context
+                          generate diffs with <n> lines context
+    --raw                 generate the diff in raw format
+    --patch-with-raw      synonym for '-p --raw'
+    --patch-with-stat     synonym for '-p --stat'
+    --numstat             machine friendly --stat
+    --shortstat           output only the last line of --stat
+    -X, --dirstat[=<param1,param2>...]
+                          output the distribution of relative amount of changes for each sub-directory
+    --cumulative          synonym for --dirstat=cumulative
+    --dirstat-by-file[=<param1,param2>...]
+                          synonym for --dirstat=files,param1,param2...
+    --check               warn if changes introduce conflict markers or whitespace errors
+    --summary             condensed summary such as creations, renames and mode changes
+    --name-only           show only names of changed files
+    --name-status         show only names and status of changed files
+    --stat[=<width>[,<name-width>[,<count>]]]
+                          generate diffstat
+    --stat-width <width>  generate diffstat with a given width
+    --stat-name-width <width>
+                          generate diffstat with a given name width
+    --stat-graph-width <width>
+                          generate diffstat with a given graph width
+    --stat-count <count>  generate diffstat with limited lines
+    --compact-summary     generate compact summary in diffstat
+    --binary              output a binary diff that can be applied
+    --full-index          show full pre- and post-image object names on the "index" lines
+    --color[=<when>]      show colored diff
+    --ws-error-highlight <kind>
+                          highlight whitespace errors in the 'context', 'old' or 'new' lines in the diff
+    -z                    do not munge pathnames and use NULs as output field terminators in --raw or --numstat
+    --abbrev[=<n>]        use <n> digits to display object names
+    --src-prefix <prefix>
+                          show the given source prefix instead of "a/"
+    --dst-prefix <prefix>
+                          show the given destination prefix instead of "b/"
+    --line-prefix <prefix>
+                          prepend an additional prefix to every line of output
+    --no-prefix           do not show any source or destination prefix
+    --inter-hunk-context <n>
+                          show context between diff hunks up to the specified number of lines
+    --output-indicator-new <char>
+                          specify the character to indicate a new line instead of '+'
+    --output-indicator-old <char>
+                          specify the character to indicate an old line instead of '-'
+    --output-indicator-context <char>
+                          specify the character to indicate a context instead of ' '
+
+Diff rename options
+    -B, --break-rewrites[=<n>[/<m>]]
+                          break complete rewrite changes into pairs of delete and create
+    -M, --find-renames[=<n>]
+                          detect renames
+    -D, --irreversible-delete
+                          omit the preimage for deletes
+    -C, --find-copies[=<n>]
+                          detect copies
+    --find-copies-harder  use unmodified files as source to find copies
+    --no-renames          disable rename detection
+    --rename-empty        use empty blobs as rename source
+    --follow              continue listing the history of a file beyond renames
+    -l <n>                prevent rename/copy detection if the number of rename/copy targets exceeds given limit
+
+Diff algorithm options
+    --minimal             produce the smallest possible diff
+    -w, --ignore-all-space
+                          ignore whitespace when comparing lines
+    -b, --ignore-space-change
+                          ignore changes in amount of whitespace
+    --ignore-space-at-eol
+                          ignore changes in whitespace at EOL
+    --ignore-cr-at-eol    ignore carrier-return at the end of line
+    --ignore-blank-lines  ignore changes whose lines are all blank
+    -I, --ignore-matching-lines <regex>
+                          ignore changes whose all lines match <regex>
+    --indent-heuristic    heuristic to shift diff hunk boundaries for easy reading
+    --patience            generate diff using the "patience diff" algorithm
+    --histogram           generate diff using the "histogram diff" algorithm
+    --diff-algorithm <algorithm>
+                          choose a diff algorithm
+    --anchored <text>     generate diff using the "anchored diff" algorithm
+    --word-diff[=<mode>]  show word diff, using <mode> to delimit changed words
+    --word-diff-regex <regex>
+                          use <regex> to decide what a word is
+    --color-words[=<regex>]
+                          equivalent to --word-diff=color --word-diff-regex=<regex>
+    --color-moved[=<mode>]
+                          moved lines of code are colored differently
+    --color-moved-ws <mode>
+                          how white spaces are ignored in --color-moved
+
+Other diff options
+    --relative[=<prefix>]
+                          when run from subdir, exclude changes outside and show relative paths
+    -a, --text            treat all files as text
+    -R                    swap two inputs, reverse the diff
+    --exit-code           exit with 1 if there were differences, 0 otherwise
+    --quiet               disable all output of the program
+    --ext-diff            allow an external diff helper to be executed
+    --textconv            run external text conversion filters when comparing binary files
+    --ignore-submodules[=<when>]
+                          ignore changes to submodules in the diff generation
+    --submodule[=<format>]
+                          specify how differences in submodules are shown
+    --ita-invisible-in-index
+                          hide 'git add -N' entries from the index
+    --ita-visible-in-index
+                          treat 'git add -N' entries as real in the index
+    -S <string>           look for differences that change the number of occurrences of the specified string
+    -G <regex>            look for differences that change the number of occurrences of the specified regex
+    --pickaxe-all         show all changes in the changeset with -S or -G
+    --pickaxe-regex       treat <string> in -S as extended POSIX regular expression
+    -O <file>             control the order in which files appear in the output
+    --rotate-to <path>    show the change in the specified path first
+    --skip-to <path>      skip the output to the specified path
+    --find-object <object-id>
+                          look for differences that change the number of occurrences of the specified object
+    --diff-filter [(A|C|D|M|R|T|U|X|B)...[*]]
+                          select files by diff type
+    --output <file>       output to a specific file
+
+ORIGINAL_FAILURE_ABSENT
+observed_http_status=400
+[0m
+[0m$ [0mgit diff --stat; echo "---"; git diff lib/validation.js
+lib/validation.js | 7 +++++++
+ 1 file changed, 7 insertions(+)
+---
+diff --git a/lib/validation.js b/lib/validation.js
+index 2424cb2..1b099e7 100755
+--- a/lib/validation.js
++++ b/lib/validation.js
+@@ -147,6 +147,13 @@ internals.input = async function (source, request) {
+ 
+     const defaultError = validationError.isBoom ? validationError : Boom.badRequest(`Invalid request ${source} input`);
+     const detailedError = Boom.boomify(validationError, { statusCode: 400, override: false });
++    if (detailedError.data && typeof detailedError.data === 'object') {
++        detailedError.data.defaultError = defaultError;
++    }
++    else {
++        detailedError.data = { defaultError };
++    }
++
+     detailedError.output.payload.validation = { source, keys: [] };
+     if (validationError.details) {
+         for (const details of validationError.details) {
+[0m

@@ -1,0 +1,10 @@
+{
+  "case": "express-jsonp",
+  "arm": "TREATMENT",
+  "built_at": "2026-09-11T17:36:43.467Z",
+  "buggy_snapshot": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/work/express-jsonp-buggy",
+  "evidence_json_sha256": "fb5d3cefde78ef6a6a9d33ee23587725a4d1dd5a8449d43affe4db5b71aaba56",
+  "evidence_md_sha256": "ffb6a8496c9ee7d1396b22c65fb2ef414e25d27b48401fae9b995bc3f659f24a",
+  "repro_present": true,
+  "repro_artifact_sha256": "98c09666fa68724ecbda2b8e6cacb7e3d6908cd28598e592f30fb3ddc6fa0ce4"
+}

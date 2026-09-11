@@ -1,0 +1,13 @@
+ls test/ | head -n 100; echo ---; ls /work/repo/test/*.js | head
+ls /work/repo/test/ | head -n 100
+node -e "import('./index.js').then(m=>{const e=m.default; const app=e(); console.log('jsonp callback name:', app.get('jsonp callback name')); console.log('query parser fn?', typeof app.get('query parser fn')); })"
+node --input-type=module -e "
+node --input-type=module -e "
+node --input-type=module -e "
+node --input-type=module -e "
+npm test -- --grep "jsonp" 2>&1 | tail -n 60; echo EXIT:$?
+npx mocha --require test/support/env --reporter dot --check-leaks test/res.json.js test/res.jsonp.js test/res.send.js 2>&1 | tail -n 20
+git stash && npx mocha --require test/support/env --reporter dot --check-leaks test/res.send.js 2>&1 | tail -n 20; git stash pop
+npx mocha --require test/support/env --reporter dot --check-leaks test/res.json.js test/res.jsonp.js 2>&1 | tail -n 10
+REPO_ROOT=/work/repo PORT=51199 node /work/app/server.mjs & SRVPID=$!; sleep 1.5; curl -s -i "http://127.0.0.1:51199/lookup?cb=foo&id=unknown"; echo "---"; curl -s -i "http://127.0.0.1:51199/lookup?cb=foo&id=known"; echo "---"; kill $SRVPID; wait $SRVPID 2>/dev/null; true
+git diff

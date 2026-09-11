@@ -1,0 +1,27 @@
+[
+  {
+    "line": 30,
+    "command": "$ ls -R /work; echo \"---\"; cat /work/repro 2>&1 | head -n 200; echo \"---repro type---\"; file /work/repro; ls -l /work/repro",
+    "outcome": null
+  },
+  {
+    "line": 2032,
+    "command": "-rwxr-xr-x 1 root root 815 Sep 11 18:08 /work/repro",
+    "outcome": null
+  },
+  {
+    "line": 3550,
+    "command": "$ ./repro 2>&1; echo \"exit:$?\"",
+    "outcome": "ORIGINAL_FAILURE_REPRODUCED"
+  },
+  {
+    "line": 3620,
+    "command": "$ ./repro 2>&1; echo \"exit:$?\"",
+    "outcome": "ORIGINAL_FAILURE_ABSENT"
+  },
+  {
+    "line": 3777,
+    "command": "$ git diff; ./repro 2>&1",
+    "outcome": null
+  }
+]

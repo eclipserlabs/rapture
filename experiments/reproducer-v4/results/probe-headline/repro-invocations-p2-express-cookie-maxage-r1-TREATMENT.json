@@ -1,0 +1,12 @@
+[
+  {
+    "line": 73,
+    "command": "$ ./repro 2>&1; echo \"exit:$?\"",
+    "outcome": "ORIGINAL_FAILURE_REPRODUCED"
+  },
+  {
+    "line": 98,
+    "command": "$ ./repro 2>&1; echo \"exit:$?\"",
+    "outcome": "ORIGINAL_FAILURE_ABSENT"
+  }
+]

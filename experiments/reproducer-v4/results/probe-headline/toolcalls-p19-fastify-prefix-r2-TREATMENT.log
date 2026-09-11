@@ -1,0 +1,16 @@
+/work/repro 2>&1; echo EXIT:$?
+rg -n "prefix" lib/*.js | head -n 200
+grep -rn "prefix" lib/ | head -n 200
+grep -rn "kRoutePrefix" fastify.js lib/*.js | head -n 50
+git log --oneline -15 -- lib/plugin-override.js; echo ---; git log --oneline -10
+grep -rln "prefix" test/ | head -n 20
+grep -n "prefix.*trailing\|trailing.*prefix\|buildRoutePrefix\|prefix.*slash" test/*.js lib/*.js | head -n 100
+grep -n "prefix" fastify.js | head -n 60
+node -e "
+node -e "
+/work/repro 2>&1; echo EXIT:$?
+node --test test/route-prefix.test.js 2>&1 | tail -n 20
+node --test test/register.test.js test/plugin.1.test.js test/plugin.2.test.js test/plugin.3.test.js test/plugin.4.test.js 2>&1 | tail -n 12
+node --test test/404s.test.js test/route.2.test.js test/route.6.test.js 2>&1 | tail -n 12
+node -e "
+git diff --stat; echo ---; git diff

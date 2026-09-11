@@ -1,0 +1,32 @@
+[
+  {
+    "line": 33,
+    "command": "$ ls -R /work/.repro/rt 2>&1 | head -n 100; echo ---; cat /work/repro 2>&1 | head -n 200",
+    "outcome": null
+  },
+  {
+    "line": 998,
+    "command": "$ ./repro 2>&1 | tail -n 20",
+    "outcome": "ORIGINAL_FAILURE_REPRODUCED"
+  },
+  {
+    "line": 1050,
+    "command": "$ ./repro 2>&1 | tail -n 20",
+    "outcome": "ORIGINAL_FAILURE_ABSENT"
+  },
+  {
+    "line": 1230,
+    "command": "$ ./repro 2>&1 | tail -n 5",
+    "outcome": null
+  },
+  {
+    "line": 1232,
+    "command": "/usr/bin/bash: line 1: ./repro: No such file or directory",
+    "outcome": null
+  },
+  {
+    "line": 1264,
+    "command": "$ /work/repro 2>&1 | tail -n 5",
+    "outcome": "ORIGINAL_FAILURE_ABSENT"
+  }
+]

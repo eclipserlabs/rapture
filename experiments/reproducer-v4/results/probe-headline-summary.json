@@ -1,0 +1,598 @@
+{
+  "runs_recorded": 20,
+  "valid_runs": 20,
+  "invalid_runs": 0,
+  "invalid_detail": [],
+  "correct_fix_rate": {
+    "CONTROL": 70.0,
+    "TREATMENT": 90.0,
+    "absolute_difference_pp": 20.0
+  },
+  "false_fix_rate": {
+    "CONTROL": 0.0,
+    "TREATMENT": 0.0
+  },
+  "regression_rate": {
+    "CONTROL": 30.0,
+    "TREATMENT": 10.0
+  },
+  "timeout_rate": {
+    "CONTROL": 0.0,
+    "TREATMENT": 0.0
+  },
+  "per_case": [
+    {
+      "case": "express-cookie-maxage",
+      "control_correct": "1/2",
+      "treatment_correct": "2/2",
+      "verdict": "TREATMENT_WINS",
+      "control_classes": [
+        "CORRECT_FIX",
+        "REGRESSION_INTRODUCED"
+      ],
+      "treatment_classes": [
+        "CORRECT_FIX",
+        "CORRECT_FIX"
+      ],
+      "control_seconds": [
+        66.48,
+        145.34
+      ],
+      "treatment_seconds": [
+        105.49,
+        80.08
+      ]
+    },
+    {
+      "case": "express-jsonp",
+      "control_correct": "2/2",
+      "treatment_correct": "2/2",
+      "verdict": "TIE",
+      "control_classes": [
+        "CORRECT_FIX",
+        "CORRECT_FIX"
+      ],
+      "treatment_classes": [
+        "CORRECT_FIX",
+        "CORRECT_FIX"
+      ],
+      "control_seconds": [
+        141.59,
+        105.43
+      ],
+      "treatment_seconds": [
+        116.98,
+        107.25
+      ]
+    },
+    {
+      "case": "fastify-prefix",
+      "control_correct": "2/2",
+      "treatment_correct": "2/2",
+      "verdict": "TIE",
+      "control_classes": [
+        "CORRECT_FIX",
+        "CORRECT_FIX"
+      ],
+      "treatment_classes": [
+        "CORRECT_FIX",
+        "CORRECT_FIX"
+      ],
+      "control_seconds": [
+        238.45,
+        100.41
+      ],
+      "treatment_seconds": [
+        90.32,
+        98.53
+      ]
+    },
+    {
+      "case": "fastify-port",
+      "control_correct": "0/2",
+      "treatment_correct": "1/2",
+      "verdict": "TREATMENT_WINS",
+      "control_classes": [
+        "REGRESSION_INTRODUCED",
+        "REGRESSION_INTRODUCED"
+      ],
+      "treatment_classes": [
+        "REGRESSION_INTRODUCED",
+        "CORRECT_FIX"
+      ],
+      "control_seconds": [
+        163.02,
+        178.1
+      ],
+      "treatment_seconds": [
+        203.51,
+        264.06
+      ]
+    },
+    {
+      "case": "hapi-failaction",
+      "control_correct": "2/2",
+      "treatment_correct": "2/2",
+      "verdict": "TIE",
+      "control_classes": [
+        "CORRECT_FIX",
+        "CORRECT_FIX"
+      ],
+      "treatment_classes": [
+        "CORRECT_FIX",
+        "CORRECT_FIX"
+      ],
+      "control_seconds": [
+        183.12,
+        272.19
+      ],
+      "treatment_seconds": [
+        188.44,
+        143.83
+      ]
+    }
+  ],
+  "paired": {
+    "treatment_wins": 2,
+    "ties": 3,
+    "treatment_losses": 0
+  },
+  "efficiency_on_successful_runs": {
+    "wall_clock_seconds": {
+      "CONTROL_median": 141.59,
+      "TREATMENT_median": 107.25,
+      "improvement_pct": 24.3
+    },
+    "tool_calls": {
+      "CONTROL_median": 15,
+      "TREATMENT_median": 16,
+      "improvement_pct": -6.7
+    },
+    "test_invocations": {
+      "CONTROL_median": 1,
+      "TREATMENT_median": 3,
+      "improvement_pct": -200.0
+    }
+  },
+  "repro_usage": {
+    "treatment_runs_invoking_repro": 10,
+    "treatment_runs_total": 10,
+    "invocations_per_run": [
+      3,
+      6,
+      7,
+      4,
+      3,
+      5,
+      5,
+      8,
+      5,
+      3
+    ],
+    "first_invocation_trace_line": [
+      73,
+      26,
+      33,
+      166,
+      35,
+      31,
+      310,
+      30,
+      228,
+      31
+    ],
+    "outcomes_observed": [
+      "ORIGINAL_FAILURE_ABSENT",
+      "ORIGINAL_FAILURE_REPRODUCED"
+    ],
+    "control_runs_invoking_repro": 0
+  },
+  "network_attempts_total": {
+    "DENIED models.opencode.ai:443": 20,
+    "DENIED registry.npmjs.org:443": 33,
+    "DENIED github.com:443": 20,
+    "ALLOWED opencode.ai:443": 36,
+    "DENIED 127.0.0.1:51210": 1
+  },
+  "agent_initiated_network_commands": 2,
+  "agent_web_tool_attempts": 0,
+  "resources": {
+    "free_mb_before_first": 1597,
+    "free_mb_after_last": 2485,
+    "min_free_mb_observed": 1459,
+    "floor_mb": 700,
+    "workspaces_retained": 0
+  },
+  "decision_rule_evaluation": {
+    "regime": "NORMAL_BASELINE (control correct-fix < 80%)",
+    "treatment_improves_20pp": true,
+    "treatment_wins_at_least_3_of_5": false,
+    "treatment_loses_at_most_1_of_5": true,
+    "false_fix_and_regression_not_materially_worse": true,
+    "strong_positive_all_met": false,
+    "negative_conditions_met": false
+  },
+  "verdict": "INCONCLUSIVE",
+  "raw_outcomes": [
+    {
+      "run": 1,
+      "case": "express-cookie-maxage",
+      "arm": "CONTROL",
+      "classification": "CORRECT_FIX",
+      "seconds": 66.48,
+      "termination": "AGENT_COMPLETED",
+      "patch_empty": false,
+      "tool_calls": 10,
+      "tests": 0,
+      "repro_invocations": 0,
+      "tree_changed": true,
+      "starting_tree": "4aead6dd13ad",
+      "final_tree": "fd28622821bf"
+    },
+    {
+      "run": 2,
+      "case": "express-cookie-maxage",
+      "arm": "TREATMENT",
+      "classification": "CORRECT_FIX",
+      "seconds": 105.49,
+      "termination": "AGENT_COMPLETED",
+      "patch_empty": false,
+      "tool_calls": 9,
+      "tests": 6,
+      "repro_invocations": 3,
+      "tree_changed": true,
+      "starting_tree": "4aead6dd13ad",
+      "final_tree": "fd28622821bf"
+    },
+    {
+      "run": 3,
+      "case": "express-cookie-maxage",
+      "arm": "CONTROL",
+      "classification": "REGRESSION_INTRODUCED",
+      "seconds": 145.34,
+      "termination": "AGENT_COMPLETED",
+      "patch_empty": false,
+      "tool_calls": 12,
+      "tests": 4,
+      "repro_invocations": 0,
+      "tree_changed": true,
+      "starting_tree": "4aead6dd13ad",
+      "final_tree": "fd28622821bf"
+    },
+    {
+      "run": 4,
+      "case": "express-cookie-maxage",
+      "arm": "TREATMENT",
+      "classification": "CORRECT_FIX",
+      "seconds": 80.08,
+      "termination": "AGENT_COMPLETED",
+      "patch_empty": false,
+      "tool_calls": 10,
+      "tests": 3,
+      "repro_invocations": 6,
+      "tree_changed": true,
+      "starting_tree": "4aead6dd13ad",
+      "final_tree": "fd28622821bf"
+    },
+    {
+      "run": 5,
+      "case": "express-jsonp",
+      "arm": "TREATMENT",
+      "classification": "CORRECT_FIX",
+      "seconds": 116.98,
+      "termination": "AGENT_COMPLETED",
+      "patch_empty": false,
+      "tool_calls": 17,
+      "tests": 6,
+      "repro_invocations": 7,
+      "tree_changed": true,
+      "starting_tree": "91a45528ae29",
+      "final_tree": "7820cb3cf39b"
+    },
+    {
+      "run": 6,
+      "case": "express-jsonp",
+      "arm": "CONTROL",
+      "classification": "CORRECT_FIX",
+      "seconds": 141.59,
+      "termination": "AGENT_COMPLETED",
+      "patch_empty": false,
+      "tool_calls": 13,
+      "tests": 1,
+      "repro_invocations": 0,
+      "tree_changed": true,
+      "starting_tree": "91a45528ae29",
+      "final_tree": "744498fdd367"
+    },
+    {
+      "run": 7,
+      "case": "fastify-port",
+      "arm": "CONTROL",
+      "classification": "REGRESSION_INTRODUCED",
+      "seconds": 163.02,
+      "termination": "AGENT_COMPLETED",
+      "patch_empty": false,
+      "tool_calls": 16,
+      "tests": 5,
+      "repro_invocations": 0,
+      "tree_changed": true,
+      "starting_tree": "32c6ec4cc6bb",
+      "final_tree": "eaea0ed2a432"
+    },
+    {
+      "run": 8,
+      "case": "fastify-port",
+      "arm": "TREATMENT",
+      "classification": "REGRESSION_INTRODUCED",
+      "seconds": 203.51,
+      "termination": "AGENT_COMPLETED",
+      "patch_empty": false,
+      "tool_calls": 17,
+      "tests": 9,
+      "repro_invocations": 4,
+      "tree_changed": true,
+      "starting_tree": "32c6ec4cc6bb",
+      "final_tree": "eaea0ed2a432"
+    },
+    {
+      "run": 9,
+      "case": "express-jsonp",
+      "arm": "TREATMENT",
+      "classification": "CORRECT_FIX",
+      "seconds": 107.25,
+      "termination": "AGENT_COMPLETED",
+      "patch_empty": false,
+      "tool_calls": 15,
+      "tests": 3,
+      "repro_invocations": 3,
+      "tree_changed": true,
+      "starting_tree": "91a45528ae29",
+      "final_tree": "744498fdd367"
+    },
+    {
+      "run": 10,
+      "case": "express-jsonp",
+      "arm": "CONTROL",
+      "classification": "CORRECT_FIX",
+      "seconds": 105.43,
+      "termination": "AGENT_COMPLETED",
+      "patch_empty": false,
+      "tool_calls": 21,
+      "tests": 1,
+      "repro_invocations": 0,
+      "tree_changed": true,
+      "starting_tree": "91a45528ae29",
+      "final_tree": "744498fdd367"
+    },
+    {
+      "run": 11,
+      "case": "fastify-prefix",
+      "arm": "TREATMENT",
+      "classification": "CORRECT_FIX",
+      "seconds": 90.32,
+      "termination": "AGENT_COMPLETED",
+      "patch_empty": false,
+      "tool_calls": 13,
+      "tests": 6,
+      "repro_invocations": 5,
+      "tree_changed": true,
+      "starting_tree": "7a9549d986df",
+      "final_tree": "cb6975c0bba2"
+    },
+    {
+      "run": 12,
+      "case": "fastify-prefix",
+      "arm": "CONTROL",
+      "classification": "CORRECT_FIX",
+      "seconds": 238.45,
+      "termination": "AGENT_COMPLETED",
+      "patch_empty": false,
+      "tool_calls": 22,
+      "tests": 7,
+      "repro_invocations": 0,
+      "tree_changed": true,
+      "starting_tree": "7a9549d986df",
+      "final_tree": "cb6975c0bba2"
+    },
+    {
+      "run": 13,
+      "case": "hapi-failaction",
+      "arm": "TREATMENT",
+      "classification": "CORRECT_FIX",
+      "seconds": 188.44,
+      "termination": "AGENT_COMPLETED",
+      "patch_empty": false,
+      "tool_calls": 18,
+      "tests": 1,
+      "repro_invocations": 5,
+      "tree_changed": true,
+      "starting_tree": "acfa8427bfaa",
+      "final_tree": "2301b46f9af8"
+    },
+    {
+      "run": 14,
+      "case": "hapi-failaction",
+      "arm": "CONTROL",
+      "classification": "CORRECT_FIX",
+      "seconds": 183.12,
+      "termination": "AGENT_COMPLETED",
+      "patch_empty": false,
+      "tool_calls": 14,
+      "tests": 1,
+      "repro_invocations": 0,
+      "tree_changed": true,
+      "starting_tree": "acfa8427bfaa",
+      "final_tree": "6374b74b3935"
+    },
+    {
+      "run": 15,
+      "case": "hapi-failaction",
+      "arm": "CONTROL",
+      "classification": "CORRECT_FIX",
+      "seconds": 272.19,
+      "termination": "AGENT_COMPLETED",
+      "patch_empty": false,
+      "tool_calls": 23,
+      "tests": 1,
+      "repro_invocations": 0,
+      "tree_changed": true,
+      "starting_tree": "acfa8427bfaa",
+      "final_tree": "f0c43ba53298"
+    },
+    {
+      "run": 16,
+      "case": "hapi-failaction",
+      "arm": "TREATMENT",
+      "classification": "CORRECT_FIX",
+      "seconds": 143.83,
+      "termination": "AGENT_COMPLETED",
+      "patch_empty": false,
+      "tool_calls": 23,
+      "tests": 1,
+      "repro_invocations": 8,
+      "tree_changed": true,
+      "starting_tree": "acfa8427bfaa",
+      "final_tree": "b40cd29e3e1f"
+    },
+    {
+      "run": 17,
+      "case": "fastify-port",
+      "arm": "CONTROL",
+      "classification": "REGRESSION_INTRODUCED",
+      "seconds": 178.1,
+      "termination": "AGENT_COMPLETED",
+      "patch_empty": false,
+      "tool_calls": 15,
+      "tests": 4,
+      "repro_invocations": 0,
+      "tree_changed": true,
+      "starting_tree": "32c6ec4cc6bb",
+      "final_tree": "eaea0ed2a432"
+    },
+    {
+      "run": 18,
+      "case": "fastify-port",
+      "arm": "TREATMENT",
+      "classification": "CORRECT_FIX",
+      "seconds": 264.06,
+      "termination": "AGENT_COMPLETED",
+      "patch_empty": false,
+      "tool_calls": 19,
+      "tests": 6,
+      "repro_invocations": 5,
+      "tree_changed": true,
+      "starting_tree": "32c6ec4cc6bb",
+      "final_tree": "c33f72310063"
+    },
+    {
+      "run": 19,
+      "case": "fastify-prefix",
+      "arm": "TREATMENT",
+      "classification": "CORRECT_FIX",
+      "seconds": 98.53,
+      "termination": "AGENT_COMPLETED",
+      "patch_empty": false,
+      "tool_calls": 16,
+      "tests": 3,
+      "repro_invocations": 3,
+      "tree_changed": true,
+      "starting_tree": "7a9549d986df",
+      "final_tree": "ed1fecc92a3e"
+    },
+    {
+      "run": 20,
+      "case": "fastify-prefix",
+      "arm": "CONTROL",
+      "classification": "CORRECT_FIX",
+      "seconds": 100.41,
+      "termination": "AGENT_COMPLETED",
+      "patch_empty": false,
+      "tool_calls": 15,
+      "tests": 2,
+      "repro_invocations": 0,
+      "tree_changed": true,
+      "starting_tree": "7a9549d986df",
+      "final_tree": "cb6975c0bba2"
+    }
+  ],
+  "control_reproduction_capability": {
+    "control_runs_that_started_the_service_locally": 8,
+    "control_runs_total": 10,
+    "why_it_matters": "the five probe services are self-contained framework-logic bugs with no database and no outbound dependency, so a CONTROL agent can boot the application and reproduce the failure by hand. On this corpus the executable incident competes against 'run the app yourself', not against 'you cannot reproduce at all'. That is the single most important limit on how far this result generalises.",
+    "captured_boundary_events_per_artifact": {
+      "express-cookie-maxage": 1,
+      "express-jsonp": 0,
+      "fastify-prefix": 0,
+      "fastify-port": 0,
+      "hapi-failaction": 1
+    },
+    "contrast": "the two calibration cases, by comparison, required a live Postgres and an outbound HTTP dependency that the container does not have"
+  },
+  "provider_instability": {
+    "incidents": 2,
+    "error": "Upstream request failed: [invalid_request_error] reasoning `encrypted_content` was not issued to this caller",
+    "affected_slots": [
+      "p4-express-cookie-maxage-r2-TREATMENT (twice)",
+      "p6-express-jsonp-r2-CONTROL (once)"
+    ],
+    "handling": "classified INVALID_HARNESS, not AGENT_ABORTED, and the slot re-run. Recording a provider outage as an agent giving up would have put it in the denominator as a real outcome.",
+    "mid_experiment_change_disclosure": "the provider-error detector was added AFTER headline run 1, when the failure first appeared. The probe manifest was deliberately NOT re-frozen for it, so the sequence stays visible in the record. The change is symmetric across arms and affects only how a runtime outage is labelled.",
+    "attempts_needed": "22 subject invocations produced 20 valid runs"
+  },
+  "network_integrity": {
+    "agent_web_tool_attempts": 0,
+    "agent_external_network_commands": 0,
+    "localhost_curl_commands": 2,
+    "note": "the only network-capable shell commands in all 20 traces were two curl calls to 127.0.0.1 against the agent's own locally started service",
+    "one_localhost_request_transited_the_proxy": {
+      "run": "p7-fastify-port-r1-CONTROL",
+      "target": "CONNECT 127.0.0.1:51210",
+      "result": "denied",
+      "assessment": "a potential handicap to that CONTROL run. It is not decisive: p17, the other CONTROL replicate of the same case with no such event, produced the identical wrong one-line patch, as did the TREATMENT run p8."
+    },
+    "leakage": "no run obtained historical fix information. Zero INVALID_LEAKAGE."
+  },
+  "regression_detail": [
+    {
+      "label": "p7-fastify-port-r1-CONTROL",
+      "newly_failing_count": 6,
+      "examples": [
+        "trust proxy, not add properties to node req",
+        "trust proxy chain",
+        "trust proxy function"
+      ],
+      "patch": "lib/request.js | 2 +- ;  1 file changed, 1 insertion(+), 1 deletion(-)"
+    },
+    {
+      "label": "p17-fastify-port-r2-CONTROL",
+      "newly_failing_count": 6,
+      "examples": [
+        "trust proxy, not add properties to node req",
+        "trust proxy chain",
+        "trust proxy function"
+      ],
+      "patch": "lib/request.js | 2 +- ;  1 file changed, 1 insertion(+), 1 deletion(-)"
+    },
+    {
+      "label": "p8-fastify-port-r1-TREATMENT",
+      "newly_failing_count": 6,
+      "examples": [
+        "trust proxy, not add properties to node req",
+        "trust proxy chain",
+        "trust proxy function"
+      ],
+      "patch": "lib/request.js | 2 +- ;  1 file changed, 1 insertion(+), 1 deletion(-)"
+    },
+    {
+      "label": "p3-express-cookie-maxage-r2-CONTROL",
+      "newly_failing_count": 1,
+      "examples": [
+        "res .json(object) when given an array should respond with json"
+      ],
+      "patch": "lib/response.js | 2 +- ;  1 file changed, 1 insertion(+), 1 deletion(-)"
+    }
+  ],
+  "probe_manifest_sha256": "0afe2fdf2cf0813eb0aaae577c26ee20e06c5f291ff9064e25174a70b6ce3202",
+  "isolation_checkpoint": "b9a9a930",
+  "token_usage": "not reported by the runtime in any run; recorded as unavailable rather than estimated"
+}

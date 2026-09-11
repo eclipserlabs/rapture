@@ -1,0 +1,15 @@
+git log --oneline -20; echo "---"; git status
+rg -n "prefix" lib/ | head -n 100
+grep -rn "prefix" lib/ | head -n 100
+grep -rn "kRoutePrefix" --include="*.js" lib/ fastify.js | head -n 40
+grep -rn "prefix" --include="*.js" lib/plugin-utils.js; echo "---"; cat lib/plugin-utils.js
+grep -n "prefix" fastify.js | head -n 60
+grep -rn "buildRoutePrefix\|kRoutePrefix" --include="*.js" . 2>/dev/null | grep -v node_modules | head -n 20
+ls test/*.test.js | xargs grep -l "prefix" | head; echo "---"; grep -rn "prefix.*v1\|prefix: 'v1'\|prefix: \"v1\"" test/ --include="*.js" | head -n 20
+node -e "
+node -e "
+node -e "
+node --test test/route-prefix.test.js 2>&1 | tail -n 20
+REPO_ROOT=/work/repo PORT=51131 node /work/app/server.mjs & echo $!; sleep 2; curl -s -i http://127.0.0.1:51131/api/v1/orders; echo "---CURL DONE---"; kill %1; wait %1 2>/dev/null; true
+node --test test/404s.test.js test/plugin.test.js test/route.test.js 2>&1 | tail -n 15
+git diff --stat; echo "---"; git diff

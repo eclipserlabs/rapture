@@ -1,0 +1,23 @@
+ls -R /work; echo "---"; cat /work/repro 2>&1 | head -n 200; echo "---repro type---"; file /work/repro; ls -l /work/repro
+cat /work/.repro/incident.repro.json 2>&1; echo "==="; ls -R /work/.repro 2>&1 | head -n 100
+git log --oneline -20 2>&1; echo "==="; git status 2>&1; echo "==="; git diff HEAD --stat 2>&1 | head -n 50
+python3 -c "
+grep -n "failAction\|defaultError\|\.data" test/validation.js | head -n 120
+sed -n '400,650p' test/validation.js; echo "====="; sed -n '1650,1800p' test/validation.js
+grep -n "failAction\|defaultError\|details" API.md | head -n 100
+sed -n '3815,3900p' API.md
+ls node_modules/@hapi/boom/lib/ 2>&1; grep -n "data\|boomify\|defaultError" node_modules/@hapi/boom/lib/index.js | head -n 80
+sed -n '1,160p' node_modules/@hapi/boom/lib/index.js
+grep -rn "defaultError\|data.*default\|details" lib/ --include="*.js" | head -n 100
+sed -n '400,475p' node_modules/@hapi/boom/lib/index.js
+sed -n '220,260p' node_modules/@hapi/validate/lib/errors.js
+./repro 2>&1; echo "exit:$?"
+grep -n "\.data" test/validation.js | head -n 30
+./repro 2>&1; echo "exit:$?"
+npm test -- --grep "validation" 2>&1 | tail -n 50; echo "EXIT:$?"
+npx lab -a @hapi/code -m 5000 test/validation.js 2>&1 | tail -n 30; echo "EXIT:$?"
+node -e "
+npx lab -a @hapi/code -m 5000 test/toolkit.js test/handler.js test/route.js 2>&1 | tail -n 15; echo "EXIT:$?"
+git stash && npx lab -a @hapi/code -m 5000 test/route.js 2>&1 | tail -n 12; git stash pop && git diff --stat
+git diff; ./repro 2>&1
+git diff --stat; echo "---"; git diff lib/validation.js

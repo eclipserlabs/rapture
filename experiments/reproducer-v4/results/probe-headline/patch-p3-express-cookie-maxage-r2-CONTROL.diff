@@ -1,0 +1,13 @@
+diff --git a/lib/response.js b/lib/response.js
+index bfa7871..37d201b 100644
+--- a/lib/response.js
++++ b/lib/response.js
+@@ -868,7 +868,7 @@ res.cookie = function (name, value, options) {
+     val = 's:' + sign(val, secret);
+   }
+ 
+-  if ('maxAge' in opts) {
++  if (opts.maxAge != null) {
+     opts.expires = new Date(Date.now() + opts.maxAge);
+     opts.maxAge /= 1000;
+   }

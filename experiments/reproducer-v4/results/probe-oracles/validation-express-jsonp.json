@@ -1,0 +1,54 @@
+{
+  "schema": "v4-probe-oracle-validation-1",
+  "case": "express-jsonp",
+  "requirement": "the buggy revision must FAIL the original incident and the hidden variants; the historical fixed revision must PASS both",
+  "buggy": {
+    "repo": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/work/express-jsonp-buggy",
+    "original": {
+      "status": 500,
+      "body": "{\"error\":\"jsonp serialization failed\",\"code\":\"E_JSONP_UNDEFINED\",\"detail\":\"Cannot read properties of undefined (reading 'replace')\"}"
+    },
+    "original_failure_present": true,
+    "original_exact_signature_present": true,
+    "hidden": [
+      {
+        "variant": "jsonp-undefined-different-callback-name",
+        "status": 500,
+        "pass": false,
+        "body": "{\"ok\":false,\"code\":\"E_JSONP_NOT_GENERALIZED\",\"detail\":\"Cannot read properties of undefined (reading 'replace')\"}"
+      },
+      {
+        "variant": "jsonp-undefined-default-callback-name",
+        "status": 500,
+        "pass": false,
+        "body": "{\"ok\":false,\"code\":\"E_JSONP_NOT_GENERALIZED\",\"detail\":\"Cannot read properties of undefined (reading 'replace')\"}"
+      }
+    ],
+    "hidden_all_pass": false
+  },
+  "fixed": {
+    "repo": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/work/express-jsonp-fixed",
+    "original": {
+      "status": 200,
+      "body": "/**/ typeof render === 'function' && render();"
+    },
+    "original_failure_present": false,
+    "original_exact_signature_present": false,
+    "hidden": [
+      {
+        "variant": "jsonp-undefined-different-callback-name",
+        "status": 200,
+        "pass": true,
+        "body": "/**/ typeof showA === 'function' && showA();"
+      },
+      {
+        "variant": "jsonp-undefined-default-callback-name",
+        "status": 200,
+        "pass": true,
+        "body": "/**/ typeof showB === 'function' && showB();"
+      }
+    ],
+    "hidden_all_pass": true
+  },
+  "oracle_valid": true
+}

@@ -1,0 +1,10 @@
+{
+  "case": "fastify-prefix",
+  "arm": "CONTROL",
+  "built_at": "2026-09-11T18:29:45.947Z",
+  "buggy_snapshot": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/work/fastify-prefix-buggy",
+  "evidence_json_sha256": "501dc3dd1ab4135c0a8b57acf9d8893ecf9039b27fc15ba8c59b4f569472cd0a",
+  "evidence_md_sha256": "2d1ba0209220fa0d11e051db6d0f60bc8752ebdd10e3c29a3774a31bbc1d61dd",
+  "repro_present": false,
+  "repro_artifact_sha256": null
+}

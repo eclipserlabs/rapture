@@ -1,0 +1,42 @@
+{
+  "schema": "incident-capture-v2",
+  "captured_at": "2026-09-11T16:52:20.020Z",
+  "req_id": "req-11926-1789145540010-1",
+  "request": {
+    "method": "GET",
+    "path": "/api/v1/orders",
+    "query": "",
+    "headers": {
+      "host": "127.0.0.1:52152",
+      "connection": "keep-alive",
+      "accept": "*/*",
+      "accept-language": "*",
+      "sec-fetch-mode": "cors",
+      "user-agent": "node",
+      "accept-encoding": "gzip, deflate"
+    },
+    "host": "127.0.0.1:52152",
+    "body": null
+  },
+  "response": {
+    "status": 500,
+    "headers": {},
+    "body": "{\"error\":\"nested prefix joined incorrectly\",\"code\":\"E_PREFIX_JOIN\",\"url\":\"/api/v1/orders\"}"
+  },
+  "events": [],
+  "config": {},
+  "app_error": null,
+  "boundary_ops_outside_request": 0,
+  "offline_replay_supported": true,
+  "fingerprint": {
+    "kind": "app",
+    "request_method": "GET",
+    "route_or_operation": "/api/v1/orders",
+    "http_status": 500,
+    "error_name_or_code": "ERR:E_PREFIX_JOIN",
+    "normalized_class": "ERR:E_PREFIX_JOIN",
+    "stable_frame": null,
+    "fingerprint_hash": "a065dc4a71755d07480b1bee20db0230e76f149608182108ee739a8c5247eb9c"
+  },
+  "capture_hash": "d646968ff95556765583ad552000b4bb149811a3221c4f0356d8d30b2a6b3800"
+}

@@ -1,0 +1,32 @@
+{
+  "schema": "v4-probe-regression-baseline-1",
+  "case": "hapi-failaction",
+  "recorded_at": "2026-09-11T16:00:58.796Z",
+  "tree": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/work/hapi-failaction-buggy",
+  "supported": true,
+  "exit": 1,
+  "seconds": 25,
+  "total": 973,
+  "failed": 6,
+  "failing": [
+    "Core :: creates a server listening on a unix domain socket",
+    "Request/_execute() :: handles aborted requests (during response)",
+    "Request/_execute() :: handles aborted requests (before response)",
+    "Request/timeout :: returns a logged bad request error when parser fails after request is setup",
+    "Route :: logs payload parsing errors",
+    "transmission/marshal() :: does not crash when request is aborted"
+  ],
+  "fixed_revision_reference": {
+    "tree": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/work/hapi-failaction-fixed",
+    "total": 974,
+    "failed": 6,
+    "failing": [
+      "Core :: creates a server listening on a unix domain socket",
+      "Request/_execute() :: handles aborted requests (during response)",
+      "Request/_execute() :: handles aborted requests (before response)",
+      "Request/timeout :: returns a logged bad request error when parser fails after request is setup",
+      "Route :: logs payload parsing errors",
+      "transmission/marshal() :: does not crash when request is aborted"
+    ]
+  }
+}

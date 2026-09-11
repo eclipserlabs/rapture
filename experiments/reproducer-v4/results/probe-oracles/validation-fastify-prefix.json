@@ -1,0 +1,54 @@
+{
+  "schema": "v4-probe-oracle-validation-1",
+  "case": "fastify-prefix",
+  "requirement": "the buggy revision must FAIL the original incident and the hidden variants; the historical fixed revision must PASS both",
+  "buggy": {
+    "repo": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/work/fastify-prefix-buggy",
+    "original": {
+      "status": 500,
+      "body": "{\"error\":\"nested prefix joined incorrectly\",\"code\":\"E_PREFIX_JOIN\",\"url\":\"/api/v1/orders\"}"
+    },
+    "original_failure_present": true,
+    "original_exact_signature_present": true,
+    "hidden": [
+      {
+        "variant": "nested-prefix-svc-v2",
+        "status": 500,
+        "pass": false,
+        "body": "{\"ok\":false,\"code\":\"E_PREFIX_NOT_GENERALIZED\",\"url\":\"/svc/v2/items\"}"
+      },
+      {
+        "variant": "nested-prefix-z-w-no-leading-slash",
+        "status": 500,
+        "pass": false,
+        "body": "{\"ok\":false,\"code\":\"E_PREFIX_NOT_GENERALIZED\",\"url\":\"/z/w/thing\"}"
+      }
+    ],
+    "hidden_all_pass": false
+  },
+  "fixed": {
+    "repo": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/work/fastify-prefix-fixed",
+    "original": {
+      "status": 200,
+      "body": "{\"ok\":true,\"scope\":\"v1-orders\"}"
+    },
+    "original_failure_present": false,
+    "original_exact_signature_present": false,
+    "hidden": [
+      {
+        "variant": "nested-prefix-svc-v2",
+        "status": 200,
+        "pass": true,
+        "body": "{\"ok\":true,\"scope\":\"hv-a\"}"
+      },
+      {
+        "variant": "nested-prefix-z-w-no-leading-slash",
+        "status": 200,
+        "pass": true,
+        "body": "{\"ok\":true,\"scope\":\"hv-b\"}"
+      }
+    ],
+    "hidden_all_pass": true
+  },
+  "oracle_valid": true
+}

@@ -1,0 +1,22 @@
+[
+  {
+    "line": 310,
+    "command": "cat /work/repro 2>/dev/null | head -n 200; ls -R /work | head -n 40",
+    "outcome": null
+  },
+  {
+    "line": 374,
+    "command": "$ ./repro 2>&1 | head -n 20; echo \"exit:$?\"",
+    "outcome": "ORIGINAL_FAILURE_REPRODUCED"
+  },
+  {
+    "line": 468,
+    "command": "$ ./repro 2>&1 | head -n 20",
+    "outcome": "ORIGINAL_FAILURE_ABSENT"
+  },
+  {
+    "line": 607,
+    "command": "$ git diff; echo \"---REPRO---\"; ./repro 2>&1 | head -n 5",
+    "outcome": null
+  }
+]

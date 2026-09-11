@@ -1,0 +1,543 @@
+##### SKIP p1-express-cookie-maxage-r1-CONTROL (already recorded) #####
+##### SKIP p2-express-cookie-maxage-r1-TREATMENT (already recorded) #####
+##### SKIP p3-express-cookie-maxage-r2-CONTROL (already recorded) #####
+##### RUN 4/20 express-cookie-maxage rep2 TREATMENT  01:19:25 #####
+{
+  "label": "p4-express-cookie-maxage-r2-TREATMENT",
+  "arm": "TREATMENT",
+  "classification": "INVALID_HARNESS",
+  "agent_seconds": 26.53,
+  "timed_out": false,
+  "patch_empty": true,
+  "observations": {
+    "repro_invocations": 0,
+    "repro_outcome_lines": [],
+    "test_invocations": 0,
+    "network_attempt_markers": 0,
+    "webfetch_or_search_attempts": 0,
+    "tool_calls": 0,
+    "network_capable_commands": 0,
+    "repro_invocation_log": [],
+    "first_repro_invocation_line": null
+  },
+  "proxy_attempts": {
+    "DENIED models.opencode.ai:443": 1,
+    "DENIED registry.npmjs.org:443": 1,
+    "DENIED github.com:443": 1,
+    "ALLOWED opencode.ai:443": 2
+  }
+}
+
+##### SKIP p5-express-jsonp-r2-TREATMENT (already recorded) #####
+##### RUN 6/20 express-jsonp rep2 CONTROL  01:20:53 #####
+{
+  "label": "p6-express-jsonp-r2-CONTROL",
+  "arm": "CONTROL",
+  "classification": "CORRECT_FIX",
+  "agent_seconds": 141.59,
+  "timed_out": false,
+  "patch_empty": false,
+  "observations": {
+    "repro_invocations": 0,
+    "repro_outcome_lines": [],
+    "test_invocations": 1,
+    "network_attempt_markers": 0,
+    "webfetch_or_search_attempts": 0,
+    "tool_calls": 13,
+    "network_capable_commands": 1,
+    "repro_invocation_log": [],
+    "first_repro_invocation_line": null
+  },
+  "proxy_attempts": {
+    "DENIED models.opencode.ai:443": 1,
+    "DENIED registry.npmjs.org:443": 2,
+    "DENIED github.com:443": 1,
+    "ALLOWED opencode.ai:443": 2
+  }
+}
+
+##### RUN 7/20 fastify-port rep1 CONTROL  01:24:16 #####
+{
+  "label": "p7-fastify-port-r1-CONTROL",
+  "arm": "CONTROL",
+  "classification": "REGRESSION_INTRODUCED",
+  "agent_seconds": 163.02,
+  "timed_out": false,
+  "patch_empty": false,
+  "observations": {
+    "repro_invocations": 0,
+    "repro_outcome_lines": [],
+    "test_invocations": 5,
+    "network_attempt_markers": 1,
+    "webfetch_or_search_attempts": 0,
+    "tool_calls": 16,
+    "network_capable_commands": 0,
+    "repro_invocation_log": [],
+    "first_repro_invocation_line": null
+  },
+  "proxy_attempts": {
+    "DENIED models.opencode.ai:443": 1,
+    "DENIED registry.npmjs.org:443": 1,
+    "DENIED github.com:443": 1,
+    "DENIED 127.0.0.1:51210": 1,
+    "ALLOWED opencode.ai:443": 2
+  }
+}
+
+##### RUN 8/20 fastify-port rep1 TREATMENT  01:30:02 #####
+  "observations": {
+    "repro_invocations": 4,
+    "repro_outcome_lines": [
+      "ORIGINAL_FAILURE_REPRODUCED",
+      "ORIGINAL_FAILURE_ABSENT",
+      "ORIGINAL_FAILURE_REPRODUCED",
+      "ORIGINAL_FAILURE_ABSENT",
+      "ORIGINAL_FAILURE_ABSENT"
+    ],
+    "test_invocations": 9,
+    "network_attempt_markers": 0,
+    "webfetch_or_search_attempts": 0,
+    "tool_calls": 17,
+    "network_capable_commands": 0,
+    "repro_invocation_log": [
+      {
+        "line": 166,
+        "command": "$ ./repro 2>&1 | tail -n 20",
+        "outcome": "ORIGINAL_FAILURE_REPRODUCED"
+      },
+      {
+        "line": 499,
+        "command": "$ ./repro 2>&1 | tail -n 20",
+        "outcome": "ORIGINAL_FAILURE_ABSENT"
+      },
+      {
+        "line": 706,
+        "command": "$ ./repro 2>&1 | tail -n 5",
+        "outcome": "ORIGINAL_FAILURE_ABSENT"
+      }
+    ],
+    "first_repro_invocation_line": 166
+  },
+  "proxy_attempts": {
+    "DENIED models.opencode.ai:443": 1,
+    "DENIED registry.npmjs.org:443": 1,
+    "DENIED github.com:443": 1,
+    "ALLOWED opencode.ai:443": 2
+  }
+}
+
+##### RUN 9/20 express-jsonp rep1 TREATMENT  01:35:58 #####
+  "label": "p9-express-jsonp-r1-TREATMENT",
+  "arm": "TREATMENT",
+  "classification": "CORRECT_FIX",
+  "agent_seconds": 107.25,
+  "timed_out": false,
+  "patch_empty": false,
+  "observations": {
+    "repro_invocations": 3,
+    "repro_outcome_lines": [
+      "ORIGINAL_FAILURE_REPRODUCED",
+      "ORIGINAL_FAILURE_ABSENT",
+      "ORIGINAL_FAILURE_REPRODUCED",
+      "ORIGINAL_FAILURE_ABSENT"
+    ],
+    "test_invocations": 3,
+    "network_attempt_markers": 0,
+    "webfetch_or_search_attempts": 0,
+    "tool_calls": 15,
+    "network_capable_commands": 0,
+    "repro_invocation_log": [
+      {
+        "line": 35,
+        "command": "$ /work/repro 2>&1; echo EXIT:$?",
+        "outcome": "ORIGINAL_FAILURE_REPRODUCED"
+      },
+      {
+        "line": 637,
+        "command": "$ /work/repro 2>&1; echo EXIT:$?",
+        "outcome": "ORIGINAL_FAILURE_ABSENT"
+      }
+    ],
+    "first_repro_invocation_line": 35
+  },
+  "proxy_attempts": {
+    "DENIED models.opencode.ai:443": 1,
+    "DENIED registry.npmjs.org:443": 2,
+    "DENIED github.com:443": 1,
+    "ALLOWED opencode.ai:443": 2
+  }
+}
+
+##### RUN 10/20 express-jsonp rep1 CONTROL  01:38:45 #####
+{
+  "label": "p10-express-jsonp-r1-CONTROL",
+  "arm": "CONTROL",
+  "classification": "CORRECT_FIX",
+  "agent_seconds": 105.43,
+  "timed_out": false,
+  "patch_empty": false,
+  "observations": {
+    "repro_invocations": 0,
+    "repro_outcome_lines": [],
+    "test_invocations": 1,
+    "network_attempt_markers": 0,
+    "webfetch_or_search_attempts": 0,
+    "tool_calls": 21,
+    "network_capable_commands": 0,
+    "repro_invocation_log": [],
+    "first_repro_invocation_line": null
+  },
+  "proxy_attempts": {
+    "DENIED models.opencode.ai:443": 1,
+    "DENIED registry.npmjs.org:443": 2,
+    "DENIED github.com:443": 1,
+    "ALLOWED opencode.ai:443": 2
+  }
+}
+
+##### RUN 11/20 fastify-prefix rep1 TREATMENT  01:41:33 #####
+    "repro_invocations": 5,
+    "repro_outcome_lines": [
+      "ORIGINAL_FAILURE_REPRODUCED",
+      "ORIGINAL_FAILURE_ABSENT",
+      "ORIGINAL_FAILURE_REPRODUCED",
+      "ORIGINAL_FAILURE_ABSENT",
+      "ORIGINAL_FAILURE_REPRODUCED",
+      "ORIGINAL_FAILURE_ABSENT"
+    ],
+    "test_invocations": 6,
+    "network_attempt_markers": 0,
+    "webfetch_or_search_attempts": 0,
+    "tool_calls": 13,
+    "network_capable_commands": 0,
+    "repro_invocation_log": [
+      {
+        "line": 31,
+        "command": "$ ls -R /work/.repro 2>&1; echo \"---\"; cat /work/repro 2>&1 | head -n 200; echo \"===\"; file /work/repro 2>&1",
+        "outcome": null
+      },
+      {
+        "line": 692,
+        "command": "$ /work/repro 2>&1",
+        "outcome": "ORIGINAL_FAILURE_REPRODUCED"
+      },
+      {
+        "line": 839,
+        "command": "$ /work/repro 2>&1",
+        "outcome": "ORIGINAL_FAILURE_ABSENT"
+      }
+    ],
+    "first_repro_invocation_line": 31
+  },
+  "proxy_attempts": {
+    "DENIED models.opencode.ai:443": 1,
+    "DENIED registry.npmjs.org:443": 1,
+    "DENIED github.com:443": 1,
+    "ALLOWED opencode.ai:443": 2
+  }
+}
+
+##### RUN 12/20 fastify-prefix rep1 CONTROL  01:46:03 #####
+{
+  "label": "p12-fastify-prefix-r1-CONTROL",
+  "arm": "CONTROL",
+  "classification": "CORRECT_FIX",
+  "agent_seconds": 238.45,
+  "timed_out": false,
+  "patch_empty": false,
+  "observations": {
+    "repro_invocations": 0,
+    "repro_outcome_lines": [],
+    "test_invocations": 7,
+    "network_attempt_markers": 0,
+    "webfetch_or_search_attempts": 0,
+    "tool_calls": 22,
+    "network_capable_commands": 0,
+    "repro_invocation_log": [],
+    "first_repro_invocation_line": null
+  },
+  "proxy_attempts": {
+    "DENIED models.opencode.ai:443": 1,
+    "DENIED registry.npmjs.org:443": 2,
+    "DENIED github.com:443": 1,
+    "ALLOWED opencode.ai:443": 2
+  }
+}
+
+##### RUN 13/20 hapi-failaction rep1 TREATMENT  01:52:58 #####
+      "ORIGINAL_FAILURE_REPRODUCED",
+      "ORIGINAL_FAILURE_ABSENT",
+      "ORIGINAL_FAILURE_ABSENT"
+    ],
+    "test_invocations": 1,
+    "network_attempt_markers": 0,
+    "webfetch_or_search_attempts": 0,
+    "tool_calls": 18,
+    "network_capable_commands": 0,
+    "repro_invocation_log": [
+      {
+        "line": 310,
+        "command": "cat /work/repro 2>/dev/null | head -n 200; ls -R /work | head -n 40",
+        "outcome": null
+      },
+      {
+        "line": 374,
+        "command": "$ ./repro 2>&1 | head -n 20; echo \"exit:$?\"",
+        "outcome": "ORIGINAL_FAILURE_REPRODUCED"
+      },
+      {
+        "line": 468,
+        "command": "$ ./repro 2>&1 | head -n 20",
+        "outcome": "ORIGINAL_FAILURE_ABSENT"
+      },
+      {
+        "line": 607,
+        "command": "$ git diff; echo \"---REPRO---\"; ./repro 2>&1 | head -n 5",
+        "outcome": null
+      }
+    ],
+    "first_repro_invocation_line": 310
+  },
+  "proxy_attempts": {
+    "DENIED models.opencode.ai:443": 1,
+    "DENIED registry.npmjs.org:443": 2,
+    "DENIED github.com:443": 1,
+    "ALLOWED opencode.ai:443": 2
+  }
+}
+
+##### RUN 14/20 hapi-failaction rep1 CONTROL  01:57:27 #####
+{
+  "label": "p14-hapi-failaction-r1-CONTROL",
+  "arm": "CONTROL",
+  "classification": "CORRECT_FIX",
+  "agent_seconds": 183.12,
+  "timed_out": false,
+  "patch_empty": false,
+  "observations": {
+    "repro_invocations": 0,
+    "repro_outcome_lines": [],
+    "test_invocations": 1,
+    "network_attempt_markers": 0,
+    "webfetch_or_search_attempts": 0,
+    "tool_calls": 14,
+    "network_capable_commands": 0,
+    "repro_invocation_log": [],
+    "first_repro_invocation_line": null
+  },
+  "proxy_attempts": {
+    "DENIED models.opencode.ai:443": 1,
+    "DENIED registry.npmjs.org:443": 2,
+    "DENIED github.com:443": 1,
+    "ALLOWED opencode.ai:443": 2
+  }
+}
+
+##### RUN 15/20 hapi-failaction rep2 CONTROL  02:01:50 #####
+{
+  "label": "p15-hapi-failaction-r2-CONTROL",
+  "arm": "CONTROL",
+  "classification": "CORRECT_FIX",
+  "agent_seconds": 272.19,
+  "timed_out": false,
+  "patch_empty": false,
+  "observations": {
+    "repro_invocations": 0,
+    "repro_outcome_lines": [],
+    "test_invocations": 1,
+    "network_attempt_markers": 0,
+    "webfetch_or_search_attempts": 0,
+    "tool_calls": 23,
+    "network_capable_commands": 0,
+    "repro_invocation_log": [],
+    "first_repro_invocation_line": null
+  },
+  "proxy_attempts": {
+    "DENIED models.opencode.ai:443": 1,
+    "DENIED registry.npmjs.org:443": 2,
+    "DENIED github.com:443": 1,
+    "ALLOWED opencode.ai:443": 2
+  }
+}
+
+##### RUN 16/20 hapi-failaction rep2 TREATMENT  02:07:44 #####
+    "network_attempt_markers": 0,
+    "webfetch_or_search_attempts": 0,
+    "tool_calls": 23,
+    "network_capable_commands": 0,
+    "repro_invocation_log": [
+      {
+        "line": 30,
+        "command": "$ ls -R /work; echo \"---\"; cat /work/repro 2>&1 | head -n 200; echo \"---repro type---\"; file /work/repro; ls -l /work/repro",
+        "outcome": null
+      },
+      {
+        "line": 2032,
+        "command": "-rwxr-xr-x 1 root root 815 Sep 11 18:08 /work/repro",
+        "outcome": null
+      },
+      {
+        "line": 3550,
+        "command": "$ ./repro 2>&1; echo \"exit:$?\"",
+        "outcome": "ORIGINAL_FAILURE_REPRODUCED"
+      },
+      {
+        "line": 3620,
+        "command": "$ ./repro 2>&1; echo \"exit:$?\"",
+        "outcome": "ORIGINAL_FAILURE_ABSENT"
+      },
+      {
+        "line": 3777,
+        "command": "$ git diff; ./repro 2>&1",
+        "outcome": null
+      }
+    ],
+    "first_repro_invocation_line": 30
+  },
+  "proxy_attempts": {
+    "DENIED models.opencode.ai:443": 1,
+    "DENIED registry.npmjs.org:443": 2,
+    "DENIED github.com:443": 1,
+    "ALLOWED opencode.ai:443": 2
+  }
+}
+
+##### RUN 17/20 fastify-port rep2 CONTROL  02:11:29 #####
+{
+  "label": "p17-fastify-port-r2-CONTROL",
+  "arm": "CONTROL",
+  "classification": "REGRESSION_INTRODUCED",
+  "agent_seconds": 178.1,
+  "timed_out": false,
+  "patch_empty": false,
+  "observations": {
+    "repro_invocations": 0,
+    "repro_outcome_lines": [],
+    "test_invocations": 4,
+    "network_attempt_markers": 0,
+    "webfetch_or_search_attempts": 0,
+    "tool_calls": 15,
+    "network_capable_commands": 0,
+    "repro_invocation_log": [],
+    "first_repro_invocation_line": null
+  },
+  "proxy_attempts": {
+    "DENIED models.opencode.ai:443": 1,
+    "DENIED registry.npmjs.org:443": 1,
+    "DENIED github.com:443": 1,
+    "ALLOWED opencode.ai:443": 2
+  }
+}
+
+##### RUN 18/20 fastify-port rep2 TREATMENT  02:17:24 #####
+      "ORIGINAL_FAILURE_ABSENT",
+      "ORIGINAL_FAILURE_ABSENT",
+      "ORIGINAL_FAILURE_ABSENT"
+    ],
+    "test_invocations": 6,
+    "network_attempt_markers": 0,
+    "webfetch_or_search_attempts": 0,
+    "tool_calls": 19,
+    "network_capable_commands": 0,
+    "repro_invocation_log": [
+      {
+        "line": 228,
+        "command": "$ ./repro 2>&1 | head -n 20; echo EXIT:$?",
+        "outcome": "ORIGINAL_FAILURE_REPRODUCED"
+      },
+      {
+        "line": 429,
+        "command": "$ ./repro 2>&1 | head -n 20",
+        "outcome": "ORIGINAL_FAILURE_ABSENT"
+      },
+      {
+        "line": 630,
+        "command": "$ ./repro 2>&1 | head -n 20",
+        "outcome": "ORIGINAL_FAILURE_ABSENT"
+      },
+      {
+        "line": 701,
+        "command": "$ git diff -- lib/request.js; echo ===; ./repro 2>&1 | head",
+        "outcome": null
+      }
+    ],
+    "first_repro_invocation_line": 228
+  },
+  "proxy_attempts": {
+    "DENIED models.opencode.ai:443": 1,
+    "DENIED registry.npmjs.org:443": 1,
+    "DENIED github.com:443": 1,
+    "ALLOWED opencode.ai:443": 1
+  }
+}
+
+##### RUN 19/20 fastify-prefix rep2 TREATMENT  02:24:18 #####
+  "label": "p19-fastify-prefix-r2-TREATMENT",
+  "arm": "TREATMENT",
+  "classification": "CORRECT_FIX",
+  "agent_seconds": 98.53,
+  "timed_out": false,
+  "patch_empty": false,
+  "observations": {
+    "repro_invocations": 3,
+    "repro_outcome_lines": [
+      "ORIGINAL_FAILURE_REPRODUCED",
+      "ORIGINAL_FAILURE_ABSENT",
+      "ORIGINAL_FAILURE_REPRODUCED",
+      "ORIGINAL_FAILURE_ABSENT"
+    ],
+    "test_invocations": 3,
+    "network_attempt_markers": 0,
+    "webfetch_or_search_attempts": 0,
+    "tool_calls": 16,
+    "network_capable_commands": 0,
+    "repro_invocation_log": [
+      {
+        "line": 31,
+        "command": "$ /work/repro 2>&1; echo EXIT:$?",
+        "outcome": "ORIGINAL_FAILURE_REPRODUCED"
+      },
+      {
+        "line": 297,
+        "command": "$ /work/repro 2>&1; echo EXIT:$?",
+        "outcome": "ORIGINAL_FAILURE_ABSENT"
+      }
+    ],
+    "first_repro_invocation_line": 31
+  },
+  "proxy_attempts": {
+    "DENIED models.opencode.ai:443": 1,
+    "DENIED registry.npmjs.org:443": 1,
+    "DENIED github.com:443": 1,
+    "ALLOWED opencode.ai:443": 2
+  }
+}
+
+##### RUN 20/20 fastify-prefix rep2 CONTROL  02:28:36 #####
+{
+  "label": "p20-fastify-prefix-r2-CONTROL",
+  "arm": "CONTROL",
+  "classification": "CORRECT_FIX",
+  "agent_seconds": 100.41,
+  "timed_out": false,
+  "patch_empty": false,
+  "observations": {
+    "repro_invocations": 0,
+    "repro_outcome_lines": [],
+    "test_invocations": 2,
+    "network_attempt_markers": 0,
+    "webfetch_or_search_attempts": 0,
+    "tool_calls": 15,
+    "network_capable_commands": 1,
+    "repro_invocation_log": [],
+    "first_repro_invocation_line": null
+  },
+  "proxy_attempts": {
+    "DENIED models.opencode.ai:443": 1,
+    "DENIED registry.npmjs.org:443": 1,
+    "DENIED github.com:443": 1,
+    "ALLOWED opencode.ai:443": 2
+  }
+}
+
+ALL_HEADLINE_RUNS_COMPLETE

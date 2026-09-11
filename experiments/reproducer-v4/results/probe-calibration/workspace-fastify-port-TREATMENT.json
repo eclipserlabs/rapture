@@ -1,0 +1,10 @@
+{
+  "case": "fastify-port",
+  "arm": "TREATMENT",
+  "built_at": "2026-09-11T18:18:34.652Z",
+  "buggy_snapshot": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/work/fastify-port-buggy",
+  "evidence_json_sha256": "9fc9193883b8de18e90be08ce814703d1cdd4bff6f8f30306fd2c63cd5e9ed37",
+  "evidence_md_sha256": "6de16f16ee39ae1016a67c1d170e5371783ce446bb27699fdc88fb720dac693c",
+  "repro_present": true,
+  "repro_artifact_sha256": "e307501994b27035017f62d13677dae8c27f2ed6d6d04839791e6d304473d713"
+}

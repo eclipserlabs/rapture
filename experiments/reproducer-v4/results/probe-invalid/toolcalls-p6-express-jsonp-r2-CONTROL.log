@@ -1,0 +1,3 @@
+ls -R lib | head -n 50; echo ---; ls test | head -n 100
+pwd; ls -la
+ls -la repo/ | head -n 50; ls repo/lib/ | head -n 50

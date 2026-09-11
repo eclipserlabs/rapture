@@ -1,0 +1,516 @@
+Fixing your production bug — digging into the incident evidence.
+I've pinpointed the likely failure — nested prefixes aren't joining correctly.
+I've identified the double-slash bug in nested prefix handling — now confirming the failure.
+The initial fix checks out — now running thorough validation.
+Root cause: `buildRoutePrefix` in `lib/plugin-override.js` double-joined prefixes when outer ended with `/` and inner lacked leading `/`.
+
+- `'' + '/api/'` → `/api/` (correct)
+- `'/api/' + 'v1'` → prepended `/` → `'/api/' + '/v1'` = `/api//v1` (wrong, should be `/api/v1`)
+- Route then registered as `/api//v1/orders`, so `GET /api/v1/orders` 404'd (surfaced by app as `E_PREFIX_JOIN` 500).
+
+Files changed:
+- `lib/plugin-override.js:85` — `else if (pluginPrefix[0] !== '/')` → `else if (pluginPrefix[0] !== '/' && !instancePrefix.endsWith('/'))`. Only inserts separator when neither side already provides one; existing `//` strip case unchanged.
+
+Validation:
+- Reproduced before fix via `inject`: route printed as `api//v1/orders`, `/api/v1/orders`→404, `/api//v1/orders`→200. After fix: prints `api/v1/orders`, `/api/v1/orders`→200 with `{"ok":true,"scope":"v1-orders"}`.
+- Matrix of 9 prefix combos (`/api/`+`v1`, `/api/`+`/v1`, `/api`+`v1`, `/`+`v1`, `/v1/`+`v2`, etc.) all →200 at normalized single-slash path.
+- `test/route-prefix.test.js` (26 pass), `test/404s/plugin/route.test.js` (83 pass).
+- Real `/work/app/server.mjs` (`{prefix:'/api/'}` + `{prefix:'v1'}`): `curl /api/v1/orders` now 200 `{"ok":true,"scope":"v1-orders"}`.
+
+Remaining uncertainty: none for incident path; `prefix:'/'` + route without leading `/` (e.g. `get('route2')`) still relies on caller convention, not exercised by incident.
+
+----- stderr -----
+[0m
+> build · muse-spark-1.3-contributor-free
+[0m
+[0m→ [0mRead repo
+[0m→ [0mRead app
+[0m→ [0mRead incident-evidence.json
+[0m→ [0mRead incident-evidence.md
+[0m→ [0mRead app/server.mjs
+[0m→ [0mRead repo/package.json
+[0m
+[0m$ [0mgit log --oneline -20; echo "---"; git status
+ce5c159 Initial import of the deployed revision
+---
+On branch main
+nothing to commit, working tree clean
+[0m
+[0m✗ [0mGrep "prefix" failed[90m in repo/lib[0m
+[91m[1mError: [0mripgrep execution failed
+[0m
+[0m$ [0mrg -n "prefix" lib/ | head -n 100
+/usr/bin/bash: line 1: rg: command not found
+[0m
+[0m$ [0mgrep -rn "prefix" lib/ | head -n 100
+lib/route.js:253:    const prefix = this[kRoutePrefix]
+lib/route.js:255:    if (path === '/' && prefix.length > 0 && opts.method !== 'HEAD') {
+lib/route.js:256:      switch (opts.prefixTrailingSlash) {
+lib/route.js:267:          if (ignoreTrailingSlash !== true && (ignoreDuplicateSlashes !== true || !prefix.endsWith('/'))) {
+lib/route.js:268:            addNewRoute.call(this, { path, prefixing: true, isFastify })
+lib/route.js:271:    } else if (path[0] === '/' && prefix.endsWith('/')) {
+lib/route.js:272:      // Ensure that '/prefix/' + '/route' gets registered as '/prefix/route'
+lib/route.js:281:    function addNewRoute ({ path, prefixing = false, isFastify = false }) {
+lib/route.js:282:      const url = prefix + path
+lib/route.js:287:      opts.prefix = prefix
+lib/route.js:299:      if (prefixing === false) {
+lib/route.js:356:        prefixTrailingSlash: (opts.prefixTrailingSlash || 'both'),
+lib/plugin-override.js:48:  instance[kRoutePrefix] = buildRoutePrefix(instance[kRoutePrefix], opts.prefix)
+lib/plugin-override.js:67:  if (opts.prefix) {
+lib/plugin-override.js:81:  // Ensure that there is a '/' between the prefixes
+lib/request.js:195:        prefixTrailingSlash: context.prefixTrailingSlash,
+lib/context.js:39:  prefixTrailingSlash,
+lib/context.js:66:  this.prefixTrailingSlash = prefixTrailingSlash
+lib/four-oh-four.js:45:    // Change the pointer of the fastify instance to itself, so register + prefix can add new 404 handler
+lib/four-oh-four.js:96:    const prefix = this[kRoutePrefix] || '/'
+lib/four-oh-four.js:99:      throw new Error(`Not found handler already set for Fastify instance with prefix: '${prefix}'`)
+lib/four-oh-four.js:138:      _setNotFoundHandler.call(this, prefix, opts, handler, avvio, routeHandler)
+lib/four-oh-four.js:143:  function _setNotFoundHandler (prefix, opts, handler, avvio, routeHandler) {
+lib/four-oh-four.js:164:    if (this[kFourOhFourContext] !== null && prefix === '/') {
+lib/four-oh-four.js:171:    router.all(prefix + (prefix.endsWith('/') ? '*' : '/*'), routeHandler, context)
+lib/four-oh-four.js:172:    router.all(prefix, routeHandler, context)
+[0m
+[0m→ [0mRead repo/lib/plugin-override.js
+[0m→ [0mRead repo/lib/route.js[90m [offset=240, limit=130][0m
+[0m
+[0m$ [0mgrep -rn "kRoutePrefix" --include="*.js" lib/ fastify.js | head -n 40
+lib/route.js:36:  kRoutePrefix,
+lib/route.js:253:    const prefix = this[kRoutePrefix]
+lib/plugin-override.js:6:  kRoutePrefix,
+lib/plugin-override.js:48:  instance[kRoutePrefix] = buildRoutePrefix(instance[kRoutePrefix], opts.prefix)
+lib/four-oh-four.js:9:  kRoutePrefix,
+lib/four-oh-four.js:96:    const prefix = this[kRoutePrefix] || '/'
+lib/symbols.js:9:  kRoutePrefix: Symbol('fastify.routePrefix'),
+fastify.js:16:  kRoutePrefix,
+fastify.js:153:    [kRoutePrefix]: '',
+fastify.js:309:      get () { return this[kRoutePrefix] }
+[0m
+[0m$ [0mgrep -rn "prefix" --include="*.js" lib/plugin-utils.js; echo "---"; cat lib/plugin-utils.js
+---
+'use strict'
+
+const semver = require('semver')
+const assert = require('node:assert')
+const kRegisteredPlugins = Symbol.for('registered-plugin')
+const {
+  kTestInternals
+} = require('./symbols.js')
+const { exist, existReply, existRequest } = require('./decorate.js')
+const {
+  FST_ERR_PLUGIN_VERSION_MISMATCH,
+  FST_ERR_PLUGIN_NOT_PRESENT_IN_INSTANCE,
+  FST_ERR_PLUGIN_INVALID_ASYNC_HANDLER,
+  FST_ERR_PLUGIN_DEPENDENCY_NOT_REGISTERED
+} = require('./errors.js')
+
+const rcRegex = /-(?:rc|pre|alpha).+$/u
+
+function getMeta (fn) {
+  return fn[Symbol.for('plugin-meta')]
+}
+
+function getPluginName (func) {
+  const display = getDisplayName(func)
+  if (display) {
+    return display
+  }
+
+  // let's see if this is a file, and in that case use that
+  // this is common for plugins
+  const cache = require.cache
+  // cache is undefined inside SEA
+  if (cache) {
+    const keys = Object.keys(cache)
+
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i]
+      if (cache[key].exports === func) {
+        return key
+      }
+    }
+  }
+
+  // if not maybe it's a named function, so use that
+  if (func.name) {
+    return func.name
+  }
+
+  return null
+}
+
+function getFuncPreview (func) {
+  // takes the first two lines of the function if nothing else works
+  return func.toString().split('\n', 2).map(s => s.trim()).join(' -- ')
+}
+
+function getDisplayName (fn) {
+  return fn[Symbol.for('fastify.display-name')]
+}
+
+function shouldSkipOverride (fn) {
+  return !!fn[Symbol.for('skip-override')]
+}
+
+function checkDependencies (fn) {
+  const meta = getMeta(fn)
+  if (!meta) return
+
+  const dependencies = meta.dependencies
+  if (!dependencies) return
+  assert(Array.isArray(dependencies), 'The dependencies should be an array of strings')
+
+  dependencies.forEach(dependency => {
+    if (!this[kRegisteredPlugins].includes(dependency)) {
+      throw new FST_ERR_PLUGIN_DEPENDENCY_NOT_REGISTERED(dependency, meta.name)
+    }
+  })
+}
+
+function checkDecorators (fn) {
+  const meta = getMeta(fn)
+  if (!meta) return
+
+  const { decorators, name } = meta
+  if (!decorators) return
+
+  if (decorators.fastify) _checkDecorators(this, 'Fastify', decorators.fastify, name)
+  if (decorators.reply) _checkDecorators(this, 'Reply', decorators.reply, name)
+  if (decorators.request) _checkDecorators(this, 'Request', decorators.request, name)
+}
+
+const checks = {
+  Fastify: exist,
+  Request: existRequest,
+  Reply: existReply
+}
+
+function _checkDecorators (that, instance, decorators, name) {
+  assert(Array.isArray(decorators), 'The decorators should be an array of strings')
+
+  decorators.forEach(decorator => {
+    const withPluginName = typeof name === 'string' ? ` required by '${name}'` : ''
+    if (!checks[instance].call(that, decorator)) {
+      throw new FST_ERR_PLUGIN_NOT_PRESENT_IN_INSTANCE(decorator, withPluginName, instance)
+    }
+  })
+}
+
+function checkVersion (fn) {
+  const meta = getMeta(fn)
+  if (meta?.fastify == null) return
+
+  const requiredVersion = meta.fastify
+
+  const fastifyRc = rcRegex.test(this.version)
+  if (fastifyRc === true && semver.gt(this.version, semver.coerce(requiredVersion)) === true) {
+    // A Fastify release candidate phase is taking place. In order to reduce
+    // the effort needed to test plugins with the RC, we allow plugins targeting
+    // the prior Fastify release to be loaded.
+    return
+  }
+  if (requiredVersion && semver.satisfies(this.version, requiredVersion, { includePrerelease: fastifyRc }) === false) {
+    // We are not in a release candidate phase. Thus, we must honor the semver
+    // ranges defined by the plugin's metadata. Which is to say, if the plugin
+    // expects an older version of Fastify than the _current_ version, we will
+    // throw an error.
+    throw new FST_ERR_PLUGIN_VERSION_MISMATCH(meta.name, requiredVersion, this.version)
+  }
+}
+
+function registerPluginName (fn) {
+  const meta = getMeta(fn)
+  if (!meta) return
+
+  const name = meta.name
+  if (!name) return
+  this[kRegisteredPlugins].push(name)
+  return name
+}
+
+function checkPluginHealthiness (fn, pluginName) {
+  if (fn.constructor.name === 'AsyncFunction' && fn.length === 3) {
+    throw new FST_ERR_PLUGIN_INVALID_ASYNC_HANDLER(pluginName)
+  }
+}
+
+function registerPlugin (fn) {
+  const pluginName = registerPluginName.call(this, fn) || getPluginName(fn)
+  checkPluginHealthiness.call(this, fn, pluginName)
+  checkVersion.call(this, fn)
+  checkDecorators.call(this, fn)
+  checkDependencies.call(this, fn)
+  return shouldSkipOverride(fn)
+}
+
+module.exports = {
+  getPluginName,
+  getFuncPreview,
+  kRegisteredPlugins,
+  getDisplayName,
+  registerPlugin
+}
+
+module.exports[kTestInternals] = {
+  shouldSkipOverride,
+  getMeta,
+  checkDecorators,
+  checkDependencies
+}
+[0m
+[0m$ [0mgrep -n "prefix" fastify.js | head -n 60
+307:    prefix: {
+[0m
+[0m→ [0mRead repo/fastify.js[90m [offset=295, limit=50][0m
+[0m
+[0m$ [0mgrep -rn "buildRoutePrefix\|kRoutePrefix" --include="*.js" . 2>/dev/null | grep -v node_modules | head -n 20
+ls test/ | head -n 40
+./fastify.js:16:  kRoutePrefix,
+./fastify.js:153:    [kRoutePrefix]: '',
+./fastify.js:309:      get () { return this[kRoutePrefix] }
+./lib/route.js:36:  kRoutePrefix,
+./lib/route.js:253:    const prefix = this[kRoutePrefix]
+./lib/plugin-override.js:6:  kRoutePrefix,
+./lib/plugin-override.js:48:  instance[kRoutePrefix] = buildRoutePrefix(instance[kRoutePrefix], opts.prefix)
+./lib/plugin-override.js:76:function buildRoutePrefix (instancePrefix, pluginPrefix) {
+./lib/four-oh-four.js:9:  kRoutePrefix,
+./lib/four-oh-four.js:96:    const prefix = this[kRoutePrefix] || '/'
+./lib/symbols.js:9:  kRoutePrefix: Symbol('fastify.routePrefix'),
+404s.test.js
+500s.test.js
+allow-unsafe-regex.test.js
+als.test.js
+async-await.test.js
+async-dispose.test.js
+async_hooks.test.js
+body-limit.test.js
+buffer.test.js
+build
+build-certificate.js
+bundler
+case-insensitive.test.js
+chainable.test.js
+child-logger-factory.test.js
+client-timeout.test.js
+close-pipelining.test.js
+close.test.js
+conditional-pino.test.js
+connection-timeout.test.js
+constrained-routes.test.js
+content-length.test.js
+content-parser.test.js
+content-type.test.js
+context-config.test.js
+custom-http-server.test.js
+custom-parser-async.test.js
+custom-parser.0.test.js
+custom-parser.1.test.js
+custom-parser.2.test.js
+custom-parser.3.test.js
+custom-parser.4.test.js
+custom-parser.5.test.js
+custom-querystring-parser.test.js
+decorator.test.js
+delete.test.js
+diagnostics-channel
+encapsulated-child-logger-factory.test.js
+encapsulated-error-handler.test.js
+esm
+[0m
+[0m$ [0mls test/*.test.js | xargs grep -l "prefix" | head; echo "---"; grep -rn "prefix.*v1\|prefix: 'v1'\|prefix: \"v1\"" test/ --include="*.js" | head -n 20
+test/404s.test.js
+test/500s.test.js
+test/constrained-routes.test.js
+test/decorator.test.js
+test/genReqId.test.js
+test/hooks-async.test.js
+test/hooks.test.js
+test/plugin.1.test.js
+test/plugin.3.test.js
+test/route-prefix.test.js
+---
+test/hooks.test.js:555:    t.assert.strictEqual(route.prefix, '/v1')
+test/hooks.test.js:564:      t.assert.strictEqual(route.prefix, '/v1')
+test/hooks.test.js:570:  }, { prefix: '/v1' })
+test/route.2.test.js:22:  }, { prefix: '/v1' })
+test/route.6.test.js:30:  }, { prefix: '/v1' })
+test/404s.test.js:1073:  }, { prefix: '/v1' })
+test/404s.test.js:1102:  }, { prefix: '/v1' })
+test/route-prefix.test.js:28:  }, { prefix: '/v1' })
+test/route-prefix.test.js:73:  }, { prefix: '/v1' })
+test/route-prefix.test.js:109:  }, { prefix: '/v1' })
+test/route-prefix.test.js:140:  }, { prefix: '/v1/:id' })
+test/route-prefix.test.js:161:  }, { prefix: '/v1' })
+test/route-prefix.test.js:182:  }, { prefix: 'v1' })
+test/route-prefix.test.js:214:  }, { prefix: '/v1/' })
+test/route-prefix.test.js:262:  }, { prefix: '/v1' })
+test/route-prefix.test.js:290:  }, { prefix: '/v1' })
+test/route-prefix.test.js:339:  }, { prefix: '/v1' })
+[0m
+[0m→ [0mRead repo/test/route-prefix.test.js
+[0m
+[0m$ [0mnode -e "
+const Fastify = require('./fastify.js');
+(async()=>{
+ const app = Fastify();
+ await app.register(async (api) => {
+   await api.register(async (v1) => {
+     v1.get('/orders', async () => ({ ok: true }));
+   }, { prefix: 'v1' });
+ }, { prefix: '/api/' });
+ await app.ready();
+ console.log(app.printRoutes());
+ const res = await app.inject({method:'GET', url:'/api/v1/orders'});
+ console.log('status', res.statusCode, res.payload);
+ const res2 = await app.inject({method:'GET', url:'/api//v1/orders'});
+ console.log('double slash status', res2.statusCode, res2.payload);
+})();
+"
+└── /
+    └── api//v1/orders (GET, HEAD)
+
+status 404 {"message":"Route GET:/api/v1/orders not found","error":"Not Found","statusCode":404}
+double slash status 200 {"ok":true}
+[0m
+[0m← [0mEdit repo/lib/plugin-override.js
+Index: /work/repo/lib/plugin-override.js
+===================================================================
+--- /work/repo/lib/plugin-override.js
++++ /work/repo/lib/plugin-override.js
+@@ -81,9 +81,9 @@
+ // Ensure that there is a '/' between the prefixes
+ if (instancePrefix.endsWith('/') && pluginPrefix[0] === '/') {
+   // Remove the extra '/' to avoid: '/first//second'
+   pluginPrefix = pluginPrefix.slice(1)
+-} else if (pluginPrefix[0] !== '/') {
++} else if (pluginPrefix[0] !== '/' && !instancePrefix.endsWith('/')) {
+   pluginPrefix = '/' + pluginPrefix
+ }
+ 
+ return instancePrefix + pluginPrefix
+
+[0m
+[0m$ [0mnode -e "
+const Fastify = require('./fastify.js');
+(async()=>{
+ const app = Fastify();
+ await app.register(async (api) => {
+   await api.register(async (v1) => {
+     v1.get('/orders', async () => ({ ok: true, scope: 'v1-orders' }));
+   }, { prefix: 'v1' });
+ }, { prefix: '/api/' });
+ await app.ready();
+ console.log(app.printRoutes());
+ console.log('prefix check:', app.prefix);
+ const res = await app.inject({method:'GET', url:'/api/v1/orders'});
+ console.log('status', res.statusCode, res.payload);
+})();
+"
+└── /
+    └── api/v1/orders (GET, HEAD)
+
+prefix check: 
+status 200 {"ok":true,"scope":"v1-orders"}
+[0m
+[0m$ [0mnode -e "
+const Fastify = require('./fastify.js');
+async function check(outer, inner, expected) {
+ const app = Fastify();
+ await app.register(async (a)=>{
+   await a.register(async (b)=>{
+     b.get('/x', async()=>({ok:true}));
+   }, inner ? {prefix: inner} : undefined);
+ }, outer ? {prefix: outer} : undefined);
+ await app.ready();
+ const res = await app.inject({method:'GET', url: expected});
+ console.log(JSON.stringify({outer,inner,expected,status:res.statusCode}));
+}
+(async()=>{
+ await check('/api/', 'v1', '/api/v1/x');
+ await check('/api/', '/v1', '/api/v1/x');
+ await check('/api', 'v1', '/api/v1/x');
+ await check('/api', '/v1', '/api/v1/x');
+ await check('/', 'v1', '/v1/x');
+ await check('/', '/v1', '/v1/x');
+ await check('/v1/', 'v2', '/v1/v2/x');
+ await check('', 'v1', '/v1/x');
+ await check('/api/', 'v1/', '/api/v1/x');
+})();
+"
+{"outer":"/api/","inner":"v1","expected":"/api/v1/x","status":200}
+{"outer":"/api/","inner":"/v1","expected":"/api/v1/x","status":200}
+{"outer":"/api","inner":"v1","expected":"/api/v1/x","status":200}
+{"outer":"/api","inner":"/v1","expected":"/api/v1/x","status":200}
+{"outer":"/","inner":"v1","expected":"/v1/x","status":200}
+{"outer":"/","inner":"/v1","expected":"/v1/x","status":200}
+{"outer":"/v1/","inner":"v2","expected":"/v1/v2/x","status":200}
+{"outer":"","inner":"v1","expected":"/v1/x","status":200}
+{"outer":"/api/","inner":"v1/","expected":"/api/v1/x","status":200}
+[0m
+[0m$ [0mnode --test test/route-prefix.test.js 2>&1 | tail -n 20
+ok 25 - matches only /prefix/  with a / route - prefixTrailingSlash: "slash", ignoreTrailingSlash: false
+  ---
+  duration_ms: 5.53893
+  type: 'test'
+  ...
+# Subtest: calls onRoute only once when prefixing
+ok 26 - calls onRoute only once when prefixing
+  ---
+  duration_ms: 3.549073
+  type: 'test'
+  ...
+1..26
+# tests 26
+# suites 0
+# pass 26
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 971.999724
+[0m
+[0m$ [0mREPO_ROOT=/work/repo PORT=51131 node /work/app/server.mjs & echo $!; sleep 2; curl -s -i http://127.0.0.1:51131/api/v1/orders; echo "---CURL DONE---"; kill %1; wait %1 2>/dev/null; true
+107
+READY
+HTTP/1.1 200 OK
+content-type: application/json; charset=utf-8
+content-length: 31
+Date: Fri, 11 Sep 2026 18:31:41 GMT
+Connection: keep-alive
+Keep-Alive: timeout=72
+
+{"ok":true,"scope":"v1-orders"}---CURL DONE---
+[0m
+[0m$ [0mnode --test test/404s.test.js test/plugin.test.js test/route.test.js 2>&1 | tail -n 15
+# Subtest: should honor disableRequestLogging function for 404
+ok 37 - should honor disableRequestLogging function for 404
+  ---
+  duration_ms: 4.872723
+  type: 'test'
+  ...
+1..37
+# tests 83
+# suites 0
+# pass 83
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1679.937858
+[0m
+[0m$ [0mgit diff --stat; echo "---"; git diff
+lib/plugin-override.js | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+---
+diff --git a/lib/plugin-override.js b/lib/plugin-override.js
+index 4eef325..68cdfce 100644
+--- a/lib/plugin-override.js
++++ b/lib/plugin-override.js
+@@ -82,7 +82,7 @@ function buildRoutePrefix (instancePrefix, pluginPrefix) {
+   if (instancePrefix.endsWith('/') && pluginPrefix[0] === '/') {
+     // Remove the extra '/' to avoid: '/first//second'
+     pluginPrefix = pluginPrefix.slice(1)
+-  } else if (pluginPrefix[0] !== '/') {
++  } else if (pluginPrefix[0] !== '/' && !instancePrefix.endsWith('/')) {
+     pluginPrefix = '/' + pluginPrefix
+   }
+[0m

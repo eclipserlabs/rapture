@@ -1,0 +1,895 @@
+Repairing the backend — isolating the production failure.
+Confirmed the 500 — now tracing the serialization fault.
+I've mapped the crash to undefined JSONP values — now applying a fix.
+Patch applied — verifying the service recovers.
+All targeted checks passed — final review of the changes.
+Root cause: `GET /lookup?id=missing&cb=render` calls `res.jsonp(undefined)` with a callback. `JSON.stringify(undefined)` returns `undefined` (not a string). `res.jsonp` in `lib/response.js` then unconditionally did `body.replace(...)` for U+2028/U+2029, throwing `Cannot read properties of undefined (reading 'replace')`, caught by app as 500 `E_JSONP_UNDEFINED`. Same hazard in `stringify()` when `json escape` is enabled.
+
+Files changed: `lib/response.js` only:
+- `res.jsonp`: guard U+2028/U+2029 replaces with `if (typeof body === 'string')`; `undefined` then coerces to `undefined` literal in `/**/ typeof cb === 'function' && cb(undefined);`
+- `stringify()`: `if (escape)` → `if (escape && typeof json === 'string')` to avoid same crash for `res.json(undefined)`/`res.jsonp(undefined)` with escape.
+
+Validation:
+- `/work/repro`: before `ORIGINAL_FAILURE_REPRODUCED/500`, after `ORIGINAL_FAILURE_ABSENT/200`.
+- Manual: `missing&cb=render` → 200 `/**/ typeof render === 'function' && render(undefined);` `text/javascript`; `known&cb=render` → 200 wrapped JSON; `missing` no callback → 200 empty `application/json`; escape+`undefined` no crash.
+- `test/res.jsonp.js` + `test/res.json.js`: 40 passing. Full suite: 332 passing, 1 failing (`express.json()` strict-primitive message `Unexpected token` wording) — pre-existing on clean tree, unrelated.
+
+Uncertainty: whether expected JSONP encoding of `undefined` should be `cb(undefined)` vs empty/`null`; chosen `undefined` preserves `String(body)` coercion and consistency with `res.json(undefined)` fallback.
+
+----- stderr -----
+[0m
+> build · muse-spark-1.3-contributor-free
+[0m
+[0m→ [0mRead .
+[0m→ [0mRead app
+[0m→ [0mRead repo
+[0m→ [0mRead incident-evidence.json
+[0m→ [0mRead incident-evidence.md
+[0m→ [0mRead repro
+[0m→ [0mRead app/server.mjs
+[0m→ [0mRead repo/index.js
+[0m→ [0mRead repo/package.json
+[0m✗ [0mGrep "jsonp" failed[90m in repo/lib[0m
+[91m[1mError: [0mripgrep execution failed
+[0m
+[0m$ [0m/work/repro 2>&1; echo EXIT:$?
+ORIGINAL_FAILURE_REPRODUCED
+observed_http_status=500
+EXIT:0
+[0m
+[0m$ [0mrg -n "jsonp" lib/ 2>&1 | head -n 100
+ls lib/
+/usr/bin/bash: line 1: rg: command not found
+application.js
+express.js
+middleware
+request.js
+response.js
+router
+utils.js
+view.js
+[0m
+[0m$ [0mgrep -rn "jsonp" lib/ 2>&1 | head -n 100
+lib/response.js:275: *     res.jsonp(null);
+lib/response.js:276: *     res.jsonp({ user: 'tj' });
+lib/response.js:282:res.jsonp = function jsonp(obj) {
+lib/response.js:287:    // res.jsonp(body, status) backwards compat
+lib/response.js:289:      deprecate('res.jsonp(obj, status): Use res.status(status).jsonp(obj) instead');
+lib/response.js:292:      deprecate('res.jsonp(status, obj): Use res.status(status).jsonp(obj) instead');
+lib/response.js:304:  var callback = this.req.query[app.get('jsonp callback name')];
+lib/response.js:317:  // jsonp
+lib/application.js:116:  this.set('jsonp callback name', 'callback');
+[0m
+[0m→ [0mRead repo/lib/response.js
+[0m→ [0mRead .repro
+[0m→ [0mRead .repro/incident.repro.json
+[0m
+[0m$ [0mgit log --oneline -20 2>&1 | head -n 20; git status 2>&1 | head -n 30
+b9c129e Initial import of the deployed revision
+On branch main
+nothing to commit, working tree clean
+[0m
+[0m$ [0mgrep -rn "res.json" test/ 2>&1 | head -n 100
+ls test/
+test/express.json.js:51:      res.json(req.body)
+test/express.json.js:68:      res.json(req.body)
+test/express.json.js:645:    res.json(req.body)
+test/req.is.js:11:        res.json(req.is('application/json'))
+test/req.is.js:25:        res.json(req.is('image/jpeg'))
+test/req.is.js:39:        res.json(req.is('application/json'))
+test/req.is.js:55:        res.json(req.is('application/json'))
+test/req.is.js:70:        res.json(req.is('json'))
+test/req.is.js:86:        res.json(req.is('*/json'))
+test/req.is.js:100:        res.json(req.is('*/html'))
+test/req.is.js:114:        res.json(req.is('*/json'))
+test/req.is.js:130:        res.json(req.is('application/*'))
+test/req.is.js:144:        res.json(req.is('text/*'))
+test/req.is.js:158:        res.json(req.is('application/*'))
+test/express.urlencoded.js:31:      res.json(req.body)
+test/express.urlencoded.js:66:      res.json(req.body)
+test/express.urlencoded.js:724:    res.json(req.body)
+test/express.raw.js:32:        res.json({ buf: req.body.toString('hex') })
+test/express.raw.js:34:        res.json(req.body)
+test/express.raw.js:70:        res.json({ buf: req.body.toString('hex') })
+test/express.raw.js:72:        res.json(req.body)
+test/express.raw.js:380:      res.json({ buf: req.body.toString('hex') })
+test/express.raw.js:382:      res.json(req.body)
+test/express.text.js:31:      res.json(req.body)
+test/express.text.js:65:      res.json(req.body)
+test/express.text.js:437:    res.json(req.body)
+test/res.json.js:12:        res.json({ foo: 'bar' });
+test/res.json.js:25:        res.json({ hello: 'world' });
+test/res.json.js:39:          res.json(null);
+test/res.json.js:52:          res.json(300);
+test/res.json.js:65:          res.json('str');
+test/res.json.js:80:          res.json(['foo', 'bar', 'baz']);
+test/res.json.js:95:          res.json({ name: 'tobi' });
+test/res.json.js:117:          res.json({ '&': '<script>' })
+test/res.json.js:138:          res.json({ name: 'tobi', _id: 12345 });
+test/res.json.js:160:          res.json({ name: 'tobi', age: 2 });
+test/res.json.js:176:        res.json(201, { id: 1 });
+test/res.json.js:191:        res.json({ id: 1 }, 201);
+test/res.json.js:204:        res.json(200, 201);
+test/res.jsonp.js:13:        res.jsonp({ count: 1 });
+test/res.jsonp.js:26:        res.jsonp({ count: 1 });
+test/res.jsonp.js:39:        res.jsonp({ count: 1 });
+test/res.jsonp.js:54:        res.jsonp({ count: 1 });
+test/res.jsonp.js:67:        res.jsonp({ count: 1 });
+test/res.jsonp.js:80:        res.jsonp({});
+test/res.jsonp.js:93:        res.jsonp({ str: '\u2028 \u2029 woot' });
+test/res.jsonp.js:106:        res.jsonp({ str: '\u2028 \u2029 woot' });
+test/res.jsonp.js:119:        res.jsonp({ count: 1 });
+test/res.jsonp.js:134:        res.jsonp({ hello: 'world' });
+test/res.jsonp.js:149:        res.jsonp({ hello: 'world' });
+test/res.jsonp.js:164:          res.jsonp(null)
+test/res.jsonp.js:179:          res.jsonp('tobi')
+test/res.jsonp.js:194:          res.jsonp(42)
+test/res.jsonp.js:209:          res.jsonp(['foo', 'bar', 'baz'])
+test/res.jsonp.js:224:          res.jsonp({ name: 'tobi' })
+test/res.jsonp.js:246:          res.jsonp({ '&': '\u2028<script>\u2029' })
+test/res.jsonp.js:267:          res.jsonp({ name: 'tobi', _id: 12345 });
+test/res.jsonp.js:289:          res.jsonp({ name: 'tobi', age: 2 });
+test/res.jsonp.js:305:        res.jsonp(201, { id: 1 });
+test/res.jsonp.js:320:        res.jsonp({ id: 1 }, 201);
+test/res.jsonp.js:333:        res.jsonp(200, 201);
+test/res.jsonp.js:348:      res.jsonp({ hello: 'world' });
+test/res.cookie.js:111:          res.json(options)
+test/res.locals.js:11:        res.json(res.locals)
+test/res.locals.js:32:      res.json(res.locals)
+test/app.router.js:155:      res.json(calls)
+test/app.router.js:920:        res.json(calls)
+test/app.router.js:1008:        res.json({
+test/req.range.js:11:        res.json(req.range(120))
+test/req.range.js:24:        res.json(req.range(75))
+test/req.range.js:37:        res.json(req.range(75))
+test/req.range.js:50:        res.json(req.range(120).type)
+test/req.range.js:63:        res.json(req.range(120).type)
+test/req.range.js:91:          res.json(req.range(120, {
+Route.js
+Router.js
+acceptance
+app.all.js
+app.del.js
+app.engine.js
+app.head.js
+app.js
+app.listen.js
+app.locals.js
+app.options.js
+app.param.js
+app.render.js
+app.request.js
+app.response.js
+app.route.js
+app.router.js
+app.routes.error.js
+app.use.js
+config.js
+exports.js
+express.json.js
+express.raw.js
+express.static.js
+express.text.js
+express.urlencoded.js
+fixtures
+middleware.basic.js
+mocha.opts
+regression.js
+req.accepts.js
+req.acceptsCharset.js
+req.acceptsCharsets.js
+req.acceptsEncoding.js
+req.acceptsEncodings.js
+req.acceptsLanguage.js
+req.acceptsLanguages.js
+req.baseUrl.js
+req.fresh.js
+req.get.js
+req.host.js
+req.hostname.js
+req.ip.js
+req.ips.js
+req.is.js
+req.param.js
+req.path.js
+req.protocol.js
+req.query.js
+req.range.js
+req.route.js
+req.secure.js
+req.signedCookies.js
+req.stale.js
+req.subdomains.js
+req.xhr.js
+res.append.js
+res.attachment.js
+res.clearCookie.js
+res.cookie.js
+res.download.js
+res.format.js
+res.get.js
+res.json.js
+res.jsonp.js
+res.links.js
+res.locals.js
+res.location.js
+res.redirect.js
+res.render.js
+res.send.js
+res.sendFile.js
+res.sendStatus.js
+res.set.js
+res.status.js
+res.type.js
+res.vary.js
+support
+utils.js
+[0m
+[0m→ [0mRead repo/test/res.jsonp.js
+[0m→ [0mRead repo/test/res.json.js
+[0m→ [0mRead .repro/rt
+[0m
+[0m$ [0mls -R /work/.repro/rt/experiments/ 2>&1 | head -n 50
+cat /work/.repro/rt/experiments/reproducer-v3/headline/replay-raw.mjs 2>&1 | head -n 300
+/work/.repro/rt/experiments/:
+reproducer-v3
+
+/work/.repro/rt/experiments/reproducer-v3:
+headline
+src
+
+/work/.repro/rt/experiments/reproducer-v3/headline:
+replay-raw.mjs
+
+/work/.repro/rt/experiments/reproducer-v3/src:
+capture
+detector
+oracle
+replay
+
+/work/.repro/rt/experiments/reproducer-v3/src/capture:
+context.mjs
+events.mjs
+patch-fetch.mjs
+patch-http.mjs
+patch-pg.mjs
+patch-time.mjs
+persist.mjs
+redact.mjs
+register.mjs
+state.mjs
+
+/work/.repro/rt/experiments/reproducer-v3/src/detector:
+select.mjs
+
+/work/.repro/rt/experiments/reproducer-v3/src/oracle:
+fingerprint.mjs
+normalize.mjs
+
+/work/.repro/rt/experiments/reproducer-v3/src/replay:
+replay-one.mjs
+// Generic raw-socket replay for headline captures (experiment harness, not
+// part of the frozen capture tree). Delivers the RECORDED (redacted)
+// request bytes over TCP so transports that fetch cannot express
+// (absolute-form targets, missing Host, bracketed IPv6 Host) replay exactly.
+// Request line: `<METHOD> <path><query>` + HTTP/1.0 iff the recorded headers
+// carry no host (Host-less capture), else HTTP/1.1. Headers: recorded set
+// (minus connection/content-length, plus explicit content-length/close).
+// Outcome classification uses the FROZEN oracle (imported, unmodified).
+// Usage: node replay-raw.mjs --app <entry> --capture <file> [--keep <ids>] [--port <n>] [--env JSON]
+// Prints one JSON line: {pass, fingerprint, expected_hash, status, error, ms}.
+import { spawn } from "node:child_process";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import net from "node:net";
+import { tmpdir } from "node:os";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { classifyReplayOutcome } from "../src/oracle/fingerprint.mjs";
+
+const here = dirname(fileURLToPath(import.meta.url));
+const REGISTER = join(here, "..", "src", "capture", "register.mjs");
+
+function arg(name, def = null) {
+  const i = process.argv.indexOf(name);
+  return i === -1 ? def : process.argv[i + 1];
+}
+
+function subsetCapture(doc, keep) {
+  if (!keep) return doc;
+  const keepSet = new Set(keep.split(",").filter(Boolean));
+  const events = (doc.events ?? []).filter((e) => keepSet.has(`evt:${e.seq}`));
+  const config = {};
+  for (const [k, v] of Object.entries(doc.config ?? {})) {
+    if (keepSet.has(`cfg:${k}`)) config[k] = v;
+  }
+  return { ...doc, events, config };
+}
+
+function waitBoot(port, host, timeoutMs) {
+  const start = Date.now();
+  return new Promise((resolve) => {
+    const tick = () => {
+      const sock = net.connect(port, host);
+      sock.on("connect", () => {
+        sock.destroy();
+        resolve(true);
+      });
+      sock.on("error", () => {
+        if (Date.now() - start > timeoutMs) return resolve(false);
+        setTimeout(tick, 150);
+      });
+      setTimeout(() => {
+        try {
+          sock.destroy();
+        } catch {
+          // ignore
+        }
+      }, 500);
+    };
+    tick();
+  });
+}
+
+function rawRequest(port, host, doc) {
+  return new Promise((resolve, reject) => {
+    const req = doc.request;
+    const headers = { ...(req.headers ?? {}) };
+    const hasHost = Object.keys(headers).some((k) => k.toLowerCase() === "host");
+    const version = hasHost ? "HTTP/1.1" : "HTTP/1.0";
+    const body = req.body ?? "";
+    const lines = [`${req.method} ${req.path}${req.query ?? ""} ${version}`];
+    for (const [k, v] of Object.entries(headers)) {
+      const lk = k.toLowerCase();
+      if (lk === "connection" || lk === "content-length" || lk === "host") continue;
+      lines.push(`${k}: ${v}`);
+    }
+    if (hasHost) {
+      const hk = Object.keys(headers).find((k) => k.toLowerCase() === "host");
+      lines.push(`Host: ${headers[hk]}`);
+    }
+    if (body) lines.push(`Content-Length: ${Buffer.byteLength(body)}`);
+    lines.push("Connection: close", "", body);
+    const payload = lines.join("\r\n");
+    const sock = net.connect({ host, port }, () => sock.write(payload));
+    let data = "";
+    const killer = setTimeout(() => {
+      try {
+        sock.end();
+      } catch {
+        // ignore
+      }
+    }, 5000);
+    const timeout = setTimeout(() => reject(new Error("raw replay timeout")), 15000);
+    sock.on("data", (c) => {
+      data += c;
+    });
+    sock.on("end", () => {
+      clearTimeout(killer);
+      clearTimeout(timeout);
+      resolve(data);
+    });
+    sock.on("error", (e) => {
+      clearTimeout(killer);
+      clearTimeout(timeout);
+      reject(e);
+    });
+  });
+}
+
+function parseResponse(data) {
+  const headEnd = data.indexOf("\r\n\r\n");
+  const head = headEnd === -1 ? data : data.slice(0, headEnd);
+  const body = headEnd === -1 ? "" : data.slice(headEnd + 4);
+  const m = /^HTTP\/\S+ (\d+)/.exec(head);
+  return { status: m ? Number(m[1]) : 0, body };
+}
+
+async function main() {
+  const started = Date.now();
+  const app = resolve(arg("--app"));
+  const captureFile = resolve(arg("--capture") ?? "");
+  const keep = arg("--keep", null);
+  const port = Number(arg("--port", "0")) || 48000 + Math.floor(Math.random() * 1000);
+  const extraEnv = JSON.parse(arg("--env", "{}"));
+  const host = extraEnv.REPLAY_HOST ?? "127.0.0.1";
+  if (!app || !captureFile) {
+    console.log(JSON.stringify({ error: "missing --app or --capture" }));
+    process.exitCode = 2;
+    return;
+  }
+  const doc = JSON.parse(readFileSync(captureFile, "utf8"));
+  const sub = subsetCapture(doc, keep);
+  const dir = mkdtempSync(join(tmpdir(), "reprov3-replay-"));
+  const subFile = join(dir, "subset.json");
+  writeFileSync(subFile, JSON.stringify(sub));
+  const finish = (result) => {
+    try {
+      child.kill("SIGKILL");
+    } catch {
+      // already gone
+    }
+    console.log(JSON.stringify({ ...result, ms: Date.now() - started }));
+  };
+  const env = {
+    ...process.env,
+    ...extraEnv,
+    RAPTURE_V2_MODE: "replay",
+    RAPTURE_V2_CAPTURE_FILE: subFile,
+    PORT: String(port),
+    PGPORT: "54399",
+    CAPTURE_CONFIG: Object.keys(doc.config ?? {}).join(","),
+  };
+  delete env.REPLAY_HOST;
+  const child = spawn(process.execPath, ["--import", REGISTER, app], {
+    env,
+    stdio: ["ignore", "pipe", "pipe"],
+    cwd: dir,
+  });
+  let stderr = "";
+  child.stderr.on("data", (d) => {
+    stderr += String(d);
+  });
+  const timer = setTimeout(() => {
+    finish({
+      pass: false,
+      fingerprint: null,
+      expected_hash: doc.fingerprint?.fingerprint_hash ?? null,
+      error: `replay timeout; stderr: ${stderr.slice(0, 300)}`,
+    });
+  }, 45000);
+  const up = await waitBoot(port, host, 25000);
+  if (!up) {
+    clearTimeout(timer);
+    finish({
+      pass: false,
+      fingerprint: null,
+      expected_hash: doc.fingerprint?.fingerprint_hash ?? null,
+      error: `app did not boot; stderr: ${stderr.slice(0, 500)}`,
+    });
+    return;
+  }
+  let outcome;
+  try {
+    const raw = await rawRequest(port, host, sub);
+    const { status, body } = parseResponse(raw);
+    outcome = {
+      request: { method: sub.request.method, path: sub.request.path },
+      response: { status, body },
+      appError: null,
+    };
+  } catch (err) {
+    outcome = {
+      request: { method: sub.request.method, path: sub.request.path },
+      response: null,
+      appError: { name: err?.name ?? "Error", code: err?.code ?? null, message: String(err?.message ?? err), stack: err?.stack ?? null },
+    };
+  }
+  clearTimeout(timer);
+  const classified = classifyReplayOutcome(outcome, doc.fingerprint?.fingerprint_hash);
+  finish({
+    pass: classified.pass,
+    fingerprint: classified.fingerprint,
+    expected_hash: doc.fingerprint?.fingerprint_hash ?? null,
+    status: outcome.response?.status ?? null,
+  });
+}
+
+await main();
+[0m
+[0m$ [0mcat /work/.repro/rt/experiments/reproducer-v3/src/oracle/fingerprint.mjs 2>&1 | head -n 300
+// Automatic failure oracle: FailureFingerprintV2 inferred from the incident.
+// No hand-authored assertions. Infra-coded errors (missing mock, live attempt,
+// replay mismatch, syntax/timeout crashes outside app identity) map to an
+// infra fingerprint that can never equal an incident fingerprint.
+import { createHash } from "node:crypto";
+import { isInfraError } from "../capture/events.mjs";
+import { normalizeStackLineOffsets, normalizeVolatile, stableAppFrame } from "./normalize.mjs";
+
+export const KIND_APP = "app";
+export const KIND_INFRA = "infra";
+
+function fingerprintHash(fields) {
+  return createHash("sha256").update(JSON.stringify(fields)).digest("hex");
+}
+
+function errorClassFromBody(body) {
+  if (body == null) return null;
+  let parsed = body;
+  if (typeof body === "string") {
+    const t = body.trim();
+    if (!(t.startsWith("{") || t.startsWith("["))) return null;
+    try {
+      parsed = JSON.parse(t);
+    } catch {
+      return null;
+    }
+  }
+  if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+    const code = parsed.code ?? parsed.errorCode;
+    if (code != null) return `ERR:${normalizeVolatile(String(code))}`;
+    const name = parsed.error ?? parsed.name;
+    if (name != null) return `ERR:${normalizeVolatile(String(name))}`;
+  }
+  return null;
+}
+
+/**
+ * Infer the incident fingerprint from a finished request record.
+ * rec: {request{method,path}, response{status,body}|null, appError{name,code,message,stack}|null}
+ */
+export function inferFingerprint(rec) {
+  const method = rec.request.method;
+  const route = rec.request.path;
+  const status = rec.response?.status ?? 0;
+  if (rec.appError && !isInfraError(rec.appError)) {
+    const ae = rec.appError;
+    const fields = {
+      kind: KIND_APP,
+      request_method: method,
+      route_or_operation: route,
+      http_status: status,
+      error_name_or_code: String(ae.code ?? ae.name ?? "UnknownError"),
+      normalized_class: `ERR:${normalizeVolatile(String(ae.code ?? ae.name ?? "UnknownError"))}`,
+      stable_frame: stableAppFrame(ae.stack),
+    };
+    return { ...fields, fingerprint_hash: fingerprintHash(fields) };
+  }
+  const bodyClass = errorClassFromBody(rec.response?.body);
+  const fields = {
+    kind: KIND_APP,
+    request_method: method,
+    route_or_operation: route,
+    http_status: status,
+    error_name_or_code: bodyClass ?? null,
+    normalized_class: bodyClass ?? `HTTP_${status}`,
+    stable_frame: null,
+  };
+  return { ...fields, fingerprint_hash: fingerprintHash(fields) };
+}
+
+/** Fingerprint for a replay outcome that is NOT the incident (fail-closed). */
+export function infraFingerprint(reason, detail) {
+  const fields = {
+    kind: KIND_INFRA,
+    request_method: null,
+    route_or_operation: null,
+    http_status: 0,
+    error_name_or_code: String(reason),
+    normalized_class: `INFRA:${normalizeVolatile(String(reason))}`,
+    stable_frame: null,
+    detail: normalizeVolatile(String(detail ?? "")).slice(0, 200),
+  };
+  return { ...fields, fingerprint_hash: fingerprintHash(fields) };
+}
+
+/**
+ * Classify a replay run outcome for reducer pass/fail.
+ * outcome: {response{status,body}|null, appError|null}
+ */
+export function classifyReplayOutcome(outcome, expectedHash) {
+  if (outcome.appError && isInfraError(outcome.appError)) {
+    return { pass: false, fingerprint: infraFingerprint(outcome.appError.code ?? "INFRA", outcome.appError.message) };
+  }
+  if (!outcome.response && !outcome.appError) {
+    return { pass: false, fingerprint: infraFingerprint("NO_OUTCOME", "replay produced neither response nor error") };
+  }
+  const fp = inferFingerprint({
+    request: outcome.request,
+    response: outcome.response ?? null,
+    appError: outcome.appError ?? null,
+  });
+  // A non-5xx response or a different failure can never satisfy the incident.
+  return { pass: fp.fingerprint_hash === expectedHash, fingerprint: fp };
+}
+[0m
+[0m$ [0mnode -e "console.log(JSON.stringify(undefined)); console.log(typeof JSON.stringify(undefined)); console.log(JSON.stringify(undefined, null, 2)); console.log(JSON.stringify(function(){}))"
+undefined
+undefined
+undefined
+undefined
+[0m
+[0m→ [0mRead repo/lib/response.js[90m [offset=298, limit=45][0m
+[0m
+[0m← [0mEdit repo/lib/response.js
+Index: /work/repo/lib/response.js
+===================================================================
+--- /work/repo/lib/response.js
++++ /work/repo/lib/response.js
+@@ -322,11 +322,13 @@
+ // restrict callback charset
+ callback = callback.replace(/[^\[\]\w$.]/g, '');
+ 
+ // replace chars not allowed in JavaScript that are in JSON
+-body = body
+-  .replace(/\u2028/g, '\\u2028')
+-  .replace(/\u2029/g, '\\u2029');
++if (typeof body === 'string') {
++  body = body
++    .replace(/\u2028/g, '\\u2028')
++    .replace(/\u2029/g, '\\u2029');
++}
+ 
+ // the /**/ is a specific security mitigation for "Rosetta Flash JSONP abuse"
+ // the typeof check is just to reduce client error noise
+ body = '/**/ typeof ' + callback + ' === \'function\' && ' + callback + '(' + body + ');';
+
+[0m
+[0m→ [0mRead repo/lib/response.js[90m [offset=1118, limit=25][0m
+[0m
+[0m← [0mEdit repo/lib/response.js
+Index: /work/repo/lib/response.js
+===================================================================
+--- /work/repo/lib/response.js
++++ /work/repo/lib/response.js
+@@ -1123,9 +1123,9 @@
+ var json = replacer || spaces
+   ? JSON.stringify(value, replacer, spaces)
+   : JSON.stringify(value);
+ 
+-if (escape) {
++if (escape && typeof json === 'string') {
+   json = json.replace(/[<>&]/g, function (c) {
+     switch (c.charCodeAt(0)) {
+       case 0x3c:
+         return '\\u003c'
+
+[0m
+[0m$ [0m/work/repro 2>&1; echo EXIT:$?
+ORIGINAL_FAILURE_ABSENT
+observed_http_status=200
+EXIT:0
+[0m
+[0m$ [0mnode --input-type=module -e "
+import express from '/work/repo/index.js';
+import http from 'http';
+const app = express();
+app.set('jsonp callback name','cb');
+app.get('/lookup',(req,res)=>{ const found = req.query.id==='known'?{id:'known'}:undefined; res.jsonp(found); });
+const srv = app.listen(0, ()=>{
+  const port=srv.address().port;
+  const paths=['/lookup?id=missing&cb=render','/lookup?id=known&cb=render','/lookup?id=missing','/lookup?id=known'];
+  (async()=>{
+    for(const p of paths){
+      await new Promise((resolve)=>{
+        http.get({host:'127.0.0.1',port,path:p},(r)=>{
+          let b='';r.on('data',c=>b+=c);r.on('end',()=>{console.log(p+' => '+r.statusCode+' '+JSON.stringify(b)+' ct='+r.headers['content-type']);resolve();});
+        });
+      });
+    }
+    // escape + undefined
+    srv.close();
+  })();
+});
+"
+/lookup?id=missing&cb=render => 200 "/**/ typeof render === 'function' && render(undefined);" ct=text/javascript; charset=utf-8
+/lookup?id=known&cb=render => 200 "/**/ typeof render === 'function' && render({\"id\":\"known\"});" ct=text/javascript; charset=utf-8
+/lookup?id=missing => 200 "" ct=application/json; charset=utf-8
+/lookup?id=known => 200 "{\"id\":\"known\"}" ct=application/json; charset=utf-8
+[0m
+[0m$ [0mnode --input-type=module -e "
+import express from '/work/repo/index.js';
+import http from 'http';
+const app = express();
+app.enable('json escape');
+app.get('/',(req,res)=>{ res.jsonp(undefined); });
+app.get('/j',(req,res)=>{ res.json(undefined); });
+const srv = app.listen(0, ()=>{
+  const port=srv.address().port;
+  (async()=>{
+    for(const p of ['/?callback=cb','/','/j']){
+      await new Promise((resolve)=>{
+        http.get({host:'127.0.0.1',port,path:p},(r)=>{
+          let b='';r.on('data',c=>b+=c);r.on('end',()=>{console.log(p+' => '+r.statusCode+' '+JSON.stringify(b));resolve();});
+        }).on('error',e=>{console.log(p+' ERR '+e.message);resolve();});
+      });
+    }
+    srv.close();
+  })();
+});
+"
+/?callback=cb => 200 "/**/ typeof cb === 'function' && cb(undefined);"
+/ => 200 ""
+/j => 200 ""
+[0m
+[0m$ [0mnpm test 2>&1 | tail -n 50
+✓ should handle empty message-body
+    ✓ should handle no message-body
+    ✓ should 400 when invalid content-length
+    ✓ should handle duplicated middleware
+    when JSON is invalid
+      ✓ should 400 for bad token
+      ✓ should 400 for incomplete
+      ✓ should error with type = "entity.parse.failed"
+      ✓ should include original body on error object
+    with limit option
+      ✓ should 413 when over limit with Content-Length
+      ✓ should error with type = "entity.too.large"
+      ✓ should 413 when over limit with chunked encoding
+      ✓ should accept number of bytes
+      ✓ should not change when options altered
+      ✓ should not hang response
+    with inflate option
+      when false
+        ✓ should not accept content-encoding
+      when true
+        ✓ should accept content-encoding
+    with strict option
+      when undefined
+        1) should 400 on primitives
+
+
+  332 passing (1s)
+  1 failing
+
+  1) express.json()
+       with strict option
+         when undefined
+           should 400 on primitives:
+     Error: expected `Unexpected token 't', "#rue" is not valid JSON` response body, got `Unexpected token 't', "#" is not valid JSON`
+      at Context.<anonymous> (test/express.json.js:227:12)
+      at process.processImmediate (node:internal/timers:484:21)
+  ----
+      at error (node_modules/supertest/lib/test.js:356:13)
+      at Test._assertBody (node_modules/supertest/lib/test.js:254:14)
+      at /work/repo/node_modules/supertest/lib/test.js:80:15
+      at Test._assertFunction (node_modules/supertest/lib/test.js:338:11)
+      at Test.assert (node_modules/supertest/lib/test.js:209:21)
+      at Server.localAssert (node_modules/supertest/lib/test.js:167:12)
+      at Object.onceWrapper (node:events:633:28)
+      at Server.emit (node:events:519:28)
+      at emitCloseNT (node:net:2420:8)
+      at process.processTicksAndRejections (node:internal/process/task_queues:88:21)
+[0m
+[0m$ [0mgit stash && npm test 2>&1 | tail -n 10; git stash pop
+Saved working directory and index state WIP on main: b9c129e Initial import of the deployed revision
+      at Test._assertFunction (node_modules/supertest/lib/test.js:338:11)
+      at Test.assert (node_modules/supertest/lib/test.js:209:21)
+      at Server.localAssert (node_modules/supertest/lib/test.js:167:12)
+      at Object.onceWrapper (node:events:633:28)
+      at Server.emit (node:events:519:28)
+      at emitCloseNT (node:net:2420:8)
+      at process.processTicksAndRejections (node:internal/process/task_queues:88:21)
+
+
+
+On branch main
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   lib/response.js
+
+no changes added to commit (use "git add" and/or "git commit -a")
+Dropped refs/stash@{0} (56e61d32b4cbfbf3e9290c6c356ea5f78c791855)
+[0m
+[0m$ [0mnpm run test -- --grep "jsonp" 2>&1 | tail -n 40
+./node_modules/.bin/mocha --require test/support/env --reporter spec test/res.jsonp.js test/res.json.js 2>&1 | tail -n 60
+✓ should use first callback parameter with jsonp
+      ✓ should ignore object callback parameter with jsonp
+      ✓ should allow renaming callback
+      ✓ should allow []
+      ✓ should disallow arbitrary js
+      ✓ should escape utf whitespace
+      ✓ should not escape utf whitespace for json fallback
+      ✓ should include security header and prologue
+      ✓ should not override previous Content-Types with no callback
+      ✓ should override previous Content-Types with callback
+      when given null
+        ✓ should invoke callback with null
+      when given a string
+        ✓ should invoke callback with a string
+      when given a number
+        ✓ should invoke callback with a number
+      when given an array
+        ✓ should invoke callback with an array
+      when given an object
+        ✓ should invoke callback with an object
+      "json escape" setting
+        ✓ should be undefined by default
+        ✓ should unicode escape HTML-sniffing characters
+      "json replacer" setting
+        ✓ should be passed to JSON.stringify()
+      "json spaces" setting
+        ✓ should be undefined by default
+        ✓ should be passed to JSON.stringify()
+    .jsonp(status, object)
+      ✓ should respond with json and set the .statusCode
+    .jsonp(object, status)
+      ✓ should respond with json and set the .statusCode for backwards compat
+      ✓ should use status as second number for backwards compat
+
+  res
+    ✓ should not support jsonp callbacks
+
+
+  26 passing (141ms)
+
+      ✓ should allow []
+      ✓ should disallow arbitrary js
+      ✓ should escape utf whitespace
+      ✓ should not escape utf whitespace for json fallback
+      ✓ should include security header and prologue
+      ✓ should not override previous Content-Types with no callback
+      ✓ should override previous Content-Types with callback
+      when given null
+        ✓ should invoke callback with null
+      when given a string
+        ✓ should invoke callback with a string
+      when given a number
+        ✓ should invoke callback with a number
+      when given an array
+        ✓ should invoke callback with an array
+      when given an object
+        ✓ should invoke callback with an object
+      "json escape" setting
+        ✓ should be undefined by default
+        ✓ should unicode escape HTML-sniffing characters
+      "json replacer" setting
+        ✓ should be passed to JSON.stringify()
+      "json spaces" setting
+        ✓ should be undefined by default
+        ✓ should be passed to JSON.stringify()
+    .jsonp(status, object)
+      ✓ should respond with json and set the .statusCode
+    .jsonp(object, status)
+      ✓ should respond with json and set the .statusCode for backwards compat
+      ✓ should use status as second number for backwards compat
+
+  res
+    .json(object)
+      ✓ should not support jsonp callbacks
+      ✓ should not override previous Content-Types
+      when given primitives
+        ✓ should respond with json for null
+        ✓ should respond with json for Number
+        ✓ should respond with json for String
+      when given an array
+        ✓ should respond with json
+      when given an object
+        ✓ should respond with json
+      "json escape" setting
+        ✓ should be undefined by default
+        ✓ should unicode escape HTML-sniffing characters
+      "json replacer" setting
+        ✓ should be passed to JSON.stringify()
+      "json spaces" setting
+        ✓ should be undefined by default
+        ✓ should be passed to JSON.stringify()
+    .json(status, object)
+      ✓ should respond with json and set the .statusCode
+    .json(object, status)
+      ✓ should respond with json and set the .statusCode for backwards compat
+      ✓ should use status as second number for backwards compat
+
+
+  40 passing (196ms)
+[0m
+[0m$ [0mgit diff
+diff --git a/lib/response.js b/lib/response.js
+index b3b9299..611a778 100644
+--- a/lib/response.js
++++ b/lib/response.js
+@@ -323,9 +323,11 @@ res.jsonp = function jsonp(obj) {
+     callback = callback.replace(/[^\[\]\w$.]/g, '');
+ 
+     // replace chars not allowed in JavaScript that are in JSON
+-    body = body
+-      .replace(/\u2028/g, '\\u2028')
+-      .replace(/\u2029/g, '\\u2029');
++    if (typeof body === 'string') {
++      body = body
++        .replace(/\u2028/g, '\\u2028')
++        .replace(/\u2029/g, '\\u2029');
++    }
+ 
+     // the /**/ is a specific security mitigation for "Rosetta Flash JSONP abuse"
+     // the typeof check is just to reduce client error noise
+@@ -1122,7 +1124,7 @@ function stringify (value, replacer, spaces, escape) {
+     ? JSON.stringify(value, replacer, spaces)
+     : JSON.stringify(value);
+ 
+-  if (escape) {
++  if (escape && typeof json === 'string') {
+     json = json.replace(/[<>&]/g, function (c) {
+       switch (c.charCodeAt(0)) {
+         case 0x3c:
+[0m

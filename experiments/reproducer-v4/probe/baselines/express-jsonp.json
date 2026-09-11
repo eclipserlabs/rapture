@@ -1,0 +1,28 @@
+{
+  "schema": "v4-probe-regression-baseline-1",
+  "case": "express-jsonp",
+  "recorded_at": "2026-09-11T16:01:28.804Z",
+  "tree": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/work/express-jsonp-buggy",
+  "supported": true,
+  "exit": 4,
+  "seconds": 5,
+  "total": 1151,
+  "failed": 4,
+  "failing": [
+    "express.json() with strict option when undefined should 400 on primitives",
+    "express.json() with strict option when true should not parse primitives",
+    "express.json() with strict option when true should not parse primitives with leading whitespaces",
+    "express.json() with strict option when true should include correct message in stack trace"
+  ],
+  "fixed_revision_reference": {
+    "tree": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/work/express-jsonp-fixed",
+    "total": 1152,
+    "failed": 4,
+    "failing": [
+      "express.json() with strict option when undefined should 400 on primitives",
+      "express.json() with strict option when true should not parse primitives",
+      "express.json() with strict option when true should not parse primitives with leading whitespaces",
+      "express.json() with strict option when true should include correct message in stack trace"
+    ]
+  }
+}

@@ -1,0 +1,191 @@
+{
+  "schema": "v4-probe-run-1",
+  "label": "selftest-nopatch",
+  "case": "koa-1998",
+  "arm": "CONTROL",
+  "model": "opencode/muse-spark-1.3-contributor-free",
+  "budget_seconds": 60,
+  "started_at": "2026-09-11T16:15:36.848Z",
+  "free_mb_before": 1732,
+  "disk_floor_mb": 700,
+  "preflight": {
+    "schema": "v4-probe-preflight-1",
+    "at": "2026-09-11T16:16:13.375Z",
+    "checks": [
+      {
+        "check": "net_up_reasserted",
+        "pass": true,
+        "detail": "waiting for squid to accept connections... | v4-proxy\tUp About an hour\tubuntu/squid:5.2-22.04_beta"
+      },
+      {
+        "check": "subject_no_default_route",
+        "pass": true,
+        "detail": "route=\"\""
+      },
+      {
+        "check": "vm_ssh_filtered",
+        "pass": true,
+        "detail": "FILTERED"
+      },
+      {
+        "check": "proxy_reachable",
+        "pass": true,
+        "detail": "OPEN"
+      },
+      {
+        "check": "single_internal_network_attachment",
+        "pass": true,
+        "detail": "v4-subject-net"
+      },
+      {
+        "check": "no_direct_egress",
+        "pass": true,
+        "detail": "ENETUNREACH"
+      },
+      {
+        "check": "minimal_provider_auth_only",
+        "pass": true,
+        "detail": "[\"opencode\"]"
+      },
+      {
+        "check": "no_global_config_or_repo_mounted",
+        "pass": true,
+        "detail": "-v /Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/probe-runs/selftest-nopatch:/work -v /Users/wira/Documents/rapture/rapture/experiments/reproducer-v4/isolation/subject-auth:/isolated/data/opencode -v /Users/wira/Documents/rapture/rapture/experiments/reproducer-v4/probe/vendor/reproduc"
+      }
+    ],
+    "preflight_pass": true
+  },
+  "build_workspace": {
+    "exit": 0,
+    "ok": true
+  },
+  "starting_tree": {
+    "tree_sha256": "84f6091158aa7d4af527b562036067ea14fff29bb9b99fe1fd0a9e843c53a310",
+    "file_count": 112
+  },
+  "workspace_audit": {
+    "schema": "v4-probe-workspace-audit-1",
+    "case": "koa-1998",
+    "arm": "CONTROL",
+    "ws": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/probe-runs/selftest-nopatch",
+    "checks": [
+      {
+        "check": "git_single_commit",
+        "pass": true,
+        "detail": "commits=1"
+      },
+      {
+        "check": "git_no_remote",
+        "pass": true,
+        "detail": "remotes=\"\""
+      },
+      {
+        "check": "git_no_future_history",
+        "pass": true,
+        "detail": "refs=1"
+      },
+      {
+        "check": "no_fixing_revision_or_issue_id_in_workspace",
+        "pass": true,
+        "detail": []
+      },
+      {
+        "check": "no_hidden_evaluator_material",
+        "pass": true,
+        "detail": []
+      },
+      {
+        "check": "no_hidden_variant_identifiers",
+        "pass": true,
+        "detail": []
+      },
+      {
+        "check": "arm_repro_presence_matches",
+        "pass": true,
+        "detail": "arm=CONTROL repro_present=false"
+      },
+      {
+        "check": "dependencies_preprovisioned",
+        "pass": true,
+        "detail": "repo/node_modules present"
+      }
+    ],
+    "workspace_audit_pass": true
+  },
+  "container_start": {
+    "exit": 0,
+    "ok": true
+  },
+  "harness_self_test": true,
+  "harness_self_test_command": "echo \"I looked at the code and could not find the bug.\"; exit 0",
+  "agent_seconds": 0.12,
+  "agent_exit": 0,
+  "agent_timed_out": false,
+  "trace_file": "results/probe-calibration/trace-selftest-nopatch.log",
+  "trace_bytes": 69,
+  "observations": {
+    "repro_invocations": 0,
+    "repro_outcome_lines": [],
+    "test_invocations": 0,
+    "network_attempt_markers": 0,
+    "webfetch_or_search_attempts": 0,
+    "tool_calls": 0,
+    "network_capable_commands": 0,
+    "repro_invocation_log": [],
+    "first_repro_invocation_line": null
+  },
+  "final_tree": {
+    "tree_sha256": "84f6091158aa7d4af527b562036067ea14fff29bb9b99fe1fd0a9e843c53a310",
+    "file_count": 112
+  },
+  "tree_changed": false,
+  "termination_reason": "AGENT_COMPLETED",
+  "token_usage_reported": null,
+  "patch_stat": "",
+  "patch_empty": true,
+  "proxy_attempts": {},
+  "proxy_denied_non_provider": false,
+  "evaluation": {
+    "schema": "v4-probe-evaluation-1",
+    "case": "koa-1998",
+    "classification": "FALSE_FIX_ORIGINAL_FAILURE_REMAINS",
+    "repo": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/probe-runs/selftest-nopatch/repo",
+    "original": {
+      "status": 500,
+      "body": "{\"error\":\"assert regression\",\"code\":\"E_ASSERT_REGRESSION\"}"
+    },
+    "original_failure_present": true,
+    "hidden": [
+      {
+        "variant": "assert-403-different-message",
+        "status": 500,
+        "pass": false,
+        "body": "{\"ok\":false,\"code\":\"E_ASSERT_NOT_HTTPERROR\",\"got\":\"ForbiddenError\"}"
+      },
+      {
+        "variant": "assert-402-different-message",
+        "status": 500,
+        "pass": false,
+        "body": "{\"ok\":false,\"code\":\"E_ASSERT_NOT_HTTPERROR\",\"got\":\"PaymentRequiredError\"}"
+      }
+    ],
+    "hidden_all_pass": false,
+    "regression": {
+      "supported": true,
+      "exit": 0,
+      "failed": 0,
+      "failing": []
+    },
+    "regression_comparison": {
+      "comparable": false,
+      "regression": null,
+      "reason": "regression output unparseable"
+    }
+  },
+  "classification": "FALSE_FIX_ORIGINAL_FAILURE_REMAINS",
+  "free_mb_after": 1669,
+  "workspace_retained": false,
+  "workspace_path": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/probe-runs/selftest-nopatch",
+  "workspace_removed_after_evaluation": true,
+  "finished_at": "2026-09-11T16:16:45.083Z"
+}

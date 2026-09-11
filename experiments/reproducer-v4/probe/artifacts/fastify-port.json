@@ -1,0 +1,43 @@
+{
+  "schema": "incident-capture-v2",
+  "captured_at": "2026-09-11T16:54:03.341Z",
+  "req_id": "req-12073-1789145643331-1",
+  "request": {
+    "method": "GET",
+    "path": "/callback-url",
+    "query": "",
+    "headers": {
+      "host": "127.0.0.1:52176",
+      "connection": "keep-alive",
+      "x-forwarded-host": "api.example.com:8443",
+      "accept": "*/*",
+      "accept-language": "*",
+      "sec-fetch-mode": "cors",
+      "user-agent": "node",
+      "accept-encoding": "gzip, deflate"
+    },
+    "host": "127.0.0.1:52176",
+    "body": null
+  },
+  "response": {
+    "status": 500,
+    "headers": {},
+    "body": "{\"error\":\"derived port disagrees with host\",\"code\":\"E_PORT_DERIVATION\",\"host\":\"api.example.com:8443\",\"port\":\"52176\"}"
+  },
+  "events": [],
+  "config": {},
+  "app_error": null,
+  "boundary_ops_outside_request": 0,
+  "offline_replay_supported": true,
+  "fingerprint": {
+    "kind": "app",
+    "request_method": "GET",
+    "route_or_operation": "/callback-url",
+    "http_status": 500,
+    "error_name_or_code": "ERR:E_PORT_DERIVATION",
+    "normalized_class": "ERR:E_PORT_DERIVATION",
+    "stable_frame": null,
+    "fingerprint_hash": "c1096283d6ce316bc7deb5aa3c62984d884eb9f525ff24a02bc7e6d4213b13d9"
+  },
+  "capture_hash": "ac12466eb27974220f17d33239ec1cbe4f73dfb26b168ae5d5bcda917c621aef"
+}

@@ -1,0 +1,675 @@
+Fixing the production bug — tracing the failure to its root cause.
+I've spotted a likely double-slash in the nested prefix logic — now checking how prefixes should behave.
+I've mapped the faulty combination — now confirming the exact failure.
+Root cause confirmed — now applying the fix.
+The service now returns the expected response — running the broader test suite to ensure no regressions.
+Core prefix and routing tests pass — doing a final verification of the change.
+Root cause: `buildRoutePrefix` in `lib/plugin-override.js` double-joined prefixes when parent ended with `/` and child lacked leading `/`. `'/api/' + 'v1'` became `'/api//v1'`, so `GET /api/v1/orders` 404'd (route registered as `/api//v1/orders`).
+
+Files changed:
+- `lib/plugin-override.js:85` — only prepend `/` to `pluginPrefix` when `instancePrefix` does not already end with `/`.
+
+Validation:
+- Reproduced via `/work/app/server.mjs` (`/api/` + `v1`): before `v1 prefix="/api//v1"`, `GET /api/v1/orders` 500; after `v1 prefix="/api/v1"`, `GET /api/v1/orders` 200 `{"ok":true,"scope":"v1-orders"}`.
+- Prefix matrix (`/api/`+`v1`, `/api`+`v1`, `/`+`v1`, etc.) all resolve to single-slash paths.
+- `node --test test/route-prefix.test.js` 26/26 pass; `register`, `route`, `404s`, `plugin` suites pass.
+
+Uncertainty: route paths without leading `/` combined with non-trailing-slash prefix (e.g. prefix `/v1` + path `route2` → `/v1route2`) still join naively in `lib/route.js`; out of scope for this incident, not changed.
+
+----- stderr -----
+[0m
+> build · muse-spark-1.3-contributor-free
+[0m
+[0m→ [0mRead app
+[0m→ [0mRead repo
+[0m→ [0mRead incident-evidence.json
+[0m→ [0mRead incident-evidence.md
+[0m→ [0mRead repo/package.json
+[0m→ [0mRead app/server.mjs
+[0m✗ [0mGrep "prefix" failed[90m in repo/lib[0m
+[91m[1mError: [0mripgrep execution failed
+[0m
+[0m$ [0mls lib/ && grep -rn "prefix" lib/ | head -n 100
+config-validator.js
+content-type-parser.js
+content-type.js
+context.js
+decorate.js
+error-handler.js
+error-serializer.js
+error-status.js
+errors.js
+four-oh-four.js
+handle-request.js
+head-route.js
+hooks.js
+initial-config-validation.js
+logger-factory.js
+logger-pino.js
+noop-set.js
+plugin-override.js
+plugin-utils.js
+promise.js
+reply.js
+req-id-gen-factory.js
+request.js
+route.js
+schema-controller.js
+schemas.js
+server.js
+symbols.js
+validation.js
+warnings.js
+wrap-thenable.js
+lib/route.js:253:    const prefix = this[kRoutePrefix]
+lib/route.js:255:    if (path === '/' && prefix.length > 0 && opts.method !== 'HEAD') {
+lib/route.js:256:      switch (opts.prefixTrailingSlash) {
+lib/route.js:267:          if (ignoreTrailingSlash !== true && (ignoreDuplicateSlashes !== true || !prefix.endsWith('/'))) {
+lib/route.js:268:            addNewRoute.call(this, { path, prefixing: true, isFastify })
+lib/route.js:271:    } else if (path[0] === '/' && prefix.endsWith('/')) {
+lib/route.js:272:      // Ensure that '/prefix/' + '/route' gets registered as '/prefix/route'
+lib/route.js:281:    function addNewRoute ({ path, prefixing = false, isFastify = false }) {
+lib/route.js:282:      const url = prefix + path
+lib/route.js:287:      opts.prefix = prefix
+lib/route.js:299:      if (prefixing === false) {
+lib/route.js:356:        prefixTrailingSlash: (opts.prefixTrailingSlash || 'both'),
+lib/plugin-override.js:48:  instance[kRoutePrefix] = buildRoutePrefix(instance[kRoutePrefix], opts.prefix)
+lib/plugin-override.js:67:  if (opts.prefix) {
+lib/plugin-override.js:81:  // Ensure that there is a '/' between the prefixes
+lib/request.js:195:        prefixTrailingSlash: context.prefixTrailingSlash,
+lib/context.js:39:  prefixTrailingSlash,
+lib/context.js:66:  this.prefixTrailingSlash = prefixTrailingSlash
+lib/four-oh-four.js:45:    // Change the pointer of the fastify instance to itself, so register + prefix can add new 404 handler
+lib/four-oh-four.js:96:    const prefix = this[kRoutePrefix] || '/'
+lib/four-oh-four.js:99:      throw new Error(`Not found handler already set for Fastify instance with prefix: '${prefix}'`)
+lib/four-oh-four.js:138:      _setNotFoundHandler.call(this, prefix, opts, handler, avvio, routeHandler)
+lib/four-oh-four.js:143:  function _setNotFoundHandler (prefix, opts, handler, avvio, routeHandler) {
+lib/four-oh-four.js:164:    if (this[kFourOhFourContext] !== null && prefix === '/') {
+lib/four-oh-four.js:171:    router.all(prefix + (prefix.endsWith('/') ? '*' : '/*'), routeHandler, context)
+lib/four-oh-four.js:172:    router.all(prefix, routeHandler, context)
+[0m
+[0m→ [0mRead repo/lib/plugin-override.js
+[0m→ [0mRead repo/lib/route.js[90m [offset=240, limit=130][0m
+[0m
+[0m$ [0mgrep -rn "buildRoutePrefix\|prefix.*trailing\|prefixTrailingSlash" lib/ test/ --include="*.js" | head -n 120
+node -e "console.log('test')"
+lib/route.js:256:      switch (opts.prefixTrailingSlash) {
+lib/route.js:356:        prefixTrailingSlash: (opts.prefixTrailingSlash || 'both'),
+lib/plugin-override.js:48:  instance[kRoutePrefix] = buildRoutePrefix(instance[kRoutePrefix], opts.prefix)
+lib/plugin-override.js:76:function buildRoutePrefix (instancePrefix, pluginPrefix) {
+lib/request.js:195:        prefixTrailingSlash: context.prefixTrailingSlash,
+lib/context.js:39:  prefixTrailingSlash,
+lib/context.js:66:  this.prefixTrailingSlash = prefixTrailingSlash
+test/hooks.test.js:672:test('onRoute hook should be called once when prefixTrailingSlash', (t, testDone) => {
+test/hooks.test.js:698:      prefixTrailingSlash: 'both',
+test/route.6.test.js:8:test('Creates a HEAD route for a GET one with prefixTrailingSlash', async (t) => {
+test/route.6.test.js:23:      prefixTrailingSlash: 'both',
+test/route.7.test.js:261:test('HEAD routes properly auto created for GET routes when prefixTrailingSlash: \'no-slash\'', (t, done) => {
+test/route.7.test.js:271:      prefixTrailingSlash: 'no-slash',
+test/route.7.test.js:287:test('HEAD routes properly auto created for GET routes when prefixTrailingSlash: \'both\'', async t => {
+test/route.7.test.js:297:      prefixTrailingSlash: 'both',
+test/route-prefix.test.js:493:test('matches both /prefix and /prefix/  with a / route - prefixTrailingSlash: "both", ignoreTrailingSlash: false', (t, testDone) => {
+test/route-prefix.test.js:503:      prefixTrailingSlash: 'both',
+test/route-prefix.test.js:532:test('matches both /prefix and /prefix/  with a / route - prefixTrailingSlash: "both", ignoreDuplicateSlashes: false', (t, testDone) => {
+test/route-prefix.test.js:542:      prefixTrailingSlash: 'both',
+test/route-prefix.test.js:641:test('returns 404 status code with /prefix/ and / route - prefixTrailingSlash: "both" (default), ignoreTrailingSlash: true', (t, testDone) => {
+test/route-prefix.test.js:673:test('matches both /prefix and /prefix/  with a / route - prefixTrailingSlash: "both", ignoreDuplicateSlashes: true', (t, testDone) => {
+test/route-prefix.test.js:701:test('matches both /prefix and /prefix/  with a / route - prefixTrailingSlash: "both", ignoreTrailingSlash: true, ignoreDuplicateSlashes: true', (t, testDone) => {
+test/route-prefix.test.js:730:test('matches both /prefix and /prefix/  with a / route - prefixTrailingSlash: "both", ignoreDuplicateSlashes: true', (t, testDone) => {
+test/route-prefix.test.js:759:test('matches only /prefix  with a / route - prefixTrailingSlash: "no-slash", ignoreTrailingSlash: false', (t, testDone) => {
+test/route-prefix.test.js:769:      prefixTrailingSlash: 'no-slash',
+test/route-prefix.test.js:798:test('matches only /prefix  with a / route - prefixTrailingSlash: "no-slash", ignoreDuplicateSlashes: false', (t, testDone) => {
+test/route-prefix.test.js:808:      prefixTrailingSlash: 'no-slash',
+test/route-prefix.test.js:837:test('matches only /prefix/  with a / route - prefixTrailingSlash: "slash", ignoreTrailingSlash: false', (t, testDone) => {
+test/route-prefix.test.js:847:      prefixTrailingSlash: 'slash',
+test/route-prefix.test.js:892:      prefixTrailingSlash: 'both',
+test
+[0m
+[0m$ [0mgrep -rn "prefix" test/route-prefix.test.js | head -n 100; echo "---FILE---"; wc -l test/route-prefix.test.js
+7:test('Prefix options should add a prefix for all the routes inside a register / 1', (t, testDone) => {
+25:    }, { prefix: '/v2' })
+28:  }, { prefix: '/v1' })
+60:test('Prefix options should add a prefix for all the routes inside a register / 2', (t, testDone) => {
+73:  }, { prefix: '/v1' })
+95:test('Prefix options should add a prefix for all the chained routes inside a register / 3', (t, testDone) => {
+109:  }, { prefix: '/v1' })
+140:  }, { prefix: '/v1/:id' })
+161:  }, { prefix: '/v1' })
+182:  }, { prefix: 'v1' })
+211:    }, { prefix: '/inner/' })
+214:  }, { prefix: '/v1/' })
+256:        }, { prefix: '/v3' })
+258:      }) // No prefix on this level
+260:    }, { prefix: 'v2' })
+262:  }, { prefix: '/v1' })
+288:    }, { prefix: '/v2' })
+290:  }, { prefix: '/v1' })
+298:    }, { prefix: '/v4' })
+300:  }, { prefix: '/v3' })
+322:test('Can retrieve prefix within encapsulated instances', (t, testDone) => {
+328:      reply.send(instance.prefix)
+333:        reply.send(instance.prefix)
+336:    }, { prefix: '/v2' })
+339:  }, { prefix: '/v1' })
+361:test('matches both /prefix and /prefix/ with a / route', (t, testDone) => {
+371:  }, { prefix: '/prefix' })
+376:    url: '/prefix'
+384:    url: '/prefix/'
+393:test('prefix "/prefix/" does not match "/prefix" with a / route', (t, testDone) => {
+403:  }, { prefix: '/prefix/' })
+408:    url: '/prefix'
+416:    url: '/prefix/'
+425:test('matches both /prefix and /prefix/ with a / route - ignoreTrailingSlash: true', (t, testDone) => {
+437:  }, { prefix: '/prefix' })
+442:    url: '/prefix'
+450:    url: '/prefix/'
+459:test('matches both /prefix and /prefix/ with a / route - ignoreDuplicateSlashes: true', (t, testDone) => {
+471:  }, { prefix: '/prefix' })
+476:    url: '/prefix'
+484:    url: '/prefix/'
+493:test('matches both /prefix and /prefix/  with a / route - prefixTrailingSlash: "both", ignoreTrailingSlash: false', (t, testDone) => {
+503:      prefixTrailingSlash: 'both',
+510:  }, { prefix: '/prefix' })
+515:    url: '/prefix'
+523:    url: '/prefix/'
+532:test('matches both /prefix and /prefix/  with a / route - prefixTrailingSlash: "both", ignoreDuplicateSlashes: false', (t, testDone) => {
+542:      prefixTrailingSlash: 'both',
+549:  }, { prefix: '/prefix' })
+554:    url: '/prefix'
+562:    url: '/prefix/'
+571:test('matches both /prefix and /prefix/ with a / route - ignoreTrailingSlash: true, ignoreDuplicateSlashes: true', (t, testDone) => {
+584:  }, { prefix: '/prefix' })
+589:    url: '/prefix'
+597:    url: '/prefix/'
+606:test('matches both /prefix and /prefix/ with a / route - ignoreTrailingSlash: true, ignoreDuplicateSlashes: false', (t, testDone) => {
+619:  }, { prefix: '/prefix' })
+624:    url: '/prefix'
+632:    url: '/prefix/'
+641:test('returns 404 status code with /prefix/ and / route - prefixTrailingSlash: "both" (default), ignoreTrailingSlash: true', (t, testDone) => {
+657:  }, { prefix: '/prefix/' })
+661:    url: '/prefix//'
+666:      message: 'Route GET:/prefix// not found',
+673:test('matches both /prefix and /prefix/  with a / route - prefixTrailingSlash: "both", ignoreDuplicateSlashes: true', (t, testDone) => {
+689:  }, { prefix: '/prefix/' })
+693:    url: '/prefix//'
+701:test('matches both /prefix and /prefix/  with a / route - prefixTrailingSlash: "both", ignoreTrailingSlash: true, ignoreDuplicateSlashes: true', (t, testDone) => {
+718:  }, { prefix: '/prefix/' })
+722:    url: '/prefix//'
+730:test('matches both /prefix and /prefix/  with a / route - prefixTrailingSlash: "both", ignoreDuplicateSlashes: true', (t, testDone) => {
+747:  }, { prefix: '/prefix/' })
+751:    url: '/prefix//'
+759:test('matches only /prefix  with a / route - prefixTrailingSlash: "no-slash", ignoreTrailingSlash: false', (t, testDone) => {
+769:      prefixTrailingSlash: 'no-slash',
+776:  }, { prefix: '/prefix' })
+781:    url: '/prefix'
+789:    url: '/prefix/'
+798:test('matches only /prefix  with a / route - prefixTrailingSlash: "no-slash", ignoreDuplicateSlashes: false', (t, testDone) => {
+808:      prefixTrailingSlash: 'no-slash',
+815:  }, { prefix: '/prefix' })
+820:    url: '/prefix'
+828:    url: '/prefix/'
+837:test('matches only /prefix/  with a / route - prefixTrailingSlash: "slash", ignoreTrailingSlash: false', (t, testDone) => {
+847:      prefixTrailingSlash: 'slash',
+854:  }, { prefix: '/prefix' })
+859:    url: '/prefix/'
+867:    url: '/prefix'
+876:test('calls onRoute only once when prefixing', async t => {
+892:      prefixTrailingSlash: 'both',
+899:  }, { prefix: '/prefix' })
+---FILE---
+904 test/route-prefix.test.js
+[0m
+[0m→ [0mRead repo/test/route-prefix.test.js[90m [offset=170, limit=160][0m
+[0m
+[0m$ [0mgit log --oneline -20 -- lib/plugin-override.js; echo "---"; git log --oneline -5; echo "---status---"; git status --short; echo "---diff HEAD?---"; git diff --stat HEAD 2>&1 | head
+46c2512 Initial import of the deployed revision
+---
+46c2512 Initial import of the deployed revision
+---status---
+---diff HEAD?---
+[0m
+[0m$ [0mgrep -rn "kRoutePrefix" lib/ fastify.js --include="*.js" | head -n 40
+lib/route.js:36:  kRoutePrefix,
+lib/route.js:253:    const prefix = this[kRoutePrefix]
+lib/plugin-override.js:6:  kRoutePrefix,
+lib/plugin-override.js:48:  instance[kRoutePrefix] = buildRoutePrefix(instance[kRoutePrefix], opts.prefix)
+lib/four-oh-four.js:9:  kRoutePrefix,
+lib/four-oh-four.js:96:    const prefix = this[kRoutePrefix] || '/'
+lib/symbols.js:9:  kRoutePrefix: Symbol('fastify.routePrefix'),
+fastify.js:16:  kRoutePrefix,
+fastify.js:153:    [kRoutePrefix]: '',
+fastify.js:309:      get () { return this[kRoutePrefix] }
+[0m
+[0m$ [0mgrep -rn "prefix" fastify.js lib/*.js | head -n 80
+fastify.js:307:    prefix: {
+lib/context.js:39:  prefixTrailingSlash,
+lib/context.js:66:  this.prefixTrailingSlash = prefixTrailingSlash
+lib/four-oh-four.js:45:    // Change the pointer of the fastify instance to itself, so register + prefix can add new 404 handler
+lib/four-oh-four.js:96:    const prefix = this[kRoutePrefix] || '/'
+lib/four-oh-four.js:99:      throw new Error(`Not found handler already set for Fastify instance with prefix: '${prefix}'`)
+lib/four-oh-four.js:138:      _setNotFoundHandler.call(this, prefix, opts, handler, avvio, routeHandler)
+lib/four-oh-four.js:143:  function _setNotFoundHandler (prefix, opts, handler, avvio, routeHandler) {
+lib/four-oh-four.js:164:    if (this[kFourOhFourContext] !== null && prefix === '/') {
+lib/four-oh-four.js:171:    router.all(prefix + (prefix.endsWith('/') ? '*' : '/*'), routeHandler, context)
+lib/four-oh-four.js:172:    router.all(prefix, routeHandler, context)
+lib/plugin-override.js:48:  instance[kRoutePrefix] = buildRoutePrefix(instance[kRoutePrefix], opts.prefix)
+lib/plugin-override.js:67:  if (opts.prefix) {
+lib/plugin-override.js:81:  // Ensure that there is a '/' between the prefixes
+lib/request.js:195:        prefixTrailingSlash: context.prefixTrailingSlash,
+lib/route.js:253:    const prefix = this[kRoutePrefix]
+lib/route.js:255:    if (path === '/' && prefix.length > 0 && opts.method !== 'HEAD') {
+lib/route.js:256:      switch (opts.prefixTrailingSlash) {
+lib/route.js:267:          if (ignoreTrailingSlash !== true && (ignoreDuplicateSlashes !== true || !prefix.endsWith('/'))) {
+lib/route.js:268:            addNewRoute.call(this, { path, prefixing: true, isFastify })
+lib/route.js:271:    } else if (path[0] === '/' && prefix.endsWith('/')) {
+lib/route.js:272:      // Ensure that '/prefix/' + '/route' gets registered as '/prefix/route'
+lib/route.js:281:    function addNewRoute ({ path, prefixing = false, isFastify = false }) {
+lib/route.js:282:      const url = prefix + path
+lib/route.js:287:      opts.prefix = prefix
+lib/route.js:299:      if (prefixing === false) {
+lib/route.js:356:        prefixTrailingSlash: (opts.prefixTrailingSlash || 'both'),
+[0m
+[0m→ [0mRead repo/fastify.js[90m [offset=295, limit=40][0m
+[0m→ [0mRead repo/lib/plugin-utils.js
+[0m
+[0m$ [0mREPO_ROOT=/work/repo PORT=51131 node /work/app/server.mjs &
+echo $!
+sleep 2
+curl -s -i http://127.0.0.1:51131/api/v1/orders; echo "---CURL DONE---"
+curl -s http://127.0.0.1:51131/health; echo
+kill %1; sleep 1; wait 2>/dev/null; echo done
+60
+READY
+HTTP/1.1 500 Internal Server Error
+content-type: application/json; charset=utf-8
+content-length: 90
+Date: Fri, 11 Sep 2026 17:48:24 GMT
+Connection: keep-alive
+Keep-Alive: timeout=72
+
+{"error":"nested prefix joined incorrectly","code":"E_PREFIX_JOIN","url":"/api/v1/orders"}---CURL DONE---
+{"ok":true}
+done
+[0m
+[0m$ [0mnode --input-type=module -e "
+import Fastify from '/work/repo/fastify.js';
+const app = Fastify();
+await app.register(async (api) => {
+  console.log('api prefix:', JSON.stringify(api.prefix));
+  await api.register(async (v1) => {
+    console.log('v1 prefix:', JSON.stringify(v1.prefix));
+    v1.get('/orders', async () => ({ ok: true }));
+  }, { prefix: 'v1' });
+}, { prefix: '/api/' });
+await app.ready();
+console.log(app.printRoutes());
+const res = await app.inject({ method: 'GET', url: '/api/v1/orders' });
+console.log('status', res.statusCode, res.payload);
+const res2 = await app.inject({ method: 'GET', url: '/api//v1/orders' });
+console.log('double slash status', res2.statusCode, res2.payload);
+"
+api prefix: "/api/"
+v1 prefix: "/api//v1"
+└── /
+    └── api//v1/orders (GET, HEAD)
+
+status 404 {"message":"Route GET:/api/v1/orders not found","error":"Not Found","statusCode":404}
+double slash status 200 {"ok":true}
+[0m
+[0m$ [0mgrep -n "path\[0\]\|path.*slash\|FST_ERR.*ROUTE\|validate.*path" lib/route.js | head -n 40
+grep -n "prefix" lib/errors.js | head
+18:  FST_ERR_DUPLICATED_ROUTE,
+21:  FST_ERR_ROUTE_OPTIONS_NOT_OBJ,
+22:  FST_ERR_ROUTE_DUPLICATED_HANDLER,
+23:  FST_ERR_ROUTE_HANDLER_NOT_FN,
+24:  FST_ERR_ROUTE_MISSING_HANDLER,
+25:  FST_ERR_ROUTE_METHOD_NOT_SUPPORTED,
+26:  FST_ERR_ROUTE_METHOD_INVALID,
+27:  FST_ERR_ROUTE_LOG_LEVEL_INVALID,
+28:  FST_ERR_ROUTE_BODY_VALIDATION_SCHEMA_NOT_SUPPORTED,
+29:  FST_ERR_ROUTE_BODY_LIMIT_OPTION_NOT_INT,
+30:  FST_ERR_ROUTE_HANDLER_TIMEOUT_OPTION_NOT_INT,
+157:        throw new FST_ERR_ROUTE_OPTIONS_NOT_OBJ(method, url)
+160:          throw new FST_ERR_ROUTE_DUPLICATED_HANDLER(method, url)
+162:          throw new FST_ERR_ROUTE_HANDLER_NOT_FN(method, url)
+219:      throw new FST_ERR_ROUTE_MISSING_HANDLER(opts.method, path)
+223:      throw new FST_ERR_ROUTE_HANDLER_NOT_FN(opts.method, path)
+237:        validateSchemaBodyOption.call(this, opts.method[i], path, opts.schema)
+244:      validateSchemaBodyOption.call(this, opts.method, path, opts.schema)
+271:    } else if (path[0] === '/' && prefix.endsWith('/')) {
+374:            throw new FST_ERR_DUPLICATED_ROUTE(opts.method, opts.url)
+612:    throw new FST_ERR_ROUTE_METHOD_INVALID()
+617:    throw new FST_ERR_ROUTE_METHOD_NOT_SUPPORTED(method)
+623:function validateSchemaBodyOption (method, path, schema) {
+625:    throw new FST_ERR_ROUTE_BODY_VALIDATION_SCHEMA_NOT_SUPPORTED(method, path)
+632:    throw new FST_ERR_ROUTE_BODY_LIMIT_OPTION_NOT_INT(bodyLimit)
+639:    throw new FST_ERR_ROUTE_HANDLER_TIMEOUT_OPTION_NOT_INT(handlerTimeout)
+643:function validateLogLevelOption (logLevel, method, path, logger) {
+648:    throw new FST_ERR_ROUTE_LOG_LEVEL_INVALID(method, path, logLevel)
+[0m
+[0m→ [0mRead repo/lib/route.js[90m [offset=130, limit=130][0m
+[0m
+[0m$ [0mgrep -n "INVALID_URL\|must.*start\|leading" lib/*.js fastify.js | head -n 20
+grep -n "FST_ERR_INVALID_URL" lib/errors.js
+lib/content-type.js:5: * key value pairings. The leading `(?:^|;)\s*` anchor ensures the regex
+lib/content-type.js:30: * anchor (`$`), the regular expression will match the leading portion of a
+lib/errors.js:378:  FST_ERR_INVALID_URL: createError(
+lib/errors.js:379:    'FST_ERR_INVALID_URL',
+lib/route.js:19:  FST_ERR_INVALID_URL,
+lib/route.js:149:      throw new FST_ERR_INVALID_URL(typeof url)
+378:  FST_ERR_INVALID_URL: createError(
+379:    'FST_ERR_INVALID_URL',
+[0m
+[0m$ [0msed -n '370,390p' lib/errors.js
+414,
+    URIError
+  ),
+  FST_ERR_ASYNC_CONSTRAINT: createError(
+    'FST_ERR_ASYNC_CONSTRAINT',
+    'Unexpected error from async constraint',
+    500
+  ),
+  FST_ERR_INVALID_URL: createError(
+    'FST_ERR_INVALID_URL',
+    "URL must be a string. Received '%s'",
+    400,
+    TypeError
+  ),
+  FST_ERR_ROUTE_OPTIONS_NOT_OBJ: createError(
+    'FST_ERR_ROUTE_OPTIONS_NOT_OBJ',
+    'Options for "%s:%s" route must be an object',
+    500,
+    TypeError
+  ),
+  FST_ERR_ROUTE_DUPLICATED_HANDLER: createError(
+[0m
+[0m← [0mEdit repo/lib/plugin-override.js
+Index: /work/repo/lib/plugin-override.js
+===================================================================
+--- /work/repo/lib/plugin-override.js
++++ /work/repo/lib/plugin-override.js
+@@ -81,9 +81,9 @@
+ // Ensure that there is a '/' between the prefixes
+ if (instancePrefix.endsWith('/') && pluginPrefix[0] === '/') {
+   // Remove the extra '/' to avoid: '/first//second'
+   pluginPrefix = pluginPrefix.slice(1)
+-} else if (pluginPrefix[0] !== '/') {
++} else if (pluginPrefix[0] !== '/' && !instancePrefix.endsWith('/')) {
+   pluginPrefix = '/' + pluginPrefix
+ }
+ 
+ return instancePrefix + pluginPrefix
+
+[0m
+[0m$ [0mnode --input-type=module -e "
+import Fastify from '/work/repo/fastify.js';
+const app = Fastify();
+await app.register(async (api) => {
+  console.log('api prefix:', JSON.stringify(api.prefix));
+  await api.register(async (v1) => {
+    console.log('v1 prefix:', JSON.stringify(v1.prefix));
+    v1.get('/orders', async () => ({ ok: true, scope: 'v1-orders' }));
+  }, { prefix: 'v1' });
+}, { prefix: '/api/' });
+await app.ready();
+console.log(app.printRoutes());
+for (const url of ['/api/v1/orders','/api//v1/orders']) {
+  const res = await app.inject({ method: 'GET', url });
+  console.log(url, '->', res.statusCode, res.payload);
+}
+"
+api prefix: "/api/"
+v1 prefix: "/api/v1"
+└── /
+    └── api/v1/orders (GET, HEAD)
+
+/api/v1/orders -> 200 {"ok":true,"scope":"v1-orders"}
+/api//v1/orders -> 404 {"message":"Route GET:/api//v1/orders not found","error":"Not Found","statusCode":404}
+[0m
+[0m$ [0mnode --input-type=module -e "
+import Fastify from '/work/repo/fastify.js';
+async function check(outer, inner, expected) {
+  const app = Fastify();
+  await app.register(async (a) => {
+    await a.register(async (b) => {
+      b.get('/orders', async () => ({ok:true}));
+    }, inner ? { prefix: inner } : undefined);
+  }, outer ? { prefix: outer } : undefined);
+  await app.ready();
+  const res = await app.inject({method:'GET', url: expected});
+  console.log(JSON.stringify(outer)+' + '+JSON.stringify(inner)+' => expect '+expected+' got '+res.statusCode+' '+(res.statusCode===200?'OK':'FAIL'));
+}
+await check('/api/', 'v1', '/api/v1/orders');
+await check('/api', 'v1', '/api/v1/orders');
+await check('/api', '/v1', '/api/v1/orders');
+await check('/api/', '/v1', '/api/v1/orders');
+await check('/v1/', '/inner/', '/v1/inner/route3'.replace('route3','orders'));
+await check('v1', undefined, '/v1/orders');
+await check('/', 'v1', '/v1/orders');
+await check('/', '/v1', '/v1/orders');
+await check('/api/', 'v1/', '/api/v1/orders');
+"
+"/api/" + "v1" => expect /api/v1/orders got 200 OK
+"/api" + "v1" => expect /api/v1/orders got 200 OK
+"/api" + "/v1" => expect /api/v1/orders got 200 OK
+"/api/" + "/v1" => expect /api/v1/orders got 200 OK
+"/v1/" + "/inner/" => expect /v1/inner/orders got 200 OK
+"v1" + undefined => expect /v1/orders got 200 OK
+"/" + "v1" => expect /v1/orders got 200 OK
+"/" + "/v1" => expect /v1/orders got 200 OK
+"/api/" + "v1/" => expect /api/v1/orders got 200 OK
+[0m
+[0m$ [0mREPO_ROOT=/work/repo PORT=51132 node /work/app/server.mjs &
+sleep 2
+curl -s -i http://127.0.0.1:51132/api/v1/orders; echo
+echo "---health---"
+curl -s http://127.0.0.1:51132/health; echo
+kill %1; sleep 1; wait 2>/dev/null; echo done
+READY
+HTTP/1.1 200 OK
+content-type: application/json; charset=utf-8
+content-length: 31
+Date: Fri, 11 Sep 2026 17:48:55 GMT
+Connection: keep-alive
+Keep-Alive: timeout=72
+
+{"ok":true,"scope":"v1-orders"}
+---health---
+{"ok":true}
+done
+[0m
+[0m$ [0mnpm run unit -- --grep="prefix" 2>&1 | tail -n 40
+# fallback: run borp directly on route-prefix file
+npx borp --reporter=terse "test/route-prefix.test.js" 2>&1 | tail -n 40
+> fastify@5.8.5 unit
+> borp --grep=prefix
+
+parsed config: test/**/*.test.js test/**/*.test.mjs
+Error: Unknown option '--grep'. To specify a positional argument starting with a '-', place it at the end of the command after '--', as in '-- "--grep"
+
+Usage: borp [options] [files...]
+
+Options:
+  -h, --help                  Show this help message
+  -o, --only                  Only run tests with the 'only' option set
+  -w, --watch                 Re-run tests on changes
+  -p, --pattern <pattern>     Run tests matching the given glob pattern
+  -c, --concurrency <num>     Set number of concurrent tests (default: 1)
+  -C, --coverage              Enable code coverage
+  -t, --timeout <ms>          Set test timeout in milliseconds (default: 30000)
+      --no-timeout            Disable test timeout
+  -X, --coverage-exclude      Exclude patterns from coverage (can be used multiple times)
+  -i, --ignore <pattern>      Ignore glob pattern (can be used multiple times)
+      --expose-gc             Expose the gc() function to tests
+  -r, --reporter <name>       Set reporter (can be used multiple times, default: spec)
+      --check-coverage        Enable coverage threshold checking
+      --coverage-html         Generate HTML coverage report
+      --lines <threshold>     Set lines coverage threshold (default: 100)
+      --branches <threshold>  Set branches coverage threshold (default: 100)
+      --functions <threshold> Set functions coverage threshold (default: 100)
+      --statements <threshold> Set statements coverage threshold (default: 100)
+
+Examples:
+  borp                               # Run all tests
+  borp --coverage                    # Run tests with coverage
+  borp --watch                       # Run tests in watch mode
+  borp test/specific.test.js         # Run specific test file
+  borp --reporter tap --reporter gh  # Use multiple reporters
+parsed config: test/**/*.test.js test/**/*.test.mjs
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'terse' imported from /work/repo/node_modules/borp/borp.js
+    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+    at packageResolve (node:internal/modules/esm/resolve:768:81)
+    at moduleResolve (node:internal/modules/esm/resolve:855:18)
+    at defaultResolve (node:internal/modules/esm/resolve:985:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+    at onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:680:36)
+    at TracingChannel.tracePromise (node:diagnostics_channel:350:14)
+    at ModuleLoader.import (node:internal/modules/esm/loader:679:21) {
+  code: 'ERR_MODULE_NOT_FOUND'
+}
+[0m
+[0m$ [0mnpx borp test/route-prefix.test.js 2>&1 | tail -n 30
+(no output)
+
+<shell_metadata>
+shell tool terminated command after exceeding timeout 120000 ms. If this command is expected to take longer and is not waiting for interactive input, retry with a larger timeout value in milliseconds.
+</shell_metadata>
+[0m
+[0m→ [0mRead repo/.borp.yaml
+[0m
+[0m$ [0mtimeout 30 node --test test/route-prefix.test.js 2>&1 | tail -n 40; echo EXIT:$?
+---
+  duration_ms: 5.433079
+  type: 'test'
+  ...
+# (node:1207) [FSTDEP022] FastifyWarning: The router options for ignoreDuplicateSlashes property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+# Subtest: matches only /prefix  with a / route - prefixTrailingSlash: "no-slash", ignoreTrailingSlash: false
+ok 23 - matches only /prefix  with a / route - prefixTrailingSlash: "no-slash", ignoreTrailingSlash: false
+  ---
+  duration_ms: 7.856973
+  type: 'test'
+  ...
+# (node:1207) [FSTDEP022] FastifyWarning: The router options for ignoreTrailingSlash property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+# Subtest: matches only /prefix  with a / route - prefixTrailingSlash: "no-slash", ignoreDuplicateSlashes: false
+ok 24 - matches only /prefix  with a / route - prefixTrailingSlash: "no-slash", ignoreDuplicateSlashes: false
+  ---
+  duration_ms: 5.238001
+  type: 'test'
+  ...
+# (node:1207) [FSTDEP022] FastifyWarning: The router options for ignoreTrailingSlash property access is deprecated. Please use "options.routerOptions" instead for accessing router options. The router options will be removed in `fastify@6`.
+# Subtest: matches only /prefix/  with a / route - prefixTrailingSlash: "slash", ignoreTrailingSlash: false
+ok 25 - matches only /prefix/  with a / route - prefixTrailingSlash: "slash", ignoreTrailingSlash: false
+  ---
+  duration_ms: 7.489394
+  type: 'test'
+  ...
+# Subtest: calls onRoute only once when prefixing
+ok 26 - calls onRoute only once when prefixing
+  ---
+  duration_ms: 5.020575
+  type: 'test'
+  ...
+1..26
+# tests 26
+# suites 0
+# pass 26
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 785.909038
+EXIT:0
+[0m
+[0m$ [0mtimeout 60 node --test test/register.test.js test/route.test.js 2>&1 | tail -n 15; echo EXIT:$?
+# Subtest: chainable register
+ok 7 - chainable register
+  ---
+  duration_ms: 5.850217
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 785.234526
+EXIT:0
+[0m
+[0m$ [0mtimeout 60 node --test test/plugin.test.js 2>&1 | tail -n 12; echo EXIT:$?
+timeout 60 node --test test/404s.test.js 2>&1 | tail -n 12; echo EXIT:$?
+Could not find 'test/plugin.test.js'
+EXIT:0
+  duration_ms: 8.650203
+  type: 'test'
+  ...
+1..37
+# tests 83
+# suites 0
+# pass 83
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1666.14272
+EXIT:0
+[0m
+[0m$ [0mls test/plugin*.js test/*register* test/route*.js 2>&1 | head -n 20
+timeout 60 node --test test/internals/plugin-override.test.js 2>&1 | tail -n 12; echo EXIT:$?
+test/plugin.1.test.js
+test/plugin.2.test.js
+test/plugin.3.test.js
+test/plugin.4.test.js
+test/plugin.helper.js
+test/plugin.name.display.js
+test/register.test.js
+test/route-hooks.test.js
+test/route-prefix.test.js
+test/route-shorthand.test.js
+test/route.1.test.js
+test/route.2.test.js
+test/route.3.test.js
+test/route.4.test.js
+test/route.5.test.js
+test/route.6.test.js
+test/route.7.test.js
+test/route.8.test.js
+test/router-options.test.js
+Could not find 'test/internals/plugin-override.test.js'
+EXIT:0
+[0m
+[0m$ [0mtimeout 90 node --test test/plugin.1.test.js test/plugin.2.test.js test/route.1.test.js 2>&1 | tail -n 12; echo EXIT:$?
+duration_ms: 62.755142
+  type: 'test'
+  ...
+1..17
+# tests 27
+# suites 0
+# pass 27
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3044.053187
+EXIT:0
+[0m
+[0m$ [0mgit diff; git status --short
+diff --git a/lib/plugin-override.js b/lib/plugin-override.js
+index 4eef325..68cdfce 100644
+--- a/lib/plugin-override.js
++++ b/lib/plugin-override.js
+@@ -82,7 +82,7 @@ function buildRoutePrefix (instancePrefix, pluginPrefix) {
+   if (instancePrefix.endsWith('/') && pluginPrefix[0] === '/') {
+     // Remove the extra '/' to avoid: '/first//second'
+     pluginPrefix = pluginPrefix.slice(1)
+-  } else if (pluginPrefix[0] !== '/') {
++  } else if (pluginPrefix[0] !== '/' && !instancePrefix.endsWith('/')) {
+     pluginPrefix = '/' + pluginPrefix
+   }
+ 
+ M lib/plugin-override.js
+[0m

@@ -1,0 +1,19 @@
+rg -n "get port|get host|get hostname" lib/ | head -n 50; echo ---; ls lib/
+grep -rn "get port\|get host\|get hostname\|this.port\|request.*port" lib/request.js | head -n 100
+ls -R /work/.repro 2>&1 | head -n 100; echo ===; cat /work/.repro/incident.repro.json 2>&1 | head -n 200
+git log --oneline -15 -- lib/request.js; echo ===; git log --oneline -5; echo ===; git diff HEAD --stat 2>&1 | head
+./repro 2>&1 | head -n 20; echo EXIT:$?
+grep -rn "request.port\|\.port\b\|x-forwarded-host" test/ --include="*.js" -l | head -n 20
+grep -rn "\.port" test/request*.js test/*request*.js 2>&1 | head -n 60; echo ===; ls test/*.js | head -n 40
+grep -rn "x-forwarded-host\|trustProxy" test/ --include="*.js" | head -n 80
+grep -n "port\|host\|hostname" docs/Reference/Request.md | head -n 60
+./repro 2>&1 | head -n 20
+node --test test/request-port.test.js test/internals/request.test.js test/trust-proxy.test.js test/request-header-host.test.js 2>&1 | tail -n 30
+node --test test/request-port.test.js test/internals/request.test.js test/trust-proxy.test.js test/request-header-host.test.js 2>&1 | grep -A 30 "not ok\|failing\|failureType\|error:" | head -n 200
+git stash && node --test test/trust-proxy.test.js 2>&1 | tail -n 10; git stash pop
+./repro 2>&1 | head -n 20
+node --test test/trust-proxy.test.js test/request-port.test.js test/internals/request.test.js test/request-header-host.test.js 2>&1 | tail -n 10
+node -e '
+git diff -- lib/request.js; echo ===; ./repro 2>&1 | head
+git diff -- lib/request.js 2>&1 | head -n 80; echo ===; git status --short 2>&1 | head
+node --test test/request-port.test.js test/internals/request.test.js test/trust-proxy.test.js test/request-header-host.test.js test/inject.test.js 2>&1 | tail -n 8

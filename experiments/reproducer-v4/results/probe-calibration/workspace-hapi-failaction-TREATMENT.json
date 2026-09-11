@@ -1,0 +1,10 @@
+{
+  "case": "hapi-failaction",
+  "arm": "TREATMENT",
+  "built_at": "2026-09-11T18:08:28.474Z",
+  "buggy_snapshot": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/work/hapi-failaction-buggy",
+  "evidence_json_sha256": "c0daf96fe3dbf0e56f163a62ddff929f4595f0a9ea3024c7f20a498a5a94238e",
+  "evidence_md_sha256": "72031d0eb4db44d74f500e03d05dfe3139c3a216c64da1c3f01ba6d35bf767dd",
+  "repro_present": true,
+  "repro_artifact_sha256": "3df088559330e06a8e460482bf7360d1685dc7d4d26f4e50788c1d505564e131"
+}

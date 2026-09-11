@@ -1,0 +1,10 @@
+ls -R /work/app 2>&1; echo ---; cat /work/repro 2>&1 | head -n 200; echo ---; ls -l /work/repro 2>&1
+/work/repro 2>&1
+git log --oneline -15 2>&1; echo ---; git status --short 2>&1; echo ---; git diff HEAD --stat 2>&1
+ls test/ 2>&1; echo ---; grep -rn "maxAge" test/ 2>&1 | head -n 50; echo ---; grep -rn "cookie" test/ --include="*.js" -l 2>&1 | head
+grep -rn "clearCookie\|maxAge" lib/ 2>&1 | head -n 30
+/work/repro 2>&1
+npm test -- --grep "cookie" 2>&1 | tail -n 40; echo EXIT:$?
+npm test -- --grep "res\.cookie|res\.clearCookie|res\.append" 2>&1 | tail -n 20; echo ---; node -e '
+npx mocha --require test/support/env --reporter dot --check-leaks test/res.cookie.js test/res.clearCookie.js test/res.append.js 2>&1 | tail -n 15
+git diff 2>&1

@@ -1,0 +1,30 @@
+diff --git a/lib/request.js b/lib/request.js
+index 5c0b93e..887b0ac 100644
+--- a/lib/request.js
++++ b/lib/request.js
+@@ -143,6 +143,25 @@ function buildRequestWithTrustProxy (R, trustProxy) {
+           return this.socket.encrypted ? 'https' : 'http'
+         }
+       }
++    },
++    port: {
++      get () {
++        const portReg = /(?<port>:\d+)$/
++        const socket = this.raw.socket
++        if (this.headers['x-forwarded-host'] && socket != null && proxyFn(socket.remoteAddress, 0)) {
++          const forwardedHost = getLastEntryInMultiHeaderValue(this.headers['x-forwarded-host'])
++          const forwardedMatches = portReg.exec(forwardedHost)
++          if (forwardedMatches !== null && forwardedMatches.groups?.port !== undefined) {
++            return parseInt(forwardedMatches.groups.port.slice(1), 10)
++          }
++        }
++        const host = this.headers.host ?? this.headers[':authority'] ?? ''
++        const matches = portReg.exec(host)
++        if (matches === null || matches[1] === undefined) {
++          return null
++        }
++        return parseInt(matches.groups.port.slice(1), 10)
++      }
+     }
+   })
+ 

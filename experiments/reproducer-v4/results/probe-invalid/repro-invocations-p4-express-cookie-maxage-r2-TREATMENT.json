@@ -1,0 +1,17 @@
+[
+  {
+    "line": 16,
+    "command": "$ ls -R /work/.repro 2>&1; echo \"---\"; cat /work/repro 2>&1 | head -n 200; echo \"---\"; ls -l /work/repro",
+    "outcome": null
+  },
+  {
+    "line": 673,
+    "command": "-rwxr-xr-x 1 root root 815 Sep 11 17:10 /work/repro",
+    "outcome": "ORIGINAL_FAILURE_REPRODUCED"
+  },
+  {
+    "line": 681,
+    "command": "$ ./repro 2>&1; echo EXIT:$?",
+    "outcome": "ORIGINAL_FAILURE_REPRODUCED"
+  }
+]

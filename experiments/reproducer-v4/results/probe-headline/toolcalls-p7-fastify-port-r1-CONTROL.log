@@ -1,0 +1,16 @@
+rg -n "req\.port|\.port|request.*port|trustProxy.*port|port.*trust" test/ --max-count 2 | head -n 200; echo "---"; ls test/
+pwd; ls; ls /work/repo/test 2>&1 | head -n 100
+ls /work/repo/test | grep -i -E "request|trust|proxy|host|port"; echo "---"; grep -rn "\.port" /work/repo/test --include="*.js" | head -n 100
+grep -rn "x-forwarded-host\|x-forwarded-port\|X-Forwarded-Port\|request\.port\|req\.port\|hostname" /work/repo/docs --include="*.md" | head -n 100
+git log --oneline -20 -- lib/request.js; echo "==="; git log --oneline -10; echo "==="; git status; echo "==="; git diff HEAD --stat | head
+grep -rn "port" /work/repo/types/request.d.ts | head -n 30
+node -e "
+grep -n -B5 -A5 "readonly port\|readonly host\|readonly hostname" /work/repo/types/request.d.ts | head -n 60
+grep -rn "\.port\b\|request\.port\|req\.port" /work/repo/lib --include="*.js" | head -n 30
+node -e "
+node --test test/request-port.test.js test/internals/request.test.js 2>&1 | tail -n 30
+node --test test/trust-proxy.test.js 2>&1 | tail -n 60
+REPO_ROOT=/work/repo PORT=51210 node /work/app/server.mjs &
+export no_proxy="*"; echo $http_proxy $https_proxy $HTTP_PROXY
+export no_proxy="*"; unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY
+git diff --stat; echo "==="; git diff

@@ -1,0 +1,462 @@
+Fixing the production fault — tracing the failure from your incident report.
+I've pinpointed the crash in JSONP handling — now digging deeper to craft the fix.
+Reproduction confirms the failure path — now applying a targeted fix.
+The initial fix resolves the reported crash — now verifying no edge cases remain.
+All relevant checks pass — final verification of the deployed service.
+Root cause: `res.jsonp(undefined)` crashes when a JSONP callback is present. `JSON.stringify(undefined)` returns `undefined` (not a string), so `body.replace()` in `lib/response.js:res.jsonp` throws `Cannot read properties of undefined (reading 'replace')`. In the incident, `GET /lookup?cb=foo` with `id!=known` produced `found=undefined` → `res.jsonp(undefined)` → throw. The throw happened after `Content-Type: text/javascript` was already set, so the 500 error body was served as `text/javascript` (matching incident headers).
+
+Files changed: `lib/response.js`
+- `res.jsonp`: guard U+2028/U+2029 sanitization with `if (typeof body === 'string')`. `undefined` body then falls through to string coercion in `'...('+body+');'`, yielding `/**/ typeof cb === 'function' && cb(undefined);` with 200.
+- `stringify()`: guard HTML-escape with `if (escape && typeof json === 'string')` — same crash existed for `res.json(undefined)`/`res.jsonp(undefined)` with `json escape` enabled.
+
+Validation:
+- Reproduced 500 before fix for `/lookup?cb=foo`, `/lookup?cb=foo&id=unknown` (500 + `E_JSONP_UNDEFINED`), confirmed 200 `/**/ typeof foo === 'function' && foo(undefined);` after fix; `/lookup?cb=foo&id=known` still returns wrapped JSON.
+- Edge cases: `undefined`/`function(){}` with/without callback, with `json escape` enabled — all 200, no throw; normal JSONP and U+2028 escaping unchanged.
+- Existing tests: `test/res.json.js + test/res.jsonp.js` 40 passing. One `test/res.send.js` ETag failure pre-exists on unmodified revision (Node-version related), unrelated.
+
+Remaining uncertainty: exact upstream-expected serialization of top-level `undefined` (chose `cb(undefined)` via JS coercion, consistent with JSONP-as-JS semantics); alternative of `cb(null)`/empty body would also avoid 500 but differ in body.
+
+----- stderr -----
+[0m
+> build · muse-spark-1.3-contributor-free
+[0m
+[0m→ [0mRead repo
+[0m→ [0mRead incident-evidence.json
+[0m→ [0mRead incident-evidence.md
+[0m→ [0mRead repo/package.json
+[0m→ [0mRead repo/lib/response.js
+[0m→ [0mRead app
+[0m→ [0mRead app/server.mjs
+[0m✗ [0mGlob "test/**/*.js" failed
+[91m[1mError: [0mripgrep execution failed
+[0m
+[0m$ [0mls test/ | head -n 100; echo ---; ls /work/repo/test/*.js | head
+---
+ls: cannot access 'test/': No such file or directory
+/work/repo/test/Route.js
+/work/repo/test/Router.js
+/work/repo/test/app.all.js
+/work/repo/test/app.del.js
+/work/repo/test/app.engine.js
+/work/repo/test/app.head.js
+/work/repo/test/app.js
+/work/repo/test/app.listen.js
+/work/repo/test/app.locals.js
+/work/repo/test/app.options.js
+[0m
+[0m$ [0mls /work/repo/test/ | head -n 100
+Route.js
+Router.js
+acceptance
+app.all.js
+app.del.js
+app.engine.js
+app.head.js
+app.js
+app.listen.js
+app.locals.js
+app.options.js
+app.param.js
+app.render.js
+app.request.js
+app.response.js
+app.route.js
+app.router.js
+app.routes.error.js
+app.use.js
+config.js
+exports.js
+express.json.js
+express.raw.js
+express.static.js
+express.text.js
+express.urlencoded.js
+fixtures
+middleware.basic.js
+mocha.opts
+regression.js
+req.accepts.js
+req.acceptsCharset.js
+req.acceptsCharsets.js
+req.acceptsEncoding.js
+req.acceptsEncodings.js
+req.acceptsLanguage.js
+req.acceptsLanguages.js
+req.baseUrl.js
+req.fresh.js
+req.get.js
+req.host.js
+req.hostname.js
+req.ip.js
+req.ips.js
+req.is.js
+req.param.js
+req.path.js
+req.protocol.js
+req.query.js
+req.range.js
+req.route.js
+req.secure.js
+req.signedCookies.js
+req.stale.js
+req.subdomains.js
+req.xhr.js
+res.append.js
+res.attachment.js
+res.clearCookie.js
+res.cookie.js
+res.download.js
+res.format.js
+res.get.js
+res.json.js
+res.jsonp.js
+res.links.js
+res.locals.js
+res.location.js
+res.redirect.js
+res.render.js
+res.send.js
+res.sendFile.js
+res.sendStatus.js
+res.set.js
+res.status.js
+res.type.js
+res.vary.js
+support
+utils.js
+[0m
+[0m→ [0mRead repo/test/res.jsonp.js
+[0m→ [0mRead repo/test/res.json.js
+[0m
+[0m$ [0mnode -e "import('./index.js').then(m=>{const e=m.default; const app=e(); console.log('jsonp callback name:', app.get('jsonp callback name')); console.log('query parser fn?', typeof app.get('query parser fn')); })"
+jsonp callback name: callback
+query parser fn? function
+[0m
+[0m$ [0mnode --input-type=module -e "
+import express from './index.js';
+import http from 'http';
+const app = express();
+app.set('jsonp callback name','cb');
+app.get('/lookup',(req,res)=>{
+  const found = req.query.id==='known' ? {id:'known'} : undefined;
+  console.log('query:',req.query,'found:',found);
+  try{ res.jsonp(found); } catch(err){ console.log('caught',err.message); res.status(500).json({error:'jsonp serialization failed',code:'E_JSONP_UNDEFINED',detail:String(err?.message??err).slice(0,90)}); }
+});
+const srv=app.listen(0,()=>{
+  const port=srv.address().port;
+  console.log('port',port);
+  const doReq=(path)=>new Promise((resolve,reject)=>{
+    http.get({host:'127.0.0.1',port,path},(res)=>{
+      let b='';res.on('data',c=>b+=c);res.on('end',()=>resolve({status:res.statusCode,headers:res.headers,body:b}));
+    }).on('error',reject);
+  });
+  (async()=>{
+    for(const p of ['/lookup?cb=foo','/lookup?cb=foo&id=known','/lookup?cb=foo&id=unknown','/lookup','/lookup?id=unknown']){
+      const r=await doReq(p);
+      console.log('GET',p,'=>',r.status, JSON.stringify(r.body), 'ctype:',r.headers['content-type']);
+    }
+    srv.close();
+  })();
+});
+"
+port 45857
+query: { cb: 'foo' } found: undefined
+caught Cannot read properties of undefined (reading 'replace')
+GET /lookup?cb=foo => 500 "{\"error\":\"jsonp serialization failed\",\"code\":\"E_JSONP_UNDEFINED\",\"detail\":\"Cannot read properties of undefined (reading 'replace')\"}" ctype: text/javascript; charset=utf-8
+query: { cb: 'foo', id: 'known' } found: { id: 'known' }
+GET /lookup?cb=foo&id=known => 200 "/**/ typeof foo === 'function' && foo({\"id\":\"known\"});" ctype: text/javascript; charset=utf-8
+query: { cb: 'foo', id: 'unknown' } found: undefined
+caught Cannot read properties of undefined (reading 'replace')
+GET /lookup?cb=foo&id=unknown => 500 "{\"error\":\"jsonp serialization failed\",\"code\":\"E_JSONP_UNDEFINED\",\"detail\":\"Cannot read properties of undefined (reading 'replace')\"}" ctype: text/javascript; charset=utf-8
+query: {} found: undefined
+GET /lookup => 200 "" ctype: application/json; charset=utf-8
+query: { id: 'unknown' } found: undefined
+GET /lookup?id=unknown => 200 "" ctype: application/json; charset=utf-8
+[0m
+[0m$ [0mnode --input-type=module -e "
+import express from './index.js';
+const app=express();
+app.set('query parser', false);
+console.log('query parser setting done');
+import http from 'http';
+app.get('/',(req,res)=>{ console.log('query=',req.query); try{res.jsonp({a:1})}catch(e){console.log('err',e.message); res.status(500).send(e.message)}});
+const srv=app.listen(0,()=>{
+  const p=srv.address().port;
+  http.get({host:'127.0.0.1',port:p,path:'/?callback=foo'},(r)=>{let b='';r.on('data',c=>b+=c);r.on('end',()=>{console.log(r.statusCode,b);srv.close()})});
+});
+"
+query parser setting done
+query= {}
+200 {"a":1}
+[0m
+[0m→ [0mRead repo/lib/response.js[90m [offset=298, limit=45][0m
+[0m
+[0m← [0mEdit repo/lib/response.js
+Index: /work/repo/lib/response.js
+===================================================================
+--- /work/repo/lib/response.js
++++ /work/repo/lib/response.js
+@@ -322,11 +322,13 @@
+ // restrict callback charset
+ callback = callback.replace(/[^\[\]\w$.]/g, '');
+ 
+ // replace chars not allowed in JavaScript that are in JSON
+-body = body
+-  .replace(/\u2028/g, '\\u2028')
+-  .replace(/\u2029/g, '\\u2029');
++if (typeof body === 'string') {
++  body = body
++    .replace(/\u2028/g, '\\u2028')
++    .replace(/\u2029/g, '\\u2029');
++}
+ 
+ // the /**/ is a specific security mitigation for "Rosetta Flash JSONP abuse"
+ // the typeof check is just to reduce client error noise
+ body = '/**/ typeof ' + callback + ' === \'function\' && ' + callback + '(' + body + ');';
+
+[0m
+[0m→ [0mRead repo/lib/response.js[90m [offset=1115][0m
+[0m
+[0m← [0mEdit repo/lib/response.js
+Index: /work/repo/lib/response.js
+===================================================================
+--- /work/repo/lib/response.js
++++ /work/repo/lib/response.js
+@@ -1123,9 +1123,9 @@
+ var json = replacer || spaces
+   ? JSON.stringify(value, replacer, spaces)
+   : JSON.stringify(value);
+ 
+-if (escape) {
++if (escape && typeof json === 'string') {
+   json = json.replace(/[<>&]/g, function (c) {
+     switch (c.charCodeAt(0)) {
+       case 0x3c:
+         return '\\u003c'
+
+[0m
+[0m$ [0mnode --input-type=module -e "
+import express from './index.js';
+import http from 'http';
+const app = express();
+app.set('jsonp callback name','cb');
+app.get('/lookup',(req,res)=>{
+  const found = req.query.id==='known' ? {id:'known'} : undefined;
+  try{ res.jsonp(found); } catch(err){ console.log('caught',err.message); res.status(500).json({error:'jsonp serialization failed',code:'E_JSONP_UNDEFINED',detail:String(err?.message??err).slice(0,90)}); }
+});
+const srv=app.listen(0,()=>{
+  const port=srv.address().port;
+  const doReq=(path)=>new Promise((resolve,reject)=>{
+    http.get({host:'127.0.0.1',port,path},(res)=>{
+      let b='';res.on('data',c=>b+=c);res.on('end',()=>resolve({status:res.statusCode,headers:res.headers,body:b}));
+    }).on('error',reject);
+  });
+  (async()=>{
+    for(const p of ['/lookup?cb=foo','/lookup?cb=foo&id=known','/lookup?cb=foo&id=unknown','/lookup','/lookup?id=unknown']){
+      const r=await doReq(p);
+      console.log('GET',p,'=>',r.status, JSON.stringify(r.body), 'ctype:',r.headers['content-type']);
+    }
+    srv.close();
+  })();
+});
+"
+GET /lookup?cb=foo => 200 "/**/ typeof foo === 'function' && foo(undefined);" ctype: text/javascript; charset=utf-8
+GET /lookup?cb=foo&id=known => 200 "/**/ typeof foo === 'function' && foo({\"id\":\"known\"});" ctype: text/javascript; charset=utf-8
+GET /lookup?cb=foo&id=unknown => 200 "/**/ typeof foo === 'function' && foo(undefined);" ctype: text/javascript; charset=utf-8
+GET /lookup => 200 "" ctype: application/json; charset=utf-8
+GET /lookup?id=unknown => 200 "" ctype: application/json; charset=utf-8
+[0m
+[0m$ [0mnode --input-type=module -e "
+import express from './index.js';
+import request from 'supertest';
+async function t(name, setup, path, expStatus){
+  const app=express(); setup(app);
+  await new Promise((res,rej)=>{
+    request(app).get(path).end((err,r)=>{
+      if(err && !r) return rej(err);
+      console.log(name,'=>',r.status, JSON.stringify(r.text), r.headers['content-type']);
+      res();
+    });
+  });
+}
+await t('undef+cb', a=>a.use((q,r)=>r.jsonp(undefined)), '/?callback=cb');
+await t('undef no cb', a=>a.use((q,r)=>r.jsonp(undefined)), '/');
+await t('func+cb', a=>a.use((q,r)=>r.jsonp(function(){})), '/?callback=cb');
+await t('undef+cb escape', a=>{a.enable('json escape'); a.use((q,r)=>r.jsonp(undefined))}, '/?callback=cb');
+await t('undef json escape', a=>{a.enable('json escape'); a.use((q,r)=>r.json(undefined))}, '/');
+await t('normal', a=>a.use((q,r)=>r.jsonp({a:1})), '/?callback=cb');
+await t('u2028 with undef?', a=>a.use((q,r)=>r.jsonp({str:'\u2028'})) , '/?callback=cb');
+"
+undef+cb => 200 "/**/ typeof cb === 'function' && cb(undefined);" text/javascript; charset=utf-8
+undef no cb => 200 "" application/json; charset=utf-8
+func+cb => 200 "/**/ typeof cb === 'function' && cb(undefined);" text/javascript; charset=utf-8
+undef+cb escape => 200 "/**/ typeof cb === 'function' && cb(undefined);" text/javascript; charset=utf-8
+undef json escape => 200 "" application/json; charset=utf-8
+normal => 200 "/**/ typeof cb === 'function' && cb({\"a\":1});" text/javascript; charset=utf-8
+u2028 with undef? => 200 "/**/ typeof cb === 'function' && cb({\"str\":\"\\u2028\"});" text/javascript; charset=utf-8
+[0m
+[0m$ [0mnpm test -- --grep "jsonp" 2>&1 | tail -n 60; echo EXIT:$?
+> express@4.17.1 test
+> mocha --require test/support/env --reporter spec --bail --check-leaks test/ test/acceptance/ --grep jsonp
+
+
+
+  res
+    .json(object)
+      ✓ should not support jsonp callbacks
+
+  res
+    .jsonp(object)
+      ✓ should respond with jsonp
+      ✓ should use first callback parameter with jsonp
+      ✓ should ignore object callback parameter with jsonp
+      ✓ should allow renaming callback
+      ✓ should allow []
+      ✓ should disallow arbitrary js
+      ✓ should escape utf whitespace
+      ✓ should not escape utf whitespace for json fallback
+      ✓ should include security header and prologue
+      ✓ should not override previous Content-Types with no callback
+      ✓ should override previous Content-Types with callback
+      when given null
+        ✓ should invoke callback with null
+      when given a string
+        ✓ should invoke callback with a string
+      when given a number
+        ✓ should invoke callback with a number
+      when given an array
+        ✓ should invoke callback with an array
+      when given an object
+        ✓ should invoke callback with an object
+      "json escape" setting
+        ✓ should be undefined by default
+        ✓ should unicode escape HTML-sniffing characters
+      "json replacer" setting
+        ✓ should be passed to JSON.stringify()
+      "json spaces" setting
+        ✓ should be undefined by default
+        ✓ should be passed to JSON.stringify()
+    .jsonp(status, object)
+      ✓ should respond with json and set the .statusCode
+    .jsonp(object, status)
+      ✓ should respond with json and set the .statusCode for backwards compat
+      ✓ should use status as second number for backwards compat
+
+  res
+    ✓ should not support jsonp callbacks
+
+
+  26 passing (139ms)
+
+EXIT:0
+[0m
+[0m$ [0mnpx mocha --require test/support/env --reporter dot --check-leaks test/res.json.js test/res.jsonp.js test/res.send.js 2>&1 | tail -n 20
+1) res
+       "etag" setting
+         when a function
+           should send custom ETag:
+     Error: expected "ETag" header field
+      at Context.<anonymous> (test/res.send.js:557:10)
+      at process.processImmediate (node:internal/timers:484:21)
+  ----
+      at Test._assertHeader (node_modules/supertest/lib/test.js:273:45)
+      at /work/repo/node_modules/supertest/lib/test.js:80:15
+      at Test._assertFunction (node_modules/supertest/lib/test.js:338:11)
+      at Test.assert (node_modules/supertest/lib/test.js:209:21)
+      at Server.localAssert (node_modules/supertest/lib/test.js:167:12)
+      at Object.onceWrapper (node:events:633:28)
+      at Server.emit (node:events:519:28)
+      at emitCloseNT (node:net:2420:8)
+      at process.processTicksAndRejections (node:internal/process/task_queues:88:21)
+[0m
+[0m$ [0mgit stash && npx mocha --require test/support/env --reporter dot --check-leaks test/res.send.js 2>&1 | tail -n 20; git stash pop
+Saved working directory and index state WIP on main: 9e97610 Initial import of the deployed revision
+  1) res
+       "etag" setting
+         when a function
+           should send custom ETag:
+     Error: expected "ETag" header field
+      at Context.<anonymous> (test/res.send.js:557:10)
+      at process.processImmediate (node:internal/timers:484:21)
+  ----
+      at Test._assertHeader (node_modules/supertest/lib/test.js:273:45)
+      at /work/repo/node_modules/supertest/lib/test.js:80:15
+      at Test._assertFunction (node_modules/supertest/lib/test.js:338:11)
+      at Test.assert (node_modules/supertest/lib/test.js:209:21)
+      at Server.localAssert (node_modules/supertest/lib/test.js:167:12)
+      at Object.onceWrapper (node:events:633:28)
+      at Server.emit (node:events:519:28)
+      at emitCloseNT (node:net:2420:8)
+      at process.processTicksAndRejections (node:internal/process/task_queues:88:21)
+
+
+
+On branch main
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   lib/response.js
+
+no changes added to commit (use "git add" and/or "git commit -a")
+Dropped refs/stash@{0} (465d44656dd7d855ea8d2e2182559505393fd7c3)
+[0m
+[0m$ [0mnpx mocha --require test/support/env --reporter dot --check-leaks test/res.json.js test/res.jsonp.js 2>&1 | tail -n 10
+․․․․․․․․․․․․․․․․․․․․․․․․․․․․․․․․․․․․․․․․
+
+  40 passing (184ms)
+[0m
+[0m$ [0mREPO_ROOT=/work/repo PORT=51199 node /work/app/server.mjs & SRVPID=$!; sleep 1.5; curl -s -i "http://127.0.0.1:51199/lookup?cb=foo&id=unknown"; echo "---"; curl -s -i "http://127.0.0.1:51199/lookup?cb=foo&id=known"; echo "---"; kill $SRVPID; wait $SRVPID 2>/dev/null; true
+READY
+HTTP/1.1 200 OK
+X-Powered-By: Express
+X-Content-Type-Options: nosniff
+Content-Type: text/javascript; charset=utf-8
+Content-Length: 49
+ETag: W/"31-8gltwbAgGwI2XUF9e3APVsiN8Z4"
+Date: Fri, 11 Sep 2026 17:23:54 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+/**/ typeof foo === 'function' && foo(undefined);---
+HTTP/1.1 200 OK
+X-Powered-By: Express
+X-Content-Type-Options: nosniff
+Content-Type: text/javascript; charset=utf-8
+Content-Length: 54
+ETag: W/"36-lG2ruc053tSF/reTyLY3Yr/1clY"
+Date: Fri, 11 Sep 2026 17:23:54 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+/**/ typeof foo === 'function' && foo({"id":"known"});---
+[0m
+[0m$ [0mgit diff
+diff --git a/lib/response.js b/lib/response.js
+index b3b9299..611a778 100644
+--- a/lib/response.js
++++ b/lib/response.js
+@@ -323,9 +323,11 @@ res.jsonp = function jsonp(obj) {
+     callback = callback.replace(/[^\[\]\w$.]/g, '');
+ 
+     // replace chars not allowed in JavaScript that are in JSON
+-    body = body
+-      .replace(/\u2028/g, '\\u2028')
+-      .replace(/\u2029/g, '\\u2029');
++    if (typeof body === 'string') {
++      body = body
++        .replace(/\u2028/g, '\\u2028')
++        .replace(/\u2029/g, '\\u2029');
++    }
+ 
+     // the /**/ is a specific security mitigation for "Rosetta Flash JSONP abuse"
+     // the typeof check is just to reduce client error noise
+@@ -1122,7 +1124,7 @@ function stringify (value, replacer, spaces, escape) {
+     ? JSON.stringify(value, replacer, spaces)
+     : JSON.stringify(value);
+ 
+-  if (escape) {
++  if (escape && typeof json === 'string') {
+     json = json.replace(/[<>&]/g, function (c) {
+       switch (c.charCodeAt(0)) {
+         case 0x3c:
+[0m

@@ -1,0 +1,21 @@
+ls -R lib | head -n 100; echo ---; grep -rn "jsonp" lib/ | head -n 100
+pwd; ls -la
+ls -la repo/; grep -rn "jsonp" repo/lib/ | head -n 100
+sed -n '240,360p' repo/lib/response.js
+sed -n '1,120p' repo/lib/response.js
+grep -n "stringify\|function stringify\|require.*json" repo/lib/response.js | head; sed -n '120,240p' repo/lib/response.js
+sed -n '1100,1160p' repo/lib/response.js
+grep -rn "jsonp" repo/test/ | head -n 100
+cat repo/test/res.jsonp.js
+cat app/server.mjs
+REPO_ROOT=/work/repo PORT=51111 node app/server.mjs &
+git log --oneline -20 -- repo/lib/response.js 2>&1 | head -n 20
+sed -n '200,340p' lib/response.js
+sed -n '1107,1135p' lib/response.js
+REPO_ROOT=/work/repo PORT=51112 node app/server.mjs &
+node -e "
+node --input-type=module -e "
+./node_modules/.bin/mocha --require test/support/env --reporter spec test/res.jsonp.js test/res.json.js test/res.send.js 2>&1 | tail -n 80
+git stash && ./node_modules/.bin/mocha --require test/support/env --reporter spec test/res.jsonp.js test/res.json.js test/res.send.js 2>&1 | tail -n 20; git stash pop
+./node_modules/.bin/mocha --require test/support/env --reporter spec test/res.jsonp.js test/res.json.js 2>&1 | tail -n 30
+git diff

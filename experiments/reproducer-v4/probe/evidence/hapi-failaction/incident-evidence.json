@@ -1,0 +1,78 @@
+{
+  "schema": "v4-probe-control-evidence-1",
+  "incident_id": "INC-FA433171A26D",
+  "service": {
+    "name": "svc-hapi-api",
+    "release": "rel-8ec8c3501215",
+    "runtime": "node v22.14.0",
+    "framework": "hapi",
+    "platform": "darwin"
+  },
+  "request": {
+    "method": "POST",
+    "route": "/orders",
+    "target_form": "origin-form request target",
+    "headers_shape": {
+      "host": "<service-host>",
+      "connection": "close",
+      "accept": "*/*",
+      "user-agent": "<client>",
+      "content-type": "application/json"
+    },
+    "body": "{\"qty\":0}"
+  },
+  "response": {
+    "status": 500,
+    "headers": {
+      "cache-control": "no-cache",
+      "connection": "keep-alive",
+      "content-length": "76",
+      "content-type": "application/json; charset=utf-8",
+      "date": "Fri, 11 Sep 2026 16:09:19 GMT",
+      "keep-alive": "timeout=5"
+    },
+    "body": "{\"error\":\"default validation error unavailable\",\"code\":\"E_NO_DEFAULT_ERROR\"}",
+    "duration_ms": 54
+  },
+  "error": {
+    "normalized_code": "E_NO_DEFAULT_ERROR",
+    "normalized_message": "default validation error unavailable",
+    "application_errors_observed": [
+      {
+        "name": "ValidationError",
+        "constructor": "Error",
+        "message": "\"qty\" must be greater than or equal to 1",
+        "status": null,
+        "code": null,
+        "stack": "ValidationError: \"qty\" must be greater than or equal to 1\n    at exports.process (/work/repo/node_modules/@hapi/validate/lib/errors.js:165:29)\n    at internals.entry (/work/repo/node_modules/@hapi/validate/lib/validator.js:49:26)\n    at exports.entry (/work/repo/node_modules/@hapi/validate/lib/validator.js:23:30)\n    at internals.Base.validate (/work/repo/node_modules/@hapi/validate/lib/base.js:307:26)\n    at internals.Base.validateAsync (/work/repo/node_modules/@hapi/validate/lib/base.js:312:29)\n    at internals.validate (/work/repo/lib/validation.js:246:23)\n    at internals.input (/work/repo/lib/validation.js:129:69)\n    at exports.payload (/work/repo/lib/validation.js:89:22)\n    at Request._lifecycle (/work/repo/lib/request.js:370:68)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)"
+      },
+      {
+        "name": "Error",
+        "constructor": "exports",
+        "message": "Invalid request payload input",
+        "status": null,
+        "code": null,
+        "stack": "Error: Invalid request payload input\n    at new exports.Boom (/work/repo/node_modules/@hapi/boom/lib/index.js:78:23)\n    at exports.badRequest (/work/repo/node_modules/@hapi/boom/lib/index.js:143:12)\n    at internals.input (/work/repo/lib/validation.js:148:74)\n    at exports.payload (/work/repo/lib/validation.js:89:22)\n    at Request._lifecycle (/work/repo/lib/request.js:370:68)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async Request._execute (/work/repo/lib/request.js:280:9)"
+      }
+    ],
+    "note": null
+  },
+  "operations": [],
+  "logs": [
+    {
+      "level": "info",
+      "message": "READY"
+    }
+  ],
+  "excluded_by_policy": [
+    "historical issue number",
+    "CVE identifier",
+    "upstream fixing commit or diff",
+    "upstream regression test that reveals the fix",
+    "captured database result rows",
+    "captured outbound response bodies",
+    "captured time/random streams",
+    "hand-written root-cause explanation",
+    "the hidden evaluator"
+  ]
+}

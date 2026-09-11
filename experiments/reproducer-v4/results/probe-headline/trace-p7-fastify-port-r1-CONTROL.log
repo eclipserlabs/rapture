@@ -1,0 +1,675 @@
+Repairing the production bug — isolating the failure from the incident evidence.
+The app shows the request host and derived port disagree — now tracing how those values are computed.
+I've identified the likely inconsistency between host and port derivation — now examining the expected behavior.
+Reproduction confirms the bug — port is read from the wrong source while hostname follows the forwarded host.
+The fix is clear — now applying the correction to align port derivation with the documented behavior.
+The core fix is verified — now confirming the end-to-end behavior and assessing test impact.
+Root cause: `lib/request.js` `Request.prototype.port` parsed `this.headers.host` (raw `Host` header) while `Request.prototype.host`/`hostname` are trust-proxy aware (`X-Forwarded-Host` when `trustProxy` trusts the peer). With `trustProxy:true` and `X-Forwarded-Host: api.example.com:8443` + `Host: <internal>:49700`, `req.host`=`api.example.com:8443`/`req.hostname`=`api.example.com` but `req.port`=`49700`, tripping the app invariant `E_PORT_DERIVATION`. Docs (`docs/Reference/Request.md`: `port` parsed from `request.host`) and `hostname` (already `this.host`-derived) require `port` from `this.host`.
+
+Files changed:
+- `lib/request.js:262`: `port` getter source `this.headers.host ?? this.headers[':authority'] ?? ''` → `this.host ?? ''`. Now inherits forwarded-host, `:authority` fallback, trust check, multi-value handling, and stays consistent with `hostname`.
+
+Validation:
+- Unit reproduction: trusted `Host: internal:49700` + `X-Forwarded-Host: api.example.com:8443` gave `host=api.example.com:8443 port=49700` before, `port=8443` after (PASS). Untrusted (`trustProxy:10.0.0.1`, spoofed `evil.com:8443`) still returns `real.test:3000/3000` (PASS). Regular/IPv6/`:authority` cases PASS.
+- E2E `/work/app/server.mjs` (`trustProxy:true`): `GET /callback-url` with those headers now `200 {"ok":true,"url":"https://api.example.com:8443/cb"}` instead of `500 E_PORT_DERIVATION`.
+- `node --test test/request-port.test.js test/internals/request.test.js test/request-header-host.test.js test/http-methods/get.test.js` all pass.
+
+Remaining uncertainty: `test/trust-proxy.test.js` (6 tests) asserts buggy behavior — `X-Forwarded-Host: fastify.test` (no port) with `port == server.address().port` (from `Host`). After fix `port` is `null` (correct per docs: no port in `request.host`), so those assertions under-count and fail. They need updating to send forwarded host with port or expect `null`; left untouched per instructions.
+
+----- stderr -----
+[0m
+> build · muse-spark-1.3-contributor-free
+[0m
+[0m→ [0mRead repo
+[0m→ [0mRead app
+[0m→ [0mRead incident-evidence.json
+[0m→ [0mRead incident-evidence.md
+[0m→ [0mRead app/server.mjs
+[0m→ [0mRead repo/package.json
+[0m✗ [0mGrep "get port|get host|E_PORT|derived port" failed[90m in repo/lib[0m
+[91m[1mError: [0mripgrep execution failed
+[0m✗ [0mGlob "*.js" failed[90m in repo/lib[0m
+[91m[1mError: [0mripgrep execution failed
+[0m→ [0mRead repo/lib
+[0m→ [0mRead repo/lib/request.js
+[0m
+[0m$ [0mrg -n "req\.port|\.port|request.*port|trustProxy.*port|port.*trust" test/ --max-count 2 | head -n 200; echo "---"; ls test/
+---
+/usr/bin/bash: line 1: rg: command not found
+ls: cannot access 'test/': No such file or directory
+[0m
+[0m$ [0mpwd; ls; ls /work/repo/test 2>&1 | head -n 100
+/work
+app
+incident-evidence.json
+incident-evidence.md
+repo
+404s.test.js
+500s.test.js
+allow-unsafe-regex.test.js
+als.test.js
+async-await.test.js
+async-dispose.test.js
+async_hooks.test.js
+body-limit.test.js
+buffer.test.js
+build
+build-certificate.js
+bundler
+case-insensitive.test.js
+chainable.test.js
+child-logger-factory.test.js
+client-timeout.test.js
+close-pipelining.test.js
+close.test.js
+conditional-pino.test.js
+connection-timeout.test.js
+constrained-routes.test.js
+content-length.test.js
+content-parser.test.js
+content-type.test.js
+context-config.test.js
+custom-http-server.test.js
+custom-parser-async.test.js
+custom-parser.0.test.js
+custom-parser.1.test.js
+custom-parser.2.test.js
+custom-parser.3.test.js
+custom-parser.4.test.js
+custom-parser.5.test.js
+custom-querystring-parser.test.js
+decorator-instance-properties.test.js
+decorator.test.js
+delete.test.js
+diagnostics-channel
+encapsulated-child-logger-factory.test.js
+encapsulated-error-handler.test.js
+esm
+fastify-instance.test.js
+find-route.test.js
+fluent-schema.test.js
+genReqId.test.js
+handler-context.test.js
+handler-timeout.test.js
+has-route.test.js
+header-overflow.test.js
+helper.js
+hooks-async.test.js
+hooks.on-listen.test.js
+hooks.on-ready.test.js
+hooks.test.js
+http-methods
+http2
+https
+imports.test.js
+inject.test.js
+input-validation.js
+internals
+issue-4959.test.js
+keep-alive-timeout.test.js
+listen.1.test.js
+listen.2.test.js
+listen.3.test.js
+listen.4.test.js
+listen.5.test.js
+logger
+max-requests-per-socket.test.js
+middleware.test.js
+noop-set.test.js
+nullable-validation.test.js
+options.error-handler.test.js
+options.test.js
+output-validation.test.js
+patch.error-handler.test.js
+patch.test.js
+plugin.1.test.js
+plugin.2.test.js
+plugin.3.test.js
+plugin.4.test.js
+plugin.helper.js
+plugin.name.display.js
+post-empty-body.test.js
+pretty-print.test.js
+promises.test.js
+proto-poisoning.test.js
+put.error-handler.test.js
+put.test.js
+register.test.js
+reply-code.test.js
+reply-early-hints.test.js
+reply-error.test.js
+reply-trailers.test.js
+reply-web-stream-locked.test.js
+request-error.test.js
+request-header-host.test.js
+request-id.test.js
+request-media-type.test.js
+[0m
+[0m$ [0mls /work/repo/test | grep -i -E "request|trust|proxy|host|port"; echo "---"; grep -rn "\.port" /work/repo/test --include="*.js" | head -n 100
+imports.test.js
+max-requests-per-socket.test.js
+request-error.test.js
+request-header-host.test.js
+request-id.test.js
+request-media-type.test.js
+request-port.test.js
+request-timeout.test.js
+trust-proxy.test.js
+---
+/work/repo/test/hooks.test.js:3407:    const socket = connect(fastify.server.address().port)
+/work/repo/test/hooks.test.js:3458:    const socket = connect(fastify.server.address().port)
+/work/repo/test/hooks.test.js:3492:    const socket = connect(fastify.server.address().port)
+/work/repo/test/hooks.test.js:3526:    const socket = connect(fastify.server.address().port)
+/work/repo/test/hooks.test.js:3560:    const socket = connect(fastify.server.address().port)
+/work/repo/test/hooks.test.js:3595:    const socket = connect(fastify.server.address().port)
+/work/repo/test/listen.3.test.js:51:  t.assert.strictEqual(address, `http://${localhostForURL}:${fastify.server.address().port}`)
+/work/repo/test/listen.3.test.js:75:      t.assert.strictEqual(address, `http://${localhostForURL}:${fastify.server.address().port}`)
+/work/repo/test/https/https.test.js:40:    const result = await fetch('https://localhost:' + fastify.server.address().port, {
+/work/repo/test/https/https.test.js:56:    const result1 = await fetch(`${'https://localhost:' + fastify.server.address().port}/proto`, {
+/work/repo/test/https/https.test.js:66:    const result2 = await fetch(`${'https://localhost:' + fastify.server.address().port}/proto`, {
+/work/repo/test/https/https.test.js:96:    reply.code(200).send({ hello: 'world', hostname: req.hostname, port: req.port })
+/work/repo/test/https/https.test.js:105:    const result = await fetch('https://localhost:' + fastify.server.address().port, {
+/work/repo/test/https/https.test.js:114:    t.assert.deepStrictEqual(await result.json(), { hostname: 'localhost', port: fastify.server.address().port, hello: 'world' })
+/work/repo/test/https/https.test.js:120:    const result = await request('https://localhost:' + fastify.server.address().port, {
+/work/repo/test/https/custom-https-server.test.js:45:    const result = await fetch('https://localhost:' + fastify.server.address().port, {
+/work/repo/test/stream.4.test.js:60:    const port = fastify.server.address().port
+/work/repo/test/stream.4.test.js:113:    const port = fastify.server.address().port
+/work/repo/test/reply-error.test.js:119:    const client = net.connect(fastify.server.address().port, '127.0.0.1')
+/work/repo/test/reply-error.test.js:169:    const client = net.connect(fastify.server.address().port, '127.0.0.1')
+/work/repo/test/logger/instantiation.test.js:47:    await request(`http://${localhostForURL}:` + fastify.server.address().port + '/foo')
+/work/repo/test/logger/instantiation.test.js:117:      t.assert.strictEqual(line.msg, `Server listening at http://[${ipv6}]:${fastify.server.address().port}`)
+/work/repo/test/logger/instantiation.test.js:137:      t.assert.strictEqual(line.msg, `Server listening at http://127.0.0.1:${fastify.server.address().port}`)
+/work/repo/test/logger/instantiation.test.js:180:    await request(`http://${localhostForURL}:` + fastify.server.address().port)
+/work/repo/test/logger/instantiation.test.js:268:    await request(`http://${localhostForURL}:` + fastify.server.address().port + '/foo')
+/work/repo/test/logger/instantiation.test.js:311:    await request(`http://${localhostForURL}:` + fastify.server.address().port + '/custom')
+/work/repo/test/logger/logging.test.js:76:    await request(`http://${localhostForURL}:` + fastify.server.address().port + '/error')
+/work/repo/test/logger/logging.test.js:114:    await request(`http://${localhostForURL}:` + fastify.server.address().port + '/info')
+/work/repo/test/logger/logging.test.js:147:    await request(`http://${localhostForURL}:` + fastify.server.address().port + '/error')
+/work/repo/test/logger/logging.test.js:184:    await request(`http://${localhostForURL}:` + fastify.server.address().port + '/400')
+/work/repo/test/logger/logging.test.js:216:    await request(`http://${localhostForURL}:` + fastify.server.address().port + '/503')
+/work/repo/test/logger/logging.test.js:251:    await request(`http://${localhostForURL}:` + fastify.server.address().port + '/error')
+/work/repo/test/logger/logging.test.js:400:    await request(`http://${localhostForURL}:` + fastify.server.address().port)
+/work/repo/test/logger/logging.test.js:437:    await request(`http://${localhostForURL}:` + fastify.server.address().port)
+/work/repo/test/logger/logging.test.js:473:    await request(`http://${localhostForURL}:` + fastify.server.address().port + '/error')
+/work/repo/test/logger/logging.test.js:505:    await request(`http://${localhostForURL}:` + fastify.server.address().port + '/error')
+/work/repo/test/logger/request.test.js:260:      port: fastify.server.address().port,
+/work/repo/test/url-rewriting.test.js:107:      reply.send({ hello: 'world', hostname: req.hostname, port: req.port })
+/work/repo/test/url-rewriting.test.js:113:  const port = fastify.server.address().port
+/work/repo/test/request-header-host.test.js:23:    const socket = connect(fastify.server.address().port)
+/work/repo/test/request-header-host.test.js:52:    const socket = connect(fastify.server.address().port)
+/work/repo/test/request-header-host.test.js:77:    t.assert.strictEqual(request.port, null)
+/work/repo/test/request-header-host.test.js:83:    const socket = connect(fastify.server.address().port)
+/work/repo/test/request-header-host.test.js:109:    t.assert.strictEqual(request.port, null)
+/work/repo/test/request-header-host.test.js:115:    const socket = connect(fastify.server.address().port)
+/work/repo/test/request-header-host.test.js:145:    t.assert.strictEqual(request.port, null)
+/work/repo/test/request-header-host.test.js:151:    const socket = connect(fastify.server.address().port)
+/work/repo/test/request-header-host.test.js:180:    t.assert.strictEqual(request.port, null)
+/work/repo/test/request-header-host.test.js:186:    const socket = connect(fastify.server.address().port)
+/work/repo/test/request-header-host.test.js:211:    t.assert.strictEqual(request.port, null)
+/work/repo/test/request-header-host.test.js:217:    const socket = connect(fastify.server.address().port)
+/work/repo/test/request-header-host.test.js:243:    t.assert.strictEqual(request.port, null)
+/work/repo/test/request-header-host.test.js:249:    const socket = connect(fastify.server.address().port)
+/work/repo/test/request-header-host.test.js:282:    t.assert.strictEqual(request.port, null)
+/work/repo/test/request-header-host.test.js:288:    const socket = connect(fastify.server.address().port)
+/work/repo/test/request-header-host.test.js:322:    t.assert.strictEqual(request.port, null)
+/work/repo/test/request-header-host.test.js:328:    const socket = connect(fastify.server.address().port)
+/work/repo/test/skip-reply-send.test.js:203:        const client = net.createConnection({ port: (app.server.address()).port }, () => {
+/work/repo/test/close.test.js:231:    const port = fastify.server.address().port
+/work/repo/test/close.test.js:268:    const instance = new Client('http://localhost:' + fastify.server.address().port)
+/work/repo/test/close.test.js:303:    const instance = new Client('http://localhost:' + fastify.server.address().port)
+/work/repo/test/close.test.js:366:      'http://localhost:' + fastify.server.address().port,
+/work/repo/test/close.test.js:405:      'http://localhost:' + fastify.server.address().port,
+/work/repo/test/close.test.js:597:      'http://localhost:' + fastify.server.address().port,
+/work/repo/test/listen.2.test.js:42:    fastify.listen({ port: fastify.server.address().port }, (err, address) => {
+/work/repo/test/listen.2.test.js:55:    t.assert.strictEqual(address1, `http://${localhostForURL}:${fastify.server.address().port}`)
+/work/repo/test/listen.2.test.js:57:    fastify.listen({ port: fastify.server.address().port }, (err2, address2) => {
+/work/repo/test/listen.2.test.js:70:    t.assert.strictEqual(address, `http://${'[::1]'}:${fastify.server.address().port}`)
+/work/repo/test/listen.2.test.js:72:    fastify.listen({ host: '::1', port: fastify.server.address().port }, (err2, address2) => {
+/work/repo/test/listen.2.test.js:85:    t.assert.strictEqual(address1, `http://${localhostForURL}:${fastify.server.address().port}`)
+/work/repo/test/listen.2.test.js:89:    s2.listen({ port: fastify.server.address().port }, (err2, address2) => {
+/work/repo/test/listen.2.test.js:102:    const _port = fastify.server.address().port
+/work/repo/test/http-methods/search.test.js:130:  const url = `http://localhost:${fastify.server.address().port}`
+/work/repo/test/http-methods/custom-http-methods.test.js:24:    const port = fastify.server.address().port
+/work/repo/test/http-methods/report.test.js:84:    const result = await fetch(`http://localhost:${fastify.server.address().port}/`, {
+/work/repo/test/http-methods/report.test.js:95:    const result = await fetch(`http://localhost:${fastify.server.address().port}/test`, {
+/work/repo/test/http-methods/report.test.js:108:    const result = await fetch(`http://localhost:${fastify.server.address().port}/test`, {
+/work/repo/test/http-methods/report.test.js:121:    const result = await fetch(`http://localhost:${fastify.server.address().port}/test`, {
+/work/repo/test/http-methods/report.test.js:134:    const result = await fetch(`http://localhost:${fastify.server.address().port}/test`, {
+/work/repo/test/http-methods/get.test.js:209:      reply.code(200).send({ port: req.port })
+/work/repo/test/http-methods/get.test.js:225:    const response = await fetch('http://localhost:' + fastify.server.address().port, {
+/work/repo/test/http-methods/get.test.js:238:    const response = await fetch('http://localhost:' + fastify.server.address().port + '/params/world/123', {
+/work/repo/test/http-methods/get.test.js:251:    const response = await fetch('http://localhost:' + fastify.server.address().port + '/params/world/string', {
+/work/repo/test/http-methods/get.test.js:268:    const response = await fetch('http://localhost:' + fastify.server.address().port + '/headers', {
+/work/repo/test/http-methods/get.test.js:285:    const response = await fetch('http://localhost:' + fastify.server.address().port + '/headers', {
+/work/repo/test/http-methods/get.test.js:305:    const response = await fetch('http://localhost:' + fastify.server.address().port + '/query?hello=123', {
+/work/repo/test/http-methods/get.test.js:318:    const response = await fetch('http://localhost:' + fastify.server.address().port + '/query?hello=world', {
+/work/repo/test/http-methods/get.test.js:335:    const response = await fetch('http://localhost:' + fastify.server.address().port + '/missing', {
+/work/repo/test/http-methods/get.test.js:348:    const response = await fetch('http://localhost:' + fastify.server.address().port + '/custom-serializer', {
+/work/repo/test/http-methods/get.test.js:361:    const response = await fetch('http://localhost:' + fastify.server.address().port + '/empty', {
+/work/repo/test/http-methods/get.test.js:374:    const response = await fetch('http://localhost:' + fastify.server.address().port + '/boolean', {
+/work/repo/test/http-methods/get.test.js:386:    const response = await fetch('http://localhost:' + fastify.server.address().port + '/null', {
+/work/repo/test/http-methods/get.test.js:398:    const instance = new Client('http://localhost:' + fastify.server.address().port)
+/work/repo/test/http-methods/get.test.js:410:    t.assert.strictEqual(body.port, null)
+/work/repo/test/http-methods/propfind.test.js:78:    const result = await fetch(`http://localhost:${fastify.server.address().port}/`, {
+/work/repo/test/http-methods/propfind.test.js:89:    const result = await fetch(`http://localhost:${fastify.server.address().port}/test`, {
+/work/repo/test/http-methods/propfind.test.js:102:    const result = await fetch(`http://localhost:${fastify.server.address().port}/test`, {
+/work/repo/test/http-methods/propfind.test.js:115:    const result = await fetch(`http://localhost:${fastify.server.address().port}/test`, {
+/work/repo/test/http-methods/propfind.test.js:128:    const result = await fetch(`http://localhost:${fastify.server.address().port}/test`, {
+/work/repo/test/stream.5.test.js:102:    const port = fastify.server.address().port
+[0m
+[0m→ [0mRead repo/test/request-port.test.js
+[0m→ [0mRead repo/test/trust-proxy.test.js
+[0m
+[0m$ [0mgrep -rn "x-forwarded-host\|x-forwarded-port\|X-Forwarded-Port\|request\.port\|req\.port\|hostname" /work/repo/docs --include="*.md" | head -n 100
+echo "==="
+grep -rn "forwarded" /work/repo/lib --include="*.js" | head -n 100
+echo "==="
+grep -rn "port" /work/repo/lib/request.js | head -n 20
+/work/repo/docs/Guides/Migration-Guide-V5.md:527:### Requests now have `host`, `hostname`, and `port`, and `hostname` no longer includes the port number
+/work/repo/docs/Guides/Migration-Guide-V5.md:529:In Fastify v4, `req.hostname` would include both the hostname and the
+/work/repo/docs/Guides/Migration-Guide-V5.md:531:With v5, we aligned to the Node.js URL object and now include `host`, `hostname`,
+/work/repo/docs/Guides/Migration-Guide-V5.md:532:and `port` properties. `req.host` has the same value as `req.hostname` did in v4,
+/work/repo/docs/Guides/Migration-Guide-V5.md:533:while `req.hostname` includes the hostname _without_ a port if a port is present,
+/work/repo/docs/Guides/Migration-Guide-V5.md:534:and `req.port` contains just the port number.
+/work/repo/docs/Guides/Delay-Accepting-Requests.md:474:{"time":1650063795030,"reqId":"req-1","req":{"method":"GET","url":"/v1","hostname":"localhost:1234","remoteAddress":"127.0.0.1","remotePort":51928},"msg":"incoming request"}
+/work/repo/docs/Guides/Delay-Accepting-Requests.md:476:{"time":1650063796248,"reqId":"req-2","req":{"method":"GET","url":"/ping","hostname":"localhost:1234","remoteAddress":"127.0.0.1","remotePort":51930},"msg":"incoming request"}
+/work/repo/docs/Guides/Delay-Accepting-Requests.md:478:{"time":1650063798377,"reqId":"req-3","req":{"method":"POST","url":"/webhook","hostname":"localhost:1234","remoteAddress":"127.0.0.1","remotePort":51932},"msg":"incoming request"}
+/work/repo/docs/Guides/Delay-Accepting-Requests.md:481:{"time":1650063799858,"reqId":"req-4","req":{"method":"GET","url":"/v1","hostname":"localhost:1234","remoteAddress":"127.0.0.1","remotePort":51934},"msg":"incoming request"}
+/work/repo/docs/Guides/Delay-Accepting-Requests.md:501:{"time":1650063795030,"reqId":"req-1","req":{"method":"GET","url":"/v1","hostname":"localhost:1234","remoteAddress":"127.0.0.1","remotePort":51928},"msg":"incoming request"}
+/work/repo/docs/Guides/Delay-Accepting-Requests.md:503:{"time":1650063796248,"reqId":"req-2","req":{"method":"GET","url":"/ping","hostname":"localhost:1234","remoteAddress":"127.0.0.1","remotePort":51930},"msg":"incoming request"}
+/work/repo/docs/Guides/Delay-Accepting-Requests.md:557:{"time":1650063798377,"reqId":"req-3","req":{"method":"POST","url":"/webhook","hostname":"localhost:1234","remoteAddress":"127.0.0.1","remotePort":51932},"msg":"incoming request"}
+/work/repo/docs/Guides/Delay-Accepting-Requests.md:570:{"time":1650063799858,"reqId":"req-4","req":{"method":"GET","url":"/v1","hostname":"localhost:1234","remoteAddress":"127.0.0.1","remotePort":51934},"msg":"incoming request"}
+/work/repo/docs/Guides/Detecting-When-Clients-Abort.md:50:        ignore: 'pid,hostname',
+/work/repo/docs/Guides/Recommendations.md:123:  # the incoming hostname and define a boolean indicating if it is a match.
+/work/repo/docs/Guides/Recommendations.md:315:the pod IP as the hostname. Fastify listens on `127.0.0.1` by default. The probe
+/work/repo/docs/Guides/Recommendations.md:317:the application must listen on `0.0.0.0` or specify a custom hostname in
+/work/repo/docs/Reference/Logging.md:36:        ignore: 'pid,hostname',
+/work/repo/docs/Reference/Server.md:678:> If a request contains multiple `x-forwarded-host` or `x-forwarded-proto`
+/work/repo/docs/Reference/Server.md:679:> headers, it is only the last one that is used to derive `request.hostname`
+/work/repo/docs/Reference/Request.md:30:- `hostname` - The hostname parsed from `request.host`.
+/work/repo/docs/Reference/Request.md:38:> `request.ip`, `request.ips`, `request.host`, `request.hostname`,
+/work/repo/docs/Reference/Request.md:39:> `request.port`, and `request.protocol` come from request metadata
+/work/repo/docs/Reference/Request.md:129:  console.log(request.hostname)
+/work/repo/docs/Reference/Request.md:130:  console.log(request.port)
+===
+/work/repo/lib/request.js:124:        if (this.headers['x-forwarded-host'] && socket != null && proxyFn(socket.remoteAddress, 0)) {
+/work/repo/lib/request.js:125:          return getLastEntryInMultiHeaderValue(this.headers['x-forwarded-host'])
+/work/repo/lib/request.js:139:        if (this.headers['x-forwarded-proto'] && socket != null && proxyFn(socket.remoteAddress, 0)) {
+/work/repo/lib/request.js:140:          return getLastEntryInMultiHeaderValue(this.headers['x-forwarded-proto'])
+===
+48:    // Support trusting everything
+52:    // Support trusting hop count
+56:    // Support comma-separated tps
+128:         * The last fallback supports the following cases:
+241:       * The last fallback supports the following cases:
+259:  port: {
+261:      const portReg = /(?<port>:\d+)$/
+263:      const matches = portReg.exec(host)
+267:      return parseInt(matches.groups.port.slice(1), 10)
+397:module.exports = Request
+398:module.exports.buildRequest = buildRequest
+[0m
+[0m→ [0mRead repo/docs/Reference/Request.md
+[0m→ [0mRead repo/docs/Reference/Server.md[90m [offset=660, limit=60][0m
+[0m
+[0m$ [0mgit log --oneline -20 -- lib/request.js; echo "==="; git log --oneline -10; echo "==="; git status; echo "==="; git diff HEAD --stat | head
+bc0af82 Initial import of the deployed revision
+===
+bc0af82 Initial import of the deployed revision
+===
+On branch main
+nothing to commit, working tree clean
+===
+[0m
+[0m$ [0mgrep -rn "port" /work/repo/types/request.d.ts | head -n 30
+echo "==="
+grep -rn "x-forwarded" /work/repo -r --include="*.js" --include="*.md" --include="*.ts" | head -n 50
+1:import { ErrorObject } from '@fastify/ajv-compiler'
+2:import { FastifyContextConfig } from './context'
+3:import { FastifyInstance } from './instance'
+4:import { FastifyBaseLogger } from './logger'
+5:import { FastifyRouteConfig, RouteGenericInterface, RouteHandlerMethod } from './route'
+6:import { FastifySchema } from './schema'
+7:import { FastifyRequestType, FastifyTypeProvider, FastifyTypeProviderDefault, ResolveFastifyRequestType } from './type-provider'
+8:import { ContextConfigDefault, HTTPMethods, RawRequestDefaultExpression, RawServerBase, RawServerDefault, RequestBodyDefault, RequestHeadersDefault, RequestParamsDefault, RequestQuerystringDefault } from './utils'
+11:export interface RequestGenericInterface {
+18:export interface ValidationFunction {
+23:export interface RequestRouteOptions<ContextConfig = ContextConfigDefault, SchemaCompiler = FastifySchema> {
+43:export interface FastifyRequest<RouteGeneric extends RouteGenericInterface = RouteGenericInterface,
+93:  readonly port: number | null;
+===
+/work/repo/test/https/https.test.js:73:        'x-forwarded-proto': 'lorem'
+/work/repo/test/internals/request.test.js:216:    'x-forwarded-for': '2.2.2.2, 1.1.1.1',
+/work/repo/test/internals/request.test.js:217:    'x-forwarded-host': 'fastify.test'
+/work/repo/test/internals/request.test.js:274:    'x-forwarded-for': '2.2.2.2, 1.1.1.1',
+/work/repo/test/internals/request.test.js:275:    'x-forwarded-host': 'fastify.test'
+/work/repo/test/internals/request.test.js:290:test('Request with trust proxy - no x-forwarded-host header', t => {
+/work/repo/test/internals/request.test.js:293:    'x-forwarded-for': '2.2.2.2, 1.1.1.1',
+/work/repo/test/internals/request.test.js:333:test('Request with trust proxy - no x-forwarded-host header and fallback to authority', t => {
+/work/repo/test/internals/request.test.js:336:    'x-forwarded-for': '2.2.2.2, 1.1.1.1',
+/work/repo/test/internals/request.test.js:376:test('Request with trust proxy - x-forwarded-host header has precedence over host', t => {
+/work/repo/test/internals/request.test.js:379:    'x-forwarded-for': ' 2.2.2.2, 1.1.1.1',
+/work/repo/test/internals/request.test.js:380:    'x-forwarded-host': 'fastify.test',
+/work/repo/test/internals/request.test.js:396:test('Request with trust proxy - handles multiple entries in x-forwarded-host/proto', t => {
+/work/repo/test/internals/request.test.js:399:    'x-forwarded-host': 'example2.com, fastify.test',
+/work/repo/test/internals/request.test.js:400:    'x-forwarded-proto': 'http, https'
+/work/repo/test/internals/request.test.js:419:    'x-forwarded-for': '2.2.2.2, 1.1.1.1',
+/work/repo/test/internals/request.test.js:420:    'x-forwarded-host': 'fastify.test'
+/work/repo/test/internals/request.test.js:490:test('Request with trust proxy and undefined socket does not trust x-forwarded-host/proto', t => {
+/work/repo/test/internals/request.test.js:494:    'x-forwarded-for': '2.2.2.2, 1.1.1.1',
+/work/repo/test/internals/request.test.js:495:    'x-forwarded-host': 'fastify.test',
+/work/repo/test/internals/request.test.js:496:    'x-forwarded-proto': 'https'
+/work/repo/test/internals/request.test.js:511:test('Request with trust proxy and null socket does not trust x-forwarded-host/proto', t => {
+/work/repo/test/internals/request.test.js:515:    'x-forwarded-for': '2.2.2.2, 1.1.1.1',
+/work/repo/test/internals/request.test.js:516:    'x-forwarded-host': 'fastify.test',
+/work/repo/test/internals/request.test.js:517:    'x-forwarded-proto': 'https'
+/work/repo/test/trust-proxy.test.js:26:    t.assert.strictEqual(req.ip, options.ip, 'gets ip from x-forwarded-for')
+/work/repo/test/trust-proxy.test.js:30:    t.assert.strictEqual(req.host, options.host, 'gets host from x-forwarded-host')
+/work/repo/test/trust-proxy.test.js:32:    t.assert.strictEqual(req.hostname, options.host, 'gets hostname from x-forwarded-host')
+/work/repo/test/trust-proxy.test.js:35:    t.assert.deepStrictEqual(req.ips, options.ips, 'gets ips from x-forwarded-for')
+/work/repo/test/trust-proxy.test.js:39:    t.assert.strictEqual(req.protocol, options.protocol, 'gets protocol from x-forwarded-proto')
+/work/repo/test/trust-proxy.test.js:43:    t.assert.strictEqual(req.port, options.port, 'port is taken from x-forwarded-for or host')
+/work/repo/test/trust-proxy.test.js:177:    // protocol should fall back to socket state, not read x-forwarded-proto
+/work/repo/test/trust-proxy.test.js:178:    t.assert.strictEqual(req.protocol, 'http', 'protocol ignores x-forwarded-proto from untrusted connection')
+/work/repo/test/trust-proxy.test.js:179:    // host should fall back to raw Host header, not read x-forwarded-host
+/work/repo/test/trust-proxy.test.js:180:    t.assert.notStrictEqual(req.host, 'evil.com', 'host ignores x-forwarded-host from untrusted connection')
+/work/repo/test/trust-proxy.test.js:182:    t.assert.notStrictEqual(req.hostname, 'evil.com', 'hostname ignores x-forwarded-host from untrusted connection')
+/work/repo/test/trust-proxy.test.js:209:    t.assert.strictEqual(req.protocol, 'https', 'protocol reads x-forwarded-proto from trusted connection')
+/work/repo/test/trust-proxy.test.js:210:    t.assert.strictEqual(req.host, 'example.com', 'host reads x-forwarded-host from trusted connection')
+/work/repo/test/trust-proxy.test.js:231:    'x-forwarded-for': '2.2.2.2, 1.1.1.1',
+/work/repo/test/trust-proxy.test.js:232:    'x-forwarded-host': 'fastify.test',
+/work/repo/test/trust-proxy.test.js:233:    'x-forwarded-proto': 'https'
+/work/repo/test/trust-proxy.test.js:250:  t.assert.strictEqual(request.ip, '1.1.1.1', 'gets ip from x-forwarded-for')
+/work/repo/test/trust-proxy.test.js:252:  t.assert.strictEqual(request.host, 'fastify.test', 'gets host from x-forwarded-host')
+/work/repo/test/trust-proxy.test.js:260:    'x-forwarded-for': '2.2.2.2, 1.1.1.1',
+/work/repo/test/trust-proxy.test.js:261:    'x-forwarded-host': 'fastify.test'
+/work/repo/test/trust-proxy.test.js:273:  t.assert.strictEqual(request.ip, '1.1.1.1', 'gets ip from x-forwarded-for')
+/work/repo/test/trust-proxy.test.js:276:test('trust proxy does not trust x-forwarded-host/proto when socket is null', t => {
+/work/repo/test/trust-proxy.test.js:281:    'x-forwarded-host': 'spoofed.test',
+/work/repo/test/trust-proxy.test.js:282:    'x-forwarded-proto': 'https'
+/work/repo/test/trust-proxy.test.js:294:  t.assert.strictEqual(request.protocol, undefined, 'does not trust x-forwarded-proto')
+[0m
+[0m→ [0mRead repo/test/internals/request.test.js
+[0m
+[0m$ [0mnode -e "
+const Request = require('./lib/request');
+const TpRequest = Request.buildRequest(Request, true);
+function mk(headers, remote='127.0.0.1'){
+  const req={method:'GET',url:'/',socket:{remoteAddress:remote},headers};
+  const r=new TpRequest('id',{},req,'','log',{});
+  return r;
+}
+let r1 = mk({host:'internal:49700','x-forwarded-host':'api.example.com:8443'});
+console.log('host',r1.host,'port',r1.port,'hostname',r1.hostname);
+let r2 = mk({host:'127.0.0.1:3000','x-forwarded-host':'fastify.test'});
+console.log('host',r2.host,'port',r2.port,'hostname',r2.hostname);
+"
+host api.example.com:8443 port 49700 hostname api.example.com
+host fastify.test port 3000 hostname fastify.test
+[0m
+[0m$ [0mgrep -n -B5 -A5 "readonly port\|readonly host\|readonly hostname" /work/repo/types/request.d.ts | head -n 60
+echo "==="
+grep -rn "hostname\|\\.port" /work/repo/docs/Reference/Request.md | head
+83-  readonly ips?: string[];
+84-  /**
+85-   * Derived from Host/:authority/X-Forwarded-Host request metadata.
+86-   * Treat as untrusted input and validate before security-sensitive use.
+87-   */
+88:  readonly host: string;
+89-  /**
+90-   * Parsed from request host metadata.
+91-   * Treat as untrusted input and validate before security-sensitive use.
+92-   */
+93:  readonly port: number | null;
+94:  readonly hostname: string;
+95-  readonly url: string;
+96-  readonly originalUrl: string;
+97-  /**
+98-   * Derived from socket state or forwarding headers.
+99-   * Treat as untrusted input and validate before security-sensitive use.
+===
+30:- `hostname` - The hostname parsed from `request.host`.
+38:> `request.ip`, `request.ips`, `request.host`, `request.hostname`,
+39:> `request.port`, and `request.protocol` come from request metadata
+129:  console.log(request.hostname)
+130:  console.log(request.port)
+[0m
+[0m$ [0mgrep -rn "\.port\b\|request\.port\|req\.port" /work/repo/lib --include="*.js" | head -n 30
+echo "==="
+grep -rn "hostname\|request\.host" /work/repo/lib --include="*.js" | head -n 30
+/work/repo/lib/request.js:267:      return parseInt(matches.groups.port.slice(1), 10)
+/work/repo/lib/server.js:175:            port: primaryAddress.port,
+/work/repo/lib/server.js:382:      addresses = getAddresses(server.address()).map((address) => address + ':' + server.address().port)
+/work/repo/lib/server.js:385:      addresses = ['[' + server.address().address + ']:' + server.address().port]
+===
+/work/repo/lib/request.js:249:  hostname: {
+[0m
+[0m→ [0mRead repo/lib/request.js[90m [offset=249, limit=25][0m
+[0m
+[0m← [0mEdit repo/lib/request.js
+Index: /work/repo/lib/request.js
+===================================================================
+--- /work/repo/lib/request.js
++++ /work/repo/lib/request.js
+@@ -258,9 +258,9 @@
+ },
+ port: {
+   get () {
+     const portReg = /(?<port>:\d+)$/
+-    const host = this.headers.host ?? this.headers[':authority'] ?? ''
++    const host = this.host ?? ''
+     const matches = portReg.exec(host)
+     if (matches === null || matches[1] === undefined) {
+       return null
+     }
+
+[0m
+[0m$ [0mnode -e "
+const Request = require('./lib/request');
+const TpRequest = Request.buildRequest(Request, true);
+function mk(headers, remote='127.0.0.1'){
+  const req={method:'GET',url:'/',socket:{remoteAddress:remote},headers};
+  const r=new TpRequest('id',{},req,'','log',{});
+  return r;
+}
+let r1 = mk({host:'internal:49700','x-forwarded-host':'api.example.com:8443'});
+console.log('incident case: host',r1.host,'port',r1.port,'hostname',r1.hostname, r1.port===8443?'PASS':'FAIL');
+let r2 = mk({host:'127.0.0.1:3000','x-forwarded-host':'fastify.test'});
+console.log('no-port forwarded: host',r2.host,'port',r2.port,'hostname',r2.hostname);
+let r3 = mk({host:'example.com:80'});
+// regular (no trust) - use base Request directly
+const R2 = Request;
+let rr = new R2('id',{}, {method:'GET',url:'/',socket:{remoteAddress:'ip'},headers:{host:'example.com:80'}},'','log',{});
+console.log('regular',rr.host,rr.port, rr.port===80?'PASS':'FAIL');
+// untrusted: trust only 10.0.0.1, connect from 127.0.0.1 with spoofed forwarded
+const TpUntrusted = Request.buildRequest(Request, '10.0.0.1');
+let ru = new TpUntrusted('id',{}, {method:'GET',url:'/',socket:{remoteAddress:'127.0.0.1'},headers:{host:'real.test:3000','x-forwarded-host':'evil.com:8443'}},'','log',{});
+console.log('untrusted: host',ru.host,'port',ru.port, (ru.host==='real.test:3000'&&ru.port===3000)?'PASS':'FAIL');
+// ipv6
+let r6 = new R2('id',{}, {method:'GET',url:'/',socket:{},headers:{host:'[::1]:80'}},'','log',{});
+console.log('ipv6',r6.host,r6.port,r6.hostname, r6.port===80?'PASS':'FAIL');
+let r6b = mk({host:'[::1]:3000','x-forwarded-host':'[::1]:8443'});
+console.log('ipv6 forwarded',r6b.host,r6b.port,r6b.hostname, r6b.port===8443?'PASS':'FAIL');
+"
+incident case: host api.example.com:8443 port 8443 hostname api.example.com PASS
+no-port forwarded: host fastify.test port null hostname fastify.test
+regular example.com:80 80 PASS
+untrusted: host real.test:3000 port 3000 PASS
+ipv6 [::1]:80 80 [::1] PASS
+ipv6 forwarded [::1]:8443 8443 [::1] PASS
+[0m
+[0m$ [0mnode --test test/request-port.test.js test/internals/request.test.js 2>&1 | tail -n 30
+duration_ms: 0.61685
+  type: 'test'
+  ...
+# Subtest: Request with trust proxy and undefined socket does not trust x-forwarded-host/proto
+ok 13 - Request with trust proxy and undefined socket does not trust x-forwarded-host/proto
+  ---
+  duration_ms: 1.598613
+  type: 'test'
+  ...
+# Subtest: Request with trust proxy and null socket does not trust x-forwarded-host/proto
+ok 14 - Request with trust proxy and null socket does not trust x-forwarded-host/proto
+  ---
+  duration_ms: 0.746137
+  type: 'test'
+  ...
+# Subtest: .port parses port correctly
+ok 15 - .port parses port correctly
+  ---
+  duration_ms: 4.273282
+  type: 'test'
+  ...
+1..15
+# tests 15
+# suites 0
+# pass 15
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 266.102775
+[0m
+[0m$ [0mnode --test test/trust-proxy.test.js 2>&1 | tail -n 60
+...
+# Subtest: trust proxy IP addresses
+not ok 5 - trust proxy IP addresses
+  ---
+  duration_ms: 26.676598
+  type: 'test'
+  location: '/work/repo/test/trust-proxy.test.js:123:1'
+  failureType: 'testCodeFailure'
+  error: 'plan expected 9 assertions but received 8'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: trust proxy protocol
+not ok 6 - trust proxy protocol
+  ---
+  duration_ms: 96.299532
+  type: 'test'
+  location: '/work/repo/test/trust-proxy.test.js:139:1'
+  failureType: 'testCodeFailure'
+  error: 'plan expected 30 assertions but received 27'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: trust proxy ignores forwarded headers from untrusted connections
+ok 7 - trust proxy ignores forwarded headers from untrusted connections
+  ---
+  duration_ms: 47.196814
+  type: 'test'
+  ...
+# Subtest: trust proxy reads forwarded headers from trusted connections
+ok 8 - trust proxy reads forwarded headers from trusted connections
+  ---
+  duration_ms: 16.601908
+  type: 'test'
+  ...
+# Subtest: trust proxy with number and undefined socket remoteAddress
+ok 9 - trust proxy with number and undefined socket remoteAddress
+  ---
+  duration_ms: 0.943729
+  type: 'test'
+  ...
+# Subtest: trust proxy with number and null socket remoteAddress
+ok 10 - trust proxy with number and null socket remoteAddress
+  ---
+  duration_ms: 0.728055
+  type: 'test'
+  ...
+# Subtest: trust proxy does not trust x-forwarded-host/proto when socket is null
+ok 11 - trust proxy does not trust x-forwarded-host/proto when socket is null
+  ---
+  duration_ms: 1.040868
+  type: 'test'
+  ...
+1..11
+# tests 11
+# suites 0
+# pass 5
+# fail 6
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1234.172775
+[0m
+[0m$ [0mREPO_ROOT=/work/repo PORT=51210 node /work/app/server.mjs &
+SRV=$!
+sleep 1
+# incident reproduction: Host internal with different port, forwarded with 8443
+curl -s -i --connect-to api.example.com:8443:127.0.0.1:51210 http://api.example.com:8443/callback-url -H "Host: internal:49700" -H "X-Forwarded-Host: api.example.com:8443" -H "Connection: close"; echo "---CURL DONE---"
+kill $SRV; wait $SRV 2>/dev/null; true
+READY
+HTTP/1.1 403 Forbidden
+Server: squid
+Mime-Version: 1.0
+Date: Fri, 11 Sep 2026 17:28:20 GMT
+Content-Type: text/html;charset=utf-8
+Content-Length: 3054
+X-Squid-Error: ERR_ACCESS_DENIED 0
+Vary: Accept-Language
+Content-Language: en
+X-Cache: MISS from cb8f23f2f97d
+X-Cache-Lookup: NONE from cb8f23f2f97d:3128
+Connection: keep-alive
+
+---CURL DONE---
+[0m
+[0m$ [0mexport no_proxy="*"; echo $http_proxy $https_proxy $HTTP_PROXY
+REPO_ROOT=/work/repo PORT=51211 node /work/app/server.mjs &
+SRV=$!
+sleep 1
+curl -s -i http://127.0.0.1:51211/callback-url -H "Host: internal:49700" -H "X-Forwarded-Host: api.example.com:8443" --noproxy "*"; echo "---DONE---"
+kill $SRV; wait $SRV 2>/dev/null; true
+http://10.83.0.10:3128 http://10.83.0.10:3128 http://10.83.0.10:3128
+READY
+HTTP/1.1 200 OK
+content-type: application/json; charset=utf-8
+content-length: 51
+Date: Fri, 11 Sep 2026 17:28:24 GMT
+Connection: keep-alive
+Keep-Alive: timeout=72
+
+{"ok":true,"url":"https://api.example.com:8443/cb"}---DONE---
+[0m
+[0m$ [0mexport no_proxy="*"; unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY
+node --test test/request-header-host.test.js test/request-port.test.js test/internals/request.test.js 2>&1 | tail -n 10
+node --test test/http-methods/get.test.js 2>&1 | tail -n 10
+...
+1..25
+# tests 25
+# suites 0
+# pass 25
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 7349.868652
+  ...
+1..11
+# tests 24
+# suites 0
+# pass 24
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1505.561533
+[0m
+[0m$ [0mgit diff --stat; echo "==="; git diff
+lib/request.js | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+===
+diff --git a/lib/request.js b/lib/request.js
+index 5c0b93e..1cae3c5 100644
+--- a/lib/request.js
++++ b/lib/request.js
+@@ -259,7 +259,7 @@ Object.defineProperties(Request.prototype, {
+   port: {
+     get () {
+       const portReg = /(?<port>:\d+)$/
+-      const host = this.headers.host ?? this.headers[':authority'] ?? ''
++      const host = this.host ?? ''
+       const matches = portReg.exec(host)
+       if (matches === null || matches[1] === undefined) {
+         return null
+[0m

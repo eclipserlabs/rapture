@@ -1,0 +1,54 @@
+{
+  "schema": "v4-probe-oracle-validation-1",
+  "case": "koa-1998",
+  "requirement": "the buggy revision must FAIL the original incident and the hidden variants; the historical fixed revision must PASS both",
+  "buggy": {
+    "repo": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v3/corpus-hl/koa-4a191b1",
+    "original": {
+      "status": 500,
+      "body": "{\"error\":\"assert regression\",\"code\":\"E_ASSERT_REGRESSION\"}"
+    },
+    "original_failure_present": true,
+    "original_exact_signature_present": true,
+    "hidden": [
+      {
+        "variant": "assert-403-different-message",
+        "status": 500,
+        "pass": false,
+        "body": "{\"ok\":false,\"code\":\"E_ASSERT_NOT_HTTPERROR\",\"got\":\"ForbiddenError\"}"
+      },
+      {
+        "variant": "assert-402-different-message",
+        "status": 500,
+        "pass": false,
+        "body": "{\"ok\":false,\"code\":\"E_ASSERT_NOT_HTTPERROR\",\"got\":\"PaymentRequiredError\"}"
+      }
+    ],
+    "hidden_all_pass": false
+  },
+  "fixed": {
+    "repo": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v3/corpus-hl/koa-1061776",
+    "original": {
+      "status": 401,
+      "body": "{\"error\":\"unauthenticated\",\"code\":\"E_UNAUTH\"}"
+    },
+    "original_failure_present": false,
+    "original_exact_signature_present": false,
+    "hidden": [
+      {
+        "variant": "assert-403-different-message",
+        "status": 403,
+        "pass": true,
+        "body": "{\"ok\":true,\"variant\":\"httperror\",\"message\":\"forbidden-variant-a\"}"
+      },
+      {
+        "variant": "assert-402-different-message",
+        "status": 402,
+        "pass": true,
+        "body": "{\"ok\":true,\"variant\":\"httperror\",\"message\":\"payment-required-variant-b\"}"
+      }
+    ],
+    "hidden_all_pass": true
+  },
+  "oracle_valid": true
+}

@@ -1,0 +1,13 @@
+diff --git a/lib/request.js b/lib/request.js
+index 5c0b93e..1cae3c5 100644
+--- a/lib/request.js
++++ b/lib/request.js
+@@ -259,7 +259,7 @@ Object.defineProperties(Request.prototype, {
+   port: {
+     get () {
+       const portReg = /(?<port>:\d+)$/
+-      const host = this.headers.host ?? this.headers[':authority'] ?? ''
++      const host = this.host ?? ''
+       const matches = portReg.exec(host)
+       if (matches === null || matches[1] === undefined) {
+         return null

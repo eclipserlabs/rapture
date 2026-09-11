@@ -1,0 +1,5 @@
+ls -R /work/.repro 2>&1; echo "---"; cat /work/repro 2>&1 | head -n 200; echo "---"; ls -l /work/repro
+./repro 2>&1; echo EXIT:$?
+git log --oneline -15 -- lib/response.js; echo "---"; git status --short; echo "---"; git diff HEAD --stat
+rg -n "maxAge" lib/ test/ --no-heading 2>&1 | head -n 100
+grep -rn "maxAge" lib/ test/ 2>&1 | head -n 100; echo "---"; ls test/*.js | head -n 100

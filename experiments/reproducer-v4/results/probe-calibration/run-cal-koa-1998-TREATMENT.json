@@ -168,5 +168,12 @@
     }
   },
   "classification": "CORRECT_FIX",
-  "finished_at": "2026-09-11T15:05:13.680Z"
+  "finished_at": "2026-09-11T15:05:13.680Z",
+  "workspace_path": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/probe-runs/cal-koa-1998-TREATMENT",
+  "starting_tree_sha256": "84f6091158aa7d4af527b562036067ea14fff29bb9b99fe1fd0a9e843c53a310",
+  "starting_tree_files": 112,
+  "final_tree_sha256": "858bf801496ad85c2318360eb980788504bb812e5dfd97c2397fc3d46c22c8f2",
+  "final_tree_files": 112,
+  "tree_changed": true,
+  "termination_reason": "AGENT_COMPLETED"
 }

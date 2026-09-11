@@ -1,0 +1,222 @@
+{
+  "schema": "v4-probe-run-1",
+  "label": "p9-express-jsonp-r1-TREATMENT",
+  "case": "express-jsonp",
+  "arm": "TREATMENT",
+  "model": "opencode/muse-spark-1.3-contributor-free",
+  "budget_seconds": 1200,
+  "started_at": "2026-09-11T17:35:58.682Z",
+  "free_mb_before": 2723,
+  "disk_floor_mb": 700,
+  "preflight": {
+    "schema": "v4-probe-preflight-1",
+    "at": "2026-09-11T17:36:35.723Z",
+    "checks": [
+      {
+        "check": "net_up_reasserted",
+        "pass": true,
+        "detail": "waiting for squid to accept connections... | v4-proxy\tUp 3 hours\tubuntu/squid:5.2-22.04_beta"
+      },
+      {
+        "check": "subject_no_default_route",
+        "pass": true,
+        "detail": "route=\"\""
+      },
+      {
+        "check": "vm_ssh_filtered",
+        "pass": true,
+        "detail": "FILTERED"
+      },
+      {
+        "check": "proxy_reachable",
+        "pass": true,
+        "detail": "OPEN"
+      },
+      {
+        "check": "single_internal_network_attachment",
+        "pass": true,
+        "detail": "v4-subject-net"
+      },
+      {
+        "check": "no_direct_egress",
+        "pass": true,
+        "detail": "ENETUNREACH"
+      },
+      {
+        "check": "minimal_provider_auth_only",
+        "pass": true,
+        "detail": "[\"opencode\"]"
+      },
+      {
+        "check": "no_global_config_or_repo_mounted",
+        "pass": true,
+        "detail": "-v /Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/probe-runs/p9-express-jsonp-r1-TREATMENT:/work -v /Users/wira/Documents/rapture/rapture/experiments/reproducer-v4/isolation/subject-auth:/isolated/data/opencode"
+      }
+    ],
+    "preflight_pass": true
+  },
+  "build_workspace": {
+    "exit": 0,
+    "ok": true
+  },
+  "starting_tree": {
+    "tree_sha256": "91a45528ae295a76f0d6d0d023cd08b1a5fdd58648520527faae2a67bb519d40",
+    "file_count": 231
+  },
+  "workspace_audit": {
+    "schema": "v4-probe-workspace-audit-1",
+    "case": "express-jsonp",
+    "arm": "TREATMENT",
+    "ws": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/probe-runs/p9-express-jsonp-r1-TREATMENT",
+    "checks": [
+      {
+        "check": "git_single_commit",
+        "pass": true,
+        "detail": "commits=1"
+      },
+      {
+        "check": "git_no_remote",
+        "pass": true,
+        "detail": "remotes=\"\""
+      },
+      {
+        "check": "git_no_future_history",
+        "pass": true,
+        "detail": "refs=1"
+      },
+      {
+        "check": "no_fixing_revision_or_issue_id_in_workspace",
+        "pass": true,
+        "detail": []
+      },
+      {
+        "check": "no_hidden_evaluator_material",
+        "pass": true,
+        "detail": []
+      },
+      {
+        "check": "no_hidden_variant_identifiers",
+        "pass": true,
+        "detail": []
+      },
+      {
+        "check": "arm_repro_presence_matches",
+        "pass": true,
+        "detail": "arm=TREATMENT repro_present=true"
+      },
+      {
+        "check": "dependencies_preprovisioned",
+        "pass": true,
+        "detail": "repo/node_modules present"
+      }
+    ],
+    "workspace_audit_pass": true
+  },
+  "container_start": {
+    "exit": 0,
+    "ok": true
+  },
+  "harness_self_test": false,
+  "agent_seconds": 107.25,
+  "agent_exit": 0,
+  "agent_timed_out": false,
+  "trace_file": "results/probe-calibration/trace-p9-express-jsonp-r1-TREATMENT.log",
+  "trace_bytes": 32505,
+  "observations": {
+    "repro_invocations": 3,
+    "repro_outcome_lines": [
+      "ORIGINAL_FAILURE_REPRODUCED",
+      "ORIGINAL_FAILURE_ABSENT",
+      "ORIGINAL_FAILURE_REPRODUCED",
+      "ORIGINAL_FAILURE_ABSENT"
+    ],
+    "test_invocations": 3,
+    "network_attempt_markers": 0,
+    "webfetch_or_search_attempts": 0,
+    "tool_calls": 15,
+    "network_capable_commands": 0,
+    "repro_invocation_log": [
+      {
+        "line": 35,
+        "command": "$ /work/repro 2>&1; echo EXIT:$?",
+        "outcome": "ORIGINAL_FAILURE_REPRODUCED"
+      },
+      {
+        "line": 637,
+        "command": "$ /work/repro 2>&1; echo EXIT:$?",
+        "outcome": "ORIGINAL_FAILURE_ABSENT"
+      }
+    ],
+    "first_repro_invocation_line": 35
+  },
+  "final_tree": {
+    "tree_sha256": "744498fdd367c6ce5cf421464df5cfae8b435729105b945892f26c60501c3820",
+    "file_count": 231
+  },
+  "tree_changed": true,
+  "termination_reason": "AGENT_COMPLETED",
+  "token_usage_reported": null,
+  "patch_stat": "lib/response.js | 10 ++++++----\n 1 file changed, 6 insertions(+), 4 deletions(-)",
+  "patch_empty": false,
+  "proxy_attempts": {
+    "DENIED models.opencode.ai:443": 1,
+    "DENIED registry.npmjs.org:443": 2,
+    "DENIED github.com:443": 1,
+    "ALLOWED opencode.ai:443": 2
+  },
+  "proxy_denied_non_provider": true,
+  "evaluation": {
+    "schema": "v4-probe-evaluation-1",
+    "case": "express-jsonp",
+    "classification": "CORRECT_FIX",
+    "repo": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/probe-runs/p9-express-jsonp-r1-TREATMENT/repo",
+    "original": {
+      "status": 200,
+      "body": "/**/ typeof render === 'function' && render(undefined);"
+    },
+    "original_failure_present": false,
+    "original_exact_signature_present": false,
+    "hidden": [
+      {
+        "variant": "jsonp-undefined-different-callback-name",
+        "status": 200,
+        "pass": true,
+        "body": "/**/ typeof showA === 'function' && showA(undefined);"
+      },
+      {
+        "variant": "jsonp-undefined-default-callback-name",
+        "status": 200,
+        "pass": true,
+        "body": "/**/ typeof showB === 'function' && showB(undefined);"
+      }
+    ],
+    "hidden_all_pass": true,
+    "regression": {
+      "supported": true,
+      "exit": 4,
+      "seconds": 6,
+      "total": 1151,
+      "failed": 4,
+      "failing": [
+        "express.json() with strict option when undefined should 400 on primitives",
+        "express.json() with strict option when true should not parse primitives",
+        "express.json() with strict option when true should not parse primitives with leading whitespaces",
+        "express.json() with strict option when true should include correct message in stack trace"
+      ]
+    },
+    "regression_comparison": {
+      "comparable": true,
+      "baseline_failed": 4,
+      "current_failed": 4,
+      "newly_failing": [],
+      "newly_failing_count": 0,
+      "regression": false
+    }
+  },
+  "classification": "CORRECT_FIX",
+  "free_mb_after": 2668,
+  "workspace_retained": false,
+  "workspace_path": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/probe-runs/p9-express-jsonp-r1-TREATMENT",
+  "workspace_removed_after_evaluation": true,
+  "finished_at": "2026-09-11T17:38:45.816Z"
+}

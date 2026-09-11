@@ -1,0 +1,75 @@
+{
+  "schema": "v4-probe-control-evidence-1",
+  "incident_id": "INC-29B5FCFDA116",
+  "service": {
+    "name": "svc-express-api",
+    "release": "rel-817f98228fbe",
+    "runtime": "node v22.14.0",
+    "framework": "express",
+    "platform": "darwin"
+  },
+  "request": {
+    "method": "GET",
+    "route": "/session",
+    "target_form": "origin-form request target",
+    "headers_shape": {
+      "host": "<service-host>",
+      "connection": "close",
+      "accept": "*/*",
+      "user-agent": "<client>"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 500,
+    "headers": {
+      "connection": "keep-alive",
+      "content-length": "1720",
+      "content-security-policy": "default-src 'none'",
+      "content-type": "text/html; charset=utf-8",
+      "date": "Fri, 11 Sep 2026 16:09:12 GMT",
+      "keep-alive": "timeout=5",
+      "x-content-type-options": "nosniff",
+      "x-powered-by": "Express"
+    },
+    "body": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Error</title>\n</head>\n<body>\n<pre>TypeError: option maxAge is invalid<br> &nbsp; &nbsp;at Object.serialize (/work/repo/node_modules/cookie/index.js:125:13)<br> &nbsp; &nbsp;at res.cookie (/work/repo/lib/response.js:880:36)<br> &nbsp; &nbsp;at file:///work/app/server.mjs:9:7<br> &nbsp; &nbsp;at Layer.handle [as handle_request] (/work/repo/lib/router/layer.js:95:5)<br> &nbsp; &nbsp;at next (/work/repo/lib/router/route.js:137:13)<br> &nbsp; &nbsp;at Route.dispatch (/work/repo/lib/router/route.js:112:3)<br> &nbsp; &nbsp;at Layer.handle [as handle_request] (/work/repo/lib/router/layer.js:95:5)<br> &nbsp; &nbsp;at /work/repo/lib/router/index.js:280:22<br> &nbsp; &nbsp;at Function.process_params (/work/repo/lib/router/index.js:340:12)<br> &nbsp; &nbsp;at next (/work/repo/lib/router/index.js:274:10)</pre>\n</body>\n</html>\n",
+    "duration_ms": 46
+  },
+  "error": {
+    "normalized_code": null,
+    "normalized_message": null,
+    "application_errors_observed": [
+      {
+        "name": "TypeError",
+        "constructor": "TypeError",
+        "message": "option maxAge is invalid",
+        "status": null,
+        "code": null,
+        "stack": "TypeError: option maxAge is invalid\n    at Object.serialize (/work/repo/node_modules/cookie/index.js:125:13)\n    at res.cookie (/work/repo/lib/response.js:880:36)\n    at file:///work/app/server.mjs:9:7\n    at Layer.handle [as handle_request] (/work/repo/lib/router/layer.js:95:5)\n    at next (/work/repo/lib/router/route.js:137:13)\n    at Route.dispatch (/work/repo/lib/router/route.js:112:3)\n    at Layer.handle [as handle_request] (/work/repo/lib/router/layer.js:95:5)\n    at /work/repo/lib/router/index.js:280:22\n    at Function.process_params (/work/repo/lib/router/index.js:340:12)\n    at next (/work/repo/lib/router/index.js:274:10)"
+      }
+    ],
+    "note": null
+  },
+  "operations": [],
+  "logs": [
+    {
+      "level": "info",
+      "message": "READY"
+    },
+    {
+      "level": "error",
+      "message": "TypeError: option maxAge is invalid\n    at Object.serialize (/work/repo/node_modules/cookie/index.js:125:13)\n    at res.cookie (/work/repo/lib/response.js:880:36)\n    at file:///work/app/server.mjs:9:7\n    at Layer.handle [as handle_request] (/work/repo/lib/router/layer.js:95:5)\n    at next (/work/repo/lib/router/route.js:137:13)\n    at Route.dispatch (/work/repo/lib/router/route.js:112:3)\n    at Layer.handle [as handle_request] (/work/repo/lib/router/layer.js:95:5)\n    at /work/repo/lib/router/index.js:280:22\n    at Function.process_params (/work/repo/lib/router/index.js:340:12)\n    at next (/work/repo/lib/router/index.js:274:10)"
+    }
+  ],
+  "excluded_by_policy": [
+    "historical issue number",
+    "CVE identifier",
+    "upstream fixing commit or diff",
+    "upstream regression test that reveals the fix",
+    "captured database result rows",
+    "captured outbound response bodies",
+    "captured time/random streams",
+    "hand-written root-cause explanation",
+    "the hidden evaluator"
+  ]
+}

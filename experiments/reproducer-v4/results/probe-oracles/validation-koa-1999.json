@@ -1,0 +1,54 @@
+{
+  "schema": "v4-probe-oracle-validation-1",
+  "case": "koa-1999",
+  "requirement": "the buggy revision must FAIL the original incident and the hidden variants; the historical fixed revision must PASS both",
+  "buggy": {
+    "repo": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v3/corpus-hl/koa-1061776",
+    "original": {
+      "status": 500,
+      "body": "{\"error\":\"URL mismatch\",\"code\":\"E_URL_MISMATCH\"}"
+    },
+    "original_failure_present": true,
+    "original_exact_signature_present": true,
+    "hidden": [
+      {
+        "variant": "absolute-form-different-authority",
+        "status": 500,
+        "pass": false,
+        "body": "{\"ok\":false,\"code\":\"E_URL_NOT_GENERALIZED\",\"ctx_href\":\"http://svc.internal:8080/u?q=9\",\"parseError\":null}"
+      },
+      {
+        "variant": "absolute-form-https-scheme",
+        "status": 500,
+        "pass": false,
+        "body": "{\"ok\":false,\"code\":\"E_URL_NOT_GENERALIZED\",\"ctx_href\":\"https://other.example/u?q=2\",\"parseError\":null}"
+      }
+    ],
+    "hidden_all_pass": false
+  },
+  "fixed": {
+    "repo": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v3/corpus-hl/koa-571938d",
+    "original": {
+      "status": 200,
+      "body": "{\"ok\":true,\"href\":\"http://example.com/u?q=1\"}"
+    },
+    "original_failure_present": false,
+    "original_exact_signature_present": false,
+    "hidden": [
+      {
+        "variant": "absolute-form-different-authority",
+        "status": 200,
+        "pass": true,
+        "body": "{\"ok\":true,\"host\":\"svc.internal:8080\",\"href\":\"http://svc.internal:8080/u?q=9\"}"
+      },
+      {
+        "variant": "absolute-form-https-scheme",
+        "status": 200,
+        "pass": true,
+        "body": "{\"ok\":true,\"host\":\"other.example\",\"href\":\"https://other.example/u?q=2\"}"
+      }
+    ],
+    "hidden_all_pass": true
+  },
+  "oracle_valid": true
+}

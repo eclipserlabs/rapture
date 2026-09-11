@@ -1,7 +1,7 @@
 {
   "experiment": "Rapture Reproducer \u2014 V4 Value Probe",
   "label": "post-Stage-1 bounded product-value probe. NOT the frozen V4 headline experiment; can never produce RAPTURE_REPRODUCER_V4_STATUS.",
-  "schema": "v4-probe-manifest-1",
+  "schema": "v4-probe-manifest-3",
   "frozen_at": "2026-09-11T14:33:04.053884Z",
   "frozen_before": "any calibration subject run and any of the twenty probe runs",
   "authorizations": {
@@ -238,7 +238,15 @@
       "alternative fixes are valid; similarity to the upstream patch is irrelevant and is not the oracle",
       "no evaluator feedback is ever returned to the agent",
       "no retries after evaluation"
-    ]
+    ],
+    "validation_result": {
+      "validated_with_the_final_evaluator_before_any_probe_run": true,
+      "cases": 7,
+      "result": "all seven oracles valid: on every buggy revision the original incident fails AND both hidden variants fail; on every historical fixed revision the original incident is resolved AND both hidden variants pass",
+      "evidence": "results/probe-oracles/validation-<case>.json"
+    },
+    "original_incident_resolution_rule": "the original incident counts as resolved only when its request stops failing (non-5xx). A patch that removes the original error code but leaves the request failing another way is NOT a fix, per the frozen 'not merely replaced by an unrelated failure' clause. Every historical fixed revision in this corpus returns a non-5xx status for its own trigger.",
+    "regression_rule": "differential against a baseline recorded on the UNMODIFIED buggy tree. express carries 4 and hapi 6 pre-existing failures unrelated to the bug, so a whole-suite-green requirement would be unsatisfiable even before any repair. REGRESSION_INTRODUCED fires only on a test the baseline did not already fail."
   },
   "budget": {
     "wall_clock_per_run_seconds": 1200,
@@ -476,5 +484,214 @@
   "final_lines": [
     "RAPTURE_REPRODUCER_VALUE_PROBE_CALIBRATION=<READY_FOR_HEADLINE|HARNESS_INVALID|RESOURCE_BLOCKED>",
     "RAPTURE_REPRODUCER_VALUE_PROBE=<STRONG_POSITIVE_SIGNAL|NEGATIVE_SIGNAL|INCONCLUSIVE>  (headline only, NOT this stage)"
-  ]
+  ],
+  "superseded": {
+    "previous_sha256": "4a5aaad3b724e7ca0e05eeb4e1f86ca6d36348d93fc3f7ece0314fb387679701",
+    "reason": "pre-headline harness amendments, all made before any probe case was invoked",
+    "unchanged": [
+      "randomization seed",
+      "run schedule",
+      "five-case corpus",
+      "arms",
+      "repair prompt",
+      "model",
+      "budget",
+      "allowlist",
+      "decision rules"
+    ],
+    "previous_sha256_v2": "d1852e097848660afd215725075ed4c2821af36ca34761d49a850ac9c28ba475"
+  },
+  "frozen_at_v2": "2026-09-11T16:21:22.225093Z",
+  "workspace_retention": {
+    "policy": "EPHEMERAL \u2014 the workspace is deleted after the hidden evaluation completes",
+    "authorized": "APPROVED_EPHEMERAL_WORKSPACES",
+    "reason": "a retained workspace is 58-185 MB; twenty simultaneously exceeds this host's free disk",
+    "preserved_before_deletion": [
+      "case and arm",
+      "starting tree sha256 and file count",
+      "final tree sha256 and file count",
+      "complete git diff",
+      "full subject trace",
+      "tool-call trace",
+      ".repro invocation log with outcomes",
+      "proxy/network log for the run",
+      "workspace leakage audit result",
+      "hidden evaluator result",
+      "runtime and model metadata",
+      "wall-clock duration",
+      "token usage where the runtime reports it",
+      "termination reason",
+      "free disk before and after"
+    ],
+    "override": "--keep-workspace"
+  },
+  "resource_gate": {
+    "per_run_floor_mb": 700,
+    "behaviour": "checked before every run; below the floor the run does not start and is recorded RESOURCE_BLOCKED",
+    "rule": "a disk-related failure is a harness failure and is never classified as an agent outcome"
+  },
+  "frozen_probe_assets": {
+    "treatment_artifacts": {
+      "express-cookie-maxage": {
+        "sha256": "436550d107eba741f2477fa11d4f144c9508c2014d2c1dde9ba6e99c6b842a56",
+        "bytes": 2377
+      },
+      "express-jsonp": {
+        "sha256": "98c09666fa68724ecbda2b8e6cacb7e3d6908cd28598e592f30fb3ddc6fa0ce4",
+        "bytes": 1519
+      },
+      "fastify-port": {
+        "sha256": "e307501994b27035017f62d13677dae8c27f2ed6d6d04839791e6d304473d713",
+        "bytes": 1327
+      },
+      "fastify-prefix": {
+        "sha256": "71115866bc0568c0bf4db2c85e0a89879c45fd6cc5068c20568a92af93e001cc",
+        "bytes": 1241
+      },
+      "hapi-failaction": {
+        "sha256": "3df088559330e06a8e460482bf7360d1685dc7d4d26f4e50788c1d505564e131",
+        "bytes": 1619
+      }
+    },
+    "artifact_verification": "results/probe-artifacts.json \u2014 frozen V3.3 route-selective capture, frozen V0 greedy reduction, offline replay 10/10 on the buggy revision and 10/10 for the reduced portable artifact, FIX_CONFIRMED on the historical fixed revision, for all five cases",
+    "control_evidence_packs": {
+      "express-cookie-maxage": {
+        "json_sha256": "ca2af3381c031b003c4b27e24385f374c98c5cb8896b8d4de24ad82858791783",
+        "md_sha256": "d00487b325de8a1db4e108ab3c1957c0ef6be31dd938143edc073c32db3e9b11"
+      },
+      "express-jsonp": {
+        "json_sha256": "fb5d3cefde78ef6a6a9d33ee23587725a4d1dd5a8449d43affe4db5b71aaba56",
+        "md_sha256": "ffb6a8496c9ee7d1396b22c65fb2ef414e25d27b48401fae9b995bc3f659f24a"
+      },
+      "fastify-port": {
+        "json_sha256": "9fc9193883b8de18e90be08ce814703d1cdd4bff6f8f30306fd2c63cd5e9ed37",
+        "md_sha256": "6de16f16ee39ae1016a67c1d170e5371783ce446bb27699fdc88fb720dac693c"
+      },
+      "fastify-prefix": {
+        "json_sha256": "501dc3dd1ab4135c0a8b57acf9d8893ecf9039b27fc15ba8c59b4f569472cd0a",
+        "md_sha256": "2d1ba0209220fa0d11e051db6d0f60bc8752ebdd10e3c29a3774a31bbc1d61dd"
+      },
+      "hapi-failaction": {
+        "json_sha256": "c0daf96fe3dbf0e56f163a62ddff929f4595f0a9ea3024c7f20a498a5a94238e",
+        "md_sha256": "72031d0eb4db44d74f500e03d05dfe3139c3a216c64da1c3f01ba6d35bf767dd"
+      }
+    },
+    "evidence_fairness": "one pack per case, copied byte-identically into both arms and both replicates; the per-run workspace manifest records its sha256",
+    "hidden_oracles": {
+      "express-cookie-maxage": "6e87093a706b68b27bb31b7c433dc5abfe0a73a957cb518b6227ce3cd842c30d",
+      "express-jsonp": "5e85cde6a457d62c22dabb6bcdde46757c4b4fccbe23650a8c843042acb98761",
+      "fastify-port": "44a46c8b4e0b79d36db468015079ad1a272649a470100cf6e6adbd3c2b230e86",
+      "fastify-prefix": "6eeec88cc11168dc2c6fbbaefa08e5f82cba0e60c052614ec02c531550d20f07",
+      "hapi-failaction": "6f4438d8e9a3302ce3c484b4501b03eae6c5fef5d9d380ca39f636c7fbfa5750",
+      "koa-1998": "f37d2d3e2b6250767b6cdaa94d5442b7f4529cd699e713cdab6c9a491bdc063f",
+      "koa-1999": "21a94aca08d32074060b6367583603c7c36d5c0b0af2256f5c336392ca0376ee"
+    },
+    "regression_baselines": {
+      "express-cookie-maxage": "07ec7bc38421bf4b2de6247d41253ed9f0440201fe80b58c70d77fc2069273b6",
+      "express-jsonp": "97eebe088265452a26b0c972b89eb81bd0af2dbb50443fc4036735b29f92b9de",
+      "fastify-port": "1d994c1381e70bea6dfb0872341a6b0e71f40ffc1a1cddca6652ecd28222d15f",
+      "fastify-prefix": "be62ff94a62bd5550ed6a15cf3d76703b61efc6408265f2216ceddb2bd267a60",
+      "hapi-failaction": "feca171e42effc18d8235c727a4dbe97becf7a73036a7695e9d2d1a57e79790a",
+      "koa-1998": "7af7697c862f004427fd7c69f43312712a488c5f72120fb4ea512ab8d668cccb",
+      "koa-1999": "d7219d12554c85487aedb8bb69cf6c5f08fd958b95ddeaac826dcd370ded4e55"
+    },
+    "workspace_audit_sweep": "all five cases x both arms built and audited before run 1: 8/8 checks pass on all ten configurations; every frozen artifact scanned clean of case identifiers, fixing shas and host paths"
+  },
+  "pre_headline_harness_amendments": [
+    {
+      "id": 1,
+      "item": "workspace retention is ephemeral",
+      "why": "measured disk; authorized"
+    },
+    {
+      "id": 2,
+      "item": "expanded preserved evidence per run (tree hashes, tool-call trace, .repro invocation log, termination reason, token usage, disk before/after)",
+      "why": "required by the retention authorization"
+    },
+    {
+      "id": 3,
+      "item": "per-run disk floor of 700 MB with a RESOURCE_BLOCKED outcome",
+      "why": "disk failure must never be read as an agent outcome"
+    },
+    {
+      "id": 4,
+      "item": "the reduction driver MATERIALIZES the atom subset instead of passing --keep",
+      "why": "replay-raw.mjs guards that flag with `if (!keep) return doc`, so an EMPTY keep set is falsy and silently replays the FULL capture. The greedy reducer therefore believed it could drop every atom, and hapi-failaction's reduced artifact stopped reproducing (portable replay 0/10). Frozen V3.3 capture/replay and the frozen V0 reducer are unchanged; only the driver that calls them was corrected."
+    },
+    {
+      "id": 5,
+      "item": "regression checking is differential against a per-case baseline",
+      "why": "pre-existing unrelated failures exist in express and hapi"
+    },
+    {
+      "id": 6,
+      "item": "regression output is captured by file redirect and parsed from stdout only",
+      "why": "hapi's lab calls process.exit() right after writing its JSON report, truncating it at the 8 KB pipe buffer, and its stderr progress output corrupted the document when interleaved"
+    },
+    {
+      "id": 7,
+      "item": "the observability shim wraps every native error constructor, not only Error",
+      "why": "the defects under study throw TypeError and RangeError, which are separate globals, so the CONTROL evidence pack was missing its stack trace"
+    },
+    {
+      "id": 8,
+      "item": "the evidence pack scrubs response bodies and headers, and fails closed if any absolute host path or case identifier survives",
+      "why": "express's default error page embeds the full stack, which carried host paths and the research service filename into CONTROL"
+    },
+    {
+      "id": 9,
+      "item": "comment scrubbing operates on whole comment blocks",
+      "why": "continuation lines carried the root-cause explanation without repeating the revision sha, so line-by-line scrubbing left the answer in place"
+    },
+    {
+      "id": 10,
+      "item": "the deployed service is renamed server.mjs and the probe cases mount no pg closure",
+      "why": "filename leakage; the probe services have no database boundary"
+    },
+    {
+      "id": 11,
+      "item": "harness self-test hook (--dummy-agent) replacing the subject agent with a local command",
+      "why": "exercises the timeout and no-fix paths without spending a subject run; never used for a calibration or probe run and recorded in every run record"
+    },
+    {
+      "id": 12,
+      "item": "the buggy snapshot is copied with `cp -R`, preserving symlinks",
+      "why": "fs.cpSync with dereference flattened every node_modules/.bin shim into a plain file, so mocha, lab and borp could no longer resolve their own relative requires and the regression check produced no output at all. cpSync's symlink-preserving mode raises ERR_INTERNAL_ASSERTION on these trees."
+    },
+    {
+      "id": 13,
+      "item": "artifacts are captured from a neutral staging path with the service deployed as server.mjs",
+      "why": "a framework error page records absolute source paths, so capturing directly from <case-id>-buggy baked the case identifier and the host layout into the frozen artifact. Only TREATMENT can read the artifact, so that was an asymmetric hint CONTROL never receives."
+    },
+    {
+      "id": 14,
+      "item": "workspace-audit matching narrowed: evaluator artefact names only, and variant needles exclude anything the original trigger already exposes",
+      "why": "hapi ships a test fixture literally named `.hidden`, and fastify-port's own incident trigger carries the x-forwarded-host header its hidden variants also use. Both were false positives, and a noisy audit is a useless audit."
+    },
+    {
+      "id": 15,
+      "item": "two runs were started under the pre-fix harness and recorded INVALID_HARNESS",
+      "why": "the broken .bin shims made the regression check unparseable. Neither produced a valid outcome; both are preserved under results/probe-invalid/ and superseded by a rerun."
+    }
+  ],
+  "harness_self_tests": {
+    "subject_runs_used": 0,
+    "timeout_path": {
+      "method": "dummy in-container process exceeding a 20 s test budget",
+      "result": "TIMEOUT_NO_FIX, agent_seconds 20.05, trace preserved, run container removed, zero orphan processes in the VM, workspace deleted, tree hash unchanged",
+      "frozen_budget_unchanged": true
+    },
+    "no_fix_path": {
+      "method": "dummy agent that terminates cleanly without editing anything",
+      "result": "FALSE_FIX_ORIGINAL_FAILURE_REMAINS \u2014 recorded, no crash, no retry"
+    },
+    "overfit_path": {
+      "method": "synthetic patch applying the structural HttpError repair only to the status the exposed incident used",
+      "result": "FALSE_FIX_OVERFIT \u2014 original incident resolved (401), both hidden variants fail; the same patch also tripped the differential regression check (1 newly failing test), confirming REGRESSION_INTRODUCED detection"
+    },
+    "unrelated_failure_path": {
+      "method": "a synthetic patch that removed the original error code but left the request failing another way",
+      "result": "correctly refused as FALSE_FIX_ORIGINAL_FAILURE_REMAINS after the resolution rule was tightened; this defect was found BY the self-test"
+    }
+  }
 }

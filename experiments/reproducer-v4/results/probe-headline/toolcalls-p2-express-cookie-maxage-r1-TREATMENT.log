@@ -1,0 +1,9 @@
+grep -rn "maxAge" test/ lib/ --include="*.js" | head -n 100
+./repro 2>&1; echo "exit:$?"
+./repro 2>&1; echo "exit:$?"
+npm test -- --grep "cookie" 2>&1 | tail -n 40
+node -e '
+npm test 2>&1 | tail -n 20
+npm test 2>&1 | grep -E "passing|failing|pending"
+git stash && npm test -- --grep "should 400 on primitives" 2>&1 | grep -E "passing|failing"; git stash pop
+git diff

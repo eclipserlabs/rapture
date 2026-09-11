@@ -1,10 +1,10 @@
 {
   "case": "koa-1998",
   "arm": "CONTROL",
-  "built_at": "2026-09-11T14:57:43.632Z",
-  "buggy_snapshot": "koa-4a191b1",
-  "evidence_json_sha256": "400a7f7c51bce3ddb5be377efd910400e3457830e87cda4265a71cace70c3711",
-  "evidence_md_sha256": "1f98067dfe92c4fe4921d3a55ad5f3d8f240b76e2cc6c147fd3d89d8c3fc9fb7",
+  "built_at": "2026-09-11T16:16:22.310Z",
+  "buggy_snapshot": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v3/corpus-hl/koa-4a191b1",
+  "evidence_json_sha256": "7bc792b8b1a79793739dbc420bfed3295b88250b47bd8b150549d25ee1576d61",
+  "evidence_md_sha256": "baa671c9055c09a59bd57a30114b597d2604936f970bf5f95fb53fd431e7e2f2",
   "repro_present": false,
   "repro_artifact_sha256": null
 }

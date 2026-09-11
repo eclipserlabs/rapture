@@ -1,0 +1,237 @@
+{
+  "schema": "v4-probe-run-1",
+  "label": "p8-fastify-port-r1-TREATMENT",
+  "case": "fastify-port",
+  "arm": "TREATMENT",
+  "model": "opencode/muse-spark-1.3-contributor-free",
+  "budget_seconds": 1200,
+  "started_at": "2026-09-11T17:30:02.491Z",
+  "free_mb_before": 2721,
+  "disk_floor_mb": 700,
+  "preflight": {
+    "schema": "v4-probe-preflight-1",
+    "at": "2026-09-11T17:30:39.559Z",
+    "checks": [
+      {
+        "check": "net_up_reasserted",
+        "pass": true,
+        "detail": "waiting for squid to accept connections... | v4-proxy\tUp 3 hours\tubuntu/squid:5.2-22.04_beta"
+      },
+      {
+        "check": "subject_no_default_route",
+        "pass": true,
+        "detail": "route=\"\""
+      },
+      {
+        "check": "vm_ssh_filtered",
+        "pass": true,
+        "detail": "FILTERED"
+      },
+      {
+        "check": "proxy_reachable",
+        "pass": true,
+        "detail": "OPEN"
+      },
+      {
+        "check": "single_internal_network_attachment",
+        "pass": true,
+        "detail": "v4-subject-net"
+      },
+      {
+        "check": "no_direct_egress",
+        "pass": true,
+        "detail": "ENETUNREACH"
+      },
+      {
+        "check": "minimal_provider_auth_only",
+        "pass": true,
+        "detail": "[\"opencode\"]"
+      },
+      {
+        "check": "no_global_config_or_repo_mounted",
+        "pass": true,
+        "detail": "-v /Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/probe-runs/p8-fastify-port-r1-TREATMENT:/work -v /Users/wira/Documents/rapture/rapture/experiments/reproducer-v4/isolation/subject-auth:/isolated/data/opencode"
+      }
+    ],
+    "preflight_pass": true
+  },
+  "build_workspace": {
+    "exit": 0,
+    "ok": true
+  },
+  "starting_tree": {
+    "tree_sha256": "32c6ec4cc6bb5b3491651435d11299ab63111980ab59199d7095605f62060520",
+    "file_count": 393
+  },
+  "workspace_audit": {
+    "schema": "v4-probe-workspace-audit-1",
+    "case": "fastify-port",
+    "arm": "TREATMENT",
+    "ws": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/probe-runs/p8-fastify-port-r1-TREATMENT",
+    "checks": [
+      {
+        "check": "git_single_commit",
+        "pass": true,
+        "detail": "commits=1"
+      },
+      {
+        "check": "git_no_remote",
+        "pass": true,
+        "detail": "remotes=\"\""
+      },
+      {
+        "check": "git_no_future_history",
+        "pass": true,
+        "detail": "refs=1"
+      },
+      {
+        "check": "no_fixing_revision_or_issue_id_in_workspace",
+        "pass": true,
+        "detail": []
+      },
+      {
+        "check": "no_hidden_evaluator_material",
+        "pass": true,
+        "detail": []
+      },
+      {
+        "check": "no_hidden_variant_identifiers",
+        "pass": true,
+        "detail": []
+      },
+      {
+        "check": "arm_repro_presence_matches",
+        "pass": true,
+        "detail": "arm=TREATMENT repro_present=true"
+      },
+      {
+        "check": "dependencies_preprovisioned",
+        "pass": true,
+        "detail": "repo/node_modules present"
+      }
+    ],
+    "workspace_audit_pass": true
+  },
+  "container_start": {
+    "exit": 0,
+    "ok": true
+  },
+  "harness_self_test": false,
+  "agent_seconds": 203.51,
+  "agent_exit": 0,
+  "agent_timed_out": false,
+  "trace_file": "results/probe-calibration/trace-p8-fastify-port-r1-TREATMENT.log",
+  "trace_bytes": 43934,
+  "observations": {
+    "repro_invocations": 4,
+    "repro_outcome_lines": [
+      "ORIGINAL_FAILURE_REPRODUCED",
+      "ORIGINAL_FAILURE_ABSENT",
+      "ORIGINAL_FAILURE_REPRODUCED",
+      "ORIGINAL_FAILURE_ABSENT",
+      "ORIGINAL_FAILURE_ABSENT"
+    ],
+    "test_invocations": 9,
+    "network_attempt_markers": 0,
+    "webfetch_or_search_attempts": 0,
+    "tool_calls": 17,
+    "network_capable_commands": 0,
+    "repro_invocation_log": [
+      {
+        "line": 166,
+        "command": "$ ./repro 2>&1 | tail -n 20",
+        "outcome": "ORIGINAL_FAILURE_REPRODUCED"
+      },
+      {
+        "line": 499,
+        "command": "$ ./repro 2>&1 | tail -n 20",
+        "outcome": "ORIGINAL_FAILURE_ABSENT"
+      },
+      {
+        "line": 706,
+        "command": "$ ./repro 2>&1 | tail -n 5",
+        "outcome": "ORIGINAL_FAILURE_ABSENT"
+      }
+    ],
+    "first_repro_invocation_line": 166
+  },
+  "final_tree": {
+    "tree_sha256": "eaea0ed2a43251a992b81d7295126db0648c59853a14f4a0ba4ba2ce1882faee",
+    "file_count": 393
+  },
+  "tree_changed": true,
+  "termination_reason": "AGENT_COMPLETED",
+  "token_usage_reported": null,
+  "patch_stat": "lib/request.js | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)",
+  "patch_empty": false,
+  "proxy_attempts": {
+    "DENIED models.opencode.ai:443": 1,
+    "DENIED registry.npmjs.org:443": 1,
+    "DENIED github.com:443": 1,
+    "ALLOWED opencode.ai:443": 2
+  },
+  "proxy_denied_non_provider": true,
+  "evaluation": {
+    "schema": "v4-probe-evaluation-1",
+    "case": "fastify-port",
+    "classification": "REGRESSION_INTRODUCED",
+    "repo": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/probe-runs/p8-fastify-port-r1-TREATMENT/repo",
+    "original": {
+      "status": 200,
+      "body": "{\"ok\":true,\"url\":\"https://api.example.com:8443/cb\"}"
+    },
+    "original_failure_present": false,
+    "original_exact_signature_present": false,
+    "hidden": [
+      {
+        "variant": "forwarded-host-edge-9443",
+        "status": 200,
+        "pass": true,
+        "body": "{\"ok\":true,\"host\":\"edge.example.org:9443\",\"port\":9443}"
+      },
+      {
+        "variant": "forwarded-host-internal-7000",
+        "status": 200,
+        "pass": true,
+        "body": "{\"ok\":true,\"host\":\"svc.internal:7000\",\"port\":7000}"
+      }
+    ],
+    "hidden_all_pass": true,
+    "regression": {
+      "supported": true,
+      "exit": 1,
+      "seconds": 61,
+      "total": 2305,
+      "failed": 6,
+      "failing": [
+        "trust proxy, not add properties to node req",
+        "trust proxy chain",
+        "trust proxy function",
+        "trust proxy number",
+        "trust proxy IP addresses",
+        "trust proxy protocol"
+      ]
+    },
+    "regression_comparison": {
+      "comparable": true,
+      "baseline_failed": 0,
+      "current_failed": 6,
+      "newly_failing": [
+        "trust proxy, not add properties to node req",
+        "trust proxy chain",
+        "trust proxy function",
+        "trust proxy number",
+        "trust proxy IP addresses",
+        "trust proxy protocol"
+      ],
+      "newly_failing_count": 6,
+      "regression": true
+    }
+  },
+  "classification": "REGRESSION_INTRODUCED",
+  "free_mb_after": 2526,
+  "workspace_retained": false,
+  "workspace_path": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/probe-runs/p8-fastify-port-r1-TREATMENT",
+  "workspace_removed_after_evaluation": true,
+  "finished_at": "2026-09-11T17:35:57.507Z"
+}

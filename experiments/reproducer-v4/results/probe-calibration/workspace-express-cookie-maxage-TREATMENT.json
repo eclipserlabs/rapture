@@ -1,0 +1,10 @@
+{
+  "case": "express-cookie-maxage",
+  "arm": "TREATMENT",
+  "built_at": "2026-09-11T18:34:22.836Z",
+  "buggy_snapshot": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/work/express-cookie-maxage-buggy",
+  "evidence_json_sha256": "ca2af3381c031b003c4b27e24385f374c98c5cb8896b8d4de24ad82858791783",
+  "evidence_md_sha256": "d00487b325de8a1db4e108ab3c1957c0ef6be31dd938143edc073c32db3e9b11",
+  "repro_present": true,
+  "repro_artifact_sha256": "436550d107eba741f2477fa11d4f144c9508c2014d2c1dde9ba6e99c6b842a56"
+}

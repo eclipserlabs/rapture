@@ -1,0 +1,60 @@
+{
+  "schema": "incident-capture-v2",
+  "captured_at": "2026-09-11T16:54:50.609Z",
+  "req_id": "req-12209-1789145690592-1",
+  "request": {
+    "method": "POST",
+    "path": "/orders",
+    "query": "",
+    "headers": {
+      "host": "127.0.0.1:52200",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "accept": "*/*",
+      "accept-language": "*",
+      "sec-fetch-mode": "cors",
+      "user-agent": "node",
+      "accept-encoding": "gzip, deflate",
+      "content-length": "9"
+    },
+    "host": "127.0.0.1:52200",
+    "body": "{\"qty\":0}"
+  },
+  "response": {
+    "status": 500,
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "cache-control": "no-cache",
+      "content-length": 76
+    },
+    "body": "{\"error\":\"default validation error unavailable\",\"code\":\"E_NO_DEFAULT_ERROR\"}"
+  },
+  "events": [
+    {
+      "seq": 1,
+      "kind": "time",
+      "op": "now",
+      "key": "time:0",
+      "request": {},
+      "result": {
+        "value": 1789145690593
+      },
+      "error": null
+    }
+  ],
+  "config": {},
+  "app_error": null,
+  "boundary_ops_outside_request": 0,
+  "offline_replay_supported": true,
+  "fingerprint": {
+    "kind": "app",
+    "request_method": "POST",
+    "route_or_operation": "/orders",
+    "http_status": 500,
+    "error_name_or_code": "ERR:E_NO_DEFAULT_ERROR",
+    "normalized_class": "ERR:E_NO_DEFAULT_ERROR",
+    "stable_frame": null,
+    "fingerprint_hash": "92a1ac3d451f33e354830ba813b2c235527fefaf4e58e77bee04c1335e385ee9"
+  },
+  "capture_hash": "b4c1b0d5816dd80fb9fff19e9888b98f9c6142286282d493e584db4e7fe33408"
+}

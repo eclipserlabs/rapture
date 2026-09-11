@@ -1,0 +1,201 @@
+{
+  "schema": "v4-probe-run-1",
+  "label": "p12-fastify-prefix-r1-CONTROL",
+  "case": "fastify-prefix",
+  "arm": "CONTROL",
+  "model": "opencode/muse-spark-1.3-contributor-free",
+  "budget_seconds": 1200,
+  "started_at": "2026-09-11T17:46:03.883Z",
+  "free_mb_before": 2706,
+  "disk_floor_mb": 700,
+  "preflight": {
+    "schema": "v4-probe-preflight-1",
+    "at": "2026-09-11T17:46:41.112Z",
+    "checks": [
+      {
+        "check": "net_up_reasserted",
+        "pass": true,
+        "detail": "waiting for squid to accept connections... | v4-proxy\tUp 3 hours\tubuntu/squid:5.2-22.04_beta"
+      },
+      {
+        "check": "subject_no_default_route",
+        "pass": true,
+        "detail": "route=\"\""
+      },
+      {
+        "check": "vm_ssh_filtered",
+        "pass": true,
+        "detail": "FILTERED"
+      },
+      {
+        "check": "proxy_reachable",
+        "pass": true,
+        "detail": "OPEN"
+      },
+      {
+        "check": "single_internal_network_attachment",
+        "pass": true,
+        "detail": "v4-subject-net"
+      },
+      {
+        "check": "no_direct_egress",
+        "pass": true,
+        "detail": "ENETUNREACH"
+      },
+      {
+        "check": "minimal_provider_auth_only",
+        "pass": true,
+        "detail": "[\"opencode\"]"
+      },
+      {
+        "check": "no_global_config_or_repo_mounted",
+        "pass": true,
+        "detail": "-v /Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/probe-runs/p12-fastify-prefix-r1-CONTROL:/work -v /Users/wira/Documents/rapture/rapture/experiments/reproducer-v4/isolation/subject-auth:/isolated/data/opencode"
+      }
+    ],
+    "preflight_pass": true
+  },
+  "build_workspace": {
+    "exit": 0,
+    "ok": true
+  },
+  "starting_tree": {
+    "tree_sha256": "7a9549d986df45bade6012afac4679aec50f1ed207fdc615c111692e5bf05362",
+    "file_count": 391
+  },
+  "workspace_audit": {
+    "schema": "v4-probe-workspace-audit-1",
+    "case": "fastify-prefix",
+    "arm": "CONTROL",
+    "ws": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/probe-runs/p12-fastify-prefix-r1-CONTROL",
+    "checks": [
+      {
+        "check": "git_single_commit",
+        "pass": true,
+        "detail": "commits=1"
+      },
+      {
+        "check": "git_no_remote",
+        "pass": true,
+        "detail": "remotes=\"\""
+      },
+      {
+        "check": "git_no_future_history",
+        "pass": true,
+        "detail": "refs=1"
+      },
+      {
+        "check": "no_fixing_revision_or_issue_id_in_workspace",
+        "pass": true,
+        "detail": []
+      },
+      {
+        "check": "no_hidden_evaluator_material",
+        "pass": true,
+        "detail": []
+      },
+      {
+        "check": "no_hidden_variant_identifiers",
+        "pass": true,
+        "detail": []
+      },
+      {
+        "check": "arm_repro_presence_matches",
+        "pass": true,
+        "detail": "arm=CONTROL repro_present=false"
+      },
+      {
+        "check": "dependencies_preprovisioned",
+        "pass": true,
+        "detail": "repo/node_modules present"
+      }
+    ],
+    "workspace_audit_pass": true
+  },
+  "container_start": {
+    "exit": 0,
+    "ok": true
+  },
+  "harness_self_test": false,
+  "agent_seconds": 238.45,
+  "agent_exit": 0,
+  "agent_timed_out": false,
+  "trace_file": "results/probe-calibration/trace-p12-fastify-prefix-r1-CONTROL.log",
+  "trace_bytes": 31481,
+  "observations": {
+    "repro_invocations": 0,
+    "repro_outcome_lines": [],
+    "test_invocations": 7,
+    "network_attempt_markers": 0,
+    "webfetch_or_search_attempts": 0,
+    "tool_calls": 22,
+    "network_capable_commands": 0,
+    "repro_invocation_log": [],
+    "first_repro_invocation_line": null
+  },
+  "final_tree": {
+    "tree_sha256": "cb6975c0bba27bd6498baa7dcab7567c597342f802c4b2b3889287311270dede",
+    "file_count": 391
+  },
+  "tree_changed": true,
+  "termination_reason": "AGENT_COMPLETED",
+  "token_usage_reported": null,
+  "patch_stat": "lib/plugin-override.js | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)",
+  "patch_empty": false,
+  "proxy_attempts": {
+    "DENIED models.opencode.ai:443": 1,
+    "DENIED registry.npmjs.org:443": 2,
+    "DENIED github.com:443": 1,
+    "ALLOWED opencode.ai:443": 2
+  },
+  "proxy_denied_non_provider": true,
+  "evaluation": {
+    "schema": "v4-probe-evaluation-1",
+    "case": "fastify-prefix",
+    "classification": "CORRECT_FIX",
+    "repo": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/probe-runs/p12-fastify-prefix-r1-CONTROL/repo",
+    "original": {
+      "status": 200,
+      "body": "{\"ok\":true,\"scope\":\"v1-orders\"}"
+    },
+    "original_failure_present": false,
+    "original_exact_signature_present": false,
+    "hidden": [
+      {
+        "variant": "nested-prefix-svc-v2",
+        "status": 200,
+        "pass": true,
+        "body": "{\"ok\":true,\"scope\":\"hv-a\"}"
+      },
+      {
+        "variant": "nested-prefix-z-w-no-leading-slash",
+        "status": 200,
+        "pass": true,
+        "body": "{\"ok\":true,\"scope\":\"hv-b\"}"
+      }
+    ],
+    "hidden_all_pass": true,
+    "regression": {
+      "supported": true,
+      "exit": 0,
+      "seconds": 62,
+      "total": 2262,
+      "failed": 0,
+      "failing": []
+    },
+    "regression_comparison": {
+      "comparable": true,
+      "baseline_failed": 0,
+      "current_failed": 0,
+      "newly_failing": [],
+      "newly_failing_count": 0,
+      "regression": false
+    }
+  },
+  "classification": "CORRECT_FIX",
+  "free_mb_after": 2506,
+  "workspace_retained": false,
+  "workspace_path": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/probe-runs/p12-fastify-prefix-r1-CONTROL",
+  "workspace_removed_after_evaluation": true,
+  "finished_at": "2026-09-11T17:52:56.513Z"
+}

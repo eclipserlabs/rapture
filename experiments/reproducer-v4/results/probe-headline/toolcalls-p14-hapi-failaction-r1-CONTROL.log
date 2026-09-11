@@ -1,0 +1,14 @@
+ls -R /work/repo/lib | head -n 100; echo ---; grep -rn "failAction" /work/repo/lib --include="*.js" | head -n 100
+ls /work/repo/test/*.js | head -n 50; echo ---; grep -n "defaultError\|data.*default\|failAction" /work/repo/test/validation.js | head -n 200
+grep -n "details\|default" /work/repo/test/validation.js | head -n 200
+grep -n "err\.data\|err\.details\|output\.payload\.validation\|isBoom\|message" /work/repo/test/validation.js | head -n 100
+git log --oneline -20 -- lib/validation.js lib/toolkit.js; echo ===; git log --oneline -20 | head -n 20
+grep -n "boomify\|data\|defaultError" /work/repo/node_modules/@hapi/boom/lib/index.js | head -n 100
+grep -n "data\|defaultError\|isBoom\|details" /work/repo/node_modules/@hapi/validate/lib/base.js | head -n 80
+grep -rn "\.data" /work/repo/lib/*.js | head -n 100
+REPO_ROOT=/work/repo PORT=51160 node /work/app/server.mjs &
+REPO_ROOT=/work/repo PORT=51161 node /work/app/server.mjs &
+npm test -- --grep "validation" 2>&1 | tail -n 50
+npx lab -a @hapi/code -m 5000 test/validation.js 2>&1 | tail -n 20
+grep -c "it(" test/validation.js
+git stash && npx lab -a @hapi/code -m 5000 test/request.js test/route.js test/handler.js 2>&1 | tail -n 10; git stash pop

@@ -1,0 +1,230 @@
+Fixing your production bug — diagnosing the failure from the incident evidence.
+Found the failing cookie path — now pinpointing the exact mishandling.
+Reproduced the 500 error — now applying the fix.
+Core scenarios pass — now verifying edge cases and overall stability.
+Root cause: `res.cookie()` in `lib/response.js:871` used `if ('maxAge' in opts)`. When caller passes `{maxAge: undefined}` (as `/session` does when `?ttl` is not `persist`), the key exists, so Express computed `expires = new Date(Date.now()+undefined)` → `Invalid Date` and `maxAge = NaN`, then `cookie.serialize()` threw `TypeError: option maxAge is invalid` (HTTP 500).
+
+Files changed:
+- `lib/response.js`: changed guard to `if (opts.maxAge != null)` so `undefined`/`null` `maxAge` is ignored (no `Max-Age`/`Expires`, no throw), while numbers (including `0`) and invalid values (e.g. `'foobar'` → still 500) behave as before.
+
+Validation:
+- Reproduced 500 on `GET /session` before fix; after fix `GET /session` → 200 `sid=abc123; Path=/; HttpOnly`, `GET /session?ttl=persist` → 200 with `Max-Age=3600`/`Expires`, no `Invalid Date`.
+- Edge checks: `{maxAge:undefined}`/`{maxAge:null}`/`{}` → plain cookie 200; `{maxAge:0}`/`{maxAge:1000}` → correct `Max-Age`/`Expires`; `{maxAge:'foobar'}` → 500 as existing test expects.
+- Existing tests: `test/res.cookie.js + test/res.clearCookie.js` 13 passing; wider `res.cookie/clearCookie/json/send` 100 passing.
+
+Remaining uncertainty: none for this incident; `0`-vs-absent semantics and string `maxAge` handling unchanged apart from nullish skip.
+
+----- stderr -----
+[0m
+> build · muse-spark-1.3-contributor-free
+[0m
+[0m→ [0mRead repo
+[0m→ [0mRead incident-evidence.json
+[0m→ [0mRead incident-evidence.md
+[0m→ [0mRead app/server.mjs
+[0m→ [0mRead repo/lib/response.js
+[0m→ [0mRead repo/node_modules/cookie/index.js
+[0m→ [0mRead app
+[0m✗ [0mGrep "maxAge" failed[90m in repo/test[0m
+[91m[1mError: [0mripgrep execution failed
+[0m
+[0m$ [0mrg -n "maxAge" test/ lib/ --no-heading | head -n 100
+/usr/bin/bash: line 1: rg: command not found
+[0m
+[0m$ [0mgrep -rn "maxAge" test/ lib/ | head -n 100
+test/res.sendFile.js:621:    describe('with "maxAge" option', function () {
+test/res.sendFile.js:627:            maxAge: 20000
+test/res.sendFile.js:643:            maxAge: 99999999999
+test/res.sendFile.js:659:            maxAge: -20000
+test/res.sendFile.js:675:            maxAge: 21911.23
+test/res.sendFile.js:693:              maxAge: 20000
+test/res.sendFile.js:711:              maxAge: '20000'
+test/res.sendFile.js:727:              maxAge: '20s'
+test/res.sendFile.js:743:              maxAge: '20m'
+test/res.sendFile.js:759:              maxAge: '20d'
+test/res.sendFile.js:849:        res.sendfile('test/fixtures/user.html', { maxAge: 60000 });
+test/res.download.js:96:          maxAge: '4h'
+test/res.download.js:337:          maxAge: '4h'
+test/express.static.js:196:      it('should ignore maxAge', function (done) {
+test/express.static.js:197:        request(createApp(fixtures, { 'cacheControl': false, 'maxAge': 12000 }))
+test/express.static.js:425:      request(createApp(fixtures, { 'immutable': true, 'maxAge': '1h' }))
+test/express.static.js:451:  describe('maxAge', function () {
+test/express.static.js:453:      request(createApp(fixtures, { 'maxAge': '30d' }))
+test/express.static.js:460:      request(createApp(fixtures, { 'maxAge': Infinity }))
+test/res.cookie.js:70:    describe('maxAge', function(){
+test/res.cookie.js:75:          res.cookie('name', 'tobi', { maxAge: 1000 });
+test/res.cookie.js:89:          res.cookie('name', 'tobi', { maxAge: 1000 });
+test/res.cookie.js:101:        var options = { maxAge: 1000 };
+test/res.cookie.js:114:      it('should throw an error with invalid maxAge', function (done) {
+test/res.cookie.js:118:          res.cookie('name', 'tobi', { maxAge: 'foobar' })
+test/res.cookie.js:124:          .expect(500, /option maxAge is invalid/, done)
+lib/response.js:388: *   - `maxAge`   defaulting to 0 (can be string converted by `ms`)
+lib/response.js:470: *   - `maxAge`   defaulting to 0 (can be string converted by `ms`)
+lib/response.js:835: *    - `maxAge`   max-age in milliseconds, converted to `expires`
+lib/response.js:845: *    res.cookie('rememberme', '1', { maxAge: 900000, httpOnly: true })
+lib/response.js:871:  if ('maxAge' in opts) {
+lib/response.js:872:    opts.expires = new Date(Date.now() + opts.maxAge);
+lib/response.js:873:    opts.maxAge /= 1000;
+[0m
+[0m→ [0mRead repo/test/res.cookie.js
+[0m
+[0m$ [0mnode -e "
+const root='/work/repo';
+import(root+'/index.js').then(m=>{
+  const express=m.default;
+  const app=express();
+  app.get('/session',(req,res)=>{
+    const ttl=req.query.ttl==='persist'?3600000:undefined;
+    try{
+      res.cookie('sid','abc123',{maxAge:ttl,httpOnly:true});
+      console.log('Set-Cookie:',res.getHeader('Set-Cookie'));
+      res.json({ok:true});
+    }catch(e){ console.error('THROW:',e.message); res.status(500).end(e.message); }
+  });
+  const s=app.listen(0,async()=>{
+    const p=s.address().port;
+    for(const q of ['','?ttl=persist']){
+      const r=await fetch('http://127.0.0.1:'+p+'/session'+q);
+      console.log(q||'(no ttl)',r.status,await r.text().then(t=>t.slice(0,300)));
+    }
+    s.close();
+  });
+}
+"
+[eval]:22
+}
+^
+Expected ',', got '<eof>'
+
+SyntaxError: missing ) after argument list
+    at makeContextifyScript (node:internal/vm:185:14)
+    at compileScript (node:internal/process/execution:383:10)
+    at evalTypeScript (node:internal/process/execution:256:22)
+    at node:internal/main/eval_string:74:3
+
+Node.js v22.23.2
+[0m
+[0m← [0mWrite /tmp/opencode/repro.mjs
+Wrote file successfully.
+[0m
+[0m$ [0mnode /tmp/opencode/repro.mjs 2>&1 | head -n 30
+"(no ttl)" 500 <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>TypeError: option maxAge is invalid<br> &nbsp; &nbsp;at Object.serialize (/work/repo/node_modules/cookie/index.js:125:13)<br> &nbsp; &nbsp;at res.cookie (/work/repo/lib/response.js:880:36)<br> &nbsp; &nbsp;at file:///tmp/opencode/repro.mjs:7:7<br> &nbsp; &nbsp;at Layer.handle [as handle_request] (/work/repo/lib/router/layer.js:95:5)<br> &nbsp; &nbsp;at next (/work/repo/lib/router/route.js:137:
+TypeError: option maxAge is invalid
+    at Object.serialize (/work/repo/node_modules/cookie/index.js:125:13)
+    at res.cookie (/work/repo/lib/response.js:880:36)
+    at file:///tmp/opencode/repro.mjs:7:7
+    at Layer.handle [as handle_request] (/work/repo/lib/router/layer.js:95:5)
+    at next (/work/repo/lib/router/route.js:137:13)
+    at Route.dispatch (/work/repo/lib/router/route.js:112:3)
+    at Layer.handle [as handle_request] (/work/repo/lib/router/layer.js:95:5)
+    at /work/repo/lib/router/index.js:280:22
+    at Function.process_params (/work/repo/lib/router/index.js:340:12)
+    at next (/work/repo/lib/router/index.js:274:10)
+header: sid=abc123; Max-Age=3600; Path=/; Expires=Fri, 11 Sep 2026 18:02:43 GMT; HttpOnly
+"?ttl=persist" 200 {"ok":true}
+[0m
+[0m← [0mEdit repo/lib/response.js
+Index: /work/repo/lib/response.js
+===================================================================
+--- /work/repo/lib/response.js
++++ /work/repo/lib/response.js
+@@ -867,9 +867,9 @@
+ if (signed) {
+   val = 's:' + sign(val, secret);
+ }
+ 
+-if ('maxAge' in opts) {
++if (opts.maxAge != null) {
+   opts.expires = new Date(Date.now() + opts.maxAge);
+   opts.maxAge /= 1000;
+ }
+ 
+
+[0m
+[0m$ [0mnode /tmp/opencode/repro.mjs 2>&1 | head -n 30
+header: sid=abc123; Path=/; HttpOnly
+"(no ttl)" 200 {"ok":true}
+header: sid=abc123; Max-Age=3600; Path=/; Expires=Fri, 11 Sep 2026 18:02:46 GMT; HttpOnly
+"?ttl=persist" 200 {"ok":true}
+[0m
+[0m← [0mWrite /tmp/opencode/repro2.mjs
+Wrote file successfully.
+[0m
+[0m$ [0mnode /tmp/opencode/repro2.mjs 2>&1 | head -n 20
+"(no ttl)" 200 Set-Cookie: sid=abc123; Path=/; HttpOnly body: {"ok":true}
+"?ttl=persist" 200 Set-Cookie: sid=abc123; Max-Age=3600; Path=/; Expires=Fri, 11 Sep 2026 18:02:52 GMT; HttpOnly body: {"ok":true}
+[0m
+[0m→ [0mRead repo/package.json
+[0m
+[0m$ [0mnpx mocha --require test/support/env --reporter spec --bail --check-leaks test/res.cookie.js test/res.clearCookie.js 2>&1 | tail -n 40
+res
+    .cookie(name, object)
+      ✔ should generate a JSON cookie
+    .cookie(name, string)
+      ✔ should set a cookie
+      ✔ should allow multiple calls
+    .cookie(name, string, options)
+      ✔ should set params
+      maxAge
+        ✔ should set relative expires
+        ✔ should set max-age
+        ✔ should not mutate the options object
+        ✔ should throw an error with invalid maxAge
+      signed
+        ✔ should generate a signed JSON cookie
+      signed without secret
+        ✔ should throw an error
+      .signedCookie(name, string)
+        ✔ should set a signed cookie
+
+  res
+    .clearCookie(name)
+      ✔ should set a cookie passed expiry
+    .clearCookie(name, options)
+      ✔ should set the given params
+
+
+  13 passing (92ms)
+[0m
+[0m← [0mWrite /tmp/opencode/edge.mjs
+Wrote file successfully.
+[0m
+[0m$ [0mnode /tmp/opencode/edge.mjs 2>&1
+undefined 200 {"hdr":"n=v; Path=/"}
+null 200 {"hdr":"n=v; Path=/"}
+zero 200 {"hdr":"n=v; Max-Age=0; Path=/; Expires=Fri, 11 Sep 2026 17:03:02 GMT"}
+1000 200 {"hdr":"n=v; Max-Age=1; Path=/; Expires=Fri, 11 Sep 2026 17:03:03 GMT"}
+foobar 500 {"err":"option maxAge is invalid"}
+empty 200 {"hdr":"n=v; Path=/"}
+[0m
+[0m$ [0mnpx mocha --require test/support/env --reporter dot --check-leaks test/res.cookie.js test/res.clearCookie.js test/res.json.js test/res.send.js 2>&1 | tail -n 20
+........................................................
+  ............................................
+
+  100 passing (422ms)
+[0m
+[0m$ [0mgit diff --stat; echo ---; git diff
+lib/response.js | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+---
+diff --git a/lib/response.js b/lib/response.js
+index bfa7871..37d201b 100644
+--- a/lib/response.js
++++ b/lib/response.js
+@@ -868,7 +868,7 @@ res.cookie = function (name, value, options) {
+     val = 's:' + sign(val, secret);
+   }
+ 
+-  if ('maxAge' in opts) {
++  if (opts.maxAge != null) {
+     opts.expires = new Date(Date.now() + opts.maxAge);
+     opts.maxAge /= 1000;
+   }
+[0m

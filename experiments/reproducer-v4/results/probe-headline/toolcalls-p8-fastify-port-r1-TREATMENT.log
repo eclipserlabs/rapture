@@ -1,0 +1,17 @@
+ls -R /work/.repro/rt 2>&1 | head -n 100; echo ---; cat /work/repo/package.json | head -n 30
+./repro 2>&1 | tail -n 20
+rg -n "get port|get host|get hostname|forwarded" lib/ | head -n 80
+grep -rn "get port\|get host\|forwarded" lib/ | head -n 80
+grep -rn "request.port\|\.port\b\|x-forwarded-port\|x-forwarded-host" test/ lib/ docs/ --include="*.js" --include="*.md" | head -n 100
+grep -rn "trustProxy\|x-forwarded" test/ --include="*.js" | head -n 100
+git log --oneline -15 -- lib/request.js; echo ---; git log --oneline -10
+grep -rn "request.port\|request\.host\|hostname" docs/ --include="*.md" | head -n 60; echo ===; grep -rn "port" lib/request.js; echo ===; grep -rn "port" fastify.d.ts | head -n 20; echo ===; grep -rn "port" types/ | head -n 40
+grep -rn "headers.host\|headers\[':authority'\]\|raw.headers" lib/ --include="*.js" | head -n 30
+./repro 2>&1 | tail -n 20
+node --test test/trust-proxy.test.js 2>&1 | tail -n 30
+node --test test/trust-proxy.test.js 2>&1 | grep -A 20 "not ok\|failure\|assert"
+node --test test/internals/request.test.js test/request-header-host.test.js 2>&1 | tail -n 15
+node --test test/internals/request.test.js 2>&1 | tail -n 10; echo ===; node --test test/http-methods/get.test.js 2>&1 | tail -n 10
+node -e '
+git diff; echo ===; git status --short
+./repro 2>&1 | tail -n 5

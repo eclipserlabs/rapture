@@ -1,0 +1,15 @@
+/work/repro 2>&1; echo EXIT:$?
+rg -n "jsonp" lib/ 2>&1 | head -n 100
+grep -rn "jsonp" lib/ 2>&1 | head -n 100
+git log --oneline -20 2>&1 | head -n 20; git status 2>&1 | head -n 30
+grep -rn "res.json" test/ 2>&1 | head -n 100
+ls -R /work/.repro/rt/experiments/ 2>&1 | head -n 50
+cat /work/.repro/rt/experiments/reproducer-v3/src/oracle/fingerprint.mjs 2>&1 | head -n 300
+node -e "console.log(JSON.stringify(undefined)); console.log(typeof JSON.stringify(undefined)); console.log(JSON.stringify(undefined, null, 2)); console.log(JSON.stringify(function(){}))"
+/work/repro 2>&1; echo EXIT:$?
+node --input-type=module -e "
+node --input-type=module -e "
+npm test 2>&1 | tail -n 50
+git stash && npm test 2>&1 | tail -n 10; git stash pop
+npm run test -- --grep "jsonp" 2>&1 | tail -n 40
+git diff

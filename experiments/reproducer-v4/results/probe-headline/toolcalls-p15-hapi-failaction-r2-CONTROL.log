@@ -1,0 +1,23 @@
+rg -n "failAction" lib/ | head -n 100
+grep -rn "failAction" lib/ | head -n 100
+pwd; ls; ls /work/repo/lib/ | head -n 100
+grep -rn "failAction" /work/repo/lib/ | head -n 100
+git log --oneline -20 -- lib/validation.js; echo ---; git log --oneline -20 | head -n 20
+grep -rn "defaultError\|failAction" /work/repo/test/ | head -n 200
+grep -n "failAction\|defaultError\|details" /work/repo/API.md | head -n 100
+grep -n "boomify\|data" /work/repo/node_modules/@hapi/boom/lib/index.js | head -n 80
+grep -n "data\|defaultError\|isBoom\|Boom\|details" /work/repo/node_modules/@hapi/validate/lib/errors.js | head -n 80; echo ===; grep -n "data\|isBoom" /work/repo/node_modules/@hapi/validate/lib/*.js | head -n 80
+grep -rn "defaultError\|data\.default\|output\.payload\.validation" /work/repo/ --include="*.js" --include="*.md" | grep -v node_modules | head -n 100
+REPO_ROOT=/work/repo PORT=51160 node /work/app/server.mjs &
+REPO_ROOT=/work/repo node -e "
+REPO_ROOT=/work/repo node -e "
+REPO_ROOT=/work/repo PORT=51161 node /work/app/server.mjs &
+REPO_ROOT=/work/repo PORT=51162 node /work/app/server.mjs &
+npm test 2>&1 | tail -n 50
+npx lab -a @hapi/code -t 100 -m 5000 test/validation.js 2>&1 | tail -n 50
+npx lab --help 2>&1 | head -n 60; echo ===; node --version
+npx lab -a @hapi/code -m 5000 test/validation.js 2>&1 | tail -n 30
+npx lab -a @hapi/code -m 5000 test/toolkit.js test/handler.js test/route.js 2>&1 | tail -n 20; echo ===; npx lab -a @hapi/code -m 5000 2>&1 | tail -n 20
+git stash && npx lab -a @hapi/code -m 5000 2>&1 | tail -n 20; git stash pop
+node -e "
+git diff

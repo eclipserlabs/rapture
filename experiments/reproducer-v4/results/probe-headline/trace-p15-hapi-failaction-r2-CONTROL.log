@@ -1,0 +1,707 @@
+Repairing the production fault — tracing the incident to root cause.
+I've pinpointed the likely validation failure — now confirming the exact error contract.
+The custom error path looks broken — now checking how the framework should pass validation details.
+I've traced how validation errors are constructed — now verifying the failure mechanism.
+Reproduced the 500 error — now crafting a fix that preserves both error contexts.
+The endpoint now correctly returns 400 — verifying valid requests and existing behavior remain intact.
+Core validation tests pass — running a final round of broader checks.
+Root cause: `lib/validation.js` `internals.input` built two errors — generic `defaultError` (`Boom.badRequest("Invalid request <source> input")`) and `detailedError` (`Boom.boomify(validationError)`) — but only passed `detailedError` to custom `failAction` via `toolkit.failAction(..., defaultError, {details:detailedError})` (`toolkit.js:133` uses `details||err`). `detailedError.data` was `null`, so `err?.data?.defaultError` in the service's `failAction` was missing, causing the `E_NO_DEFAULT_ERROR` 500 for `POST /orders {"qty":0}` instead of 400.
+
+Files changed: `lib/validation.js` — after `Boom.boomify`, attach `defaultError` to `detailedError.data.defaultError` (preserving existing object data, wrapping primitives, handling `detailedError===defaultError` Boom case without clobbering).
+
+Validation:
+- Reproduced 500 before fix with `/work/app/server.mjs` + `POST /orders {"qty":0}`.
+- After fix: same request returns 400 `{"error":"validation failed","detail":"Invalid request payload input"}`; valid `{"qty":2}` returns 200; `/health` 200.
+- Verified custom `failAction` still receives `output.payload.validation={source,keys}` plus `data.defaultError`, default `error` still returns generic `Invalid request query input`, `log` still logs generic.
+- `test/validation.js`: 68 pass. Full suite: 5 failures both before and after (pre-existing node-version issues, e.g. JSON parse message, transmission timeout), no new regression.
+
+Remaining uncertainty: exact upstream shape of `data` (e.g. whether original non-object `data` should be preserved as `value`) not specified; isBoom-validator path creates self-referential `data.defaultError` which is truthy but circular — not exercised by incident.
+
+----- stderr -----
+[0m
+> build · muse-spark-1.3-contributor-free
+[0m
+[0m→ [0mRead repo
+[0m→ [0mRead incident-evidence.json
+[0m→ [0mRead incident-evidence.md
+[0m→ [0mRead app
+[0m→ [0mRead repo/package.json
+[0m→ [0mRead repo/lib/validation.js
+[0m→ [0mRead app/server.mjs
+[0m✗ [0mGrep "failAction" failed
+[91m[1mError: [0mripgrep execution failed
+[0m
+[0m$ [0mrg -n "failAction" lib/ | head -n 100
+/usr/bin/bash: line 1: rg: command not found
+[0m
+[0m$ [0mgrep -rn "failAction" lib/ | head -n 100
+grep: lib/: No such file or directory
+[0m
+[0m$ [0mpwd; ls; ls /work/repo/lib/ | head -n 100
+/work
+app
+incident-evidence.json
+incident-evidence.md
+repo
+auth.js
+compression.js
+config.js
+core.js
+cors.js
+ext.js
+handler.js
+headers.js
+index.js
+methods.js
+request.js
+response.js
+route.js
+security.js
+server.js
+streams.js
+toolkit.js
+transmit.js
+validation.js
+[0m
+[0m$ [0mgrep -rn "failAction" /work/repo/lib/ | head -n 100
+/work/repo/lib/route.js:399:    return request._core.toolkit.failAction(request, request.route.settings.state.failAction, parseError, { tags: ['state', 'error'] });
+/work/repo/lib/route.js:436:        return request._core.toolkit.failAction(request, request.route.settings.payload.failAction, err, { tags: ['payload', 'error'] });
+/work/repo/lib/handler.js:63:        response = await request._core.toolkit.failAction(request, pre.failAction, response, { tags: ['pre', 'error'], retain: true });
+/work/repo/lib/handler.js:155:                failAction: pre.failAction || 'error'
+/work/repo/lib/toolkit.js:117:    failAction(request, failAction, err, options) {
+/work/repo/lib/toolkit.js:120:        if (failAction === 'ignore') {
+/work/repo/lib/toolkit.js:124:        if (failAction === 'log') {
+/work/repo/lib/toolkit.js:129:        if (failAction === 'error') {
+/work/repo/lib/toolkit.js:133:        return this.execute(failAction, request, { realm: request.route.realm, args: [options.details || err] });
+/work/repo/lib/toolkit.js:165:        throw error / h.response(error)     -> error (respond)                  // failAction override in pre
+/work/repo/lib/config.js:82:internals.failAction = Validate.alternatives([
+/work/repo/lib/config.js:155:        failAction: internals.failAction,
+/work/repo/lib/config.js:167:        failAction: internals.failAction,
+/work/repo/lib/config.js:212:        failAction: internals.failAction
+/work/repo/lib/config.js:226:        failAction: internals.failAction,
+/work/repo/lib/config.js:326:        failAction: internals.failAction
+/work/repo/lib/validation.js:142:    if (request.route.settings.validate.failAction === 'ignore') {
+/work/repo/lib/validation.js:164:    return request._core.toolkit.failAction(request, request.route.settings.validate.failAction, defaultError, { details: detailedError, tags: ['validation', 'error', source] });
+/work/repo/lib/validation.js:238:        return request._core.toolkit.failAction(request, request.route.settings.response.failAction, err, { tags: ['validation', 'response', 'error'] });
+[0m
+[0m→ [0mRead repo/lib/toolkit.js
+[0m
+[0m$ [0mgit log --oneline -20 -- lib/validation.js; echo ---; git log --oneline -20 | head -n 20
+b3cfc48 Initial import of the deployed revision
+---
+b3cfc48 Initial import of the deployed revision
+[0m
+[0m$ [0mgrep -rn "defaultError\|failAction" /work/repo/test/ | head -n 200
+/work/repo/test/route.js:190:                    failAction: 'ignore'
+/work/repo/test/route.js:209:                    failAction: 'log'
+/work/repo/test/route.js:239:                    failAction: 'error'
+/work/repo/test/route.js:259:                    failAction: function (request, h, error) {
+/work/repo/test/request.js:941:                        failAction: (request, h) => h.continue,
+/work/repo/test/handler.js:370:        it('sets pre failAction to error', async () => {
+/work/repo/test/handler.js:383:                            failAction: 'error'
+/work/repo/test/handler.js:394:        it('sets pre failAction to ignore', async () => {
+/work/repo/test/handler.js:407:                            failAction: 'ignore'
+/work/repo/test/handler.js:418:        it('sets pre failAction to log', async () => {
+/work/repo/test/handler.js:432:                            failAction: 'log'
+/work/repo/test/handler.js:463:        it('sets pre failAction to method', async () => {
+/work/repo/test/handler.js:477:                            failAction: (request, h, err) => {
+/work/repo/test/handler.js:493:        it('sets pre failAction to method with takeover', async () => {
+/work/repo/test/handler.js:507:                            failAction: (request, h, err) => {
+/work/repo/test/validation.js:411:                        failAction: (request, h, err) => err            // Expose detailed error
+/work/repo/test/validation.js:516:                        failAction: 'ignore'
+/work/repo/test/validation.js:538:                        failAction: 'log'
+/work/repo/test/validation.js:561:                        failAction: function (request, h, err) {
+/work/repo/test/validation.js:574:        it('catches error thrown in failAction', async () => {
+/work/repo/test/validation.js:587:                        failAction: function (request, h, err) {
+/work/repo/test/validation.js:615:                        failAction: (request, h, err) => err            // Expose detailed error
+/work/repo/test/validation.js:698:                        failAction: (request, h, err) => err            // Expose detailed error
+/work/repo/test/validation.js:766:                        failAction: (request, h, err) => err            // Expose detailed error
+/work/repo/test/validation.js:789:                        failAction: (request, h, err) => err            // Expose detailed error
+/work/repo/test/validation.js:810:                        failAction: (request, h, err) => err,           // Expose detailed error
+/work/repo/test/validation.js:845:                        failAction: (request, h, err) => err            // Expose detailed error
+/work/repo/test/validation.js:1632:                        failAction: 'log',
+/work/repo/test/validation.js:1661:                        failAction: function (request, h, err) {
+/work/repo/test/validation.js:1688:                        failAction: function (request, h, err) {
+/work/repo/test/validation.js:1715:                        failAction: function (request, h, err) {
+/work/repo/test/validation.js:1761:                        failAction: (request, h, err) => {
+/work/repo/test/validation.js:1764:                            throw new Error('failAction error');
+/work/repo/test/state.js:79:        const server = Hapi.server({ routes: { state: { failAction: 'ignore' }, log: { collect: true } } });
+/work/repo/test/state.js:98:        const server = Hapi.server({ routes: { state: { failAction: 'log' }, log: { collect: true } } });
+/work/repo/test/payload.js:485:        server.route({ method: 'POST', path: '/', options: { handler: (request) => request.payload, payload: { failAction: 'ignore' } } });
+[0m
+[0m→ [0mRead repo/test/validation.js[90m [offset=400, limit=450][0m
+[0m
+[0m$ [0mgrep -n "failAction\|defaultError\|details" /work/repo/API.md | head -n 100
+563:- `state` `error` - the request included an invalid cookie or cookies. Includes the cookies and error details.
+570:- `validation` `error` `{input}` - input (i.e. payload, query, params, headers) validation failed. Includes the error. Only emitted when `failAction` is set to `'log'`.
+571:- `validation` `response` `error` - response validation failed. Includes the error message. Only emitted when `failAction` is set to `'log'`.
+2602:[`state.failAction`](#route.options.state.failAction) setting. When [`state.failAction`](#route.options.state.failAction)
+3029:#### <a name="route.options.payload.failAction" /> `route.options.payload.failAction`
+3033:A [`failAction` value](#lifecycle-failAction) which determines how to handle payload parsing
+3171:    - `failAction` - A [`failAction` value](#lifecycle-failAction) which determine what to do when
+3172:      a pre-handler method throws an error. If `assign` is specified and the `failAction` setting
+3244:#### <a name="route.options.response.failAction" /> `route.options.response.failAction`
+3248:A [`failAction` value](#lifecycle-failAction) which defines what to do when a response fails
+3298:      error is processed according to [`failAction`](#route.options.response.failAction).
+3383:Default value: `{ parse: true, failAction: 'error' }`.
+3392:- `failAction` - A [`failAction` value](#lifecycle-failAction) which determines how to handle
+3426:Default value: `{ headers: true, params: true, query: true, payload: true, state: true, failAction: 'error' }`.
+3436:#### <a name="route.options.validate.failAction" /> `route.options.validate.failAction`
+3440:A [`failAction` value](#lifecycle-failAction) which determines how to handle failed validations.
+3461:      according to [`failAction`](#route.options.validate.failAction).
+3507:      to [`failAction`](#route.options.validate.failAction).
+3535:      [`failAction`](#route.options.validate.failAction).
+3563:      [`failAction`](#route.options.validate.failAction).
+3587:      [`failAction`](#route.options.validate.failAction).
+3618:    - error handling based on [`failAction`](#route.options.state.failAction).
+3628:    - error handling based on [`failAction`](#route.options.payload.failAction).
+3644:    - error handling based on [`failAction`](#route.options.validate.failAction).
+3648:    - error handling based on [`failAction`](#route.options.validate.failAction).
+3652:    - error handling based on [`failAction`](#route.options.validate.failAction).
+3656:    - error handling based on [`failAction`](#route.options.validate.failAction).
+3660:    - error handling based on [`failAction`](#route.options.validate.failAction).
+3666:    - error handling based on each pre-handler method's `failAction` setting.
+3677:    - error handling based on [`failAction`](#route.options.response.failAction).
+3703:[`failAction` function values](#lifecycle-failAction) are lifecyle methods provided by the
+3711:  [`failAction` value](#lifecycle-failAction).
+3815:#### <a name="lifecycle-failAction" /> `failAction` configuration
+3819:configured to perform another action. When supported the `failAction` option supports the following
+[0m
+[0m→ [0mRead repo/API.md[90m [offset=3815, limit=120][0m
+[0m
+[0m$ [0mgrep -n "boomify\|data" /work/repo/node_modules/@hapi/boom/lib/index.js | head -n 80
+74:            return exports.boomify(Hoek.clone(message), options);
+77:        const { statusCode = 500, data = null, ctor = exports.Boom } = options;
+80:        error.data = data;
+111:exports.boomify = function (err, options) {
+117:    if (options.data !== undefined) {
+118:        err.data = options.data;
+141:exports.badRequest = function (message, data) {
+143:    return new exports.Boom(message, { statusCode: 400, data, ctor: exports.badRequest });
+213:exports.paymentRequired = function (message, data) {
+215:    return new exports.Boom(message, { statusCode: 402, data, ctor: exports.paymentRequired });
+219:exports.forbidden = function (message, data) {
+221:    return new exports.Boom(message, { statusCode: 403, data, ctor: exports.forbidden });
+225:exports.notFound = function (message, data) {
+227:    return new exports.Boom(message, { statusCode: 404, data, ctor: exports.notFound });
+231:exports.methodNotAllowed = function (message, data, allow) {
+233:    const err = new exports.Boom(message, { statusCode: 405, data, ctor: exports.methodNotAllowed });
+247:exports.notAcceptable = function (message, data) {
+249:    return new exports.Boom(message, { statusCode: 406, data, ctor: exports.notAcceptable });
+253:exports.proxyAuthRequired = function (message, data) {
+255:    return new exports.Boom(message, { statusCode: 407, data, ctor: exports.proxyAuthRequired });
+259:exports.clientTimeout = function (message, data) {
+261:    return new exports.Boom(message, { statusCode: 408, data, ctor: exports.clientTimeout });
+265:exports.conflict = function (message, data) {
+267:    return new exports.Boom(message, { statusCode: 409, data, ctor: exports.conflict });
+271:exports.resourceGone = function (message, data) {
+273:    return new exports.Boom(message, { statusCode: 410, data, ctor: exports.resourceGone });
+277:exports.lengthRequired = function (message, data) {
+279:    return new exports.Boom(message, { statusCode: 411, data, ctor: exports.lengthRequired });
+283:exports.preconditionFailed = function (message, data) {
+285:    return new exports.Boom(message, { statusCode: 412, data, ctor: exports.preconditionFailed });
+289:exports.entityTooLarge = function (message, data) {
+291:    return new exports.Boom(message, { statusCode: 413, data, ctor: exports.entityTooLarge });
+295:exports.uriTooLong = function (message, data) {
+297:    return new exports.Boom(message, { statusCode: 414, data, ctor: exports.uriTooLong });
+301:exports.unsupportedMediaType = function (message, data) {
+303:    return new exports.Boom(message, { statusCode: 415, data, ctor: exports.unsupportedMediaType });
+307:exports.rangeNotSatisfiable = function (message, data) {
+309:    return new exports.Boom(message, { statusCode: 416, data, ctor: exports.rangeNotSatisfiable });
+313:exports.expectationFailed = function (message, data) {
+315:    return new exports.Boom(message, { statusCode: 417, data, ctor: exports.expectationFailed });
+319:exports.teapot = function (message, data) {
+321:    return new exports.Boom(message, { statusCode: 418, data, ctor: exports.teapot });
+325:exports.badData = function (message, data) {
+327:    return new exports.Boom(message, { statusCode: 422, data, ctor: exports.badData });
+331:exports.locked = function (message, data) {
+333:    return new exports.Boom(message, { statusCode: 423, data, ctor: exports.locked });
+337:exports.failedDependency = function (message, data) {
+339:    return new exports.Boom(message, { statusCode: 424, data, ctor: exports.failedDependency });
+342:exports.tooEarly = function (message, data) {
+344:    return new exports.Boom(message, { statusCode: 425, data, ctor: exports.tooEarly });
+348:exports.preconditionRequired = function (message, data) {
+350:    return new exports.Boom(message, { statusCode: 428, data, ctor: exports.preconditionRequired });
+354:exports.tooManyRequests = function (message, data) {
+356:    return new exports.Boom(message, { statusCode: 429, data, ctor: exports.tooManyRequests });
+360:exports.illegal = function (message, data) {
+362:    return new exports.Boom(message, { statusCode: 451, data, ctor: exports.illegal });
+368:exports.internal = function (message, data, statusCode = 500) {
+370:    return internals.serverError(message, data, statusCode, exports.internal);
+374:exports.notImplemented = function (message, data) {
+376:    return internals.serverError(message, data, 501, exports.notImplemented);
+380:exports.badGateway = function (message, data) {
+382:    return internals.serverError(message, data, 502, exports.badGateway);
+386:exports.serverUnavailable = function (message, data) {
+388:    return internals.serverError(message, data, 503, exports.serverUnavailable);
+392:exports.gatewayTimeout = function (message, data) {
+394:    return internals.serverError(message, data, 504, exports.gatewayTimeout);
+398:exports.badImplementation = function (message, data) {
+400:    const err = internals.serverError(message, data, 500, exports.badImplementation);
+414:    if (!err.hasOwnProperty('data')) {
+415:        err.data = null;
+460:internals.serverError = function (message, data, statusCode, ctor) {
+462:    if (data instanceof Error &&
+463:        !data.isBoom) {
+465:        return exports.boomify(data, { statusCode, message });
+468:    return new exports.Boom(message, { statusCode, data, ctor });
+[0m
+[0m→ [0mRead repo/node_modules/@hapi/boom/lib/index.js[90m [offset=60, limit=90][0m
+[0m
+[0m$ [0mgrep -n "data\|defaultError\|isBoom\|Boom\|details" /work/repo/node_modules/@hapi/validate/lib/errors.js | head -n 80; echo ===; grep -n "data\|isBoom" /work/repo/node_modules/@hapi/validate/lib/*.js | head -n 80
+154:    const { override, message, details } = exports.details(errors);
+160:        return new exports.ValidationError(message, details, original);
+165:    const validationError = new exports.ValidationError(message, details, original);
+171:exports.details = function (errors, options = {}) {
+174:    const details = [];
+188:            details.push({
+202:        details.push({
+214:    return { message: messages.join('. '), details };
+220:    constructor(message, details, original) {
+224:        this.details = details;
+===
+[0m
+[0m→ [0mRead repo/node_modules/@hapi/validate/lib/errors.js
+[0m→ [0mRead repo/node_modules/@hapi/boom/lib/index.js[90m [offset=405, limit=65][0m
+[0m
+[0m$ [0mgrep -rn "defaultError\|data\.default\|output\.payload\.validation" /work/repo/ --include="*.js" --include="*.md" | grep -v node_modules | head -n 100
+/work/repo/API.md:3442:`err.output.payload.validation.source`.
+/work/repo/test/validation.js:563:                            return h.response('Got error in ' + err.output.payload.validation.source + ' where ' + err.output.payload.validation.keys[0] + ' is bad').code(400).takeover();
+/work/repo/lib/validation.js:148:    const defaultError = validationError.isBoom ? validationError : Boom.badRequest(`Invalid request ${source} input`);
+/work/repo/lib/validation.js:150:    detailedError.output.payload.validation = { source, keys: [] };
+/work/repo/lib/validation.js:154:            detailedError.output.payload.validation.keys.push(Hoek.escapeHtml(path.join('.')));
+/work/repo/lib/validation.js:164:    return request._core.toolkit.failAction(request, request.route.settings.validate.failAction, defaultError, { details: detailedError, tags: ['validation', 'error', source] });
+[0m
+[0m$ [0mREPO_ROOT=/work/repo PORT=51160 node /work/app/server.mjs &
+echo $!; sleep 2; curl -s -i -X POST http://127.0.0.1:51160/orders -H "content-type: application/json" -d '{"qty":0}'; echo "---CURL DONE---"; kill %1; wait %1 2>/dev/null; echo done
+74
+READY
+HTTP/1.1 500 Internal Server Error
+content-type: application/json; charset=utf-8
+cache-control: no-cache
+content-length: 76
+Date: Fri, 11 Sep 2026 18:04:39 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"error":"default validation error unavailable","code":"E_NO_DEFAULT_ERROR"}---CURL DONE---
+done
+[0m
+[0m$ [0mREPO_ROOT=/work/repo node -e "
+const Hapi = require('/work/repo');
+const Joi = require('/work/repo/node_modules/@hapi/validate');
+(async()=>{
+ const server = Hapi.server({port:0});
+ server.route({method:'POST',path:'/orders',options:{validate:{payload: Joi.object({qty: Joi.number().integer().min(1).required()}), failAction:(req,h,err)=>{ console.log('ERR keys:',Object.keys(err)); console.log('isBoom:',err.isBoom); console.log('message:',err.message); console.log('data:',err.data); console.log('output:',JSON.stringify(err.output)); return h.response({x:1}).code(400).takeover(); }}},handler:()=>({ok:true})});
+ await server.initialize();
+ const res = await server.inject({method:'POST',url:'/orders',payload:'{\"qty\":0}',headers:{'content-type':'application/json'}});
+ console.log('status',res.statusCode, res.result);
+})();
+"
+ERR keys: [ '_original', 'details', 'isBoom', 'isServer', 'data', 'output' ]
+isBoom: true
+message: "qty" must be greater than or equal to 1
+data: null
+output: {"statusCode":400,"payload":{"statusCode":400,"error":"Bad Request","message":"\"qty\" must be greater than or equal to 1","validation":{"source":"payload","keys":["qty"]}},"headers":{}}
+status 400 { x: 1 }
+[0m
+[0m$ [0mREPO_ROOT=/work/repo node -e "
+const Boom = require('/work/repo/node_modules/@hapi/boom');
+const e = Boom.badRequest('Invalid request payload input');
+console.log(e);
+console.log('data',e.data);
+console.log('output',e.output);
+"
+Error: Invalid request payload input
+    at [eval]:3:16
+    at runScriptInThisContext (node:internal/vm:209:10)
+    at node:internal/process/execution:446:12
+    at [eval]-wrapper:6:24
+    at runScriptInContext (node:internal/process/execution:444:60)
+    at evalFunction (node:internal/process/execution:279:30)
+    at evalTypeScript (node:internal/process/execution:291:3)
+    at node:internal/main/eval_string:74:3 {
+  data: null,
+  isBoom: true,
+  isServer: false,
+  output: {
+    statusCode: 400,
+    payload: {
+      statusCode: 400,
+      error: 'Bad Request',
+      message: 'Invalid request payload input'
+    },
+    headers: {}
+  }
+}
+data null
+output {
+  statusCode: 400,
+  payload: {
+    statusCode: 400,
+    error: 'Bad Request',
+    message: 'Invalid request payload input'
+  },
+  headers: {}
+}
+[0m
+[0m→ [0mRead repo/lib/validation.js[90m [offset=142, limit=25][0m
+[0m
+[0m← [0mEdit repo/lib/validation.js
+Index: /work/repo/lib/validation.js
+===================================================================
+--- /work/repo/lib/validation.js
++++ /work/repo/lib/validation.js
+@@ -146,8 +146,26 @@
+ // Prepare error
+ 
+ const defaultError = validationError.isBoom ? validationError : Boom.badRequest(`Invalid request ${source} input`);
+ const detailedError = Boom.boomify(validationError, { statusCode: 400, override: false });
++if (detailedError !== defaultError) {
++    const existing = detailedError.data;
++    if (existing !== null && typeof existing === 'object') {
++        existing.defaultError = defaultError;
++    }
++    else if (existing === null || existing === undefined) {
++        detailedError.data = { defaultError };
++    }
++    else {
++        detailedError.data = { value: existing, defaultError };
++    }
++}
++else if (detailedError.data === null || detailedError.data === undefined) {
++    detailedError.data = { defaultError };
++}
++else if (typeof detailedError.data === 'object' && detailedError.data.defaultError === undefined) {
++    detailedError.data.defaultError = defaultError;
++}
+ detailedError.output.payload.validation = { source, keys: [] };
+ if (validationError.details) {
+     for (const details of validationError.details) {
+         const path = details.path;
+
+[0m
+[0m$ [0mREPO_ROOT=/work/repo PORT=51161 node /work/app/server.mjs &
+sleep 2; curl -s -i -X POST http://127.0.0.1:51161/orders -H "content-type: application/json" -d '{"qty":0}'; echo "---DONE---"; kill %1; wait %1 2>/dev/null; echo done
+READY
+HTTP/1.1 400 Bad Request
+content-type: application/json; charset=utf-8
+cache-control: no-cache
+content-length: 70
+Date: Fri, 11 Sep 2026 18:05:15 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"error":"validation failed","detail":"Invalid request payload input"}---DONE---
+done
+[0m
+[0m$ [0mREPO_ROOT=/work/repo PORT=51162 node /work/app/server.mjs &
+sleep 2; echo "valid:"; curl -s -i -X POST http://127.0.0.1:51162/orders -H "content-type: application/json" -d '{"qty":2}'; echo; echo "health:"; curl -s http://127.0.0.1:51162/health; echo; kill %1; wait %1 2>/dev/null; echo done
+READY
+valid:
+HTTP/1.1 200 OK
+content-type: application/json; charset=utf-8
+cache-control: no-cache
+content-length: 11
+Date: Fri, 11 Sep 2026 18:05:20 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"ok":true}
+health:
+{"ok":true}
+done
+[0m
+[0m$ [0mnpm test 2>&1 | tail -n 50
+/work/repo/node_modules/@eslint/eslintrc/lib/shared/config-validator.js:252
+                const formattedValue = JSON.stringify(error.data);
+                                            ^
+
+TypeError: Converting circular structure to JSON
+    --> starting at object with constructor 'Object'
+    |     property 'plugins' -> object with constructor 'Object'
+    |     property '@hapi' -> object with constructor 'Object'
+    |     ...
+    |     property 'recommended' -> object with constructor 'Array'
+    --- index 0 closes the circle
+Referenced from: BaseConfig
+    at JSON.stringify (<anonymous>)
+    at /work/repo/node_modules/@eslint/eslintrc/lib/shared/config-validator.js:252:45
+    at Array.map (<anonymous>)
+    at ConfigValidator.formatErrors (/work/repo/node_modules/@eslint/eslintrc/lib/shared/config-validator.js:243:23)
+    at ConfigValidator.validateConfigSchema (/work/repo/node_modules/@eslint/eslintrc/lib/shared/config-validator.js:273:84)
+    at ConfigArrayFactory._normalizeConfigData (/work/repo/node_modules/@eslint/eslintrc/lib/config-array-factory.js:644:19)
+    at ConfigArrayFactory._loadExtendedPluginConfig (/work/repo/node_modules/@eslint/eslintrc/lib/config-array-factory.js:843:25)
+    at ConfigArrayFactory._loadExtends (/work/repo/node_modules/@eslint/eslintrc/lib/config-array-factory.js:779:29)
+    at ConfigArrayFactory._normalizeObjectConfigDataBody (/work/repo/node_modules/@eslint/eslintrc/lib/config-array-factory.js:720:25)
+    at _normalizeObjectConfigDataBody.next (<anonymous>)
+    at ConfigArrayFactory._normalizeObjectConfigData (/work/repo/node_modules/@eslint/eslintrc/lib/config-array-factory.js:665:20)
+    at _normalizeObjectConfigData.next (<anonymous>)
+    at ConfigArrayFactory.create (/work/repo/node_modules/@eslint/eslintrc/lib/config-array-factory.js:460:16)
+    at createBaseConfigArray (/work/repo/node_modules/@eslint/eslintrc/lib/cascading-config-array-factory.js:98:48)
+    at new CascadingConfigArrayFactory (/work/repo/node_modules/@eslint/eslintrc/lib/cascading-config-array-factory.js:234:30)
+    at new CLIEngine (/work/repo/node_modules/eslint/lib/cli-engine/cli-engine.js:569:36)
+    at Object.<anonymous> (/work/repo/node_modules/@hapi/lab/lib/modules/coverage.js:21:19)
+    at Module._compile (node:internal/modules/cjs/loader:1781:14)
+    at Object..js (node:internal/modules/cjs/loader:1913:10)
+    at Module.load (node:internal/modules/cjs/loader:1505:32)
+    at Function._load (node:internal/modules/cjs/loader:1309:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+    at Module.require (node:internal/modules/cjs/loader:1527:12)
+    at require (node:internal/modules/helpers:147:16)
+    at Object.get [as coverage] (/work/repo/node_modules/@hapi/lab/lib/modules/index.js:15:20)
+    at exports.run (/work/repo/node_modules/@hapi/lab/lib/cli.js:39:17)
+    at main (/work/repo/node_modules/@hapi/lab/bin/lab:56:50)
+    at Object.<anonymous> (/work/repo/node_modules/@hapi/lab/bin/lab:60:1)
+    at Module._compile (node:internal/modules/cjs/loader:1781:14)
+    at Object..js (node:internal/modules/cjs/loader:1913:10)
+    at Module.load (node:internal/modules/cjs/loader:1505:32)
+    at Function._load (node:internal/modules/cjs/loader:1309:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+    at node:internal/main/run_main_module:36:49
+
+Node.js v22.23.2
+[0m
+[0m$ [0mnpx lab -a @hapi/code -t 100 -m 5000 test/validation.js 2>&1 | tail -n 50
+/work/repo/node_modules/@eslint/eslintrc/lib/shared/config-validator.js:252
+                const formattedValue = JSON.stringify(error.data);
+                                            ^
+
+TypeError: Converting circular structure to JSON
+    --> starting at object with constructor 'Object'
+    |     property 'plugins' -> object with constructor 'Object'
+    |     property '@hapi' -> object with constructor 'Object'
+    |     ...
+    |     property 'recommended' -> object with constructor 'Array'
+    --- index 0 closes the circle
+Referenced from: BaseConfig
+    at JSON.stringify (<anonymous>)
+    at /work/repo/node_modules/@eslint/eslintrc/lib/shared/config-validator.js:252:45
+    at Array.map (<anonymous>)
+    at ConfigValidator.formatErrors (/work/repo/node_modules/@eslint/eslintrc/lib/shared/config-validator.js:243:23)
+    at ConfigValidator.validateConfigSchema (/work/repo/node_modules/@eslint/eslintrc/lib/shared/config-validator.js:273:84)
+    at ConfigArrayFactory._normalizeConfigData (/work/repo/node_modules/@eslint/eslintrc/lib/config-array-factory.js:644:19)
+    at ConfigArrayFactory._loadExtendedPluginConfig (/work/repo/node_modules/@eslint/eslintrc/lib/config-array-factory.js:843:25)
+    at ConfigArrayFactory._loadExtends (/work/repo/node_modules/@eslint/eslintrc/lib/config-array-factory.js:779:29)
+    at ConfigArrayFactory._normalizeObjectConfigDataBody (/work/repo/node_modules/@eslint/eslintrc/lib/config-array-factory.js:720:25)
+    at _normalizeObjectConfigDataBody.next (<anonymous>)
+    at ConfigArrayFactory._normalizeObjectConfigData (/work/repo/node_modules/@eslint/eslintrc/lib/config-array-factory.js:665:20)
+    at _normalizeObjectConfigData.next (<anonymous>)
+    at ConfigArrayFactory.create (/work/repo/node_modules/@eslint/eslintrc/lib/config-array-factory.js:460:16)
+    at createBaseConfigArray (/work/repo/node_modules/@eslint/eslintrc/lib/cascading-config-array-factory.js:98:48)
+    at new CascadingConfigArrayFactory (/work/repo/node_modules/@eslint/eslintrc/lib/cascading-config-array-factory.js:234:30)
+    at new CLIEngine (/work/repo/node_modules/eslint/lib/cli-engine/cli-engine.js:569:36)
+    at Object.<anonymous> (/work/repo/node_modules/@hapi/lab/lib/modules/coverage.js:21:19)
+    at Module._compile (node:internal/modules/cjs/loader:1781:14)
+    at Object..js (node:internal/modules/cjs/loader:1913:10)
+    at Module.load (node:internal/modules/cjs/loader:1505:32)
+    at Function._load (node:internal/modules/cjs/loader:1309:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+    at Module.require (node:internal/modules/cjs/loader:1527:12)
+    at require (node:internal/modules/helpers:147:16)
+    at Object.get [as coverage] (/work/repo/node_modules/@hapi/lab/lib/modules/index.js:15:20)
+    at exports.run (/work/repo/node_modules/@hapi/lab/lib/cli.js:39:17)
+    at main (/work/repo/node_modules/@hapi/lab/bin/lab:56:50)
+    at Object.<anonymous> (/work/repo/node_modules/@hapi/lab/bin/lab:60:1)
+    at Module._compile (node:internal/modules/cjs/loader:1781:14)
+    at Object..js (node:internal/modules/cjs/loader:1913:10)
+    at Module.load (node:internal/modules/cjs/loader:1505:32)
+    at Function._load (node:internal/modules/cjs/loader:1309:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+    at node:internal/main/run_main_module:36:49
+
+Node.js v22.23.2
+[0m
+[0m$ [0mnpx lab --help 2>&1 | head -n 60; echo ===; node --version
+Usage: lab [options] [path]
+
+Options:                          
+
+  -a, --assert                    specify an assertion library module path to require and make available under Lab.assertions
+  --bail                          exit the process with a non zero exit code on the first test failure
+  -C, --colors                    enable color output (defaults to terminal capabilities)
+  -M, --context-timeout           timeout for before, after, beforeEach, afterEach in milliseconds
+  -c, --coverage                  enable code coverage analysis
+  --coverage-all                  include all files in coveragePath in report
+  --coverage-exclude              set code coverage excludes
+  --coverage-flat                 prevent recursive inclusion of all files in coveragePath in report
+  --coverage-module               enable coverage on external module
+  --coverage-path                 set code coverage path
+  --coverage-pattern              file pattern to use for locating files for coverage
+  --coverage-predicates           set code coverage predicates
+  -p, --default-plan-threshold    minimum plan threshold to apply to all tests that don't define any plan
+  -d, --dry                       skip all tests (dry run)
+  -e, --environment               value to set NODE_ENV before tests
+  -f, --flat                      prevent recursive collection of tests within the provided path
+  -I, --globals                   ignore a list of globals for the leak detection (comma separated)
+  -g, --grep                      only run tests matching the given pattern which is internally compiled to a RegExp
+  -h, --help                      display usage options
+  -i, --id                        test identifier
+  --inspect                       starts lab with the node.js native debugger
+  -l, --leaks                     disable global variable leaks detection
+  -L, --lint                      enable linting
+  -n, --linter                    linter path to use
+  --lint-fix                      apply any fixes from the linter.
+  --lint-options                  specify options to pass to linting program. It must be a string that is JSON.parse(able).
+  --lint-errors-threshold         linter errors threshold in absolute value
+  --lint-warnings-threshold       linter warnings threshold in absolute value
+  -o, --output                    file path to write test results
+  -P, --pattern                   file pattern to use for locating tests
+  -r, --reporter                  reporter type [console, html, json, tap, lcov, clover, junit]
+  -req, --require                 dependency module to require and run before tests run (useful for things like babel, tsconfig-paths, etc)
+  -R, --retries                   number of times to retry tests explicitly marked for retry
+  --seed                          use this seed to randomize the order with `--shuffle`. This is useful to debug order dependent test failures
+  --shuffle                       shuffle script execution order
+  -s, --silence                   silence test output
+  -k, --silent-skips              don’t output skipped tests
+  -S, --sourcemaps                enable support for sourcemaps
+  -t, --threshold                 code coverage threshold percentage
+  -m, --timeout                   timeout for each test in milliseconds
+  -T, --transform                 javascript file that exports an array of objects ie. [ { ext: ".js", transform: function (content, filename) { ... } } ]
+  -Y, --types                     test types definitions
+  --types-test                    location of types definitions test file
+  --typescript                    Enables TypeScript support
+  -v, --verbose                   verbose test output
+  -V, --version                   version information
+===
+v22.23.2
+[0m
+[0m$ [0mnpx lab -a @hapi/code -m 5000 test/validation.js 2>&1 | tail -n 30
+..................................................
+  ..................
+
+68 tests complete
+Test duration: 1129 ms
+Assertions count: 133 (verbosity: 1.96)
+Leaks: No issues
+[0m
+[0m$ [0mnpx lab -a @hapi/code -m 5000 test/toolkit.js test/handler.js test/route.js 2>&1 | tail -n 20; echo ===; npx lab -a @hapi/code -m 5000 2>&1 | tail -n 20
+.
+
+Failed tests:
+
+  70) Route logs payload parsing errors:
+
+      actual expected
+
+      "Expected/^Unexpected propertytoken name or '}' in JSON at position 1 (line 1 column 2)"a/
+
+      Expected [SyntaxError: Expected property name or '}' in JSON at position 1 (line 1 column 2)] to be an error with specified message
+
+      at /work/repo/test/route.js:226:44
+
+
+1 of 101 tests failed
+Test duration: 803 ms
+Assertions count: 191 (verbosity: 1.89)
+Leaks: No issues
+
+===
+
+      actual expected
+
+      "Expected/^Unexpected propertytoken name or '}' in JSON at position 1 (line 1 column 2)"a/
+
+      Expected [SyntaxError: Expected property name or '}' in JSON at position 1 (line 1 column 2)] to be an error with specified message
+
+      at /work/repo/test/route.js:226:44
+
+  830) transmission marshal() does not crash when request is aborted:
+
+      Timed out (5000ms) - transmission marshal() does not crash when request is aborted
+
+
+
+5 of 970 tests failed (3 skipped)
+Test duration: 23981 ms
+Assertions count: 2022 (verbosity: 2.08)
+Leaks: No issues
+[0m
+[0m$ [0mgit stash && npx lab -a @hapi/code -m 5000 2>&1 | tail -n 20; git stash pop
+Saved working directory and index state WIP on main: b3cfc48 Initial import of the deployed revision
+
+      actual expected
+
+      "Expected/^Unexpected propertytoken name or '}' in JSON at position 1 (line 1 column 2)"a/
+
+      Expected [SyntaxError: Expected property name or '}' in JSON at position 1 (line 1 column 2)] to be an error with specified message
+
+      at /work/repo/test/route.js:226:44
+
+  830) transmission marshal() does not crash when request is aborted:
+
+      Timed out (5000ms) - transmission marshal() does not crash when request is aborted
+
+
+
+5 of 970 tests failed (3 skipped)
+Test duration: 23633 ms
+Assertions count: 2022 (verbosity: 2.08)
+Leaks: No issues
+
+On branch main
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   lib/validation.js
+
+no changes added to commit (use "git add" and/or "git commit -a")
+Dropped refs/stash@{0} (9768b1d8c273824da4041b9d71a7c712d67fa0ce)
+[0m
+[0m$ [0mnode -e "
+const Hapi = require('/work/repo');
+const Joi = require('/work/repo/node_modules/@hapi/validate');
+(async()=>{
+ // default behavior still generic 400
+ let s = Hapi.server(); s.validator(Joi);
+ s.route({method:'GET',path:'/',handler:()=>'ok',options:{validate:{query:{a:Joi.string().min(2)}}}});
+ let r = await s.inject('/?a=1'); console.log('default:',r.statusCode, r.result.message);
+ // custom exposes details + defaultError
+ s = Hapi.server(); s.validator(Joi);
+ s.route({method:'GET',path:'/',handler:()=>'ok',options:{validate:{query:{a:Joi.string().min(2)}, failAction:(req,h,err)=>{ console.log('custom has validation:',JSON.stringify(err.output.payload.validation)); console.log('custom has defaultError:',!!err.data?.defaultError, err.data?.defaultError?.message); return err; }}}});
+ r = await s.inject('/?a=1'); console.log('custom:',r.statusCode, JSON.stringify(r.result.validation));
+ // log behavior
+ s = Hapi.server({routes:{log:{collect:true}}}); s.validator(Joi);
+ s.route({method:'GET',path:'/',handler:(req)=>req.logs.filter(e=>e.tags[0]==='validation')[0],options:{validate:{query:{a:Joi.string().min(2)}, failAction:'log'}}});
+ r = await s.inject('/?a=1'); console.log('log:',r.statusCode, r.result.error.output.payload.message);
+})();
+"
+default: 400 Invalid request query input
+custom has validation: {"source":"query","keys":["a"]}
+custom has defaultError: true Invalid request query input
+custom: 400 {"source":"query","keys":["a"]}
+log: 200 Invalid request query input
+[0m
+[0m$ [0mgit diff
+diff --git a/lib/validation.js b/lib/validation.js
+index 2424cb2..a8163be 100755
+--- a/lib/validation.js
++++ b/lib/validation.js
+@@ -147,6 +147,24 @@ internals.input = async function (source, request) {
+ 
+     const defaultError = validationError.isBoom ? validationError : Boom.badRequest(`Invalid request ${source} input`);
+     const detailedError = Boom.boomify(validationError, { statusCode: 400, override: false });
++    if (detailedError !== defaultError) {
++        const existing = detailedError.data;
++        if (existing !== null && typeof existing === 'object') {
++            existing.defaultError = defaultError;
++        }
++        else if (existing === null || existing === undefined) {
++            detailedError.data = { defaultError };
++        }
++        else {
++            detailedError.data = { value: existing, defaultError };
++        }
++    }
++    else if (detailedError.data === null || detailedError.data === undefined) {
++        detailedError.data = { defaultError };
++    }
++    else if (typeof detailedError.data === 'object' && detailedError.data.defaultError === undefined) {
++        detailedError.data.defaultError = defaultError;
++    }
+     detailedError.output.payload.validation = { source, keys: [] };
+     if (validationError.details) {
+         for (const details of validationError.details) {
+[0m

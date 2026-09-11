@@ -1,0 +1,15 @@
+rg -n "get port|get host|get hostname|forwarded" lib/ | head -n 100
+grep -rn "get port\|get host\|get hostname\|forwarded\|trustProxy" lib/ | head -n 100
+grep -rn "x-forwarded-port\|X-Forwarded-Host\|request.*port\|hostname" test/ lib/ --include="*.js" | head -n 100
+grep -rn "forwarded" lib/ test/ --include="*.js" | head -n 50; echo "---"; grep -rn "req.port\|\.port" lib/request.js
+grep -rn "request.port\|req.port\|hostname\|x-forwarded-host" docs/ | head -n 60
+git log --oneline -20 -- lib/request.js; echo "---"; git log --oneline -5
+node -e "
+node -e "
+node --test test/trust-proxy.test.js 2>&1 | tail -n 40
+node --test test/trust-proxy.test.js 2>&1 | grep -A 20 "not ok"
+node --test test/internals/request.test.js test/request-header-host.test.js test/server.test.js 2>&1 | tail -n 20
+node --test test/https/https.test.js test/url-rewriting.test.js test/http-methods/get.test.js 2>&1 | tail -n 15
+node -e "
+node -e "
+git diff -- lib/request.js; echo "---status---"; git status --short

@@ -1,0 +1,54 @@
+{
+  "schema": "v4-probe-oracle-validation-1",
+  "case": "express-cookie-maxage",
+  "requirement": "the buggy revision must FAIL the original incident and the hidden variants; the historical fixed revision must PASS both",
+  "buggy": {
+    "repo": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/work/express-cookie-maxage-buggy",
+    "original": {
+      "status": 500,
+      "body": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Error</title>\n</head>\n<body>\n<pre>TypeError: option maxAge is invalid<br> &nbsp; &nbsp;at Object.serialize (/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/work/express-cookie-maxage-buggy/node_modules/cookie/index.js"
+    },
+    "original_failure_present": true,
+    "original_exact_signature_present": true,
+    "hidden": [
+      {
+        "variant": "cookie-token-undefined-maxage-different-path",
+        "status": 500,
+        "pass": false,
+        "body": "{\"ok\":false,\"code\":\"E_COOKIE_THREW\",\"detail\":\"option maxAge is invalid\"}"
+      },
+      {
+        "variant": "cookie-pref-null-maxage-samesite",
+        "status": 500,
+        "pass": false,
+        "body": "{\"ok\":false,\"code\":\"E_COOKIE_THREW\",\"detail\":\"option maxAge is invalid\"}"
+      }
+    ],
+    "hidden_all_pass": false
+  },
+  "fixed": {
+    "repo": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/work/express-cookie-maxage-fixed",
+    "original": {
+      "status": 200,
+      "body": "{\"ok\":true}"
+    },
+    "original_failure_present": false,
+    "original_exact_signature_present": false,
+    "hidden": [
+      {
+        "variant": "cookie-token-undefined-maxage-different-path",
+        "status": 200,
+        "pass": true,
+        "body": "{\"ok\":true,\"header\":\"token=xyz789; Path=/api; HttpOnly\"}"
+      },
+      {
+        "variant": "cookie-pref-null-maxage-samesite",
+        "status": 200,
+        "pass": true,
+        "body": "{\"ok\":true,\"header\":\"pref=dark; Domain=example.test; Path=/; SameSite=Lax\"}"
+      }
+    ],
+    "hidden_all_pass": true
+  },
+  "oracle_valid": true
+}

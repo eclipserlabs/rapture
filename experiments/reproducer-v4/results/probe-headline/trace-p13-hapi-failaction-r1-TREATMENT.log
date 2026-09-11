@@ -1,0 +1,763 @@
+Repairing the production fault — gathering the failure evidence and tracing the bug.
+I've pinpointed the validation error — now digging into how the framework hands failures to handlers.
+The failure is confirmed — now finalizing the fix to restore the proper error response.
+The service now returns the correct response — now verifying no existing functionality broke.
+Existing checks pass — now confirming the final state of the fix.
+Root cause: `lib/validation.js:internals.input` built two errors — generic `defaultError` (`Boom.badRequest("Invalid request <source> input")`) and specific `detailedError` (`Boom.boomify(validationError)`) — but only passed `detailedError` to custom `failAction` via `toolkit.failAction(..., defaultError, {details:detailedError})` (`lib/toolkit.js:133` uses `options.details || err`). `detailedError.data` was left `undefined`, so a `failAction(request,h,err)` checking `err?.data?.defaultError` (as in `POST /orders` with `{"qty":0}`) got falsy and returned 500 `E_NO_DEFAULT_ERROR` instead of 400.
+
+Files changed: `lib/validation.js` — after creating `detailedError`, attach `defaultError` as `detailedError.data.defaultError` (preserving existing object data, skipping self-reference when `validationError.isBoom`).
+
+Validation: `/work/repro` went from `ORIGINAL_FAILURE_REPRODUCED observed_http_status=500` to `ORIGINAL_FAILURE_ABSENT observed_http_status=400`. `npx lab test/validation.js` passes (68 tests). Broader suite shows only pre-existing `test/route.js` JSON-message failure (also fails on pristine tree, node-version related).
+
+Remaining uncertainty: exact upstream shape of `data` (e.g. whether other keys expected, behavior when validator already throws Boom where `detailedError===defaultError` and no attach is done) was inferred from repro invariant, not historical diff.
+
+----- stderr -----
+[0m
+> build · muse-spark-1.3-contributor-free
+[0m
+[0m→ [0mRead app
+[0m→ [0mRead repo
+[0m→ [0mRead incident-evidence.md
+[0m→ [0mRead incident-evidence.json
+[0m→ [0mRead repo/package.json
+[0m→ [0mRead app/server.mjs
+[0m→ [0mRead repo/lib/validation.js
+[0m✗ [0mGrep "failAction" failed[90m in repo/lib[0m
+[91m[1mError: [0mripgrep execution failed
+[0m
+[0m$ [0mgrep -rn "failAction" lib/ | head -n 100
+lib/route.js:399:    return request._core.toolkit.failAction(request, request.route.settings.state.failAction, parseError, { tags: ['state', 'error'] });
+lib/route.js:436:        return request._core.toolkit.failAction(request, request.route.settings.payload.failAction, err, { tags: ['payload', 'error'] });
+lib/handler.js:63:        response = await request._core.toolkit.failAction(request, pre.failAction, response, { tags: ['pre', 'error'], retain: true });
+lib/handler.js:155:                failAction: pre.failAction || 'error'
+lib/toolkit.js:117:    failAction(request, failAction, err, options) {
+lib/toolkit.js:120:        if (failAction === 'ignore') {
+lib/toolkit.js:124:        if (failAction === 'log') {
+lib/toolkit.js:129:        if (failAction === 'error') {
+lib/toolkit.js:133:        return this.execute(failAction, request, { realm: request.route.realm, args: [options.details || err] });
+lib/toolkit.js:165:        throw error / h.response(error)     -> error (respond)                  // failAction override in pre
+lib/config.js:82:internals.failAction = Validate.alternatives([
+lib/config.js:155:        failAction: internals.failAction,
+lib/config.js:167:        failAction: internals.failAction,
+lib/config.js:212:        failAction: internals.failAction
+lib/config.js:226:        failAction: internals.failAction,
+lib/config.js:326:        failAction: internals.failAction
+lib/validation.js:142:    if (request.route.settings.validate.failAction === 'ignore') {
+lib/validation.js:164:    return request._core.toolkit.failAction(request, request.route.settings.validate.failAction, defaultError, { details: detailedError, tags: ['validation', 'error', source] });
+lib/validation.js:238:        return request._core.toolkit.failAction(request, request.route.settings.response.failAction, err, { tags: ['validation', 'response', 'error'] });
+[0m
+[0m→ [0mRead repo/lib/toolkit.js
+[0m
+[0m$ [0mgrep -rn "defaultError\|data.*default\|failAction" test/ | head -n 200
+test/route.js:190:                    failAction: 'ignore'
+test/route.js:209:                    failAction: 'log'
+test/route.js:239:                    failAction: 'error'
+test/route.js:259:                    failAction: function (request, h, error) {
+test/request.js:941:                        failAction: (request, h) => h.continue,
+test/handler.js:370:        it('sets pre failAction to error', async () => {
+test/handler.js:383:                            failAction: 'error'
+test/handler.js:394:        it('sets pre failAction to ignore', async () => {
+test/handler.js:407:                            failAction: 'ignore'
+test/handler.js:418:        it('sets pre failAction to log', async () => {
+test/handler.js:432:                            failAction: 'log'
+test/handler.js:463:        it('sets pre failAction to method', async () => {
+test/handler.js:477:                            failAction: (request, h, err) => {
+test/handler.js:493:        it('sets pre failAction to method with takeover', async () => {
+test/handler.js:507:                            failAction: (request, h, err) => {
+test/validation.js:411:                        failAction: (request, h, err) => err            // Expose detailed error
+test/validation.js:516:                        failAction: 'ignore'
+test/validation.js:538:                        failAction: 'log'
+test/validation.js:561:                        failAction: function (request, h, err) {
+test/validation.js:574:        it('catches error thrown in failAction', async () => {
+test/validation.js:587:                        failAction: function (request, h, err) {
+test/validation.js:615:                        failAction: (request, h, err) => err            // Expose detailed error
+test/validation.js:698:                        failAction: (request, h, err) => err            // Expose detailed error
+test/validation.js:766:                        failAction: (request, h, err) => err            // Expose detailed error
+test/validation.js:789:                        failAction: (request, h, err) => err            // Expose detailed error
+test/validation.js:810:                        failAction: (request, h, err) => err,           // Expose detailed error
+test/validation.js:845:                        failAction: (request, h, err) => err            // Expose detailed error
+test/validation.js:1632:                        failAction: 'log',
+test/validation.js:1661:                        failAction: function (request, h, err) {
+test/validation.js:1688:                        failAction: function (request, h, err) {
+test/validation.js:1715:                        failAction: function (request, h, err) {
+test/validation.js:1761:                        failAction: (request, h, err) => {
+test/validation.js:1764:                            throw new Error('failAction error');
+test/state.js:79:        const server = Hapi.server({ routes: { state: { failAction: 'ignore' }, log: { collect: true } } });
+test/state.js:98:        const server = Hapi.server({ routes: { state: { failAction: 'log' }, log: { collect: true } } });
+test/payload.js:485:        server.route({ method: 'POST', path: '/', options: { handler: (request) => request.payload, payload: { failAction: 'ignore' } } });
+[0m
+[0m$ [0mgrep -n "err\.data\|error\.data\|details" test/validation.js | head -n 100
+ls lib/*.js
+416:            server.ext('onPreResponse', (request) => request.response.details[0].path);
+lib/auth.js
+lib/compression.js
+lib/config.js
+lib/core.js
+lib/cors.js
+lib/ext.js
+lib/handler.js
+lib/headers.js
+lib/index.js
+lib/methods.js
+lib/request.js
+lib/response.js
+lib/route.js
+lib/security.js
+lib/server.js
+lib/streams.js
+lib/toolkit.js
+lib/transmit.js
+lib/validation.js
+[0m
+[0m→ [0mRead repo/test/validation.js[90m [limit=250, offset=400][0m
+[0m→ [0mRead repo/test/validation.js[90m [limit=250, offset=1630][0m
+[0m
+[0m$ [0mgrep -n "failAction\|defaultError\|data\." API.md | head -n 100
+91:            - `partition` - (optional) string used to isolate cached data. Defaults to `'hapi-cache'`.
+570:- `validation` `error` `{input}` - input (i.e. payload, query, params, headers) validation failed. Includes the error. Only emitted when `failAction` is set to `'log'`.
+571:- `validation` `response` `error` - response validation failed. Includes the error message. Only emitted when `failAction` is set to `'log'`.
+2602:[`state.failAction`](#route.options.state.failAction) setting. When [`state.failAction`](#route.options.state.failAction)
+3029:#### <a name="route.options.payload.failAction" /> `route.options.payload.failAction`
+3033:A [`failAction` value](#lifecycle-failAction) which determines how to handle payload parsing
+3171:    - `failAction` - A [`failAction` value](#lifecycle-failAction) which determine what to do when
+3172:      a pre-handler method throws an error. If `assign` is specified and the `failAction` setting
+3244:#### <a name="route.options.response.failAction" /> `route.options.response.failAction`
+3248:A [`failAction` value](#lifecycle-failAction) which defines what to do when a response fails
+3298:      error is processed according to [`failAction`](#route.options.response.failAction).
+3383:Default value: `{ parse: true, failAction: 'error' }`.
+3392:- `failAction` - A [`failAction` value](#lifecycle-failAction) which determines how to handle
+3426:Default value: `{ headers: true, params: true, query: true, payload: true, state: true, failAction: 'error' }`.
+3436:#### <a name="route.options.validate.failAction" /> `route.options.validate.failAction`
+3440:A [`failAction` value](#lifecycle-failAction) which determines how to handle failed validations.
+3461:      according to [`failAction`](#route.options.validate.failAction).
+3507:      to [`failAction`](#route.options.validate.failAction).
+3535:      [`failAction`](#route.options.validate.failAction).
+3539:amounts of data.
+3563:      [`failAction`](#route.options.validate.failAction).
+3587:      [`failAction`](#route.options.validate.failAction).
+3618:    - error handling based on [`failAction`](#route.options.state.failAction).
+3628:    - error handling based on [`failAction`](#route.options.payload.failAction).
+3644:    - error handling based on [`failAction`](#route.options.validate.failAction).
+3648:    - error handling based on [`failAction`](#route.options.validate.failAction).
+3652:    - error handling based on [`failAction`](#route.options.validate.failAction).
+3656:    - error handling based on [`failAction`](#route.options.validate.failAction).
+3660:    - error handling based on [`failAction`](#route.options.validate.failAction).
+3666:    - error handling based on each pre-handler method's `failAction` setting.
+3677:    - error handling based on [`failAction`](#route.options.response.failAction).
+3703:[`failAction` function values](#lifecycle-failAction) are lifecyle methods provided by the
+3711:  [`failAction` value](#lifecycle-failAction).
+3815:#### <a name="lifecycle-failAction" /> `failAction` configuration
+3819:configured to perform another action. When supported the `failAction` option supports the following
+4237:Plugin-specific state. Provides a place to store and pass request-level plugin data. `plugins` is
+4731:Plugin-specific state. Provides a place to store and pass request-level plugin data. The `plugins` is an object where each key is a plugin name and the value is the state.
+[0m
+[0m→ [0mRead repo/API.md[90m [limit=120, offset=3815][0m
+[0m
+[0m$ [0mgit log --oneline -20 -- lib/validation.js; echo "---"; git log --oneline -20 | head -n 20; echo "---"; git diff HEAD --stat; echo "---status"; git status --short | head
+f54c3b4 Initial import of the deployed revision
+---
+f54c3b4 Initial import of the deployed revision
+---
+---status
+[0m
+[0m$ [0mgrep -n "Invalid request\|statusCode.*400\|message" test/validation.js | head -n 80
+43:        expect(res2.statusCode).to.equal(400);
+112:            expect(res1.statusCode).to.equal(400);
+121:            expect(res4.statusCode).to.equal(400);
+157:            expect(res1.statusCode).to.equal(400);
+163:            expect(res3.statusCode).to.equal(400);
+169:            expect(res5.statusCode).to.equal(400);
+193:            expect(res1.statusCode).to.equal(400);
+217:            expect(res.statusCode).to.equal(400);
+259:            expect(res.statusCode).to.equal(400);
+310:            expect(res2.statusCode).to.equal(400);
+311:            expect(res2.result.message).to.equal('Bad query');
+336:            expect(res.statusCode).to.equal(400);
+398:            expect(res.statusCode).to.equal(400);
+500:            expect(res.statusCode).to.equal(400);
+545:            expect(res.result.error.output.payload.message).to.equal('Invalid request query input');
+548:        it('replaces error with message on invalid input', async () => {
+570:            expect(res.statusCode).to.equal(400);
+621:            expect(res.statusCode).to.equal(400);
+623:                statusCode: 400,
+625:                message: '"a" length must be at least 2 characters long',
+671:            expect(res1.statusCode).to.equal(400);
+672:            expect(res1.result.message).to.equal('Invalid request query input');
+678:            expect(res3.statusCode).to.equal(400);
+679:            expect(res3.result.message).to.equal('Invalid request query input');
+704:            expect(res.statusCode).to.equal(400);
+749:            expect(res.statusCode).to.equal(400);
+750:            expect(res.result.message).to.equal('Invalid request payload input');
+772:            expect(res.statusCode).to.equal(400);
+795:            expect(res.statusCode).to.equal(400);
+823:            expect(res.statusCode).to.equal(400);
+895:            expect(res.statusCode).to.equal(400);
+956:            expect(res.statusCode).to.equal(400);
+985:            expect(res.statusCode).to.equal(400);
+1117:                                message: Joi.string(),
+1132:            expect(res1.statusCode).to.equal(400);
+1154:                                message: Joi.string(),
+1177:            expect(res2.statusCode).to.equal(400);
+1220:                                message: Joi.string(),
+1236:            expect(res.statusCode).to.equal(400);
+1597:            expect(res.statusCode).to.equal(400);
+1643:                    expect(event.error.message).to.equal('"a" is not allowed');
+1651:        it('replaces error with message on invalid response', async () => {
+1673:            expect(res.statusCode).to.equal(400);
+[0m
+[0m→ [0mRead repo/test/validation.js[90m [limit=150, offset=660][0m
+[0m
+[0m$ [0mgrep -n "data\|boomify\|badRequest" node_modules/@hapi/boom/lib/index.js | head -n 100
+echo "---VALIDATE---"
+grep -n "isBoom\|data\|details" node_modules/@hapi/validate/lib/*.js | head -n 100
+74:            return exports.boomify(Hoek.clone(message), options);
+77:        const { statusCode = 500, data = null, ctor = exports.Boom } = options;
+80:        error.data = data;
+111:exports.boomify = function (err, options) {
+117:    if (options.data !== undefined) {
+118:        err.data = options.data;
+141:exports.badRequest = function (message, data) {
+143:    return new exports.Boom(message, { statusCode: 400, data, ctor: exports.badRequest });
+213:exports.paymentRequired = function (message, data) {
+215:    return new exports.Boom(message, { statusCode: 402, data, ctor: exports.paymentRequired });
+219:exports.forbidden = function (message, data) {
+221:    return new exports.Boom(message, { statusCode: 403, data, ctor: exports.forbidden });
+225:exports.notFound = function (message, data) {
+227:    return new exports.Boom(message, { statusCode: 404, data, ctor: exports.notFound });
+231:exports.methodNotAllowed = function (message, data, allow) {
+233:    const err = new exports.Boom(message, { statusCode: 405, data, ctor: exports.methodNotAllowed });
+247:exports.notAcceptable = function (message, data) {
+249:    return new exports.Boom(message, { statusCode: 406, data, ctor: exports.notAcceptable });
+253:exports.proxyAuthRequired = function (message, data) {
+255:    return new exports.Boom(message, { statusCode: 407, data, ctor: exports.proxyAuthRequired });
+259:exports.clientTimeout = function (message, data) {
+261:    return new exports.Boom(message, { statusCode: 408, data, ctor: exports.clientTimeout });
+265:exports.conflict = function (message, data) {
+267:    return new exports.Boom(message, { statusCode: 409, data, ctor: exports.conflict });
+271:exports.resourceGone = function (message, data) {
+273:    return new exports.Boom(message, { statusCode: 410, data, ctor: exports.resourceGone });
+277:exports.lengthRequired = function (message, data) {
+279:    return new exports.Boom(message, { statusCode: 411, data, ctor: exports.lengthRequired });
+283:exports.preconditionFailed = function (message, data) {
+285:    return new exports.Boom(message, { statusCode: 412, data, ctor: exports.preconditionFailed });
+289:exports.entityTooLarge = function (message, data) {
+291:    return new exports.Boom(message, { statusCode: 413, data, ctor: exports.entityTooLarge });
+295:exports.uriTooLong = function (message, data) {
+297:    return new exports.Boom(message, { statusCode: 414, data, ctor: exports.uriTooLong });
+301:exports.unsupportedMediaType = function (message, data) {
+303:    return new exports.Boom(message, { statusCode: 415, data, ctor: exports.unsupportedMediaType });
+307:exports.rangeNotSatisfiable = function (message, data) {
+309:    return new exports.Boom(message, { statusCode: 416, data, ctor: exports.rangeNotSatisfiable });
+313:exports.expectationFailed = function (message, data) {
+315:    return new exports.Boom(message, { statusCode: 417, data, ctor: exports.expectationFailed });
+319:exports.teapot = function (message, data) {
+321:    return new exports.Boom(message, { statusCode: 418, data, ctor: exports.teapot });
+325:exports.badData = function (message, data) {
+327:    return new exports.Boom(message, { statusCode: 422, data, ctor: exports.badData });
+331:exports.locked = function (message, data) {
+333:    return new exports.Boom(message, { statusCode: 423, data, ctor: exports.locked });
+337:exports.failedDependency = function (message, data) {
+339:    return new exports.Boom(message, { statusCode: 424, data, ctor: exports.failedDependency });
+342:exports.tooEarly = function (message, data) {
+344:    return new exports.Boom(message, { statusCode: 425, data, ctor: exports.tooEarly });
+348:exports.preconditionRequired = function (message, data) {
+350:    return new exports.Boom(message, { statusCode: 428, data, ctor: exports.preconditionRequired });
+354:exports.tooManyRequests = function (message, data) {
+356:    return new exports.Boom(message, { statusCode: 429, data, ctor: exports.tooManyRequests });
+360:exports.illegal = function (message, data) {
+362:    return new exports.Boom(message, { statusCode: 451, data, ctor: exports.illegal });
+368:exports.internal = function (message, data, statusCode = 500) {
+370:    return internals.serverError(message, data, statusCode, exports.internal);
+374:exports.notImplemented = function (message, data) {
+376:    return internals.serverError(message, data, 501, exports.notImplemented);
+380:exports.badGateway = function (message, data) {
+382:    return internals.serverError(message, data, 502, exports.badGateway);
+386:exports.serverUnavailable = function (message, data) {
+388:    return internals.serverError(message, data, 503, exports.serverUnavailable);
+392:exports.gatewayTimeout = function (message, data) {
+394:    return internals.serverError(message, data, 504, exports.gatewayTimeout);
+398:exports.badImplementation = function (message, data) {
+400:    const err = internals.serverError(message, data, 500, exports.badImplementation);
+414:    if (!err.hasOwnProperty('data')) {
+415:        err.data = null;
+460:internals.serverError = function (message, data, statusCode, ctor) {
+462:    if (data instanceof Error &&
+463:        !data.isBoom) {
+465:        return exports.boomify(data, { statusCode, message });
+468:    return new exports.Boom(message, { statusCode, data, ctor });
+---VALIDATE---
+node_modules/@hapi/validate/lib/annotate.js:18:        return this.details[0].message;
+node_modules/@hapi/validate/lib/annotate.js:27:    for (let i = this.details.length - 1; i >= 0; --i) {        // Reverse order to process deepest child first
+node_modules/@hapi/validate/lib/annotate.js:29:        const error = this.details[i];
+node_modules/@hapi/validate/lib/annotate.js:78:    for (let i = 0; i < this.details.length; ++i) {
+node_modules/@hapi/validate/lib/annotate.js:80:        message = `${message}\n[${pos}] ${this.details[i].message}`;
+node_modules/@hapi/validate/lib/common.js:76:        throw new AssertError([result.error.details[0].message]);
+node_modules/@hapi/validate/lib/errors.js:154:    const { override, message, details } = exports.details(errors);
+node_modules/@hapi/validate/lib/errors.js:160:        return new exports.ValidationError(message, details, original);
+node_modules/@hapi/validate/lib/errors.js:165:    const validationError = new exports.ValidationError(message, details, original);
+node_modules/@hapi/validate/lib/errors.js:171:exports.details = function (errors, options = {}) {
+node_modules/@hapi/validate/lib/errors.js:174:    const details = [];
+node_modules/@hapi/validate/lib/errors.js:188:            details.push({
+node_modules/@hapi/validate/lib/errors.js:202:        details.push({
+node_modules/@hapi/validate/lib/errors.js:214:    return { message: messages.join('. '), details };
+node_modules/@hapi/validate/lib/errors.js:220:    constructor(message, details, original) {
+node_modules/@hapi/validate/lib/errors.js:224:        this.details = details;
+[0m
+[0m→ [0mRead repo/node_modules/@hapi/boom/lib/index.js[90m [limit=160, offset=50][0m
+[0m
+[0m$ [0mgrep -rn "\.data" test/validation.js | head -n 40
+grep -rn "\.data" lib/*.js | head -n 80
+cat /work/repro 2>/dev/null | head -n 200; ls -R /work | head -n 40
+lib/auth.js:114:        return response.data;
+lib/auth.js:275:            const message = (response.isAuth ? internals.validate(response.error, response.data, name, config, request, errors) : internals.validate(response, null, name, config, request, errors));
+lib/core.js:151:            const data = event.error || event.data;
+lib/toolkit.js:256:        this.data = data;
+#!/usr/bin/env bash
+# Experiment-only incident runner.
+# Executes the captured production incident against the CURRENT worktree and
+# reports whether the original failure is still present.
+set -uo pipefail
+OUT=$(node /work/.repro/rt/experiments/reproducer-v3/headline/replay-raw.mjs \
+  --app /work/app/server.mjs \
+  --capture /work/.repro/incident.repro.json \
+  --port 48999 \
+  --env '{"REPO_ROOT":"/work/repo","PGPORT":"54399","REPLAY_HOST":"127.0.0.1"}' 2>&1 | tail -1)
+
+node -e '
+const raw = process.argv[1];
+let d = null; try { d = JSON.parse(raw); } catch {}
+if (!d) { console.log("REPRO_RUNNER_ERROR"); console.log(raw.slice(0, 500)); process.exit(2); }
+console.log(d.pass ? "ORIGINAL_FAILURE_REPRODUCED" : "ORIGINAL_FAILURE_ABSENT");
+console.log("observed_http_status=" + (d.status ?? "none"));
+' "$OUT"
+/work:
+app
+incident-evidence.json
+incident-evidence.md
+repo
+repro
+
+/work/app:
+server.mjs
+
+/work/repo:
+API.md
+LICENSE.md
+README.md
+SPONSORS.md
+lib
+node_modules
+package.json
+test
+
+/work/repo/lib:
+auth.js
+compression.js
+config.js
+core.js
+cors.js
+ext.js
+handler.js
+headers.js
+index.js
+methods.js
+request.js
+response.js
+route.js
+security.js
+server.js
+streams.js
+toolkit.js
+transmit.js
+validation.js
+[0m
+[0m$ [0m./repro 2>&1 | head -n 20; echo "exit:$?"
+ORIGINAL_FAILURE_REPRODUCED
+observed_http_status=500
+exit:0
+[0m
+[0m$ [0mgrep -n "validation" API.md | head -n 60
+434:for event criteria validation, channels, and filters.
+570:- `validation` `error` `{input}` - input (i.e. payload, query, params, headers) validation failed. Includes the error. Only emitted when `failAction` is set to `'log'`.
+571:- `validation` `response` `error` - response validation failed. Includes the error message. Only emitted when `failAction` is set to `'log'`.
+1004:    - `payload` - if `true`, requires payload validation as part of the scheme and forbids routes
+1005:      from disabling payload auth validation. Defaults to `false`.
+1015:When the scheme `payload()` method throws an error with a message, it means payload validation
+1924:      recommended for run-time usage of `inject()` to make it perform faster where input validation
+2254:      validation.
+2402:    - `validate` - rules object validation:
+2404:        - `options` - optional **joi** validation options. Defaults to `{ allowUnknown: true }`.
+2544:    - `sign` - an object used to calculate an HMAC for cookie integrity validation. This does not provide privacy, only a mean to verify that the cookie value was generated by the server. Redundant when `'iron'` encoding is used. Options are:
+2703:Registers a server validation module used to compile raw validation rules into validation schemas for all routes where:
+2705:- `validator` - the validation module (e.g. **joi**).
+2709:Note: the validator is only used when validation rules are not pre-compiled schemas. When a validation rules is a function or schema object, the rule is used as-is and the validator is not used. When setting a validator inside a plugin, the validator is only applied to routes set up by the plugin and plugins registered by it.
+3249:payload validation.
+3255:If `true`, applies the validation rule changes to the response payload.
+3261:[**joi**](https://joi.dev/api) options object pass to the validation function. Useful to set global options such as `stripUnknown` or `abortEarly`. If a custom validation function is defined via [`schema`](#route.options.response.schema) or [`status`](#route.options.response.status) then `options` can an arbitrary object that will be passed to this function as the second argument.
+3273:The percent of response payloads validated (0 - 100). Set to `0` to disable all validation.
+3277:Default value: `true` (no validation).
+3279:The default response payload validation rules (for all non-error responses) expressed as one of:
+3281:- `true` - any payload allowed (no validation).
+3285:- a [**joi**](https://joi.dev/api) validation object. The [`options`](#route.options.response.options)
+3287:  the validation function.
+3289:- a validation function using the signature `async function(value, options)` where:
+3428:Request input validation rules for various request components.
+3434:An optional object with error fields copied into every validation error response.
+3440:A [`failAction` value](#lifecycle-failAction) which determines how to handle failed validations.
+3441:When set to a function, the `err` argument includes the type of validation error under
+3442:`err.output.payload.validation.source`.
+3446:Default value: `true` (no validation).
+3450:- `true` - any headers allowed (no validation performed).
+3452:- a [**joi**](https://joi.dev/api) validation object.
+3454:- a validation function using the signature `async function(value, options)` where:
+3470:validation methods. Used for setting global options such as `stripUnknown` or `abortEarly`.
+3472:If a custom validation function (see `headers`, `params`, `query`, or `payload` above) is defined
+3477:are added to the `options` object under the validation `context` (accessible in rules as
+3480:Note that validation is performed in order (i.e. headers, params, query, and payload) and if type
+3484:If the validation rules for `headers`, `params`, `query`, and `payload` are defined at both the
+3490:Default value: `true` (no validation).
+3495:- `true` - any path parameter value allowed (no validation performed).
+3497:- a [**joi**](https://joi.dev/api) validation object.
+3499:- a validation function using the signature `async function(value, options)` where:
+3509:Note that failing to match the validation rules to the route path parameters definition will cause
+3514:Default value: `true` (no validation).
+3518:- `true` - any payload allowed (no validation performed).
+3522:- a [**joi**](https://joi.dev/api) validation object.
+3523:    - Note that empty payloads are represented by a `null` value. If a validation schema is
+3528:- a validation function using the signature `async function(value, options)` where:
+3543:Default value: `true` (no validation).
+3547:[`request.query`](#request.query) prior to validation. Where:
+3549:- `true` - any query parameter value allowed (no validation performed).
+3553:- a [**joi**](https://joi.dev/api) validation object.
+3555:- a validation function using the signature `async function(value, options)` where:
+3569:Default value: `true` (no validation).
+3572:[`request.state`](#request.state) prior to validation. Where:
+3574:- `true` - any cookie value allowed (no validation performed).
+3578:- a [**joi**](https://joi.dev/api) validation object.
+3580:- a validation function using the signature `async function(value, options)` where:
+3593:Sets a server validation module used to compile raw validation rules into validation schemas (e.g. **joi**).
+3595:Note: the validator is only used when validation rules are not pre-compiled schemas. When a validation rules is a function or schema object, the rule is used as-is and the validator is not used.
+[0m
+[0m→ [0mRead repo/API.md[90m [limit=30, offset=3436][0m
+[0m→ [0mRead repo/lib/validation.js[90m [limit=25, offset=142][0m
+[0m
+[0m← [0mEdit repo/lib/validation.js
+Index: /work/repo/lib/validation.js
+===================================================================
+--- /work/repo/lib/validation.js
++++ /work/repo/lib/validation.js
+@@ -146,8 +146,16 @@
+ // Prepare error
+ 
+ const defaultError = validationError.isBoom ? validationError : Boom.badRequest(`Invalid request ${source} input`);
+ const detailedError = Boom.boomify(validationError, { statusCode: 400, override: false });
++if (detailedError !== defaultError) {
++    if (!detailedError.data || typeof detailedError.data !== 'object') {
++        detailedError.data = { defaultError };
++    }
++    else {
++        detailedError.data.defaultError = defaultError;
++    }
++}
+ detailedError.output.payload.validation = { source, keys: [] };
+ if (validationError.details) {
+     for (const details of validationError.details) {
+         const path = details.path;
+
+[0m
+[0m$ [0m./repro 2>&1 | head -n 20
+ORIGINAL_FAILURE_ABSENT
+observed_http_status=400
+[0m
+[0m$ [0mnpm test -- --grep "validation" 2>&1 | tail -n 30
+# lab uses different args; try npx lab test/validation.js
+npx lab -a @hapi/code -m 5000 test/validation.js 2>&1 | tail -n 40
+at ConfigArrayFactory._loadExtends (/work/repo/node_modules/@eslint/eslintrc/lib/config-array-factory.js:779:29)
+    at ConfigArrayFactory._normalizeObjectConfigDataBody (/work/repo/node_modules/@eslint/eslintrc/lib/config-array-factory.js:720:25)
+    at _normalizeObjectConfigDataBody.next (<anonymous>)
+    at ConfigArrayFactory._normalizeObjectConfigData (/work/repo/node_modules/@eslint/eslintrc/lib/config-array-factory.js:665:20)
+    at _normalizeObjectConfigData.next (<anonymous>)
+    at ConfigArrayFactory.create (/work/repo/node_modules/@eslint/eslintrc/lib/config-array-factory.js:460:16)
+    at createBaseConfigArray (/work/repo/node_modules/@eslint/eslintrc/lib/cascading-config-array-factory.js:98:48)
+    at new CascadingConfigArrayFactory (/work/repo/node_modules/@eslint/eslintrc/lib/cascading-config-array-factory.js:234:30)
+    at new CLIEngine (/work/repo/node_modules/eslint/lib/cli-engine/cli-engine.js:569:36)
+    at Object.<anonymous> (/work/repo/node_modules/@hapi/lab/lib/modules/coverage.js:21:19)
+    at Module._compile (node:internal/modules/cjs/loader:1781:14)
+    at Object..js (node:internal/modules/cjs/loader:1913:10)
+    at Module.load (node:internal/modules/cjs/loader:1505:32)
+    at Function._load (node:internal/modules/cjs/loader:1309:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+    at Module.require (node:internal/modules/cjs/loader:1527:12)
+    at require (node:internal/modules/helpers:147:16)
+    at Object.get [as coverage] (/work/repo/node_modules/@hapi/lab/lib/modules/index.js:15:20)
+    at exports.run (/work/repo/node_modules/@hapi/lab/lib/cli.js:39:17)
+    at main (/work/repo/node_modules/@hapi/lab/bin/lab:56:50)
+    at Object.<anonymous> (/work/repo/node_modules/@hapi/lab/bin/lab:60:1)
+    at Module._compile (node:internal/modules/cjs/loader:1781:14)
+    at Object..js (node:internal/modules/cjs/loader:1913:10)
+    at Module.load (node:internal/modules/cjs/loader:1505:32)
+    at Function._load (node:internal/modules/cjs/loader:1309:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+    at node:internal/main/run_main_module:36:49
+
+Node.js v22.23.2
+
+  
+  ..................................................
+  ..................
+
+68 tests complete
+Test duration: 827 ms
+Assertions count: 133 (verbosity: 1.96)
+Leaks: No issues
+[0m
+[0m$ [0mnpx lab -a @hapi/code -m 5000 -L false test/validation.js 2>&1 | tail -n 20; echo "EXIT:$?"
+Could not find test file or directory 'false'.
+EXIT:0
+[0m
+[0m$ [0mnpx lab -a @hapi/code -m 5000 test/validation.js 2>&1 | tail -n 20; echo "EXIT:$?"
+..................................................
+  ..................
+
+68 tests complete
+Test duration: 898 ms
+Assertions count: 133 (verbosity: 1.96)
+Leaks: No issues
+
+EXIT:0
+[0m
+[0m$ [0mnpx eslint lib/validation.js 2>&1 | head -n 30; echo "EXIT:$?"
+# also run a broader sanity: toolkit + route tests
+npx lab -a @hapi/code -m 5000 test/toolkit.js test/route.js test/handler.js 2>&1 | tail -n 20
+Oops! Something went wrong! :(
+
+ESLint: 7.32.0
+
+TypeError: Converting circular structure to JSON
+    --> starting at object with constructor 'Object'
+    |     property 'plugins' -> object with constructor 'Object'
+    |     property '@hapi' -> object with constructor 'Object'
+    |     ...
+    |     property 'recommended' -> object with constructor 'Array'
+    --- index 0 closes the circle
+Referenced from: /work/repo/package.json
+    at JSON.stringify (<anonymous>)
+    at /work/repo/node_modules/@eslint/eslintrc/lib/shared/config-validator.js:252:45
+    at Array.map (<anonymous>)
+    at ConfigValidator.formatErrors (/work/repo/node_modules/@eslint/eslintrc/lib/shared/config-validator.js:243:23)
+    at ConfigValidator.validateConfigSchema (/work/repo/node_modules/@eslint/eslintrc/lib/shared/config-validator.js:273:84)
+    at ConfigArrayFactory._normalizeConfigData (/work/repo/node_modules/@eslint/eslintrc/lib/config-array-factory.js:644:19)
+    at ConfigArrayFactory._loadExtendedPluginConfig (/work/repo/node_modules/@eslint/eslintrc/lib/config-array-factory.js:843:25)
+    at ConfigArrayFactory._loadExtends (/work/repo/node_modules/@eslint/eslintrc/lib/config-array-factory.js:779:29)
+    at ConfigArrayFactory._normalizeObjectConfigDataBody (/work/repo/node_modules/@eslint/eslintrc/lib/config-array-factory.js:720:25)
+    at _normalizeObjectConfigDataBody.next (<anonymous>)
+EXIT:0
+  .
+
+Failed tests:
+
+  45) Route logs payload parsing errors:
+
+      actual expected
+
+      "Expected/^Unexpected propertytoken name or '}' in JSON at position 1 (line 1 column 2)"a/
+
+      Expected [SyntaxError: Expected property name or '}' in JSON at position 1 (line 1 column 2)] to be an error with specified message
+
+      at /work/repo/test/route.js:226:44
+
+
+1 of 101 tests failed
+Test duration: 607 ms
+Assertions count: 191 (verbosity: 1.89)
+Leaks: No issues
+[0m
+[0m$ [0mgit stash && npx lab -a @hapi/code -m 5000 test/route.js 2>&1 | tail -n 20; git stash pop
+Saved working directory and index state WIP on main: f54c3b4 Initial import of the deployed revision
+  ...............x...............................
+
+Failed tests:
+
+  16) Route logs payload parsing errors:
+
+      actual expected
+
+      "Expected/^Unexpected propertytoken name or '}' in JSON at position 1 (line 1 column 2)"a/
+
+      Expected [SyntaxError: Expected property name or '}' in JSON at position 1 (line 1 column 2)] to be an error with specified message
+
+      at /work/repo/test/route.js:226:44
+
+
+1 of 47 tests failed
+Test duration: 313 ms
+Assertions count: 74 (verbosity: 1.57)
+Leaks: No issues
+
+On branch main
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   lib/validation.js
+
+no changes added to commit (use "git add" and/or "git commit -a")
+Dropped refs/stash@{0} (4243536f6f1f93ad0ae8cf280c644c1a18baec9a)
+[0m
+[0m$ [0mgit diff; echo "---REPRO---"; ./repro 2>&1 | head -n 5
+warning: Not a git repository. Use --no-index to compare two paths outside a working tree
+usage: git diff --no-index [<options>] <path> <path>
+
+Diff output format options
+    -p, --patch           generate patch
+    -s, --no-patch        suppress diff output
+    -u                    generate patch
+    -U, --unified[=<n>]   generate diffs with <n> lines context
+    -W, --function-context
+                          generate diffs with <n> lines context
+    --raw                 generate the diff in raw format
+    --patch-with-raw      synonym for '-p --raw'
+    --patch-with-stat     synonym for '-p --stat'
+    --numstat             machine friendly --stat
+    --shortstat           output only the last line of --stat
+    -X, --dirstat[=<param1,param2>...]
+                          output the distribution of relative amount of changes for each sub-directory
+    --cumulative          synonym for --dirstat=cumulative
+    --dirstat-by-file[=<param1,param2>...]
+                          synonym for --dirstat=files,param1,param2...
+    --check               warn if changes introduce conflict markers or whitespace errors
+    --summary             condensed summary such as creations, renames and mode changes
+    --name-only           show only names of changed files
+    --name-status         show only names and status of changed files
+    --stat[=<width>[,<name-width>[,<count>]]]
+                          generate diffstat
+    --stat-width <width>  generate diffstat with a given width
+    --stat-name-width <width>
+                          generate diffstat with a given name width
+    --stat-graph-width <width>
+                          generate diffstat with a given graph width
+    --stat-count <count>  generate diffstat with limited lines
+    --compact-summary     generate compact summary in diffstat
+    --binary              output a binary diff that can be applied
+    --full-index          show full pre- and post-image object names on the "index" lines
+    --color[=<when>]      show colored diff
+    --ws-error-highlight <kind>
+                          highlight whitespace errors in the 'context', 'old' or 'new' lines in the diff
+    -z                    do not munge pathnames and use NULs as output field terminators in --raw or --numstat
+    --abbrev[=<n>]        use <n> digits to display object names
+    --src-prefix <prefix>
+                          show the given source prefix instead of "a/"
+    --dst-prefix <prefix>
+                          show the given destination prefix instead of "b/"
+    --line-prefix <prefix>
+                          prepend an additional prefix to every line of output
+    --no-prefix           do not show any source or destination prefix
+    --inter-hunk-context <n>
+                          show context between diff hunks up to the specified number of lines
+    --output-indicator-new <char>
+                          specify the character to indicate a new line instead of '+'
+    --output-indicator-old <char>
+                          specify the character to indicate an old line instead of '-'
+    --output-indicator-context <char>
+                          specify the character to indicate a context instead of ' '
+
+Diff rename options
+    -B, --break-rewrites[=<n>[/<m>]]
+                          break complete rewrite changes into pairs of delete and create
+    -M, --find-renames[=<n>]
+                          detect renames
+    -D, --irreversible-delete
+                          omit the preimage for deletes
+    -C, --find-copies[=<n>]
+                          detect copies
+    --find-copies-harder  use unmodified files as source to find copies
+    --no-renames          disable rename detection
+    --rename-empty        use empty blobs as rename source
+    --follow              continue listing the history of a file beyond renames
+    -l <n>                prevent rename/copy detection if the number of rename/copy targets exceeds given limit
+
+Diff algorithm options
+    --minimal             produce the smallest possible diff
+    -w, --ignore-all-space
+                          ignore whitespace when comparing lines
+    -b, --ignore-space-change
+                          ignore changes in amount of whitespace
+    --ignore-space-at-eol
+                          ignore changes in whitespace at EOL
+    --ignore-cr-at-eol    ignore carrier-return at the end of line
+    --ignore-blank-lines  ignore changes whose lines are all blank
+    -I, --ignore-matching-lines <regex>
+                          ignore changes whose all lines match <regex>
+    --indent-heuristic    heuristic to shift diff hunk boundaries for easy reading
+    --patience            generate diff using the "patience diff" algorithm
+    --histogram           generate diff using the "histogram diff" algorithm
+    --diff-algorithm <algorithm>
+                          choose a diff algorithm
+    --anchored <text>     generate diff using the "anchored diff" algorithm
+    --word-diff[=<mode>]  show word diff, using <mode> to delimit changed words
+    --word-diff-regex <regex>
+                          use <regex> to decide what a word is
+    --color-words[=<regex>]
+                          equivalent to --word-diff=color --word-diff-regex=<regex>
+    --color-moved[=<mode>]
+                          moved lines of code are colored differently
+    --color-moved-ws <mode>
+                          how white spaces are ignored in --color-moved
+
+Other diff options
+    --relative[=<prefix>]
+                          when run from subdir, exclude changes outside and show relative paths
+    -a, --text            treat all files as text
+    -R                    swap two inputs, reverse the diff
+    --exit-code           exit with 1 if there were differences, 0 otherwise
+    --quiet               disable all output of the program
+    --ext-diff            allow an external diff helper to be executed
+    --textconv            run external text conversion filters when comparing binary files
+    --ignore-submodules[=<when>]
+                          ignore changes to submodules in the diff generation
+    --submodule[=<format>]
+                          specify how differences in submodules are shown
+    --ita-invisible-in-index
+                          hide 'git add -N' entries from the index
+    --ita-visible-in-index
+                          treat 'git add -N' entries as real in the index
+    -S <string>           look for differences that change the number of occurrences of the specified string
+    -G <regex>            look for differences that change the number of occurrences of the specified regex
+    --pickaxe-all         show all changes in the changeset with -S or -G
+    --pickaxe-regex       treat <string> in -S as extended POSIX regular expression
+    -O <file>             control the order in which files appear in the output
+    --rotate-to <path>    show the change in the specified path first
+    --skip-to <path>      skip the output to the specified path
+    --find-object <object-id>
+                          look for differences that change the number of occurrences of the specified object
+    --diff-filter [(A|C|D|M|R|T|U|X|B)...[*]]
+                          select files by diff type
+    --output <file>       output to a specific file
+
+---REPRO---
+ORIGINAL_FAILURE_ABSENT
+observed_http_status=400
+[0m
+[0m$ [0mgit diff -- lib/validation.js; echo "---"; git status --short
+diff --git a/lib/validation.js b/lib/validation.js
+index 2424cb2..0b8a291 100755
+--- a/lib/validation.js
++++ b/lib/validation.js
+@@ -147,6 +147,14 @@ internals.input = async function (source, request) {
+ 
+     const defaultError = validationError.isBoom ? validationError : Boom.badRequest(`Invalid request ${source} input`);
+     const detailedError = Boom.boomify(validationError, { statusCode: 400, override: false });
++    if (detailedError !== defaultError) {
++        if (!detailedError.data || typeof detailedError.data !== 'object') {
++            detailedError.data = { defaultError };
++        }
++        else {
++            detailedError.data.defaultError = defaultError;
++        }
++    }
+     detailedError.output.payload.validation = { source, keys: [] };
+     if (validationError.details) {
+         for (const details of validationError.details) {
+---
+ M lib/validation.js
+[0m

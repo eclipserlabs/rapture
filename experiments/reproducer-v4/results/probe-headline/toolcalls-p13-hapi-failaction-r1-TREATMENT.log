@@ -1,0 +1,18 @@
+grep -rn "failAction" lib/ | head -n 100
+grep -rn "defaultError\|data.*default\|failAction" test/ | head -n 200
+grep -n "err\.data\|error\.data\|details" test/validation.js | head -n 100
+grep -n "failAction\|defaultError\|data\." API.md | head -n 100
+git log --oneline -20 -- lib/validation.js; echo "---"; git log --oneline -20 | head -n 20; echo "---"; git diff HEAD --stat; echo "---status"; git status --short | head
+grep -n "Invalid request\|statusCode.*400\|message" test/validation.js | head -n 80
+grep -n "data\|boomify\|badRequest" node_modules/@hapi/boom/lib/index.js | head -n 100
+grep -rn "\.data" test/validation.js | head -n 40
+./repro 2>&1 | head -n 20; echo "exit:$?"
+grep -n "validation" API.md | head -n 60
+./repro 2>&1 | head -n 20
+npm test -- --grep "validation" 2>&1 | tail -n 30
+npx lab -a @hapi/code -m 5000 -L false test/validation.js 2>&1 | tail -n 20; echo "EXIT:$?"
+npx lab -a @hapi/code -m 5000 test/validation.js 2>&1 | tail -n 20; echo "EXIT:$?"
+npx eslint lib/validation.js 2>&1 | head -n 30; echo "EXIT:$?"
+git stash && npx lab -a @hapi/code -m 5000 test/route.js 2>&1 | tail -n 20; git stash pop
+git diff; echo "---REPRO---"; ./repro 2>&1 | head -n 5
+git diff -- lib/validation.js; echo "---"; git status --short

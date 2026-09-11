@@ -1,0 +1,54 @@
+{
+  "schema": "v4-probe-oracle-validation-1",
+  "case": "fastify-port",
+  "requirement": "the buggy revision must FAIL the original incident and the hidden variants; the historical fixed revision must PASS both",
+  "buggy": {
+    "repo": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/work/fastify-port-buggy",
+    "original": {
+      "status": 500,
+      "body": "{\"error\":\"derived port disagrees with host\",\"code\":\"E_PORT_DERIVATION\",\"host\":\"api.example.com:8443\",\"port\":\"49930\"}"
+    },
+    "original_failure_present": true,
+    "original_exact_signature_present": true,
+    "hidden": [
+      {
+        "variant": "forwarded-host-edge-9443",
+        "status": 500,
+        "pass": false,
+        "body": "{\"ok\":false,\"code\":\"E_PORT_NOT_GENERALIZED\",\"host\":\"edge.example.org:9443\",\"port\":\"49931\"}"
+      },
+      {
+        "variant": "forwarded-host-internal-7000",
+        "status": 500,
+        "pass": false,
+        "body": "{\"ok\":false,\"code\":\"E_PORT_NOT_GENERALIZED\",\"host\":\"svc.internal:7000\",\"port\":\"49931\"}"
+      }
+    ],
+    "hidden_all_pass": false
+  },
+  "fixed": {
+    "repo": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/work/fastify-port-fixed",
+    "original": {
+      "status": 200,
+      "body": "{\"ok\":true,\"url\":\"https://api.example.com:8443/cb\"}"
+    },
+    "original_failure_present": false,
+    "original_exact_signature_present": false,
+    "hidden": [
+      {
+        "variant": "forwarded-host-edge-9443",
+        "status": 200,
+        "pass": true,
+        "body": "{\"ok\":true,\"host\":\"edge.example.org:9443\",\"port\":9443}"
+      },
+      {
+        "variant": "forwarded-host-internal-7000",
+        "status": 200,
+        "pass": true,
+        "body": "{\"ok\":true,\"host\":\"svc.internal:7000\",\"port\":7000}"
+      }
+    ],
+    "hidden_all_pass": true
+  },
+  "oracle_valid": true
+}

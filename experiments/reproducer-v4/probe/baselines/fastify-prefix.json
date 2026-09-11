@@ -1,0 +1,18 @@
+{
+  "schema": "v4-probe-regression-baseline-1",
+  "case": "fastify-prefix",
+  "recorded_at": "2026-09-11T16:03:23.507Z",
+  "tree": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/work/fastify-prefix-buggy",
+  "supported": true,
+  "exit": 0,
+  "seconds": 56,
+  "total": 2262,
+  "failed": 0,
+  "failing": [],
+  "fixed_revision_reference": {
+    "tree": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/work/fastify-prefix-fixed",
+    "total": 2263,
+    "failed": 0,
+    "failing": []
+  }
+}

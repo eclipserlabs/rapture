@@ -1,0 +1,48 @@
+{
+  "schema": "incident-capture-v2",
+  "captured_at": "2026-09-11T16:50:09.136Z",
+  "req_id": "req-11654-1789145409124-1",
+  "request": {
+    "method": "GET",
+    "path": "/session",
+    "query": "",
+    "headers": {
+      "host": "127.0.0.1:52103",
+      "connection": "keep-alive",
+      "accept": "*/*",
+      "accept-language": "*",
+      "sec-fetch-mode": "cors",
+      "user-agent": "node",
+      "accept-encoding": "gzip, deflate"
+    },
+    "host": "127.0.0.1:52103",
+    "body": null
+  },
+  "response": {
+    "status": 500,
+    "headers": {
+      "x-powered-by": "Express",
+      "content-security-policy": "default-src 'none'",
+      "x-content-type-options": "nosniff",
+      "content-type": "text/html; charset=utf-8",
+      "content-length": 1045
+    },
+    "body": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Error</title>\n</head>\n<body>\n<pre>TypeError: option maxAge is invalid<br> &nbsp; &nbsp;at Object.serialize (/private/tmp/v4stage/repo/node_modules/cookie/index.js:125:13)<br> &nbsp; &nbsp;at res.cookie (/private/tmp/v4stage/repo/lib/response.js:880:36)<br> &nbsp; &nbsp;at file:///private/tmp/v4stage/app/server.mjs:6:7<br> &nbsp; &nbsp;at Layer.handle [as handle_request] (/private/tmp/v4stage/repo/lib/router/layer.js:95:5)<br> &nbsp; &nbsp;at next (/private/tmp/v4stage/repo/lib/router/route.js:137:13)<br> &nbsp; &nbsp;at Route.dispatch (/private/tmp/v4stage/repo/lib/router/route.js:112:3)<br> &nbsp; &nbsp;at Layer.handle [as handle_request] (/private/tmp/v4stage/repo/lib/router/layer.js:95:5)<br> &nbsp; &nbsp;at /private/tmp/v4stage/repo/lib/router/index.js:280:22<br> &nbsp; &nbsp;at Function.process_params (/private/tmp/v4stage/repo/lib/router/index.js:340:12)<br> &nbsp; &nbsp;at next (/private/tmp/v4stage/repo/lib/router/index.js:274:10)</pre>\n</body>\n</html>\n"
+  },
+  "events": [],
+  "config": {},
+  "app_error": null,
+  "boundary_ops_outside_request": 0,
+  "offline_replay_supported": true,
+  "fingerprint": {
+    "kind": "app",
+    "request_method": "GET",
+    "route_or_operation": "/session",
+    "http_status": 500,
+    "error_name_or_code": null,
+    "normalized_class": "HTTP_500",
+    "stable_frame": null,
+    "fingerprint_hash": "98b904a7184a03e410220e9aa3168a5f0072b0753766e99957fe8608cc5557ec"
+  },
+  "capture_hash": "35f7213cce7a00aeb513ae419b0714a004e990011ceb986c893594d7b2f15ff5"
+}

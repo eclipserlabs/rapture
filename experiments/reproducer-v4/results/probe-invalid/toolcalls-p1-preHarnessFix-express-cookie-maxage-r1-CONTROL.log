@@ -1,0 +1,9 @@
+ls /work/repo/test/ | head -n 100; echo ---; ls /work/app/
+node -e "var merge=require('utils-merge'); var o={maxAge:undefined,httpOnly:true}; var m=merge({},o); console.log(m); console.log('maxAge' in m); console.log(m.maxAge != null)"
+git log --oneline -5 2>&1 | head; echo ---; git status --short 2>&1 | head -n 20; echo ---; git diff --stat HEAD 2>&1 | head
+node --input-type=module <<'EOF'
+node --input-type=module <<'EOF'
+npx mocha --require test/support/env --reporter spec --bail --check-leaks test/res.cookie.js test/res.clearCookie.js 2>&1 | tail -n 40
+ls node_modules/mocha/bin/ 2>&1; node node_modules/mocha/bin/mocha --require test/support/env --reporter spec --bail --check-leaks test/res.cookie.js test/res.clearCookie.js 2>&1 | tail -n 60
+node node_modules/mocha/bin/mocha --require test/support/env --reporter dot --check-leaks test/res.cookie.js test/res.clearCookie.js test/res.append.js test/app.response.js test/regression.js 2>&1 | tail -n 20
+node node_modules/eslint/bin/eslint.js lib/response.js 2>&1 | tail -n 20; echo exit:$?; git diff 2>&1 | head -n 30

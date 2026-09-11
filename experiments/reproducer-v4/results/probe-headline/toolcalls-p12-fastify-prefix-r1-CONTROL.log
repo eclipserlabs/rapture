@@ -1,0 +1,22 @@
+ls lib/ && grep -rn "prefix" lib/ | head -n 100
+grep -rn "buildRoutePrefix\|prefix.*trailing\|prefixTrailingSlash" lib/ test/ --include="*.js" | head -n 120
+grep -rn "prefix" test/route-prefix.test.js | head -n 100; echo "---FILE---"; wc -l test/route-prefix.test.js
+git log --oneline -20 -- lib/plugin-override.js; echo "---"; git log --oneline -5; echo "---status---"; git status --short; echo "---diff HEAD?---"; git diff --stat HEAD 2>&1 | head
+grep -rn "kRoutePrefix" lib/ fastify.js --include="*.js" | head -n 40
+grep -rn "prefix" fastify.js lib/*.js | head -n 80
+REPO_ROOT=/work/repo PORT=51131 node /work/app/server.mjs &
+node --input-type=module -e "
+grep -n "path\[0\]\|path.*slash\|FST_ERR.*ROUTE\|validate.*path" lib/route.js | head -n 40
+grep -n "INVALID_URL\|must.*start\|leading" lib/*.js fastify.js | head -n 20
+sed -n '370,390p' lib/errors.js
+node --input-type=module -e "
+node --input-type=module -e "
+REPO_ROOT=/work/repo PORT=51132 node /work/app/server.mjs &
+npm run unit -- --grep="prefix" 2>&1 | tail -n 40
+npx borp test/route-prefix.test.js 2>&1 | tail -n 30
+timeout 30 node --test test/route-prefix.test.js 2>&1 | tail -n 40; echo EXIT:$?
+timeout 60 node --test test/register.test.js test/route.test.js 2>&1 | tail -n 15; echo EXIT:$?
+timeout 60 node --test test/plugin.test.js 2>&1 | tail -n 12; echo EXIT:$?
+ls test/plugin*.js test/*register* test/route*.js 2>&1 | head -n 20
+timeout 90 node --test test/plugin.1.test.js test/plugin.2.test.js test/route.1.test.js 2>&1 | tail -n 12; echo EXIT:$?
+git diff; git status --short

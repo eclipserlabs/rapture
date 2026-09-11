@@ -28,7 +28,7 @@ check("git_no_future_history", allRefs.length === 1, `refs=${allRefs.length}`);
 // scanned too -- exclusion by convenience would defeat the point.
 // Precise needles only. A bare issue number matches unrelated content in
 // node_modules and would make the audit cry wolf.
-const needles = [c.fixed.replace(/^[a-z]+-/, ""), c.id, `#${c.id.split("-")[1]}`];
+const needles = [c.fixSha, c.id, c.issue].filter(Boolean);
 const forbidden = [];
 const skipDirs = new Set([".git"]);
 // The vendored replay runtime is frozen V3.3 machinery; it is scanned for
@@ -68,7 +68,11 @@ const scanNames = (dir) => {
   for (const e of readdirSync(dir, { withFileTypes: true })) {
     if (e.name === ".git") continue;
     const p = join(dir, e.name);
-    if (/hidden|evaluat|answer|solution|variant/i.test(e.name)) oracleHits.push(relative(ws, p));
+    // Match the evaluator's ACTUAL artefact names. A generic word match flags
+    // legitimate upstream fixtures (hapi ships a test file literally named
+    // `.hidden`) and says nothing about leakage.
+    if (/-hidden\.mjs$/.test(e.name) || /^(evaluate|audit-workspace|regression)\.mjs$/.test(e.name)
+        || /^validation-.*\.json$/.test(e.name)) oracleHits.push(relative(ws, p));
     if (e.isDirectory()) scanNames(p);
   }
 };
@@ -77,7 +81,19 @@ check("no_hidden_evaluator_material", oracleHits.length === 0, oracleHits.slice(
 
 // The substantive check: the hidden variants' own identifiers must not appear
 // anywhere in the workspace, including inside node_modules and the runtime.
-const variantNeedles = [...c.hidden_variants.map((v) => v.path), ...c.hidden_variants.map((v) => v.name), "x-expect-host"];
+const variantNeedles = [
+  ...c.hidden.map((v) => v.path ?? v.absolute).filter(Boolean),
+  ...c.hidden.map((v) => v.name),
+  // Only custom headers are identifying. Standard ones (content-type) appear
+  // throughout any HTTP stack and are not evidence of oracle leakage.
+  ...c.hidden.flatMap((v) => Object.keys(v.headers ?? {}).filter((h) => h.toLowerCase().startsWith("x-"))),
+].filter((n) => typeof n === "string" && n.length >= 4)
+ // A needle that the ORIGINAL incident already exposes to both arms is not
+ // oracle leakage: fastify-port's own trigger carries x-forwarded-host.
+ .filter((n) => {
+   const triggerText = JSON.stringify(c.trigger);
+   return !triggerText.includes(n);
+ });
 const variantHits = [];
 const walkFor = (dir) => {
   for (const e of readdirSync(dir, { withFileTypes: true })) {

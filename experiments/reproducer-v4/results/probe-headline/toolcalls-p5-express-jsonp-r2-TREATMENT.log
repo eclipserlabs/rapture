@@ -1,0 +1,17 @@
+ls -R /work/.repro/rt 2>&1 | head -n 100; echo ---; cat /work/repro 2>&1 | head -n 200
+grep -rn "jsonp" /work/repo/lib/ 2>&1 | head -n 50; echo ---; ls /work/repo/lib/
+grep -rn "jsonp" /work/repo/test/ 2>&1 | head -n 100
+grep -rn "\.json(" /work/repo/test/res.json.js | head -n 40
+cat /work/.repro/rt/experiments/reproducer-v3/headline/replay-raw.mjs
+cat /work/.repro/rt/experiments/reproducer-v3/src/oracle/fingerprint.mjs
+git log --oneline -20 2>&1 | head -n 30
+find /work -name "response.js" 2>/dev/null | head
+./repro 2>&1 | tail -n 20
+./repro 2>&1 | tail -n 20
+node -e "
+node -e "
+npm test 2>&1 | tail -n 30
+git stash && npm test 2>&1 | tail -n 15; git stash pop
+git stash && npm test 2>&1 | grep -E "passing|failing"; git stash pop
+./repro 2>&1 | tail -n 5
+/work/repro 2>&1 | tail -n 5

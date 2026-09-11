@@ -1,0 +1,54 @@
+{
+  "schema": "v4-probe-oracle-validation-1",
+  "case": "hapi-failaction",
+  "requirement": "the buggy revision must FAIL the original incident and the hidden variants; the historical fixed revision must PASS both",
+  "buggy": {
+    "repo": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/work/hapi-failaction-buggy",
+    "original": {
+      "status": 500,
+      "body": "{\"error\":\"default validation error unavailable\",\"code\":\"E_NO_DEFAULT_ERROR\"}"
+    },
+    "original_failure_present": true,
+    "original_exact_signature_present": true,
+    "hidden": [
+      {
+        "variant": "put-payload-string-min-length",
+        "status": 500,
+        "pass": false,
+        "body": "{\"ok\":false,\"code\":\"E_DEFAULT_ERROR_NOT_GENERALIZED\"}"
+      },
+      {
+        "variant": "get-query-integer-min",
+        "status": 500,
+        "pass": false,
+        "body": "{\"ok\":false,\"code\":\"E_DEFAULT_ERROR_NOT_GENERALIZED\"}"
+      }
+    ],
+    "hidden_all_pass": false
+  },
+  "fixed": {
+    "repo": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/work/hapi-failaction-fixed",
+    "original": {
+      "status": 400,
+      "body": "{\"error\":\"validation failed\",\"detail\":\"Invalid request payload input\"}"
+    },
+    "original_failure_present": false,
+    "original_exact_signature_present": false,
+    "hidden": [
+      {
+        "variant": "put-payload-string-min-length",
+        "status": 200,
+        "pass": true,
+        "body": "{\"ok\":true,\"detail\":\"Invalid request payload input\"}"
+      },
+      {
+        "variant": "get-query-integer-min",
+        "status": 200,
+        "pass": true,
+        "body": "{\"ok\":true,\"detail\":\"Invalid request query input\"}"
+      }
+    ],
+    "hidden_all_pass": true
+  },
+  "oracle_valid": true
+}

@@ -1,0 +1,13 @@
+ls -R /work/.repro 2>&1; echo "---"; cat /work/repro 2>&1 | head -n 200; echo "==="; file /work/repro 2>&1
+/work/repro 2>&1
+ls /work/repo/lib/; echo "---"; grep -rn "prefix" /work/repo/lib/ --include="*.js" | head -n 100
+grep -rn "kRoutePrefix" /work/repo/ --include="*.js" | grep -v node_modules | head -n 40
+git log --oneline -15 -- lib/plugin-override.js 2>&1 | head -n 20
+grep -rn "prefix" /work/repo/test/ --include="*.js" -l | head -n 20
+/work/repro 2>&1
+node --test test/route-prefix.test.js 2>&1 | tail -n 30
+node --test test/plugin.1.test.js test/plugin.3.test.js test/route.2.test.js 2>&1 | tail -n 15
+node -e "
+node -e "
+node -e "
+node --test test/404s.test.js 2>&1 | tail -n 10

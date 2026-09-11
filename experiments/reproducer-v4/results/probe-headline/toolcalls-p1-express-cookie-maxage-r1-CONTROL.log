@@ -1,0 +1,10 @@
+rg -n "maxAge" test/ lib/ --no-heading | head -n 100
+grep -rn "maxAge" test/ lib/ | head -n 100
+node -e "
+node /tmp/opencode/repro.mjs 2>&1 | head -n 30
+node /tmp/opencode/repro.mjs 2>&1 | head -n 30
+node /tmp/opencode/repro2.mjs 2>&1 | head -n 20
+npx mocha --require test/support/env --reporter spec --bail --check-leaks test/res.cookie.js test/res.clearCookie.js 2>&1 | tail -n 40
+node /tmp/opencode/edge.mjs 2>&1
+npx mocha --require test/support/env --reporter dot --check-leaks test/res.cookie.js test/res.clearCookie.js test/res.json.js test/res.send.js 2>&1 | tail -n 20
+git diff --stat; echo ---; git diff

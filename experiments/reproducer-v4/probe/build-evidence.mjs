@@ -9,8 +9,8 @@ import { spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import net from "node:net";
-import { join } from "node:path";
-import { byId, CORPUS, PG_ENTRY, V3H } from "./cases.mjs";
+import { dirname, join } from "node:path";
+import { byId, PG_ENTRY, V3H } from "./cases.mjs";
 
 const HERE = new URL(".", import.meta.url).pathname;
 const NODE = process.execPath;
@@ -21,15 +21,15 @@ const sha12 = (s) => createHash("sha256").update(s).digest("hex").slice(0, 12);
 const c = byId(arg("--case"));
 const out = arg("--out");
 const port = Number(arg("--port", "49760"));
-const repoRoot = join(CORPUS, c.buggy);
+const repoRoot = c.buggyRoot;
 const obsFile = join("/tmp", `v4obs-${c.id}-${process.pid}.json`);
 
 // --- run the buggy revision and observe the real failure ---------------------
 const child = await new Promise((resolve, reject) => {
   const env = { ...process.env, REPO_ROOT: repoRoot, PORT: String(port),
-                FAKE_ORIGIN: "http://localhost:47109",
                 OBS_OUT: obsFile, OBS_PG_ENTRY: PG_ENTRY };
-  const p = spawn(NODE, ["--import", join(HERE, "observe-shim.mjs"), join(V3H, "services", c.service)],
+  if (c.needsPgAndExternal) env.FAKE_ORIGIN = "http://localhost:47109";
+  const p = spawn(NODE, ["--import", join(HERE, "observe-shim.mjs"), c.serviceEntry],
                   { env, stdio: ["ignore", "pipe", "pipe"] });
   let buf = "";
   const t = setTimeout(() => { p.kill("SIGKILL"); reject(new Error(`READY timeout: ${buf.slice(-400)}`)); }, 30000);
@@ -52,10 +52,14 @@ const rawAbsolute = (target) => new Promise((res) => {
 });
 
 const t0 = Date.now();
-const resp = c.trigger.kind === "raw-absolute"
-  ? await rawAbsolute(c.trigger.path)
-  : await fetch(`http://127.0.0.1:${port}${c.trigger.path}`)
-      .then(async (r) => ({ status: r.status, headers: Object.fromEntries(r.headers), body: await r.text() }));
+const resp = c.trigger.absolute
+  ? await rawAbsolute(c.trigger.absolute)
+  : await (async () => {
+      const init = { method: c.trigger.method ?? "GET", headers: c.trigger.headers ?? {} };
+      if (c.trigger.body != null) init.body = c.trigger.body;
+      const r = await fetch(`http://127.0.0.1:${port}${c.trigger.path}`, init);
+      return { status: r.status, headers: Object.fromEntries(r.headers), body: await r.text() };
+    })();
 const durationMs = Date.now() - t0;
 await sleep(700);
 child.kill("SIGTERM");
@@ -68,18 +72,25 @@ rmSync(obsFile, { force: true });
 // directory name. Rewrite to the path the agent actually sees.
 const scrubPath = (s) => String(s ?? "")
   .split(repoRoot).join("/work/repo")
-  .split(join(V3H, "services", c.service)).join("/work/app/server.mjs")
+  .split(c.serviceEntry).join("/work/app/server.mjs")
   .split(join(V3H, "services")).join("/work/app")
-  .split(HERE.replace(/\/$/, "")).join("/work/.internal");
+  .split(dirname(c.serviceEntry)).join("/work/app")
+  .split(HERE.replace(/\/$/, "")).join("/work/.internal")
+  // Backstop: any absolute host path that survived the named replacements --
+  // for instance one truncated mid-string before it could be matched -- is
+  // removed outright rather than shipped to the subject.
+  .replace(/(file:\/\/)?\/Users\/[^\s)"'`]*/g, "<path>");
 
-const RELEASE = `rel-${sha12(`${c.id}:${c.buggy}`)}`;   // opaque internal build id, not an upstream sha
+const RELEASE = `rel-${sha12(`${c.id}:${c.buggyRoot}`)}`;   // opaque internal build id, not an upstream sha
 const INCIDENT = `INC-${sha12(`${c.id}:${c.route}`).toUpperCase()}`;
 
 // The application error as an error tracker would report it: the error the
 // service's own handler observed. Selected by proximity to the failure, not by
 // any bug-specific knowledge.
+// Keep errors whose stack reaches application or repository code; drop pure
+// runtime-internal noise. This is a generic proximity rule, not bug-specific.
 const appErrors = obs.errors
-  .filter((e) => e.stack && !/node:internal/.test(e.stack.split("\n")[1] ?? ""))
+  .filter((e) => e.stack && (e.stack.includes(repoRoot) || e.stack.includes(dirname(c.serviceEntry))))
   .slice(-3)
   .map((e) => ({ name: e.name, constructor: e.constructor_name, message: e.message,
                  status: e.status, code: e.code, stack: scrubPath(e.stack) }));
@@ -92,12 +103,14 @@ const pack = {
   request: {
     method: c.route.split(" ")[0],
     route: c.route.slice(c.route.indexOf(" ") + 1),
-    target_form: c.trigger.kind === "raw-absolute" ? "absolute-form request target" : "origin-form request target",
-    headers_shape: { host: "<service-host>", connection: "close", accept: "*/*", "user-agent": "<client>" },
-    body: null,
+    target_form: c.trigger.absolute ? "absolute-form request target" : "origin-form request target",
+    headers_shape: { host: "<service-host>", connection: "close", accept: "*/*",
+                     "user-agent": "<client>", ...(c.trigger.headers ?? {}) },
+    body: c.trigger.body ?? null,
   },
-  response: { status: resp.status, headers: resp.headers,
-              body: String(resp.body).slice(0, 600), duration_ms: durationMs },
+  response: { status: resp.status,
+              headers: Object.fromEntries(Object.entries(resp.headers ?? {}).map(([k, v]) => [k, scrubPath(v)])),
+              body: scrubPath(String(resp.body)).slice(0, 1200), duration_ms: durationMs },
   error: {
     normalized_code: (() => { const m = /"code":"([A-Z_0-9]+)"/.exec(String(resp.body)); return m ? m[1] : null; })(),
     normalized_message: (() => { const m = /"error":"([^"]+)"/.exec(String(resp.body)); return m ? m[1] : null; })(),
@@ -162,6 +175,14 @@ ${pack.logs.length ? pack.logs.map((l) => `- \`${l.level}\` ${l.message}`).join(
 - platform: ${pack.service.platform}
 - release: ${pack.service.release}
 `;
+
+// Fail closed: the evidence pack must never contain a host path or the
+// research service filename.
+const packText = JSON.stringify(pack) + md;
+const leaks = [];
+if (/\/Users\//.test(packText)) leaks.push("absolute host path");
+if (packText.includes(c.id)) leaks.push(`case identifier ${c.id}`);
+if (leaks.length) { console.error("EVIDENCE_LEAK " + leaks.join("; ")); process.exit(1); }
 
 mkdirSync(out, { recursive: true });
 writeFileSync(join(out, "incident-evidence.json"), JSON.stringify(pack, null, 2) + "\n");

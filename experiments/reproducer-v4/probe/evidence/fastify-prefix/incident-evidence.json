@@ -1,0 +1,59 @@
+{
+  "schema": "v4-probe-control-evidence-1",
+  "incident_id": "INC-90C0F66C84D7",
+  "service": {
+    "name": "svc-fastify-api",
+    "release": "rel-9fb69c8a3833",
+    "runtime": "node v22.14.0",
+    "framework": "fastify",
+    "platform": "darwin"
+  },
+  "request": {
+    "method": "GET",
+    "route": "/api/v1/orders",
+    "target_form": "origin-form request target",
+    "headers_shape": {
+      "host": "<service-host>",
+      "connection": "close",
+      "accept": "*/*",
+      "user-agent": "<client>"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 500,
+    "headers": {
+      "connection": "keep-alive",
+      "content-length": "90",
+      "content-type": "application/json; charset=utf-8",
+      "date": "Fri, 11 Sep 2026 16:09:15 GMT",
+      "keep-alive": "timeout=72"
+    },
+    "body": "{\"error\":\"nested prefix joined incorrectly\",\"code\":\"E_PREFIX_JOIN\",\"url\":\"/api/v1/orders\"}",
+    "duration_ms": 57
+  },
+  "error": {
+    "normalized_code": "E_PREFIX_JOIN",
+    "normalized_message": "nested prefix joined incorrectly",
+    "application_errors_observed": [],
+    "note": "the application handled this error internally; no unhandled stack was exposed to the error tracker"
+  },
+  "operations": [],
+  "logs": [
+    {
+      "level": "info",
+      "message": "READY"
+    }
+  ],
+  "excluded_by_policy": [
+    "historical issue number",
+    "CVE identifier",
+    "upstream fixing commit or diff",
+    "upstream regression test that reveals the fix",
+    "captured database result rows",
+    "captured outbound response bodies",
+    "captured time/random streams",
+    "hand-written root-cause explanation",
+    "the hidden evaluator"
+  ]
+}

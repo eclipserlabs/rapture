@@ -1,0 +1,17 @@
+[
+  {
+    "line": 166,
+    "command": "$ ./repro 2>&1 | tail -n 20",
+    "outcome": "ORIGINAL_FAILURE_REPRODUCED"
+  },
+  {
+    "line": 499,
+    "command": "$ ./repro 2>&1 | tail -n 20",
+    "outcome": "ORIGINAL_FAILURE_ABSENT"
+  },
+  {
+    "line": 706,
+    "command": "$ ./repro 2>&1 | tail -n 5",
+    "outcome": "ORIGINAL_FAILURE_ABSENT"
+  }
+]

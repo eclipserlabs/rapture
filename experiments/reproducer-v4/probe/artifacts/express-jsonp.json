@@ -1,0 +1,48 @@
+{
+  "schema": "incident-capture-v2",
+  "captured_at": "2026-09-11T16:50:49.120Z",
+  "req_id": "req-11781-1789145449111-1",
+  "request": {
+    "method": "GET",
+    "path": "/lookup",
+    "query": "?id=missing&cb=render",
+    "headers": {
+      "host": "127.0.0.1:52128",
+      "connection": "keep-alive",
+      "accept": "*/*",
+      "accept-language": "*",
+      "sec-fetch-mode": "cors",
+      "user-agent": "node",
+      "accept-encoding": "gzip, deflate"
+    },
+    "host": "127.0.0.1:52128",
+    "body": null
+  },
+  "response": {
+    "status": 500,
+    "headers": {
+      "x-powered-by": "Express",
+      "x-content-type-options": "nosniff",
+      "content-type": "text/javascript; charset=utf-8",
+      "content-length": "132",
+      "etag": "W/\"84-To/5PNOWpgJKJzdmVntuYw32Vi0\""
+    },
+    "body": "{\"error\":\"jsonp serialization failed\",\"code\":\"E_JSONP_UNDEFINED\",\"detail\":\"Cannot read properties of undefined (reading 'replace')\"}"
+  },
+  "events": [],
+  "config": {},
+  "app_error": null,
+  "boundary_ops_outside_request": 0,
+  "offline_replay_supported": true,
+  "fingerprint": {
+    "kind": "app",
+    "request_method": "GET",
+    "route_or_operation": "/lookup",
+    "http_status": 500,
+    "error_name_or_code": "ERR:E_JSONP_UNDEFINED",
+    "normalized_class": "ERR:E_JSONP_UNDEFINED",
+    "stable_frame": null,
+    "fingerprint_hash": "ff3f996d306404c8d17e6e4f1ca5eba31bca31e9c6042f856f8e1f3f6fea5d55"
+  },
+  "capture_hash": "7cf06598f1c2bc524aef2907d76a8845ee0d670df061357c60aa26665d939525"
+}

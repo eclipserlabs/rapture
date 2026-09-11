@@ -1,0 +1,22 @@
+[
+  {
+    "line": 26,
+    "command": "$ ls -R /work/app 2>&1; echo ---; cat /work/repro 2>&1 | head -n 200; echo ---; ls -l /work/repro 2>&1",
+    "outcome": null
+  },
+  {
+    "line": 49,
+    "command": "-rwxr-xr-x 1 root root 815 Sep 11 18:34 /work/repro",
+    "outcome": "ORIGINAL_FAILURE_REPRODUCED"
+  },
+  {
+    "line": 51,
+    "command": "$ /work/repro 2>&1",
+    "outcome": "ORIGINAL_FAILURE_REPRODUCED"
+  },
+  {
+    "line": 217,
+    "command": "$ /work/repro 2>&1",
+    "outcome": "ORIGINAL_FAILURE_ABSENT"
+  }
+]

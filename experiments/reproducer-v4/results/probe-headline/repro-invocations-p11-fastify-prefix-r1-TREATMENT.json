@@ -1,0 +1,17 @@
+[
+  {
+    "line": 31,
+    "command": "$ ls -R /work/.repro 2>&1; echo \"---\"; cat /work/repro 2>&1 | head -n 200; echo \"===\"; file /work/repro 2>&1",
+    "outcome": null
+  },
+  {
+    "line": 692,
+    "command": "$ /work/repro 2>&1",
+    "outcome": "ORIGINAL_FAILURE_REPRODUCED"
+  },
+  {
+    "line": 839,
+    "command": "$ /work/repro 2>&1",
+    "outcome": "ORIGINAL_FAILURE_ABSENT"
+  }
+]

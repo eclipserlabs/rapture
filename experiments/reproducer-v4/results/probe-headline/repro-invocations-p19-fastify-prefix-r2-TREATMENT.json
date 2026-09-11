@@ -1,0 +1,12 @@
+[
+  {
+    "line": 31,
+    "command": "$ /work/repro 2>&1; echo EXIT:$?",
+    "outcome": "ORIGINAL_FAILURE_REPRODUCED"
+  },
+  {
+    "line": 297,
+    "command": "$ /work/repro 2>&1; echo EXIT:$?",
+    "outcome": "ORIGINAL_FAILURE_ABSENT"
+  }
+]

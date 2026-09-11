@@ -163,5 +163,12 @@
     }
   },
   "classification": "CORRECT_FIX",
-  "finished_at": "2026-09-11T15:08:43.389Z"
+  "finished_at": "2026-09-11T15:08:43.389Z",
+  "workspace_path": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/probe-runs/cal-koa-1999-CONTROL",
+  "starting_tree_sha256": "0cefe5b6a1e3cc0911bcd40661e91418034be4a3b900727331f56dbd74ba4e6a",
+  "starting_tree_files": 112,
+  "final_tree_sha256": "707a8f6e38d3255fbcd8ba428f4831a4184de2ef730070c67ffe77b9e49a5e5a",
+  "final_tree_files": 112,
+  "tree_changed": true,
+  "termination_reason": "AGENT_COMPLETED"
 }

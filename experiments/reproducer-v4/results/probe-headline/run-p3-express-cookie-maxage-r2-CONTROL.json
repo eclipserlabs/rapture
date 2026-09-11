@@ -1,0 +1,209 @@
+{
+  "schema": "v4-probe-run-1",
+  "label": "p3-express-cookie-maxage-r2-CONTROL",
+  "case": "express-cookie-maxage",
+  "arm": "CONTROL",
+  "model": "opencode/muse-spark-1.3-contributor-free",
+  "budget_seconds": 1200,
+  "started_at": "2026-09-11T17:06:23.450Z",
+  "free_mb_before": 1646,
+  "disk_floor_mb": 700,
+  "preflight": {
+    "schema": "v4-probe-preflight-1",
+    "at": "2026-09-11T17:07:00.045Z",
+    "checks": [
+      {
+        "check": "net_up_reasserted",
+        "pass": true,
+        "detail": "waiting for squid to accept connections... | v4-proxy\tUp 2 hours\tubuntu/squid:5.2-22.04_beta"
+      },
+      {
+        "check": "subject_no_default_route",
+        "pass": true,
+        "detail": "route=\"\""
+      },
+      {
+        "check": "vm_ssh_filtered",
+        "pass": true,
+        "detail": "FILTERED"
+      },
+      {
+        "check": "proxy_reachable",
+        "pass": true,
+        "detail": "OPEN"
+      },
+      {
+        "check": "single_internal_network_attachment",
+        "pass": true,
+        "detail": "v4-subject-net"
+      },
+      {
+        "check": "no_direct_egress",
+        "pass": true,
+        "detail": "ENETUNREACH"
+      },
+      {
+        "check": "minimal_provider_auth_only",
+        "pass": true,
+        "detail": "[\"opencode\"]"
+      },
+      {
+        "check": "no_global_config_or_repo_mounted",
+        "pass": true,
+        "detail": "-v /Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/probe-runs/p3-express-cookie-maxage-r2-CONTROL:/work -v /Users/wira/Documents/rapture/rapture/experiments/reproducer-v4/isolation/subject-auth:/isolated/data/opencode"
+      }
+    ],
+    "preflight_pass": true
+  },
+  "build_workspace": {
+    "exit": 0,
+    "ok": true
+  },
+  "starting_tree": {
+    "tree_sha256": "4aead6dd13adb3af4a4b0042cef02558480be9d65a2910af023ee0c8b9f61979",
+    "file_count": 232
+  },
+  "workspace_audit": {
+    "schema": "v4-probe-workspace-audit-1",
+    "case": "express-cookie-maxage",
+    "arm": "CONTROL",
+    "ws": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/probe-runs/p3-express-cookie-maxage-r2-CONTROL",
+    "checks": [
+      {
+        "check": "git_single_commit",
+        "pass": true,
+        "detail": "commits=1"
+      },
+      {
+        "check": "git_no_remote",
+        "pass": true,
+        "detail": "remotes=\"\""
+      },
+      {
+        "check": "git_no_future_history",
+        "pass": true,
+        "detail": "refs=1"
+      },
+      {
+        "check": "no_fixing_revision_or_issue_id_in_workspace",
+        "pass": true,
+        "detail": []
+      },
+      {
+        "check": "no_hidden_evaluator_material",
+        "pass": true,
+        "detail": []
+      },
+      {
+        "check": "no_hidden_variant_identifiers",
+        "pass": true,
+        "detail": []
+      },
+      {
+        "check": "arm_repro_presence_matches",
+        "pass": true,
+        "detail": "arm=CONTROL repro_present=false"
+      },
+      {
+        "check": "dependencies_preprovisioned",
+        "pass": true,
+        "detail": "repo/node_modules present"
+      }
+    ],
+    "workspace_audit_pass": true
+  },
+  "container_start": {
+    "exit": 0,
+    "ok": true
+  },
+  "harness_self_test": false,
+  "agent_seconds": 145.34,
+  "agent_exit": 0,
+  "agent_timed_out": false,
+  "trace_file": "results/probe-calibration/trace-p3-express-cookie-maxage-r2-CONTROL.log",
+  "trace_bytes": 19435,
+  "observations": {
+    "repro_invocations": 0,
+    "repro_outcome_lines": [],
+    "test_invocations": 4,
+    "network_attempt_markers": 0,
+    "webfetch_or_search_attempts": 0,
+    "tool_calls": 12,
+    "network_capable_commands": 0,
+    "repro_invocation_log": [],
+    "first_repro_invocation_line": null
+  },
+  "final_tree": {
+    "tree_sha256": "fd28622821bf40323652a10fe8647f92bec187c97a4636ed586c476fe20a0271",
+    "file_count": 232
+  },
+  "tree_changed": true,
+  "termination_reason": "AGENT_COMPLETED",
+  "token_usage_reported": null,
+  "patch_stat": "lib/response.js | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)",
+  "patch_empty": false,
+  "proxy_attempts": {
+    "DENIED models.opencode.ai:443": 1,
+    "DENIED registry.npmjs.org:443": 2,
+    "DENIED github.com:443": 1,
+    "ALLOWED opencode.ai:443": 2
+  },
+  "proxy_denied_non_provider": true,
+  "evaluation": {
+    "schema": "v4-probe-evaluation-1",
+    "case": "express-cookie-maxage",
+    "classification": "REGRESSION_INTRODUCED",
+    "repo": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/probe-runs/p3-express-cookie-maxage-r2-CONTROL/repo",
+    "original": {
+      "status": 200,
+      "body": "{\"ok\":true}"
+    },
+    "original_failure_present": false,
+    "original_exact_signature_present": false,
+    "hidden": [
+      {
+        "variant": "cookie-token-undefined-maxage-different-path",
+        "status": 200,
+        "pass": true,
+        "body": "{\"ok\":true,\"header\":\"token=xyz789; Path=/api; HttpOnly\"}"
+      },
+      {
+        "variant": "cookie-pref-null-maxage-samesite",
+        "status": 200,
+        "pass": true,
+        "body": "{\"ok\":true,\"header\":\"pref=dark; Domain=example.test; Path=/; SameSite=Lax\"}"
+      }
+    ],
+    "hidden_all_pass": true,
+    "regression": {
+      "supported": true,
+      "exit": 5,
+      "seconds": 7,
+      "total": 1223,
+      "failed": 5,
+      "failing": [
+        "express.json() with strict option when undefined should 400 on primitives",
+        "express.json() with strict option when true should not parse primitives",
+        "express.json() with strict option when true should not parse primitives with leading whitespaces",
+        "express.json() with strict option when true should include correct message in stack trace",
+        "res .json(object) when given an array should respond with json"
+      ]
+    },
+    "regression_comparison": {
+      "comparable": true,
+      "baseline_failed": 4,
+      "current_failed": 5,
+      "newly_failing": [
+        "res .json(object) when given an array should respond with json"
+      ],
+      "newly_failing_count": 1,
+      "regression": true
+    }
+  },
+  "classification": "REGRESSION_INTRODUCED",
+  "free_mb_after": 1646,
+  "workspace_retained": false,
+  "workspace_path": "/Users/wira/Documents/rapture/rapture/.rapture/reproducer-v4/probe-runs/p3-express-cookie-maxage-r2-CONTROL",
+  "workspace_removed_after_evaluation": true,
+  "finished_at": "2026-09-11T17:09:56.900Z"
+}

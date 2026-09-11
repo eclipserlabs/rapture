@@ -1,0 +1,19 @@
+diff --git a/lib/validation.js b/lib/validation.js
+index 2424cb2..0b8a291 100755
+--- a/lib/validation.js
++++ b/lib/validation.js
+@@ -147,6 +147,14 @@ internals.input = async function (source, request) {
+ 
+     const defaultError = validationError.isBoom ? validationError : Boom.badRequest(`Invalid request ${source} input`);
+     const detailedError = Boom.boomify(validationError, { statusCode: 400, override: false });
++    if (detailedError !== defaultError) {
++        if (!detailedError.data || typeof detailedError.data !== 'object') {
++            detailedError.data = { defaultError };
++        }
++        else {
++            detailedError.data.defaultError = defaultError;
++        }
++    }
+     detailedError.output.payload.validation = { source, keys: [] };
+     if (validationError.details) {
+         for (const details of validationError.details) {

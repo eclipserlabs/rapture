@@ -1,0 +1,12 @@
+git log --oneline -15; echo "---"; git status; echo "---"; git diff --stat HEAD 2>&1 | head -n 50
+ls test/; grep -rn "maxAge\|res.cookie" test/ | head -n 100
+node -e "var merge=require('utils-merge'); var o=merge({}, {maxAge: undefined, a:1}); console.log(Object.keys(o), 'maxAge' in o, o.maxAge); console.log(merge({expires:new Date(1),path:'/'},{path:'/admin'}))"
+node -e "var merge=require('utils-merge'); console.log(merge({}, undefined)); console.log(merge({}, null))"
+node -e "var merge=require('utils-merge'); console.log(merge({expires: new Date(1), path:'/'}, {expires: undefined})); console.log('key in?', 'expires' in merge({expires:new Date(1)},{expires:undefined}))"
+REPO_ROOT=/work/repo PORT=51181 node /work/app/server.mjs &
+REPO_ROOT=/work/repo PORT=51182 node /work/app/server.mjs &
+node -e "
+npm test -- --grep "cookie" 2>&1 | tail -n 40
+npm test -- --grep "res\.cookie|res\.clearCookie|res\.append" 2>&1 | tail -n 20; echo "=== full res.cookie/clearCookie files ==="; npx mocha test/res.cookie.js test/res.clearCookie.js test/res.append.js 2>&1 | tail -n 30
+npm test 2>&1 | tail -n 20
+git stash && npx mocha test/express.json.js --require test/support/env --reporter min 2>&1 | tail -n 15; git stash pop && git diff

@@ -1,0 +1,237 @@
+Repairing the production failure — inspecting evidence and reproducing the crash.
+Found the invalid cookie expiry — now locating the faulty handling to craft a fix.
+Reproduction confirmed — now applying the fix.
+Core fix verified — now checking whether the remaining test failure is related.
+Root cause: `res.cookie()` in `lib/response.js` used `if ('maxAge' in opts)` to decide Max-Age/Expires conversion. When caller passes `{maxAge: undefined}` (e.g. `/session` with no TTL: `req.query.ttl==="persist" ? 3600000 : undefined`), the key exists, so it computed `new Date(Date.now()+undefined)` → `Invalid Date` and `undefined/1000` → `NaN`, causing `cookie.serialize` to throw `TypeError: option maxAge is invalid` (HTTP 500).
+
+Files changed:
+- `lib/response.js`: changed guard to `if (opts.maxAge != null)` so `undefined`/`null` skip conversion (matching `cookie.serialize`'s `null != opt.maxAge` check). Defined values (including `0`, numeric strings, invalid strings like `'foobar'`) still flow through and preserve existing throw-on-invalid behavior.
+
+Validation:
+- `/work/repro`: before `ORIGINAL_FAILURE_REPRODUCED observed_http_status=500`; after `ORIGINAL_FAILURE_ABSENT observed_http_status=200`.
+- `npm test -- --grep cookie`: 25 passing, including `maxAge` relative-expires, max-age, no-mutation, and invalid-maxAge-throws tests.
+- Full `npm test`: 347 passing, 1 failing — the failure (`express.json` "should 400 on primitives", Node JSON error-message wording) also fails on the unmodified tree, so pre-existing and unrelated.
+
+Remaining uncertainty: none for the incident; fix intentionally still throws on genuinely invalid non-null maxAge (NaN, `Infinity`, non-numeric strings) per existing test.
+
+----- stderr -----
+[0m
+> build · muse-spark-1.3-contributor-free
+[0m
+[0m→ [0mRead .
+[0m→ [0mRead repo
+[0m→ [0mRead app
+[0m→ [0mRead incident-evidence.json
+[0m→ [0mRead incident-evidence.md
+[0m→ [0mRead .repro
+[0m→ [0mRead repro
+[0m→ [0mRead app/server.mjs
+[0m→ [0mRead .repro/incident.repro.json
+[0m→ [0mRead repo/lib/response.js[90m [offset=860, limit=60][0m
+[0m→ [0mRead repo/lib/response.js[90m [limit=60, offset=820][0m
+[0m→ [0mRead repo/node_modules/cookie/index.js[90m [limit=60, offset=100][0m
+[0m✗ [0mGrep "maxAge" failed[90m in repo/test[0m
+[91m[1mError: [0mripgrep execution failed
+[0m
+[0m$ [0mgrep -rn "maxAge" test/ lib/ --include="*.js" | head -n 100
+test/res.sendFile.js:621:    describe('with "maxAge" option', function () {
+test/res.sendFile.js:627:            maxAge: 20000
+test/res.sendFile.js:643:            maxAge: 99999999999
+test/res.sendFile.js:659:            maxAge: -20000
+test/res.sendFile.js:675:            maxAge: 21911.23
+test/res.sendFile.js:693:              maxAge: 20000
+test/res.sendFile.js:711:              maxAge: '20000'
+test/res.sendFile.js:727:              maxAge: '20s'
+test/res.sendFile.js:743:              maxAge: '20m'
+test/res.sendFile.js:759:              maxAge: '20d'
+test/res.sendFile.js:849:        res.sendfile('test/fixtures/user.html', { maxAge: 60000 });
+test/res.download.js:96:          maxAge: '4h'
+test/res.download.js:337:          maxAge: '4h'
+test/express.static.js:196:      it('should ignore maxAge', function (done) {
+test/express.static.js:197:        request(createApp(fixtures, { 'cacheControl': false, 'maxAge': 12000 }))
+test/express.static.js:425:      request(createApp(fixtures, { 'immutable': true, 'maxAge': '1h' }))
+test/express.static.js:451:  describe('maxAge', function () {
+test/express.static.js:453:      request(createApp(fixtures, { 'maxAge': '30d' }))
+test/express.static.js:460:      request(createApp(fixtures, { 'maxAge': Infinity }))
+test/res.cookie.js:70:    describe('maxAge', function(){
+test/res.cookie.js:75:          res.cookie('name', 'tobi', { maxAge: 1000 });
+test/res.cookie.js:89:          res.cookie('name', 'tobi', { maxAge: 1000 });
+test/res.cookie.js:101:        var options = { maxAge: 1000 };
+test/res.cookie.js:114:      it('should throw an error with invalid maxAge', function (done) {
+test/res.cookie.js:118:          res.cookie('name', 'tobi', { maxAge: 'foobar' })
+test/res.cookie.js:124:          .expect(500, /option maxAge is invalid/, done)
+lib/response.js:388: *   - `maxAge`   defaulting to 0 (can be string converted by `ms`)
+lib/response.js:470: *   - `maxAge`   defaulting to 0 (can be string converted by `ms`)
+lib/response.js:835: *    - `maxAge`   max-age in milliseconds, converted to `expires`
+lib/response.js:845: *    res.cookie('rememberme', '1', { maxAge: 900000, httpOnly: true })
+lib/response.js:871:  if ('maxAge' in opts) {
+lib/response.js:872:    opts.expires = new Date(Date.now() + opts.maxAge);
+lib/response.js:873:    opts.maxAge /= 1000;
+[0m
+[0m→ [0mRead repo/test/res.cookie.js
+[0m
+[0m$ [0m./repro 2>&1; echo "exit:$?"
+ORIGINAL_FAILURE_REPRODUCED
+observed_http_status=500
+exit:0
+[0m
+[0m→ [0mRead repo/lib/response.js[90m [limit=15, offset=854][0m
+[0m
+[0m← [0mEdit repo/lib/response.js
+Index: /work/repo/lib/response.js
+===================================================================
+--- /work/repo/lib/response.js
++++ /work/repo/lib/response.js
+@@ -867,9 +867,9 @@
+ if (signed) {
+   val = 's:' + sign(val, secret);
+ }
+ 
+-if ('maxAge' in opts) {
++if (opts.maxAge != null) {
+   opts.expires = new Date(Date.now() + opts.maxAge);
+   opts.maxAge /= 1000;
+ }
+ 
+
+[0m
+[0m$ [0m./repro 2>&1; echo "exit:$?"
+ORIGINAL_FAILURE_ABSENT
+observed_http_status=200
+exit:0
+[0m
+[0m$ [0mnpm test -- --grep "cookie" 2>&1 | tail -n 40
+✔ should allow multiple calls
+    .cookie(name, string, options)
+      ✔ should set params
+      maxAge
+        ✔ should set relative expires
+        ✔ should set max-age
+        ✔ should not mutate the options object
+        ✔ should throw an error with invalid maxAge
+      signed
+        ✔ should generate a signed JSON cookie
+      signed without secret
+        ✔ should throw an error
+      .signedCookie(name, string)
+        ✔ should set a signed cookie
+
+  auth
+    GET /restricted
+      ✔ should redirect to /login without cookie
+      ✔ should succeed with proper cookie (57ms)
+
+  cookie-sessions
+    GET /
+      ✔ should display no views
+      ✔ should set a session cookie
+      ✔ should display 1 view on revisit
+
+  cookies
+    GET /
+      ✔ should have a form
+      ✔ should respond with no cookies
+      ✔ should respond to cookie
+    GET /forget
+      ✔ should clear cookie
+    POST /
+      ✔ should set a cookie
+      ✔ should no set cookie w/o reminder
+
+
+  25 passing (227ms)
+[0m
+[0m$ [0mnode -e '
+import("http").then(async ({default:http})=>{
+  const {default:express}=await import("/work/repo/index.js");
+  const app=express();
+  app.get("/session",(req,res)=>{
+    const ttl=req.query.ttl==="persist"?3600000:undefined;
+    res.cookie("sid","abc123",{maxAge:ttl,httpOnly:true});
+    const set=res.getHeader("Set-Cookie");
+    const header=Array.isArray(set)?set.join("; "):String(set??"");
+    if(/Invalid Date/i.test(header)){res.status(500).json({error:"malformed"});return;}
+    res.json({ok:true});
+  });
+  const s=app.listen(0,()=>{
+    const p=s.address().port;
+    const get=(path)=>new Promise((res,rej)=>{
+      http.get({host:"127.0.0.1",port:p,path},(r)=>{
+        let b="";r.on("data",c=>b+=c);r.on("end",()=>res({status:r.statusCode,headers:r.headers,body:b}));
+      }).on("error",rej);
+    });
+    (async()=>{
+      for(const path of ["/session","/session?ttl=persist"]){
+        const r=await get(path);
+        console.log(path,"=>",r.status,r.headers["set-cookie"],r.body);
+      }
+      // edge: no options, maxAge 0, invalid
+      s.close();
+    })();
+  });
+}
+'
+[eval]:29
+}
+^
+Expected ',', got '<eof>'
+
+SyntaxError: missing ) after argument list
+    at makeContextifyScript (node:internal/vm:185:14)
+    at compileScript (node:internal/process/execution:383:10)
+    at evalTypeScript (node:internal/process/execution:256:22)
+    at node:internal/main/eval_string:74:3
+
+Node.js v22.23.2
+[0m
+[0m$ [0mnpm test 2>&1 | tail -n 20
+with strict option
+         when undefined
+           should 400 on primitives:
+     Error: expected `Unexpected token 't', "#rue" is not valid JSON` response body, got `Unexpected token 't', "#" is not valid JSON`
+      at Context.<anonymous> (test/express.json.js:228:12)
+      at process.processImmediate (node:internal/timers:484:21)
+  ----
+      at error (node_modules/supertest/lib/test.js:330:15)
+      at Test._assertBody (node_modules/supertest/lib/test.js:206:16)
+      at /work/repo/node_modules/supertest/lib/test.js:306:17
+      at Test._assertFunction (node_modules/supertest/lib/test.js:285:13)
+      at Test.assert (node_modules/supertest/lib/test.js:164:23)
+      at Server.localAssert (node_modules/supertest/lib/test.js:120:14)
+      at Object.onceWrapper (node:events:633:28)
+      at Server.emit (node:events:519:28)
+      at emitCloseNT (node:net:2420:8)
+      at process.processTicksAndRejections (node:internal/process/task_queues:88:21)
+[0m
+[0m$ [0mnpm test 2>&1 | grep -E "passing|failing|pending"
+347 passing (1s)
+  1 failing
+[0m
+[0m$ [0mgit stash && npm test -- --grep "should 400 on primitives" 2>&1 | grep -E "passing|failing"; git stash pop
+Saved working directory and index state WIP on main: 319cb69 Initial import of the deployed revision
+  0 passing (61ms)
+  1 failing
+On branch main
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   lib/response.js
+
+no changes added to commit (use "git add" and/or "git commit -a")
+Dropped refs/stash@{0} (49ee61455e1c796442cbb48fe2a758fc71dccb83)
+[0m
+[0m$ [0mgit diff
+diff --git a/lib/response.js b/lib/response.js
+index bfa7871..37d201b 100644
+--- a/lib/response.js
++++ b/lib/response.js
+@@ -868,7 +868,7 @@ res.cookie = function (name, value, options) {
+     val = 's:' + sign(val, secret);
+   }
+ 
+-  if ('maxAge' in opts) {
++  if (opts.maxAge != null) {
+     opts.expires = new Date(Date.now() + opts.maxAge);
+     opts.maxAge /= 1000;
+   }
+[0m
